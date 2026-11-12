@@ -14,7 +14,6 @@ export interface CreateIntentInput {
 export interface CreateIntentResult {
   paymentId: string;
   provider: PaymentProvider;
-  /** Bold: redirect URL. Stripe: client secret. Mock: null */
   checkoutUrl?: string;
   clientSecret?: string;
   externalId?: string;
