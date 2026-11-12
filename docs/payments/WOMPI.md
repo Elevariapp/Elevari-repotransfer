@@ -1,19 +1,14 @@
-# Wompi sandbox and production configuration
+# Wompi environment and payment configuration
 
-Use Wompi Colombia's **payment gateway Web Checkout**, not its payouts API. Wompi is the primary Colombian (COP) provider, with Bold as fallback.
+`WOMPI_ENV`, `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, and `WOMPI_INTEGRITY_SECRET` are the sole Wompi configuration source. API endpoints are derived only from `WOMPI_ENV`; no alternate environment/base URL variables are read.
 
-## Variables
+- `WOMPI_ENV=sandbox` selects the Wompi sandbox transaction/refund API.
+- `WOMPI_ENV=production` selects the production transaction/refund API.
+- `WOMPI_PUBLIC_KEY` is used for hosted checkout and transaction lookup.
+- `WOMPI_INTEGRITY_SECRET` signs checkout parameters server-side.
+- `WOMPI_EVENTS_SECRET` validates webhook checksums.
+- `WOMPI_PRIVATE_KEY` is server-only and used for refunds.
 
-- `WOMPI_ENVIRONMENT=sandbox|production` (default sandbox)
-- `WOMPI_API_BASE_URL` (optional; defaults to `https://sandbox.wompi.co/v1` in sandbox and `https://production.wompi.co/v1` in production)
-- `WOMPI_CHECKOUT_BASE_URL` (optional; defaults to the Wompi Web Checkout URL)
-- `WOMPI_PUBLIC_KEY`
-- `WOMPI_PRIVATE_KEY` (server-only; required for refund calls)
-- `WOMPI_INTEGRITY_SECRET` (server-only; signs checkout parameters)
-- `WOMPI_EVENTS_SECRET` (server-only; validates event checksum)
+When `PAYMENTS_MODE=live`, API startup fails fast if any of the five Wompi settings is missing, or if `WOMPI_ENV` is not `sandbox` or `production`. Mock mode may omit merchant credentials.
 
-Set sandbox credentials in staging. Production credentials must be stored in the production secret manager and must never be committed.
-
-The backend creates the hosted checkout URL with COP `amount-in-cents`, unique payment reference, redirect URL, public key, and integrity signature. After redirect/webhook, the backend queries Wompi's transaction endpoint and validates provider status, reference, currency, and amount before confirmation. Webhook signatures are verified using the checksum properties named in the incoming event, its timestamp, and the configured event secret.
-
-Wompi test credentials and refund behavior should be validated against the current official Colombia documentation and the merchant account before enabling production.
+For this production/test phase, the environment templates use `https://eleveri.app/` as the site/API origin. Keep that domain until the owner explicitly requests the public-launch domain change. Never commit credentials: populate secret values only in protected runtime environment files.
