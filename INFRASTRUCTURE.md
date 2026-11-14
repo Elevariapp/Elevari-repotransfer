@@ -38,12 +38,16 @@ Or all-in-docker: `npm run docker:up`
 - `POST /api/v1/bookings/quote`
 - `POST /api/v1/bookings`
 - `GET /api/v1/bookings/:id`
-- `POST /api/v1/payments/intent` — Bold o Stripe
+- `POST /api/v1/payments/intent` — Wompi (único proveedor activo)
 - `GET /api/v1/payments/:id`
+- `GET /api/v1/payments/:id/timeline` — eventos del pago (observabilidad)
 - `POST /api/v1/payments/:id/sync` — polling post-redirect
+- `POST /api/v1/payments/:id/refund` — admin, full/partial en COP
 - `POST /api/v1/payments/:id/mock-complete` — solo `PAYMENTS_MODE=mock`
-- `POST /api/v1/webhooks/bold`
-- `POST /api/v1/webhooks/stripe`
+- `POST /api/v1/payments/:id/mock-fail` — solo `PAYMENTS_MODE=mock`
+- `POST /api/v1/webhooks/wompi` — activo
+- `POST /api/v1/webhooks/bold` — legacy, deshabilitado
+- `POST /api/v1/webhooks/stripe` — legacy, deshabilitado
 - `POST /api/v1/auth/register` · `POST /api/v1/auth/login` · `GET /api/v1/auth/me`
 
 ### Auth (JWT)
@@ -52,15 +56,24 @@ Or all-in-docker: `npm run docker:up`
 - Cookie web: `wana_token` (middleware protege `/host`, `/account`, `/admin`)
 - Demo: `guest@wana.local`, `host@wana.local`, `admin@wana.local` / `wana12345`
 
-### Pagos (Fase 2)
+### Pagos (Fase 2 — Wompi-first)
 
-| Proveedor | Uso | Env vars |
-|-----------|-----|----------|
-| **Bold** | Colombia, COP | `BOLD_API_KEY`, `BOLD_WEBHOOK_SECRET` |
-| **Stripe** | Internacional, USD | `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` |
-| **Mock** | Local sin keys | `PAYMENTS_MODE=mock` en `api/.env` |
+| Proveedor | Estado | Env vars |
+|-----------|--------|----------|
+| **Wompi** | **Activo** (COP, Colombia + internacional) | `WOMPI_ENV`, `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` — ver `.env.wompi.example` |
+| **Bold** | En repo, oculto y deshabilitado | `PAYMENTS_BOLD_ENABLED=false` |
+| **Stripe** | En repo, oculto y deshabilitado | `PAYMENTS_STRIPE_ENABLED=false` |
+| **Mock** | Local/staging sin keys | `PAYMENTS_MODE=mock` en `api/.env` |
 
-Webhooks en producción: apuntar Bold/Stripe a `https://tu-dominio/api/v1/webhooks/bold` y `/stripe`.
+- Startup validation: si Wompi está habilitado y falta cualquier `WOMPI_*`, la API no arranca (error claro).
+- Cobro siempre en **COP**; clientes internacionales ven USD de referencia (quote congelado, `fx_quotes`).
+- Disclosure obligatorio para checkout internacional (texto ES/EN, hash, timestamp) — `api/src/lib/payments/disclosure.ts`.
+- Gate legal: `FX_INTL_CHECKOUT_ENABLED=true` requiere `LEGAL_SIGNOFF_REF` — ver `legal-review-pack.md`.
+- Webhooks Wompi: firma verificada (`signature:integrity` / checksum de eventos), dedupe, validación de monto, idempotencia.
+- Refunds: full/partial en COP, sin re-tasar FX; registro en `payment_refunds`.
+
+Webhook en producción: apuntar Wompi a `https://tu-dominio/api/v1/webhooks/wompi`.
+Ciclo de vida completo documentado en `docs/PAYMENTS.md`.
 
 ### Media (Fase 3 — MinIO)
 

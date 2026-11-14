@@ -8,7 +8,7 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 |------|--------|--------|----------------------|
 | **0** | Infraestructura | ✅ Hecho | Docker, PostgreSQL, Fastify API, Prisma |
 | **1** | Reservas UI | ✅ Hecho | Listado, detalle, checkout, estado de booking |
-| **2** | Pagos | ✅ Hecho | Bold + Stripe + webhooks (mock local) |
+| **2** | Pagos | ✅ Hecho | Wompi-first + FX quotes + disclosure + refunds + webhooks (mock validado; live pendiente keys) |
 | **3** | Media | ✅ Hecho | MinIO, upload host, galería imagen/video |
 | **Auth** | JWT | ✅ Hecho | Register/login, protección host/account |
 | **4** | Marketing | ✅ Hecho | GA4, Meta Pixel, SEO, emails, CAPI |
@@ -143,8 +143,8 @@ META_ACCESS_TOKEN=
 
 ## Pendientes transversales (cualquier fase)
 
-- [ ] Bold/Stripe API keys en producción
-- [ ] Dominio + SSL + webhooks públicos
-- [ ] Políticas de cancelación y reembolsos en API
+- [ ] Wompi API keys en producción (sandbox test primero — ver verification-log.md)
+- [ ] Dominio + SSL + webhook Wompi público (`/api/v1/webhooks/wompi`)
+- [ ] Legal signoff para checkout internacional (legal-review-pack.md)
 - [ ] Tests E2E (Playwright) flujo reserva completo
 - [ ] i18n EN (turismo internacional)
