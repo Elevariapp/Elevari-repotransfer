@@ -9,7 +9,7 @@ type Review = {
 
 export default function ReviewsDisplay({ reviews }: { reviews: Review[] }) {
   return (
-    <section className="wana-card p-8 lg:p-10">
+    <section className="elevari-card p-8 lg:p-10">
       <h2 className="font-display text-2xl text-elevari-slate sm:text-3xl">
         Lo que dicen nuestros huéspedes
       </h2>

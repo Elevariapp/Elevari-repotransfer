@@ -7,6 +7,7 @@ import TurnstileWidget from '@/components/auth/TurnstileWidget';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import AuthDivider from '@/components/auth/AuthDivider';
 import AuthShell from '@/components/auth/AuthShell';
+import Button from '@/components/ui/Button';
 import { navigateAfterAuth, resolvePostAuthPath } from '@/lib/auth-redirect';
 import { isTurnstileEnabledClient } from '@/lib/turnstile-config';
 
@@ -21,13 +22,21 @@ export default function RegisterClient({
   initialRole?: 'guest' | 'host';
 }) {
   const [name, setName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<'guest' | 'host'>(initialRole);
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    lastName?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+  }>({});
   const [loading, setLoading] = useState(false);
   const { register, loginWithGoogle } = useAuth();
 
@@ -37,13 +46,16 @@ export default function RegisterClient({
     : '/auth/login';
 
   const validateFields = () => {
-    const next: { name?: string; email?: string; password?: string } = {};
+    const next: typeof fieldErrors = {};
     if (!name.trim()) next.name = 'Escribe tu nombre.';
+    if (!lastName.trim()) next.lastName = 'Escribe tu apellido.';
     const trimmedEmail = email.trim();
     if (!trimmedEmail) next.email = 'Escribe tu email.';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail)) next.email = 'Escribe un email válido.';
     if (!password) next.password = 'Crea una contraseña.';
     else if (password.length < 8) next.password = 'La contraseña debe tener al menos 8 caracteres.';
+    if (!confirmPassword) next.confirmPassword = 'Confirma tu contraseña.';
+    else if (confirmPassword !== password) next.confirmPassword = 'Las contraseñas no coinciden.';
     return next;
   };
 
@@ -74,7 +86,7 @@ export default function RegisterClient({
       const user = await register({
         email,
         password,
-        name,
+        name: `${name.trim()} ${lastName.trim()}`.trim(),
         role,
         turnstile_token: turnstileToken || undefined,
       });
@@ -110,9 +122,14 @@ export default function RegisterClient({
 
   return (
     <AuthShell topLink={{ href: loginHref, label: 'Iniciar sesión' }}>
-      <p className="wana-eyebrow">Registro</p>
-      <h1 className="mt-2 font-display text-3xl text-elevari-slate">Crear cuenta</h1>
-      <p className="mt-2 text-sm text-elevari-muted">Huésped o anfitrión — empieza en minutos.</p>
+      <p className="elevari-eyebrow">Elevari</p>
+      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-elevari-ink">
+        Comienza tu próxima escapada
+      </h1>
+      <p className="mt-2 text-sm leading-relaxed text-elevari-muted">
+        Únete a viajeros que buscan experiencias excepcionales en destinos naturales
+        cuidadosamente seleccionados.
+      </p>
 
       {GOOGLE_ENABLED && (
         <div className="mt-6">
@@ -123,7 +140,7 @@ export default function RegisterClient({
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-1.5">
-          <label htmlFor="register-name" className="wana-label block">
+          <label htmlFor="register-name" className="elevari-label block">
             Nombre
           </label>
           <input
@@ -133,7 +150,7 @@ export default function RegisterClient({
               setName(e.target.value);
               if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }));
             }}
-            className="wana-input"
+            className="elevari-input"
             autoComplete="name"
             required
             aria-required="true"
@@ -147,7 +164,31 @@ export default function RegisterClient({
           )}
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="register-email" className="wana-label block">
+          <label htmlFor="register-lastname" className="elevari-label block">
+            Apellido
+          </label>
+          <input
+            id="register-lastname"
+            value={lastName}
+            onChange={(e) => {
+              setLastName(e.target.value);
+              if (fieldErrors.lastName) setFieldErrors((prev) => ({ ...prev, lastName: undefined }));
+            }}
+            className="elevari-input"
+            autoComplete="family-name"
+            required
+            aria-required="true"
+            aria-invalid={fieldErrors.lastName ? true : undefined}
+            aria-describedby={fieldErrors.lastName ? 'register-lastname-error' : undefined}
+          />
+          {fieldErrors.lastName && (
+            <p id="register-lastname-error" role="alert" className="text-xs font-medium text-elevari-error">
+              {fieldErrors.lastName}
+            </p>
+          )}
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="register-email" className="elevari-label block">
             Email
           </label>
           <input
@@ -158,7 +199,7 @@ export default function RegisterClient({
               setEmail(e.target.value);
               if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
             }}
-            className="wana-input"
+            className="elevari-input"
             autoComplete="email"
             required
             aria-required="true"
@@ -172,7 +213,7 @@ export default function RegisterClient({
           )}
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="register-password" className="wana-label block">
+          <label htmlFor="register-password" className="elevari-label block">
             Contraseña (mín. 8)
           </label>
           <input
@@ -184,7 +225,7 @@ export default function RegisterClient({
               setPassword(e.target.value);
               if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
             }}
-            className="wana-input"
+            className="elevari-input"
             autoComplete="new-password"
             required
             aria-required="true"
@@ -197,14 +238,39 @@ export default function RegisterClient({
             </p>
           )}
         </div>
+        <div className="space-y-1.5">
+          <label htmlFor="register-confirm" className="elevari-label block">
+            Confirmar contraseña
+          </label>
+          <input
+            id="register-confirm"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (fieldErrors.confirmPassword) setFieldErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+            }}
+            className="elevari-input"
+            autoComplete="new-password"
+            required
+            aria-required="true"
+            aria-invalid={fieldErrors.confirmPassword ? true : undefined}
+            aria-describedby={fieldErrors.confirmPassword ? 'register-confirm-error' : undefined}
+          />
+          {fieldErrors.confirmPassword && (
+            <p id="register-confirm-error" role="alert" className="text-xs font-medium text-elevari-error">
+              {fieldErrors.confirmPassword}
+            </p>
+          )}
+        </div>
         <fieldset className="space-y-2">
-          <legend className="wana-label">Quiero</legend>
+          <legend className="elevari-label">Quiero</legend>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setRole('guest')}
               aria-pressed={role === 'guest'}
-              className={`wana-chip ${role === 'guest' ? 'wana-chip-active' : ''}`}
+              className={`elevari-chip ${role === 'guest' ? 'elevari-chip-active' : ''}`}
             >
               Reservar
             </button>
@@ -212,7 +278,7 @@ export default function RegisterClient({
               type="button"
               onClick={() => setRole('host')}
               aria-pressed={role === 'host'}
-              className={`wana-chip ${role === 'host' ? 'wana-chip-active' : ''}`}
+              className={`elevari-chip ${role === 'host' ? 'elevari-chip-active' : ''}`}
             >
               Anfitrión
             </button>
@@ -236,18 +302,21 @@ export default function RegisterClient({
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
-          disabled={loading || needsTurnstile}
-          className="wana-btn-primary w-full min-h-[48px] disabled:cursor-not-allowed disabled:opacity-60"
+          size="lg"
+          fullWidth
+          loading={loading}
+          disabled={needsTurnstile}
+          className="disabled:cursor-not-allowed"
         >
           {loading ? 'Creando…' : needsTurnstile ? 'Completa la verificación' : 'Crear cuenta'}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-elevari-muted">
         ¿Ya tienes cuenta?{' '}
-        <Link href={loginHref} className="wana-link">
+        <Link href={loginHref} className="elevari-link">
           Inicia sesión
         </Link>
       </p>

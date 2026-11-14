@@ -5,9 +5,9 @@ export default function BecomeHostPage() {
   return (
     <>
       <Header sticky={false} />
-      <main id="contenido" className="wana-container py-14 lg:py-20">
+      <main id="contenido" className="elevari-container py-14 lg:py-20">
         <div className="mx-auto max-w-lg text-center">
-          <p className="wana-eyebrow">Anfitriones</p>
+          <p className="elevari-eyebrow">Anfitriones</p>
           <h1 className="mt-3 font-display text-3xl text-elevari-slate sm:text-4xl">
             Publica tu glamping en Eleveri
           </h1>
@@ -18,11 +18,11 @@ export default function BecomeHostPage() {
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/auth/register?role=host&redirect=%2Fhost"
-              className="wana-btn-primary min-h-[48px] inline-flex items-center justify-center"
+              className="elevari-btn-primary min-h-[48px] inline-flex items-center justify-center"
             >
               Crear cuenta anfitrión
             </Link>
-            <Link href="/account" className="wana-btn-ghost min-h-[48px] inline-flex items-center justify-center">
+            <Link href="/account" className="elevari-btn-ghost min-h-[48px] inline-flex items-center justify-center">
               Ir a mi cuenta
             </Link>
           </div>

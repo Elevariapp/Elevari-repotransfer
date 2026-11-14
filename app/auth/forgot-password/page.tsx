@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell image="/properties/glamping-wana/06.webp">
-      <p className="wana-eyebrow">Cuenta</p>
+      <p className="elevari-eyebrow">Cuenta</p>
       <h1 className="mt-2 font-display text-2xl text-elevari-slate sm:text-3xl">Recuperar contraseña</h1>
       <p className="mt-3 text-sm text-elevari-muted">
         Te enviaremos un enlace si el correo está registrado en Eleveri.
@@ -40,12 +40,12 @@ export default function ForgotPasswordPage() {
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <label className="block space-y-1.5">
-            <span className="wana-label">Email</span>
+            <span className="elevari-label">Email</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="wana-input"
+              className="elevari-input"
               autoComplete="email"
               required
             />
@@ -53,14 +53,14 @@ export default function ForgotPasswordPage() {
           {error && (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
           )}
-          <button type="submit" disabled={loading} className="wana-btn-primary w-full min-h-[48px]">
+          <button type="submit" disabled={loading} className="elevari-btn-primary w-full min-h-[48px]">
             {loading ? 'Enviando…' : 'Enviar enlace'}
           </button>
         </form>
       )}
 
       <p className="mt-6 text-center text-sm text-elevari-muted">
-        <Link href="/auth/login" className="wana-link">
+        <Link href="/auth/login" className="elevari-link">
           Volver a iniciar sesión
         </Link>
       </p>

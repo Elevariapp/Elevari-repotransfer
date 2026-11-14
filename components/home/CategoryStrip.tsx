@@ -22,8 +22,8 @@ export default function CategoryStrip({ activeCity }: { activeCity?: string }) {
   };
 
   return (
-    <section className="relative z-10 border-b border-elevari-border/70 bg-white/95 shadow-[0_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-md">
-      <div className="wana-container py-3 sm:py-4">
+    <section className="relative z-10 border-b border-elevari-border/70 bg-elevari-surface/95 shadow-[0_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-md">
+      <div className="elevari-container py-3 sm:py-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
           <p className="shrink-0 text-[11px] font-bold uppercase tracking-[0.2em] text-elevari-muted">
             Explorar
@@ -42,7 +42,7 @@ export default function CategoryStrip({ activeCity }: { activeCity?: string }) {
                     key={item.label}
                     type="button"
                     onClick={() => goCity(item.city)}
-                    className={`wana-category-chip shrink-0 ${active ? 'wana-category-chip-active' : ''}`}
+                    className={`elevari-category-chip shrink-0 ${active ? 'elevari-category-chip-active' : ''}`}
                   >
                     <span className="text-left">
                       <span className="block leading-tight">{item.label}</span>
@@ -60,12 +60,12 @@ export default function CategoryStrip({ activeCity }: { activeCity?: string }) {
             </div>
           </div>
 
-          <div className="hidden h-8 w-px shrink-0 bg-wana-border lg:block" aria-hidden />
+          <div className="hidden h-8 w-px shrink-0 bg-elevari-border lg:block" aria-hidden />
 
           <button
             type="button"
             onClick={() => router.push(`/properties/${HIGHLIGHT.slug}`)}
-            className="wana-category-chip w-full shrink-0 justify-center border-elevari-amber/40 bg-elevari-amber/10 lg:w-auto"
+            className="elevari-category-chip w-full shrink-0 justify-center border-elevari-amber/40 bg-elevari-amber/10 lg:w-auto"
           >
             <span aria-hidden className="text-elevari-amber">
               ★

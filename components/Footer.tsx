@@ -21,9 +21,9 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="wana-footer mt-20">
-      <div className="wana-footer-glow" aria-hidden />
-      <div className="wana-container relative py-14 lg:py-16">
+    <footer className="elevari-footer mt-20">
+      <div className="elevari-footer-glow" aria-hidden />
+      <div className="elevari-container relative py-14 lg:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-4">
             <Logo onDark />
@@ -37,11 +37,11 @@ export default function Footer() {
           </div>
 
           <div className="lg:col-span-2 lg:col-start-6">
-            <p className="wana-footer-heading">Explorar</p>
+            <p className="elevari-footer-heading">Explorar</p>
             <ul className="mt-4 space-y-3">
               {exploreLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="wana-footer-link">
+                  <Link href={link.href} className="elevari-footer-link">
                     {link.label}
                   </Link>
                 </li>
@@ -50,11 +50,11 @@ export default function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <p className="wana-footer-heading">Anfitriones</p>
+            <p className="elevari-footer-heading">Anfitriones</p>
             <ul className="mt-4 space-y-3">
               {hostLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="wana-footer-link">
+                  <Link href={link.href} className="elevari-footer-link">
                     {link.label}
                   </Link>
                 </li>
@@ -63,11 +63,11 @@ export default function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <p className="wana-footer-heading">Legal</p>
+            <p className="elevari-footer-heading">Legal</p>
             <ul className="mt-4 space-y-3">
               {legalLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="wana-footer-link">
+                  <Link href={link.href} className="elevari-footer-link">
                     {link.label}
                   </Link>
                 </li>
@@ -81,10 +81,10 @@ export default function Footer() {
             © {new Date().getFullYear()} Eleveri. Todos los derechos reservados.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
-            <Link href="/auth/login" className="wana-footer-link">
+            <Link href="/auth/login" className="elevari-footer-link">
               Iniciar sesión
             </Link>
-            <Link href="/auth/register" className="wana-footer-link">
+            <Link href="/auth/register" className="elevari-footer-link">
               Crear cuenta
             </Link>
             <span className="text-white/45">·</span>

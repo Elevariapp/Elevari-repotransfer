@@ -404,7 +404,7 @@ export interface BookingDetail {
 
 export interface PaymentIntentResponse {
   payment_id: string;
-  provider: 'wompi' | 'bold' | 'stripe';
+  provider: 'wompi';
   mode: 'live' | 'mock';
   checkout_url?: string;
   client_secret?: string;

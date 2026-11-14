@@ -51,7 +51,7 @@ export default function AdminPropertiesPanel() {
   }
 
   return (
-    <div className="wana-card overflow-hidden">
+    <div className="elevari-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-elevari-border bg-elevari-sand/50 text-elevari-muted">
@@ -87,7 +87,7 @@ export default function AdminPropertiesPanel() {
                         type="button"
                         disabled={busyId === row.id}
                         onClick={() => updateStatus(row.id, 'published')}
-                        className="wana-btn-primary !px-4 !py-2 text-xs"
+                        className="elevari-btn-primary !px-4 !py-2 text-xs"
                       >
                         Publicar
                       </button>
@@ -97,7 +97,7 @@ export default function AdminPropertiesPanel() {
                         type="button"
                         disabled={busyId === row.id}
                         onClick={() => updateStatus(row.id, 'unavailable')}
-                        className="wana-btn-ghost !px-4 !py-2 text-xs"
+                        className="elevari-btn-ghost !px-4 !py-2 text-xs"
                       >
                         Ocultar
                       </button>

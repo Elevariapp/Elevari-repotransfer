@@ -64,9 +64,9 @@ function GuestStepper({
 }) {
   return (
     <div className="flex items-center gap-4">
-      <button type="button" disabled={value <= min} onClick={() => onChange(value - 1)} className="wana-stepper-btn" aria-label="Menos huéspedes">−</button>
+      <button type="button" disabled={value <= min} onClick={() => onChange(value - 1)} className="elevari-stepper-btn" aria-label="Menos huéspedes">−</button>
       <span className="min-w-[2ch] text-center text-lg font-semibold text-elevari-slate">{value}</span>
-      <button type="button" disabled={value >= max} onClick={() => onChange(value + 1)} className="wana-stepper-btn" aria-label="Más huéspedes">+</button>
+      <button type="button" disabled={value >= max} onClick={() => onChange(value + 1)} className="elevari-stepper-btn" aria-label="Más huéspedes">+</button>
     </div>
   );
 }
@@ -80,14 +80,14 @@ function LocationPanel({
 }) {
   return (
     <>
-      <p className="wana-dropdown-title">¿Dónde quieres ir?</p>
+      <p className="elevari-dropdown-title">¿Dónde quieres ir?</p>
       <ul className="mt-3 max-h-[240px] space-y-1 overflow-y-auto sm:max-h-[280px]">
         {LOCATIONS.map((loc) => (
           <li key={loc.value || 'all'}>
             <button
               type="button"
               onClick={() => onSelect(loc.value, loc.label.replace(' en Colombia', ''))}
-              className={`wana-dropdown-option ${city === loc.value ? 'wana-dropdown-option-active' : ''}`}
+              className={`elevari-dropdown-option ${city === loc.value ? 'elevari-dropdown-option-active' : ''}`}
             >
               <span className="font-semibold text-elevari-slate">{loc.label}</span>
               <span className="text-xs text-elevari-muted">{loc.detail}</span>
@@ -114,7 +114,7 @@ function DatesPanel({
 
   return (
     <>
-      <p className="wana-dropdown-title">Selecciona tu estadía</p>
+      <p className="elevari-dropdown-title">Selecciona tu estadía</p>
       <p className="mt-1 text-xs text-elevari-muted">Mínimo 1 noche — la salida debe ser después de la entrada.</p>
       <DayPicker
         mode="range"
@@ -123,7 +123,7 @@ function DatesPanel({
         disabled={{ before: new Date() }}
         numberOfMonths={1}
         locale={es}
-        className="mx-auto mt-3 wana-calendar"
+        className="mx-auto mt-3 elevari-calendar"
       />
       {range?.from && !range?.to && (
         <p className="mt-2 text-center text-xs text-elevari-muted">Selecciona la fecha de salida</p>
@@ -134,14 +134,14 @@ function DatesPanel({
         </p>
       )}
       <div className="mt-3 flex gap-2 border-t border-elevari-border pt-3">
-        <button type="button" onClick={onClear} className="wana-btn-ghost min-h-[44px] flex-1 !py-2 text-sm">
+        <button type="button" onClick={onClear} className="elevari-btn-ghost min-h-[44px] flex-1 !py-2 text-sm">
           Limpiar
         </button>
         <button
           type="button"
           onClick={onDone}
           disabled={Boolean(dateError)}
-          className="wana-btn-primary min-h-[44px] flex-1 !py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+          className="elevari-btn-primary min-h-[44px] flex-1 !py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
         >
           Listo
         </button>
@@ -168,7 +168,7 @@ function GuestsPanel({
         </div>
         <GuestStepper value={guests} min={1} max={20} onChange={onChange} />
       </div>
-      <button type="button" onClick={onDone} className="wana-btn-primary mt-4 w-full min-h-[44px] text-sm">
+      <button type="button" onClick={onDone} className="elevari-btn-primary mt-4 w-full min-h-[44px] text-sm">
         Listo
       </button>
     </>
@@ -237,7 +237,7 @@ export default function SearchHero() {
   const guestsLabel = guests === 1 ? '1 huésped' : `${guests} huéspedes`;
 
   const fieldClass = (active: boolean) =>
-    `wana-search-field w-full text-left ${active ? 'wana-search-field-active' : ''}`;
+    `elevari-search-field w-full text-left ${active ? 'elevari-search-field-active' : ''}`;
 
   const panelButtonA11y = (name: Exclude<Panel, null>) => ({
     'aria-expanded': panel === name,
@@ -267,14 +267,14 @@ export default function SearchHero() {
               <Image src={src} alt="" fill sizes="100vw" quality={60} className="object-cover scale-105 animate-hero-kenburns" />
             </div>
           ))}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/55 to-black/90" />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/25" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-elevari-ink/45 via-elevari-ink/55 to-elevari-ink/90" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-elevari-ink/70 via-transparent to-elevari-ink/25" />
       </div>
 
-      <div className="relative z-20 wana-container pb-8 pt-14 sm:pb-12 sm:pt-28 lg:pb-16 lg:pt-32">
+      <div className="relative z-20 elevari-container pb-8 pt-14 sm:pb-12 sm:pt-28 lg:pb-16 lg:pt-32">
         <div className="max-w-3xl animate-slide-up">
-          <p className="wana-eyebrow wana-eyebrow-lux !text-elevari-amber-soft">Colección curada · Sabana de Bogotá</p>
-          <h1 className="wana-display-hero wana-display-hero--light mt-3 sm:mt-4">
+          <p className="elevari-eyebrow elevari-eyebrow-lux !text-elevari-amber-soft">Colección curada · Sabana de Bogotá</p>
+          <h1 className="elevari-display-hero elevari-display-hero--light mt-3 sm:mt-4">
             Escapes naturales, sin complicaciones
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/95 sm:mt-5 sm:text-lg">
@@ -295,20 +295,20 @@ export default function SearchHero() {
         </div>
 
         <div className="relative z-30 mt-6 max-w-4xl animate-slide-up sm:mt-8 lg:mt-10" style={{ animationDelay: '80ms' }}>
-          <div className="wana-search-luxury overflow-visible">
+          <div className="elevari-search-luxury overflow-visible">
             {/* Mobile: stacked fields + inline expand */}
             <div className="flex flex-col gap-1.5 p-1.5 md:hidden">
               <button type="button" onClick={() => openPanel('location')} className={fieldClass(panel === 'location')} {...panelButtonA11y('location')}>
                 <span className="flex w-full flex-col items-start gap-0.5">
-                  <span className="wana-search-label">Destino</span>
-                  <span className="wana-search-value">{cityLabel}</span>
+                  <span className="elevari-search-label">Destino</span>
+                  <span className="elevari-search-value">{cityLabel}</span>
                 </span>
                 <Chevron open={panel === 'location'} />
               </button>
               {panel === 'location' && (
                 <div
                   id="elevari-search-location-panel"
-                  className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
+                  className="elevari-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
                 >
                   <LocationPanel
                     city={city}
@@ -323,15 +323,15 @@ export default function SearchHero() {
 
               <button type="button" onClick={() => openPanel('dates')} className={fieldClass(panel === 'dates')} {...panelButtonA11y('dates')}>
                 <span className="flex w-full flex-col items-start gap-0.5">
-                  <span className="wana-search-label">Fechas</span>
-                  <span className="wana-search-value">{dateLabel}</span>
+                  <span className="elevari-search-label">Fechas</span>
+                  <span className="elevari-search-value">{dateLabel}</span>
                 </span>
                 <Chevron open={panel === 'dates'} />
               </button>
               {panel === 'dates' && (
                 <div
                   id="elevari-search-dates-panel"
-                  className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
+                  className="elevari-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
                 >
                   <DatesPanel
                     range={range}
@@ -347,21 +347,21 @@ export default function SearchHero() {
 
               <button type="button" onClick={() => openPanel('guests')} className={fieldClass(panel === 'guests')} {...panelButtonA11y('guests')}>
                 <span className="flex w-full flex-col items-start gap-0.5">
-                  <span className="wana-search-label">Huéspedes</span>
-                  <span className="wana-search-value">{guestsLabel}</span>
+                  <span className="elevari-search-label">Huéspedes</span>
+                  <span className="elevari-search-value">{guestsLabel}</span>
                 </span>
                 <Chevron open={panel === 'guests'} />
               </button>
               {panel === 'guests' && (
                 <div
                   id="elevari-search-guests-panel"
-                  className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
+                  className="elevari-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
                 >
                   <GuestsPanel guests={guests} onChange={setGuests} onDone={closePanel} />
                 </div>
               )}
 
-              <button type="button" onClick={handleSearch} className="wana-btn-primary mt-1 min-h-[52px] w-full !rounded-2xl">
+              <button type="button" onClick={handleSearch} className="elevari-btn-primary mt-1 min-h-[52px] w-full !rounded-2xl">
                 <span className="flex items-center justify-center gap-2">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
@@ -377,8 +377,8 @@ export default function SearchHero() {
               <div className="relative">
                 <button type="button" onClick={() => openPanel('location')} className={fieldClass(panel === 'location')} {...panelButtonA11y('location')}>
                   <span className="flex min-w-0 flex-col items-start">
-                    <span className="wana-search-label">Destino</span>
-                    <span className="wana-search-value">{cityLabel}</span>
+                    <span className="elevari-search-label">Destino</span>
+                    <span className="elevari-search-value">{cityLabel}</span>
                   </span>
                   <Chevron open={panel === 'location'} />
                 </button>
@@ -397,8 +397,8 @@ export default function SearchHero() {
               <div className="relative">
                 <button type="button" onClick={() => openPanel('dates')} className={fieldClass(panel === 'dates')} {...panelButtonA11y('dates')}>
                   <span className="flex min-w-0 flex-col items-start">
-                    <span className="wana-search-label">Fechas</span>
-                    <span className="wana-search-value">{dateLabel}</span>
+                    <span className="elevari-search-label">Fechas</span>
+                    <span className="elevari-search-value">{dateLabel}</span>
                   </span>
                   <Chevron open={panel === 'dates'} />
                 </button>
@@ -418,8 +418,8 @@ export default function SearchHero() {
               <div className="relative">
                 <button type="button" onClick={() => openPanel('guests')} className={fieldClass(panel === 'guests')} {...panelButtonA11y('guests')}>
                   <span className="flex min-w-0 flex-col items-start">
-                    <span className="wana-search-label">Huéspedes</span>
-                    <span className="wana-search-value">{guestsLabel}</span>
+                    <span className="elevari-search-label">Huéspedes</span>
+                    <span className="elevari-search-value">{guestsLabel}</span>
                   </span>
                   <Chevron open={panel === 'guests'} />
                 </button>
@@ -429,7 +429,7 @@ export default function SearchHero() {
               </div>
 
               <div className="flex items-center p-2 pl-1">
-                <button type="button" onClick={handleSearch} className="wana-btn-primary min-h-[52px] !rounded-2xl !px-6">
+                <button type="button" onClick={handleSearch} className="elevari-btn-primary min-h-[52px] !rounded-2xl !px-6">
                   <span className="flex items-center gap-2">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
                       <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />

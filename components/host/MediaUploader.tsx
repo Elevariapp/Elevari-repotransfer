@@ -88,7 +88,7 @@ export default function MediaUploader({ propertyId }: { propertyId: string }) {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
-            <div key={item.id} className="group relative overflow-hidden rounded-xl border border-elevari-border bg-white">
+            <div key={item.id} className="group relative overflow-hidden rounded-xl border border-elevari-border bg-elevari-surface">
               {item.type === 'video' ? (
                 <video
                   src={item.url}

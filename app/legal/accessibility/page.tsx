@@ -29,7 +29,7 @@ const sections = [
 export default function AccessibilityPage() {
   return (
     <article className="max-w-3xl">
-      <p className="wana-eyebrow">Legal</p>
+      <p className="elevari-eyebrow">Legal</p>
       <h1 className="mt-2 font-display text-3xl text-elevari-ink">Accesibilidad</h1>
       <p className="mt-2 text-elevari-muted">
         Última actualización: 2026. Este documento describe el estado de accesibilidad de la

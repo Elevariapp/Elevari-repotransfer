@@ -36,7 +36,7 @@ export default function PropertyCard({ property }: { property: Property }) {
     <Link href={href} className="group block">
       <article className="animate-fade-in">
         <div
-          className="relative overflow-hidden rounded-2xl bg-elevari-sand aspect-[4/3] shadow-card ring-1 ring-black/[0.04] transition duration-500 group-hover:shadow-wana-lg group-hover:ring-elevari-amber/25"
+          className="relative overflow-hidden rounded-2xl bg-elevari-sand aspect-[4/3] shadow-card ring-1 ring-elevari-ink/[0.04] transition duration-500 group-hover:shadow-elevari-lg group-hover:ring-elevari-amber/25"
         >
           {image ? (
             <>
@@ -50,7 +50,7 @@ export default function PropertyCard({ property }: { property: Property }) {
                 loading="lazy"
               />
               <div
-                className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"
+                className="absolute inset-0 bg-gradient-to-t from-elevari-ink/55 via-transparent to-transparent"
                 aria-hidden
               />
             </>
@@ -60,13 +60,14 @@ export default function PropertyCard({ property }: { property: Property }) {
 
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             {isFeatured && (
-              <span className="rounded-full border border-elevari-amber/40 bg-black/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-elevari-amber-soft shadow-sm">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-elevari-forest-deep/95 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-elevari-amber-soft shadow-[var(--elevari-shadow-soft)] ring-1 ring-white/20 backdrop-blur-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-elevari-amber" aria-hidden />
                 Destacado
               </span>
             )}
             {property.rating != null && (
-              <span className="flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-elevari-slate shadow-sm">
-                <span className="text-elevari-amber">★</span> {property.rating}
+              <span className="flex items-center gap-1 rounded-full bg-elevari-surface/95 px-2.5 py-1 text-xs font-semibold text-elevari-slate shadow-[var(--elevari-shadow-soft)]">
+                <span className="text-elevari-amber" aria-hidden>★</span> {property.rating}
               </span>
             )}
           </div>

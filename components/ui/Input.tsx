@@ -25,7 +25,7 @@ export default function Input({ label, hint, error, id, className, ...rest }: In
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy || undefined}
         className={cx(
-          'wana-input min-h-[44px]',
+          'elevari-input min-h-[44px]',
           error && 'border-elevari-error focus:border-elevari-error',
           className,
         )}

@@ -14,7 +14,7 @@ export default function PropertyLocation({ city, country, latitude, longitude }:
 
   return (
     <section className="border-t border-elevari-border pt-8">
-      <h2 className="wana-section-title">Ubicación</h2>
+      <h2 className="elevari-section-title">Ubicación</h2>
       <p className="mt-3 text-elevari-muted leading-relaxed">
         Glamping Waná está en la zona rural entre{' '}
         <strong className="text-elevari-slate">Sutatausa</strong> y{' '}
@@ -30,7 +30,7 @@ export default function PropertyLocation({ city, country, latitude, longitude }:
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm font-semibold text-elevari-forest hover:text-elevari-amber transition"
+          className="text-sm font-semibold text-elevari-forest hover:text-elevari-forest-deep transition"
         >
           Ver en Google Maps →
         </Link>

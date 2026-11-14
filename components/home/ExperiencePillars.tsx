@@ -33,13 +33,13 @@ export default function ExperiencePillars() {
           loading="lazy"
         />
       </div>
-      <div className="wana-container relative py-16 lg:py-24">
+      <div className="elevari-container relative py-16 lg:py-24">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="wana-eyebrow">Por qué Eleveri</p>
-          <h2 className="wana-display-section mt-4 text-elevari-slate">
+          <p className="elevari-eyebrow">Por qué Eleveri</p>
+          <h2 className="elevari-display-section mt-4 text-elevari-slate">
             Más que un alojamiento, una experiencia
           </h2>
-          <div className="wana-divider-gold mx-auto mt-5" />
+          <div className="elevari-divider-gold mx-auto mt-5" />
           <p className="mt-5 text-elevari-muted leading-relaxed">
             Glamping y refugios seleccionados con el cuidado de un anfitrión, no de un marketplace
             masivo.
@@ -49,7 +49,7 @@ export default function ExperiencePillars() {
           {pillars.map((p, i) => (
             <div
               key={p.title}
-              className="wana-card-elevated group p-7 animate-slide-up backdrop-blur-sm bg-white/90"
+              className="elevari-card-elevated group p-7 animate-slide-up backdrop-blur-sm bg-elevari-surface/90"
               style={{ animationDelay: `${i * 80}ms` }}
             >
               <span
@@ -63,7 +63,7 @@ export default function ExperiencePillars() {
           ))}
         </div>
         <div className="mt-12 text-center">
-          <Link href="/properties/glamping-wana" className="wana-btn-primary inline-flex min-h-[48px] !px-8">
+          <Link href="/properties/glamping-wana" className="elevari-btn-primary inline-flex min-h-[48px] !px-8">
             Reservar ahora
           </Link>
         </div>

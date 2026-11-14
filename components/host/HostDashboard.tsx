@@ -24,9 +24,9 @@ export default function HostDashboard() {
 
   if (!user) {
     return (
-      <div className="wana-card p-8 text-center">
+      <div className="elevari-card p-8 text-center">
         <p className="text-elevari-muted">Inicia sesión como anfitrión para gestionar tus propiedades.</p>
-        <Link href="/auth/login?redirect=/host" className="wana-btn-primary mt-6 inline-flex min-h-[48px]">
+        <Link href="/auth/login?redirect=/host" className="elevari-btn-primary mt-6 inline-flex min-h-[48px]">
           Iniciar sesión
         </Link>
       </div>
@@ -35,9 +35,9 @@ export default function HostDashboard() {
 
   if (user.role === 'guest') {
     return (
-      <div className="wana-card p-8 text-center">
+      <div className="elevari-card p-8 text-center">
         <p className="text-elevari-muted">Tu cuenta es de huésped. Regístrate como anfitrión para publicar espacios.</p>
-        <Link href="/auth/register" className="wana-btn-primary mt-6 inline-flex min-h-[48px]">
+        <Link href="/auth/register" className="elevari-btn-primary mt-6 inline-flex min-h-[48px]">
           Crear cuenta anfitrión
         </Link>
       </div>
@@ -51,9 +51,9 @@ export default function HostDashboard() {
       )}
 
       {properties.length === 0 ? (
-        <div className="wana-card p-8 text-center">
+        <div className="elevari-card p-8 text-center">
           <p className="text-elevari-muted">Aún no tienes propiedades publicadas.</p>
-          <Link href="/host/add-property" className="wana-btn-primary mt-6 inline-flex min-h-[48px]">
+          <Link href="/host/add-property" className="elevari-btn-primary mt-6 inline-flex min-h-[48px]">
             Publicar tu primer espacio
           </Link>
         </div>
@@ -63,7 +63,7 @@ export default function HostDashboard() {
             <Link
               key={p.id}
               href={`/host/properties/${p.id}/media`}
-              className="wana-card overflow-hidden transition hover:shadow-card"
+              className="elevari-card overflow-hidden transition hover:shadow-card"
             >
               <div className="aspect-[16/10] bg-elevari-sand">
                 {p.cover_image ? (

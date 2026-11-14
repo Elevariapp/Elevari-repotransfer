@@ -11,7 +11,7 @@ export default function Accordion({ title, content }: AccordionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="wana-card overflow-hidden transition hover:shadow-wana">
+    <div className="elevari-card overflow-hidden transition hover:shadow-wana">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}

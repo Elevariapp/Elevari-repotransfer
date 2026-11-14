@@ -14,7 +14,7 @@ export default async function CheckoutSuccessPage({
   return (
     <>
       <Header sticky={false} />
-      <main id="contenido" className="wana-container py-12 lg:py-16">
+      <main id="contenido" className="elevari-container py-12 lg:py-16">
         <CheckoutSuccessClient
           bookingId={bookingId}
           propertySlug={propertySlug}

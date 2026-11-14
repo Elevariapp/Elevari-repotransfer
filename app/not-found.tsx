@@ -8,7 +8,7 @@ export default function NotFound() {
       <Header sticky={false} />
       <main
         id="contenido"
-        className="wana-container flex min-h-[70vh] flex-col items-center justify-center py-16 text-center"
+        className="elevari-container flex min-h-[70vh] flex-col items-center justify-center py-16 text-center"
       >
         <div className="flex items-center gap-3">
           <EleveriMark className="h-12 w-12" />

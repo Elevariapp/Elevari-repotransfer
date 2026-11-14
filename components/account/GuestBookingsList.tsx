@@ -108,7 +108,7 @@ export default function GuestBookingsList() {
                   <>
                     <Link
                       href={`/checkout/${row.id}?property=${row.property_slug}`}
-                      className="wana-btn-primary !px-4 !py-2 text-sm min-h-[44px]"
+                      className="elevari-btn-primary !px-4 !py-2 text-sm min-h-[44px]"
                     >
                       Pagar
                     </Link>
@@ -116,7 +116,7 @@ export default function GuestBookingsList() {
                       type="button"
                       disabled={busyId === row.id}
                       onClick={() => cancel(row.id)}
-                      className="wana-btn-ghost !px-4 !py-2 text-sm min-h-[44px]"
+                      className="elevari-btn-ghost !px-4 !py-2 text-sm min-h-[44px]"
                     >
                       Cancelar
                     </button>
@@ -126,7 +126,7 @@ export default function GuestBookingsList() {
                   <>
                     <Link
                       href={`/checkout/${row.id}/success?property=${row.property_slug}`}
-                      className="wana-btn-ghost !px-4 !py-2 text-sm min-h-[44px]"
+                      className="elevari-btn-ghost !px-4 !py-2 text-sm min-h-[44px]"
                     >
                       Ver confirmación
                     </Link>
@@ -134,7 +134,7 @@ export default function GuestBookingsList() {
                       type="button"
                       disabled={busyId === row.id}
                       onClick={() => cancel(row.id)}
-                      className="wana-btn-ghost !px-4 !py-2 text-sm min-h-[44px]"
+                      className="elevari-btn-ghost !px-4 !py-2 text-sm min-h-[44px]"
                     >
                       Cancelar
                     </button>

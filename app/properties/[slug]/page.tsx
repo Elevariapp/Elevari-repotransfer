@@ -68,7 +68,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
       />
       <Header />
       <main id="contenido" className="pb-24 lg:pb-12">
-        <div className="wana-container py-6 lg:py-8">
+        <div className="elevari-container py-6 lg:py-8">
           <header className="mb-5 animate-slide-up">
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <ExclusiveBadge />
@@ -78,7 +78,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </span>
               )}
             </div>
-            <h1 className="wana-display-section text-elevari-slate">
+            <h1 className="elevari-display-section text-elevari-slate">
               {property.title}
             </h1>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-elevari-muted">
@@ -89,7 +89,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </span>
               )}
               {property.city && (
-                <span className="underline decoration-wana-border">
+                <span className="underline decoration-elevari-border">
                   {formatPropertyLocation(property.city, property.country)}
                 </span>
               )}
@@ -116,7 +116,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               </section>
 
               <section>
-                <h2 className="wana-section-title">Sobre este espacio</h2>
+                <h2 className="elevari-section-title">Sobre este espacio</h2>
                 <p className="mt-4 leading-relaxed text-elevari-slate">
                   {property.description ?? 'Sin descripción.'}
                 </p>
@@ -124,7 +124,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
               {amenities.length > 0 && (
                 <section className="border-t border-elevari-border pt-8">
-                  <h2 className="wana-section-title">Lo que ofrece este lugar</h2>
+                  <h2 className="elevari-section-title">Lo que ofrece este lugar</h2>
                   <ul className="mt-6 grid gap-4 sm:grid-cols-2">
                     {amenities.map((item: string) => (
                       <li key={item} className="flex items-center gap-3 text-elevari-slate">

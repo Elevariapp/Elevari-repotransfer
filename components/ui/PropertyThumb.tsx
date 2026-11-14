@@ -32,7 +32,7 @@ export default function PropertyThumb({ src, alt, size = 'md', className = '' }:
 
   return (
     <div
-      className={`wana-empty-media shrink-0 ring-1 ring-wana-border/60 ${dim} ${className}`}
+      className={`elevari-empty-media shrink-0 ring-1 ring-elevari-border/60 ${dim} ${className}`}
       aria-hidden
     >
       <span className="text-lg text-elevari-amber">✦</span>

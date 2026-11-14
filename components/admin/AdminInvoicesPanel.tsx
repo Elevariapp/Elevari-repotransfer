@@ -49,7 +49,7 @@ export default function AdminInvoicesPanel() {
   }
 
   return (
-    <div className="wana-card overflow-hidden">
+    <div className="elevari-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-elevari-border bg-elevari-sand/50 text-elevari-muted">
@@ -90,7 +90,7 @@ export default function AdminInvoicesPanel() {
                       type="button"
                       disabled={busyId === row.id}
                       onClick={() => retry(row.id)}
-                      className="wana-btn-ghost !px-3 !py-1.5 text-xs min-h-[36px]"
+                      className="elevari-btn-ghost !px-3 !py-1.5 text-xs min-h-[36px]"
                     >
                       Reintentar
                     </button>

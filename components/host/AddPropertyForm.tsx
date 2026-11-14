@@ -55,7 +55,7 @@ export default function AddPropertyForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="wana-card space-y-6 p-6 sm:p-8">
+    <form onSubmit={handleSubmit} className="elevari-card space-y-6 p-6 sm:p-8">
       <div className="rounded-xl border border-elevari-amber/30 bg-elevari-ivory/80 p-4 text-sm text-elevari-slate">
         <p className="font-semibold">Guía de calidad</p>
         <p className="mt-1 text-elevari-muted">
@@ -66,40 +66,40 @@ export default function AddPropertyForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block space-y-1.5">
-          <span className="wana-label">Título</span>
-          <input name="title" required minLength={3} className="wana-input" placeholder="Domo en el bosque" />
+          <span className="elevari-label">Título</span>
+          <input name="title" required minLength={3} className="elevari-input" placeholder="Domo en el bosque" />
         </label>
         <label className="block space-y-1.5">
-          <span className="wana-label">Ciudad / zona</span>
-          <input name="city" required className="wana-input" placeholder="Guatavita, Cundinamarca" />
+          <span className="elevari-label">Ciudad / zona</span>
+          <input name="city" required className="elevari-input" placeholder="Guatavita, Cundinamarca" />
         </label>
       </div>
 
       <label className="block space-y-1.5">
-        <span className="wana-label">Descripción</span>
+        <span className="elevari-label">Descripción</span>
         <textarea
           name="description"
           required
           minLength={20}
           rows={5}
-          className="wana-input min-h-[120px]"
+          className="elevari-input min-h-[120px]"
           placeholder="Describe la experiencia, acceso y lo que incluye la estadía…"
         />
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block space-y-1.5">
-          <span className="wana-label">Precio por noche (COP)</span>
-          <input name="price" type="number" min={1} required className="wana-input" />
+          <span className="elevari-label">Precio por noche (COP)</span>
+          <input name="price" type="number" min={1} required className="elevari-input" />
         </label>
         <label className="block space-y-1.5">
-          <span className="wana-label">Huéspedes máx.</span>
-          <input name="max_guests" type="number" min={1} max={20} defaultValue={2} className="wana-input" />
+          <span className="elevari-label">Huéspedes máx.</span>
+          <input name="max_guests" type="number" min={1} max={20} defaultValue={2} className="elevari-input" />
         </label>
       </div>
 
       <fieldset>
-        <legend className="wana-label">Comodidades</legend>
+        <legend className="elevari-label">Comodidades</legend>
         <div className="mt-3 flex flex-wrap gap-2">
           {AMENITY_OPTIONS.map((name) => {
             const active = amenities.includes(name);
@@ -108,7 +108,7 @@ export default function AddPropertyForm() {
                 key={name}
                 type="button"
                 onClick={() => toggleAmenity(name)}
-                className={`wana-chip ${active ? 'wana-chip-active' : ''}`}
+                className={`elevari-chip ${active ? 'elevari-chip-active' : ''}`}
               >
                 {name}
               </button>
@@ -118,16 +118,16 @@ export default function AddPropertyForm() {
       </fieldset>
 
       <label className="block space-y-1.5">
-        <span className="wana-label">Foto o video destacado (opcional)</span>
+        <span className="elevari-label">Foto o video destacado (opcional)</span>
         <input
           type="file"
           accept="image/jpeg,image/webp,image/png,video/mp4,video/quicktime"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="wana-input text-sm"
+          className="elevari-input text-sm"
         />
       </label>
 
-      <button type="submit" disabled={loading} className="wana-btn-primary w-full sm:w-auto min-h-[48px]">
+      <button type="submit" disabled={loading} className="elevari-btn-primary w-full sm:w-auto min-h-[48px]">
         {loading ? 'Creando…' : 'Crear y subir media'}
       </button>
     </form>

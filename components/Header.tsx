@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Logo from '@/components/Logo';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
 
 /** Cada enlace va a un destino distinto — sin duplicar /properties */
@@ -56,8 +57,8 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <header className={`wana-header z-50 overflow-x-clip ${sticky ? 'sticky top-0' : ''}`}>
-      <div className="wana-container grid h-14 min-h-[3.5rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:h-16 lg:h-[4.25rem] lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-4">
+    <header className={`elevari-header z-50 overflow-x-clip ${sticky ? 'sticky top-0' : ''}`}>
+      <div className="elevari-container grid h-14 min-h-[3.5rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:h-16 lg:h-[4.25rem] lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-4">
         <div className="flex min-w-0 items-center justify-self-start">
           <span className="lg:hidden">
             <Logo compact onDark />
@@ -74,7 +75,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`wana-header-nav-link ${active ? 'wana-header-nav-link-active' : ''}`}
+                className={`elevari-header-nav-link ${active ? 'elevari-header-nav-link-active' : ''}`}
               >
                 <span className="xl:hidden">{link.shortLabel}</span>
                 <span className="hidden xl:inline">{link.label}</span>
@@ -84,7 +85,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
           {user?.role === 'host' && (
             <Link
               href="/host"
-              className={`wana-header-nav-link ${pathname.startsWith('/host') && !pathname.startsWith('/host/add-property') ? 'wana-header-nav-link-active' : ''}`}
+              className={`elevari-header-nav-link ${pathname.startsWith('/host') && !pathname.startsWith('/host/add-property') ? 'elevari-header-nav-link-active' : ''}`}
             >
               Mi panel
             </Link>
@@ -92,7 +93,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
           {user?.role === 'admin' && (
             <Link
               href="/admin"
-              className={`wana-header-nav-link ${pathname.startsWith('/admin') ? 'wana-header-nav-link-active' : ''}`}
+              className={`elevari-header-nav-link ${pathname.startsWith('/admin') ? 'elevari-header-nav-link-active' : ''}`}
             >
               Admin
             </Link>
@@ -100,15 +101,16 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
         </nav>
 
         <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
+          <ThemeToggle className="hidden sm:inline-flex" />
           {!loading && user ? (
             <>
-              <Link href="/account" className="wana-header-account hidden max-w-[7rem] lg:inline xl:max-w-[9rem]">
+              <Link href="/account" className="elevari-header-account hidden max-w-[7rem] lg:inline xl:max-w-[9rem]">
                 {user.name ?? user.email}
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="wana-btn-ghost hidden !px-3 !py-2 text-sm lg:inline-flex xl:!px-4"
+                className="elevari-btn-ghost hidden !px-3 !py-2 text-sm lg:inline-flex xl:!px-4"
               >
                 Salir
               </button>
@@ -116,7 +118,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
           ) : (
             <Link
               href="/auth/login"
-              className="wana-btn-ghost hidden !px-3 !py-2 text-sm lg:inline-flex xl:!px-4"
+              className="elevari-btn-ghost hidden !px-3 !py-2 text-sm lg:inline-flex xl:!px-4"
             >
               Iniciar sesión
             </Link>
@@ -125,7 +127,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
           <button
             type="button"
             ref={menuButtonRef}
-            className="wana-header-menu-btn lg:hidden"
+            className="elevari-header-menu-btn lg:hidden"
             aria-expanded={menuOpen}
             aria-controls="elevari-mobile-menu"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -143,8 +145,12 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
       </div>
 
       {menuOpen && (
-        <div ref={mobilePanelRef} id="elevari-mobile-menu" className="wana-header-mobile-panel lg:hidden">
-          <nav className="wana-container flex max-h-[calc(100dvh-3.5rem)] flex-col gap-1 overflow-y-auto py-4 sm:max-h-[calc(100dvh-4rem)]">
+        <div ref={mobilePanelRef} id="elevari-mobile-menu" className="elevari-header-mobile-panel lg:hidden">
+          <nav className="elevari-container flex max-h-[calc(100dvh-3.5rem)] flex-col gap-1 overflow-y-auto py-4 sm:max-h-[calc(100dvh-4rem)]">
+            <div className="mb-2 flex items-center justify-between px-1">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Apariencia</span>
+              <ThemeToggle />
+            </div>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -189,7 +195,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="wana-btn-ghost mt-1 justify-center min-h-[44px]"
+                  className="elevari-btn-ghost mt-1 justify-center min-h-[44px]"
                 >
                   Salir
                 </button>
@@ -198,7 +204,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
               <Link
                 href="/auth/login"
                 onClick={closeMenu}
-                className="wana-btn-ghost mt-1 justify-center min-h-[44px]"
+                className="elevari-btn-ghost mt-1 justify-center min-h-[44px]"
               >
                 Iniciar sesión
               </Link>

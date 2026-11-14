@@ -62,7 +62,7 @@ export default function AdminModerationPanel() {
 
   if (items.length === 0) {
     return (
-      <div className="wana-card p-8 text-center text-elevari-muted">
+      <div className="elevari-card p-8 text-center text-elevari-muted">
         No hay fotos o videos pendientes de revisión.
       </div>
     );
@@ -71,7 +71,7 @@ export default function AdminModerationPanel() {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => (
-        <article key={item.id} className="wana-card overflow-hidden">
+        <article key={item.id} className="elevari-card overflow-hidden">
           <div className="aspect-[4/3] bg-elevari-sand">
             {item.type === 'video' ? (
               <video src={item.url} controls className="h-full w-full object-cover" />
@@ -91,7 +91,7 @@ export default function AdminModerationPanel() {
                 type="button"
                 disabled={busyId === item.id}
                 onClick={() => approve(item.id)}
-                className="wana-btn-primary flex-1 !py-2 text-sm min-h-[44px]"
+                className="elevari-btn-primary flex-1 !py-2 text-sm min-h-[44px]"
               >
                 Aprobar
               </button>
@@ -99,7 +99,7 @@ export default function AdminModerationPanel() {
                 type="button"
                 disabled={busyId === item.id}
                 onClick={() => reject(item.id)}
-                className="wana-btn-ghost flex-1 !py-2 text-sm min-h-[44px]"
+                className="elevari-btn-ghost flex-1 !py-2 text-sm min-h-[44px]"
               >
                 Rechazar
               </button>

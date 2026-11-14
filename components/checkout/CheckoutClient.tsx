@@ -70,10 +70,10 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
 
   if (booking.status === 'confirmed') {
     return (
-      <div className="wana-card-premium p-8 text-center">
+      <div className="elevari-card-premium p-8 text-center">
         <p className="text-3xl text-elevari-forest">✓</p>
         <h2 className="mt-2 font-display text-2xl text-elevari-ink">Reserva confirmada</h2>
-        <button type="button" onClick={goSuccess} className="wana-btn-primary mt-6">
+        <button type="button" onClick={goSuccess} className="elevari-btn-primary mt-6">
           Ver confirmación
         </button>
       </div>
@@ -142,8 +142,8 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
       <CheckoutStepper current="review" />
       <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
       <div className="space-y-6">
-        <section className="wana-card p-6">
-          <h2 className="wana-section-title">Tu viaje</h2>
+        <section className="elevari-card p-6">
+          <h2 className="elevari-section-title">Tu viaje</h2>
           <div className="mt-4 flex gap-4">
             <PropertyThumb src={coverImage} alt={booking.property.title} size="md" />
             <div>
@@ -161,8 +161,8 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
           </div>
         </section>
 
-        <section className="wana-card p-6">
-          <h2 className="wana-section-title">Método de pago</h2>
+        <section className="elevari-card p-6">
+          <h2 className="elevari-section-title">Método de pago</h2>
           <p className="mt-2 text-sm text-elevari-muted">
             Paga de forma segura con Wompi — tarjetas, PSE, Nequi y más.
           </p>
@@ -188,14 +188,14 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
                   <span>{new Date(quote.expires_at).toLocaleTimeString('es-CO')}</span>
                 </div>
               </div>
-              <p className="mt-4 rounded-lg bg-white/70 p-3 text-xs leading-relaxed text-elevari-muted">
+              <p className="mt-4 rounded-lg bg-elevari-surface/70 p-3 text-xs leading-relaxed text-elevari-muted">
                 {disclosure.text}
               </p>
               <button
                 type="button"
                 onClick={() => startPayment(disclosure)}
                 disabled={loading}
-                className="wana-btn-primary mt-4 w-full"
+                className="elevari-btn-primary mt-4 w-full"
               >
                 {loading ? 'Preparando pago…' : 'Acepto y quiero pagar'}
               </button>
@@ -206,7 +206,7 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
                 type="button"
                 onClick={() => startPayment()}
                 disabled={loading}
-                className="wana-btn-select wana-btn-select-active disabled:opacity-50"
+                className="elevari-btn-select elevari-btn-select-active disabled:opacity-50"
               >
                 <div>
                   <span className="font-semibold text-elevari-slate">Wompi</span>
@@ -223,7 +223,7 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
       </div>
 
       <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="wana-card-premium p-6">
+        <div className="elevari-card-premium p-6">
           <h3 className="font-semibold text-elevari-slate">Desglose</h3>
           {fees && (
             <PriceBreakdown

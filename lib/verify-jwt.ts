@@ -1,7 +1,7 @@
 import { jwtVerify } from 'jose';
 
-const JWT_ISSUER = 'wana-api';
-const JWT_AUDIENCE = 'wana-web';
+const JWT_ISSUER = 'elevari-api';
+const JWT_AUDIENCE = 'elevari-web';
 
 export type WebJwtPayload = {
   sub: string;

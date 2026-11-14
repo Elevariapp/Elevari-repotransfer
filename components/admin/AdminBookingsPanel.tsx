@@ -30,7 +30,7 @@ export default function AdminBookingsPanel() {
   }
 
   return (
-    <div className="wana-card overflow-hidden">
+    <div className="elevari-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-elevari-border bg-elevari-sand/50 text-elevari-muted">

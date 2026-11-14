@@ -17,9 +17,9 @@ export default async function HealthPage() {
   return (
     <>
       <Header />
-      <main id="contenido" className="wana-container py-10">
-        <div className="mx-auto max-w-lg wana-card p-8">
-          <p className="wana-eyebrow">Sistema</p>
+      <main id="contenido" className="elevari-container py-10">
+        <div className="mx-auto max-w-lg elevari-card p-8">
+          <p className="elevari-eyebrow">Sistema</p>
           <h1 className="mt-2 font-display text-2xl text-elevari-slate">Estado del sistema</h1>
           {api ? (
             <ul className="mt-6 space-y-3 text-sm">

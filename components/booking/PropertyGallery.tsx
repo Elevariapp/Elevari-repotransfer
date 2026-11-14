@@ -96,7 +96,7 @@ export default function PropertyGallery({
 
   if (items.length === 0) {
     return (
-      <div className="flex aspect-[16/10] items-center justify-center rounded-2xl bg-elevari-sand ring-1 ring-wana-border/50">
+      <div className="flex aspect-[16/10] items-center justify-center rounded-2xl bg-elevari-sand ring-1 ring-elevari-border/50">
         <span className="text-sm text-elevari-muted">Sin fotos o videos</span>
       </div>
     );
@@ -114,7 +114,7 @@ export default function PropertyGallery({
   return (
     <>
       <div className="relative hidden md:block">
-        <div className="grid h-[min(56vh,480px)] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-2xl shadow-wana-lg ring-1 ring-black/5">
+        <div className="grid h-[min(56vh,480px)] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-2xl shadow-elevari-lg ring-1 ring-elevari-ink/5">
           <button
             type="button"
             onClick={() => openAt(0)}
@@ -139,7 +139,7 @@ export default function PropertyGallery({
           <button
             type="button"
             onClick={() => openAt(0)}
-            className="absolute bottom-4 right-4 rounded-full border border-elevari-border bg-white/95 px-4 py-2 text-sm font-semibold shadow-card hover:bg-elevari-ivory"
+            className="absolute bottom-4 right-4 rounded-full border border-elevari-border bg-elevari-surface/95 px-4 py-2 text-sm font-semibold shadow-card hover:bg-elevari-ivory"
           >
             Ver todo el media
           </button>
@@ -147,7 +147,7 @@ export default function PropertyGallery({
       </div>
 
       <div className="relative md:hidden">
-        <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-elevari-sand ring-1 ring-wana-border/40">
+        <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-elevari-sand ring-1 ring-elevari-border/40">
           <MediaSlide item={items[active]} title={title} className="h-full w-full object-cover" />
         </div>
         {items.length > 1 && (
@@ -155,7 +155,7 @@ export default function PropertyGallery({
             <button
               type="button"
               onClick={() => setActive((a) => (a === 0 ? items.length - 1 : a - 1))}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/95 p-2 shadow-card"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-elevari-surface/95 p-2 shadow-card"
               aria-label="Anterior"
             >
               ‹
@@ -163,7 +163,7 @@ export default function PropertyGallery({
             <button
               type="button"
               onClick={() => setActive((a) => (a === items.length - 1 ? 0 : a + 1))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/95 p-2 shadow-card"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-elevari-surface/95 p-2 shadow-card"
               aria-label="Siguiente"
             >
               ›
@@ -173,7 +173,7 @@ export default function PropertyGallery({
         <button
           type="button"
           onClick={() => setLightboxOpen(true)}
-          className="absolute bottom-3 right-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-semibold shadow-card"
+          className="absolute bottom-3 right-3 rounded-lg bg-elevari-surface/95 px-3 py-1.5 text-xs font-semibold shadow-card"
         >
           Ver galería
         </button>
@@ -188,7 +188,7 @@ export default function PropertyGallery({
             role="dialog"
             aria-modal="true"
             aria-label={`Galería de ${title}`}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-elevari-ink/90 p-4"
             onClick={() => setLightboxOpen(false)}
           >
             <button

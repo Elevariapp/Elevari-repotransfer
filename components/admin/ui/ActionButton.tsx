@@ -17,8 +17,8 @@ export default function ActionButton({
     'min-h-[40px] rounded-full px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50';
 
   const variantClasses = {
-    primary: 'wana-btn-primary !py-2',
-    danger: 'wana-btn-danger',
+    primary: 'elevari-btn-primary !py-2',
+    danger: 'elevari-btn-danger',
   };
 
   return (

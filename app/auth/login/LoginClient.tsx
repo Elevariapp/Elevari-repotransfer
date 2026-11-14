@@ -7,6 +7,7 @@ import TurnstileWidget from '@/components/auth/TurnstileWidget';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import AuthDivider from '@/components/auth/AuthDivider';
 import AuthShell from '@/components/auth/AuthShell';
+import Button from '@/components/ui/Button';
 import { navigateAfterAuth, resolvePostAuthPath } from '@/lib/auth-redirect';
 import { isTurnstileEnabledClient } from '@/lib/turnstile-config';
 
@@ -88,9 +89,22 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
 
   return (
     <AuthShell topLink={{ href: '/auth/register', label: 'Crear cuenta' }}>
-      <p className="wana-eyebrow">Bienvenido</p>
-      <h1 className="mt-2 font-display text-3xl text-elevari-slate">Iniciar sesión</h1>
-      <p className="mt-2 text-sm text-elevari-muted">Reserva con la confianza de una plataforma internacional.</p>
+      <p className="elevari-eyebrow">Elevari</p>
+      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-elevari-ink">
+        Bienvenido a Elevari
+      </h1>
+      <p className="mt-2 text-sm leading-relaxed text-elevari-muted">
+        Descubre experiencias extraordinarias en destinos naturales seleccionados.
+      </p>
+
+      {redirectTo !== '/' && (
+        <p
+          role="status"
+          className="mt-4 rounded-xl border border-elevari-amber/40 bg-elevari-warning-soft px-4 py-3 text-xs font-medium text-elevari-warning"
+        >
+          Inicia sesión para continuar. Si tu sesión expiró, vuelve a entrar.
+        </p>
+      )}
 
       {(GOOGLE_ENABLED || TURNSTILE_ENABLED) && GOOGLE_ENABLED && (
         <div className="mt-6">
@@ -101,7 +115,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
 
       <form onSubmit={handleLogin} noValidate className="space-y-4">
         <div className="space-y-1.5">
-          <label htmlFor="login-email" className="wana-label block">
+          <label htmlFor="login-email" className="elevari-label block">
             Email
           </label>
           <input
@@ -112,7 +126,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
               setEmail(e.target.value);
               if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
             }}
-            className="wana-input"
+            className="elevari-input"
             autoComplete="email"
             required
             aria-required="true"
@@ -126,7 +140,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
           )}
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="login-password" className="wana-label block">
+          <label htmlFor="login-password" className="elevari-label block">
             Contraseña
           </label>
           <input
@@ -137,7 +151,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
               setPassword(e.target.value);
               if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
             }}
-            className="wana-input"
+            className="elevari-input"
             autoComplete="current-password"
             required
             aria-required="true"
@@ -168,24 +182,27 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
-          disabled={loading || needsTurnstile}
-          className="wana-btn-primary w-full min-h-[48px] disabled:cursor-not-allowed disabled:opacity-60"
+          size="lg"
+          fullWidth
+          loading={loading}
+          disabled={needsTurnstile}
+          className="disabled:cursor-not-allowed"
         >
-          {loading ? 'Entrando…' : needsTurnstile ? 'Completa la verificación' : 'Entrar'}
-        </button>
+          {loading ? 'Entrando…' : needsTurnstile ? 'Completa la verificación' : 'Iniciar sesión'}
+        </Button>
       </form>
 
       <p className="mt-4 text-center text-sm">
-        <Link href="/auth/forgot-password" className="wana-link font-medium">
+        <Link href="/auth/forgot-password" className="elevari-link font-medium">
           ¿Olvidaste tu contraseña?
         </Link>
       </p>
 
       <p className="mt-6 text-center text-sm text-elevari-muted">
         ¿No tienes cuenta?{' '}
-        <Link href={redirectTo !== '/' ? `/auth/register?redirect=${encodeURIComponent(redirectTo)}` : '/auth/register'} className="wana-link">
+        <Link href={redirectTo !== '/' ? `/auth/register?redirect=${encodeURIComponent(redirectTo)}` : '/auth/register'} className="elevari-link">
           Regístrate
         </Link>
       </p>

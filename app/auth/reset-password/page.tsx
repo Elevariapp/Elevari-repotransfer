@@ -43,7 +43,7 @@ function ResetPasswordForm() {
     return (
       <div className="text-center">
         <p className="text-elevari-muted">Enlace inválido o incompleto.</p>
-        <Link href="/auth/forgot-password" className="wana-btn-primary mt-6 inline-flex min-h-[48px]">
+        <Link href="/auth/forgot-password" className="elevari-btn-primary mt-6 inline-flex min-h-[48px]">
           Solicitar nuevo enlace
         </Link>
       </div>
@@ -60,30 +60,30 @@ function ResetPasswordForm() {
 
   return (
     <>
-      <p className="wana-eyebrow">Cuenta</p>
+      <p className="elevari-eyebrow">Cuenta</p>
       <h1 className="mt-2 font-display text-2xl text-elevari-slate sm:text-3xl">Nueva contraseña</h1>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <label className="block space-y-1.5">
-          <span className="wana-label">Contraseña (mín. 8)</span>
+          <span className="elevari-label">Contraseña (mín. 8)</span>
           <input
             type="password"
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="wana-input"
+            className="elevari-input"
             autoComplete="new-password"
             required
             disabled={loading}
           />
         </label>
         <label className="block space-y-1.5">
-          <span className="wana-label">Confirmar</span>
+          <span className="elevari-label">Confirmar</span>
           <input
             type="password"
             minLength={8}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="wana-input"
+            className="elevari-input"
             autoComplete="new-password"
             required
             disabled={loading}
@@ -92,7 +92,7 @@ function ResetPasswordForm() {
         {error && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         )}
-        <button type="submit" disabled={loading} className="wana-btn-primary w-full min-h-[48px]">
+        <button type="submit" disabled={loading} className="elevari-btn-primary w-full min-h-[48px]">
           {loading ? 'Guardando…' : 'Restablecer contraseña'}
         </button>
       </form>

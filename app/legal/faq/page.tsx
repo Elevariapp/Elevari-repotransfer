@@ -35,7 +35,7 @@ const faqItems = [
 export default function FAQPage() {
   return (
     <article className="max-w-3xl">
-        <p className="wana-eyebrow">Ayuda</p>
+        <p className="elevari-eyebrow">Ayuda</p>
         <h1 className="mt-2 font-display text-3xl text-elevari-slate">Preguntas frecuentes</h1>
         <p className="mt-2 text-elevari-muted">
           Respuestas sobre reservas, anfitriones y tu cuenta en Eleveri.

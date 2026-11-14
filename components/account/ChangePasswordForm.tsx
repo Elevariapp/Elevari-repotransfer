@@ -36,28 +36,28 @@ export default function ChangePasswordForm() {
     <form onSubmit={handleSubmit} className="mt-8 space-y-4 border-t border-elevari-border pt-8">
       <h2 className="font-display text-lg text-elevari-slate">Cambiar contraseña</h2>
       <label className="block space-y-1.5">
-        <span className="wana-label">Nueva contraseña</span>
+        <span className="elevari-label">Nueva contraseña</span>
         <input
           type="password"
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="wana-input"
+          className="elevari-input"
           required
         />
       </label>
       <label className="block space-y-1.5">
-        <span className="wana-label">Confirmar</span>
+        <span className="elevari-label">Confirmar</span>
         <input
           type="password"
           minLength={8}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          className="wana-input"
+          className="elevari-input"
           required
         />
       </label>
-      <button type="submit" disabled={loading} className="wana-btn-primary min-h-[48px]">
+      <button type="submit" disabled={loading} className="elevari-btn-primary min-h-[48px]">
         {loading ? 'Guardando…' : 'Actualizar contraseña'}
       </button>
     </form>

@@ -3,13 +3,13 @@ import { AUTH_BACKGROUND_IMAGE } from '@/components/auth/AuthShell';
 
 export default function AuthPageFallback() {
   return (
-    <div className="wana-auth-immersive relative min-h-[100svh]">
-      <div className="wana-auth-immersive-bg" aria-hidden>
+    <div className="elevari-auth-immersive relative min-h-[100svh]">
+      <div className="elevari-auth-immersive-bg" aria-hidden>
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${AUTH_BACKGROUND_IMAGE})` }}
         />
-        <div className="wana-auth-immersive-overlay" />
+        <div className="elevari-auth-immersive-overlay" />
       </div>
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4">
         <Logo onDark />

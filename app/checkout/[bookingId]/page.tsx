@@ -44,10 +44,10 @@ export default async function CheckoutPage({
     return (
       <>
         <Header sticky={false} />
-        <main id="contenido" className="wana-container py-14">
-          <div className="wana-card mx-auto max-w-md p-8 text-center">
+        <main id="contenido" className="elevari-container py-14">
+          <div className="elevari-card mx-auto max-w-md p-8 text-center">
             <p className="text-elevari-muted">Esta reserva no está disponible para pago ({booking.status}).</p>
-            <Link href="/properties" className="wana-btn-primary mt-6 inline-flex">
+            <Link href="/properties" className="elevari-btn-primary mt-6 inline-flex">
               Ver propiedades
             </Link>
           </div>
@@ -59,9 +59,9 @@ export default async function CheckoutPage({
   return (
     <>
       <Header sticky={false} />
-      <main id="contenido" className="wana-container py-8 lg:py-12">
+      <main id="contenido" className="elevari-container py-8 lg:py-12">
         <header className="mb-8">
-          <p className="wana-eyebrow">Checkout</p>
+          <p className="elevari-eyebrow">Checkout</p>
           <h1 className="mt-2 font-display text-3xl text-elevari-slate sm:text-4xl">Confirma y paga</h1>
         </header>
         <CheckoutClient booking={booking as never} propertySlug={propertySlug} coverImage={coverImage} />

@@ -39,7 +39,7 @@ export default function CheckoutStepper({ current }: { current: Step }) {
               </div>
               {index < STEPS.length - 1 && (
                 <div
-                  className={`hidden h-px flex-1 sm:block ${done ? 'bg-elevari-forest' : 'bg-wana-border'}`}
+                  className={`hidden h-px flex-1 sm:block ${done ? 'bg-elevari-forest' : 'bg-elevari-border'}`}
                   aria-hidden
                 />
               )}

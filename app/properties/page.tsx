@@ -49,13 +49,13 @@ export default async function PropertiesPage({
       <Header />
       <main id="contenido" className="pb-16">
         <div className="border-b border-elevari-border/60 bg-elevari-sand/25">
-          <div className="wana-container py-10 lg:py-14">
+          <div className="elevari-container py-10 lg:py-14">
             <header className="max-w-2xl">
-              <p className="wana-eyebrow">Colección</p>
-              <h1 className="wana-display-page mt-3 text-elevari-slate">
+              <p className="elevari-eyebrow">Colección</p>
+              <h1 className="elevari-display-page mt-3 text-elevari-slate">
                 Espacios únicos en Colombia
               </h1>
-              <div className="wana-divider-gold mt-5" />
+              <div className="elevari-divider-gold mt-5" />
               <p className="mt-5 text-elevari-muted leading-relaxed">
                 Selecciona fechas en cada propiedad para ver el precio total antes de reservar.
               </p>
@@ -75,7 +75,7 @@ export default async function PropertiesPage({
                 </p>
               )}
               {fromApi && (
-                <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-elevari-amber/30 bg-white px-4 py-1.5 text-xs font-medium text-elevari-forest">
+                <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-elevari-amber/30 bg-elevari-surface px-4 py-1.5 text-xs font-medium text-elevari-forest">
                   <span className="h-1.5 w-1.5 rounded-full bg-elevari-amber" />
                   Disponibilidad en tiempo real
                 </span>
@@ -84,7 +84,7 @@ export default async function PropertiesPage({
           </div>
         </div>
 
-        <div className="wana-container py-10 lg:py-12">
+        <div className="elevari-container py-10 lg:py-12">
 
           {error ? (
             <div role="alert" className="rounded-2xl border border-elevari-amber/40 bg-elevari-warning-soft p-6 text-elevari-warning">
@@ -93,7 +93,7 @@ export default async function PropertiesPage({
               {hasFilters && (
                 <Link
                   href="/properties"
-                  className="wana-link mt-4 inline-block text-sm font-medium"
+                  className="elevari-link mt-4 inline-block text-sm font-medium"
                 >
                   Ver todas las propiedades
                 </Link>

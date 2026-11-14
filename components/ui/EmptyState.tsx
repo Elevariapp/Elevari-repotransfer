@@ -23,7 +23,7 @@ export default function EmptyState({
       <h2 className="mt-4 font-display text-xl text-elevari-slate">{title}</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-elevari-muted leading-relaxed">{description}</p>
       {actionLabel && actionHref && (
-        <Link href={actionHref} className="wana-btn-primary mt-6 inline-flex">
+        <Link href={actionHref} className="elevari-btn-primary mt-6 inline-flex">
           {actionLabel}
         </Link>
       )}

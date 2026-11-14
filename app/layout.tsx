@@ -4,6 +4,7 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import ConditionalFooter from '@/components/layout/ConditionalFooter';
 import MarketingScripts from '@/components/analytics/MarketingScripts';
+import { themeInitScript } from '@/components/theme/ThemeToggle';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eleveri.app';
 
@@ -33,12 +34,13 @@ const plusJakarta = Plus_Jakarta_Sans({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${inter.variable} ${plusJakarta.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="wana-page-bg min-h-screen font-sans text-elevari-slate antialiased">
-        <a href="#contenido" className="wana-skip-link">
+      <body className="elevari-page-bg min-h-screen font-sans text-elevari-slate antialiased">
+        <a href="#contenido" className="elevari-skip-link">
           Saltar al contenido principal
         </a>
         <MarketingScripts />

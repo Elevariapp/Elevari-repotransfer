@@ -17,10 +17,10 @@ export default function CinematicBand({
 }: Props) {
   const overlayClass =
     overlay === 'dark'
-      ? 'bg-black/55'
+      ? 'bg-elevari-ink/55'
       : overlay === 'light'
         ? 'bg-elevari-ivory/88'
-        : 'bg-gradient-to-r from-black/88 via-black/65 to-black/75';
+        : 'bg-gradient-to-r from-elevari-ink/88 via-elevari-ink/65 to-elevari-ink/75';
 
   return (
     <section className={`relative overflow-hidden min-h-[240px] ${className}`}>

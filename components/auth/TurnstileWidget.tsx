@@ -140,7 +140,7 @@ export default function TurnstileWidget({
             No se pudo cargar la verificación. En Cloudflare Turnstile añade{' '}
             <strong>eleveri.app</strong> y <strong>www.eleveri.app</strong>.
           </p>
-          <button type="button" onClick={handleRetry} className="wana-btn-ghost w-full min-h-[44px] text-xs">
+          <button type="button" onClick={handleRetry} className="elevari-btn-ghost w-full min-h-[44px] text-xs">
             Reintentar verificación
           </button>
         </div>

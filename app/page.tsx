@@ -37,23 +37,23 @@ export default async function HomePage() {
                 style={{ backgroundImage: 'url(/properties/glamping-wana/04.webp)' }}
               />
             </div>
-            <div className="wana-container relative">
+            <div className="elevari-container relative">
               <div className="mb-10 flex items-end justify-between gap-4">
                 <div>
-                  <p className="wana-eyebrow">Selección</p>
-                  <h2 className="wana-display-section mt-3 text-elevari-slate">
+                  <p className="elevari-eyebrow">Selección</p>
+                  <h2 className="elevari-display-section mt-3 text-elevari-slate">
                     Destacados esta semana
                   </h2>
                   <p className="mt-3 text-elevari-muted">Espacios con la mejor valoración de huéspedes</p>
                 </div>
                 <Link
                   href="/properties"
-                  className="hidden text-sm font-semibold text-elevari-forest hover:text-elevari-amber sm:inline-flex sm:items-center sm:gap-1"
+                  className="hidden text-sm font-semibold text-elevari-forest hover:text-elevari-forest-deep sm:inline-flex sm:items-center sm:gap-1"
                 >
                   Ver colección <span aria-hidden>→</span>
                 </Link>
               </div>
-              <Link href="/properties" className="wana-btn-ghost mt-4 text-sm sm:hidden">
+              <Link href="/properties" className="elevari-btn-ghost mt-4 text-sm sm:hidden">
                 Ver colección
               </Link>
               <div className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -79,9 +79,9 @@ export default async function HomePage() {
         )}
 
         <CinematicBand image="/properties/glamping-wana/05.webp" alt="Montañas de Sutatausa" overlay="dark">
-          <div className="wana-container py-16 sm:py-20 text-center text-white">
-            <p className="wana-eyebrow wana-eyebrow-lux !text-elevari-amber-soft">Sabana de Bogotá</p>
-            <h2 className="wana-display-section wana-display-section--light mt-4 max-w-2xl mx-auto">
+          <div className="elevari-container py-16 sm:py-20 text-center text-white">
+            <p className="elevari-eyebrow elevari-eyebrow-lux !text-elevari-amber-soft">Sabana de Bogotá</p>
+            <h2 className="elevari-display-section elevari-display-section--light mt-4 max-w-2xl mx-auto">
               Amaneceres en la montaña, noches bajo las estrellas
             </h2>
             <p className="mt-4 max-w-lg mx-auto text-white/80 leading-relaxed">
@@ -101,16 +101,16 @@ export default async function HomePage() {
 
         <ExperiencePillars />
 
-        <section className="wana-container pb-20">
+        <section className="elevari-container pb-20">
           <CinematicBand
             image="/properties/glamping-wana/03.webp"
             alt="Experiencia glamping"
             overlay="dark"
-            className="rounded-[1.75rem] shadow-wana-lg ring-1 ring-elevari-amber/20"
+            className="rounded-[1.75rem] shadow-elevari-lg ring-1 ring-elevari-amber/20"
           >
             <div className="px-8 py-14 text-center text-white sm:px-14 sm:py-16">
-              <p className="wana-eyebrow !text-elevari-amber-soft">Tu próximo escape</p>
-              <h2 className="wana-display-section wana-display-section--light mt-4">
+              <p className="elevari-eyebrow !text-elevari-amber-soft">Tu próximo escape</p>
+              <h2 className="elevari-display-section elevari-display-section--light mt-4">
                 ¿Listo para desconectar?
               </h2>
               <p className="mt-4 max-w-lg mx-auto text-white/80 leading-relaxed">

@@ -9,8 +9,8 @@ const base =
   'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition duration-150 disabled:cursor-not-allowed disabled:opacity-50';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-elevari-forest text-white shadow-[0_6px_18px_rgba(47,107,79,0.26)] hover:bg-elevari-forest-deep',
-  accent: 'bg-elevari-amber text-elevari-slate shadow-[0_6px_18px_rgba(233,168,32,0.28)] hover:bg-[#d9971a]',
+  primary: 'bg-elevari-action text-white shadow-[0_6px_18px_rgba(47,107,79,0.26)] hover:bg-elevari-action-hover',
+  accent: 'bg-elevari-amber text-elevari-forest-deep shadow-[0_6px_18px_rgba(233,168,32,0.28)] hover:bg-[#d9971a]',
   secondary:
     'border border-elevari-border bg-elevari-surface text-elevari-slate hover:border-elevari-forest hover:bg-elevari-ivory',
   ghost: 'bg-transparent text-elevari-forest hover:bg-elevari-fresh-soft',

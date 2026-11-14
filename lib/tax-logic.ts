@@ -6,7 +6,7 @@
  * Guest-facing label: "Tarifa de Servicio Elevari".
  */
 
-export interface WanaFees {
+export interface ElevariFees {
   base_amount: number;
   platform_fee_percent: number;
   platform_fee_amount: number;
@@ -18,7 +18,7 @@ export interface WanaFees {
   subtotal: number;
 }
 
-export function calculateWanaFees(baseAmount: number, feePercent: number = 15): WanaFees {
+export function calculateElevariFees(baseAmount: number, feePercent: number = 15): ElevariFees {
   const platform_fee_amount = baseAmount * (feePercent / 100);
   const total_amount = baseAmount + platform_fee_amount;
 
@@ -39,7 +39,7 @@ export function calculateWanaFees(baseAmount: number, feePercent: number = 15): 
 export interface AuditLog {
   booking_id: string;
   transaction_id: string;
-  fees_breakdown: WanaFees;
+  fees_breakdown: ElevariFees;
   timestamp: string;
   status: 'success' | 'failed' | 'pending';
   method: 'alegra' | 'backup';

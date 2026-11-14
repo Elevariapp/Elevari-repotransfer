@@ -22,7 +22,7 @@ export default function AdminOverview() {
 
   if (!user || user.role !== 'admin') {
     return (
-      <div className="wana-card p-8 text-center text-elevari-muted">
+      <div className="elevari-card p-8 text-center text-elevari-muted">
         Acceso restringido a administradores.
       </div>
     );
@@ -45,10 +45,10 @@ export default function AdminOverview() {
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.length === 0
         ? Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="wana-card h-28 animate-pulse bg-elevari-sand" />
+            <div key={i} className="elevari-card h-28 animate-pulse bg-elevari-sand" />
           ))
         : cards.map((card) => (
-            <Link key={card.label} href={card.href} className="wana-card p-6 transition hover:shadow-card">
+            <Link key={card.label} href={card.href} className="elevari-card p-6 transition hover:shadow-card">
               <p className="text-sm text-elevari-muted">{card.label}</p>
               <p className="mt-2 font-display text-3xl text-elevari-slate">{card.value}</p>
             </Link>

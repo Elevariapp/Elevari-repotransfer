@@ -54,7 +54,7 @@ export default function SearchDropdown({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 6 }}
           transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className={`wana-dropdown-panel absolute top-[calc(100%+10px)] z-[120] ${alignClass} ${className}`}
+          className={`elevari-dropdown-panel absolute top-[calc(100%+10px)] z-[120] ${alignClass} ${className}`}
         >
           {children}
         </motion.div>

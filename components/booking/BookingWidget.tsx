@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { wanaApi, type BookingQuote } from '@/lib/api-client';
 import { analytics } from '@/lib/analytics';
 import PriceBreakdown from '@/components/ui/PriceBreakdown';
+import Button from '@/components/ui/Button';
 import { isValidStayRange, stayRangeError } from '@/lib/booking-dates';
 import { useAuth } from '@/hooks/useAuth';
 import 'react-day-picker/dist/style.css';
@@ -53,7 +54,7 @@ function GuestStepper({
           type="button"
           disabled={value <= min}
           onClick={() => onChange(value - 1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-elevari-border bg-white text-elevari-forest transition hover:border-elevari-amber disabled:opacity-30"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-elevari-border bg-elevari-surface text-elevari-forest transition hover:border-elevari-amber disabled:opacity-30"
         >
           −
         </button>
@@ -62,7 +63,7 @@ function GuestStepper({
           type="button"
           disabled={value >= max}
           onClick={() => onChange(value + 1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-elevari-border bg-white text-elevari-forest transition hover:border-elevari-amber disabled:opacity-30"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-elevari-border bg-elevari-surface text-elevari-forest transition hover:border-elevari-amber disabled:opacity-30"
         >
           +
         </button>
@@ -212,13 +213,13 @@ export default function BookingWidget({
       : formatMoney(pricePerNight, currency);
 
   const widgetBody = (
-    <div className="wana-card-premium p-6 lg:shadow-wana-lg ring-1 ring-elevari-amber/10">
+    <div className="elevari-card-premium p-6 lg:shadow-elevari-lg ring-1 ring-elevari-amber/10">
       <div className="flex items-baseline gap-1">
         <span className="text-2xl font-semibold text-elevari-slate">{formatMoney(pricePerNight, currency)}</span>
         <span className="text-elevari-muted">/ noche</span>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-xl border border-elevari-border bg-white/80">
+      <div className="mt-5 overflow-hidden rounded-xl border border-elevari-border bg-elevari-surface/80">
         <button
           type="button"
           onClick={() => setShowCalendar((s) => !s)}
@@ -250,7 +251,7 @@ export default function BookingWidget({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="wana-calendar mt-4 flex justify-center rounded-xl bg-elevari-sand/50 p-2">
+            <div className="elevari-calendar mt-4 flex justify-center rounded-xl bg-elevari-sand/50 p-2">
               <DayPicker
                 mode="range"
                 selected={range}
@@ -284,14 +285,16 @@ export default function BookingWidget({
         />
       )}
 
-      <button
+      <Button
         type="button"
+        size="lg"
+        fullWidth
         onClick={handleReserve}
         disabled={!canReserve || authLoading}
-        className="wana-btn-primary mt-6 w-full min-h-[48px]"
+        className="mt-6"
       >
         {!user ? 'Inicia sesión para reservar' : bookingLoading ? 'Reservando…' : quoteLoading ? 'Calculando…' : 'Reservar'}
-      </button>
+      </Button>
       <p className="mt-3 text-center text-xs text-elevari-muted">No se hará ningún cobro por ahora</p>
     </div>
   );
@@ -301,7 +304,7 @@ export default function BookingWidget({
       <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">{widgetBody}</div>
 
       {/* Mobile bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-elevari-border wana-glass px-4 py-3 shadow-[0_-8px_30px_rgba(15,31,24,0.08)] lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-elevari-border elevari-glass px-4 py-3 shadow-[0_-8px_30px_rgba(15,31,24,0.08)] lg:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
           <div>
             <p className="font-semibold text-elevari-slate">{totalDisplay}</p>
@@ -309,13 +312,9 @@ export default function BookingWidget({
               {nights > 0 ? `${nights} noches` : 'Selecciona fechas'}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setMobileOpen(true)}
-            className="wana-btn-primary !px-6 min-h-[44px]"
-          >
+          <Button type="button" size="sm" onClick={() => setMobileOpen(true)} className="min-h-[44px] px-6">
             Reservar
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -326,7 +325,7 @@ export default function BookingWidget({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/40 lg:hidden"
+            className="fixed inset-0 z-50 bg-elevari-ink/40 lg:hidden"
             onClick={() => setMobileOpen(false)}
           >
             <motion.div
@@ -345,7 +344,7 @@ export default function BookingWidget({
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}
-                  className="wana-btn-ghost !px-4 !py-2 text-sm min-h-[36px]"
+                  className="elevari-btn-ghost !px-4 !py-2 text-sm min-h-[36px]"
                 >
                   Cerrar
                 </button>
