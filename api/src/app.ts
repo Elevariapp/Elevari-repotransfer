@@ -10,6 +10,7 @@ import { paymentRoutes, webhookRoutes } from './routes/payments.js';
 import { mediaRoutes } from './routes/media.js';
 import { authRoutes } from './routes/auth.js';
 import { adminRoutes } from './routes/admin.js';
+import { financialRoutes } from './routes/financial.js';
 import { hostRoutes } from './routes/host.js';
 
 export async function buildApp() {
@@ -78,6 +79,7 @@ export async function buildApp() {
   await app.register(authRoutes, { prefix: '/api/v1' });
   await app.register(hostRoutes, { prefix: '/api/v1' });
   await app.register(adminRoutes, { prefix: '/api/v1' });
+  await app.register(financialRoutes, { prefix: '/api/v1' });
 
   return app;
 }
