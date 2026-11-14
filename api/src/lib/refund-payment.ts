@@ -120,6 +120,7 @@ export async function issuePaymentRefund(
     const res = await refundWompiPayment({
       transactionId: payment.externalId,
       amountMinor: refundMinor,
+      fullAmountMinor: originalAmountMinor,
     });
     if (res.refunded) {
       return finalize('refunded', res.providerRefundId);

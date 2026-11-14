@@ -180,20 +180,30 @@ export function parseWompiWebhook(payload: WompiEventPayload): {
 
 /**
  * Create a refund via Wompi API.
- * Wompi refunds: POST /transactions/{id}/void (full) — partial refunds depend
- * on payment method support. We attempt API refund; if unsupported we surface
- * pending_manual so ops can process from the Wompi dashboard.
+ * Wompi's void endpoint refunds the FULL transaction and does not accept an
+ * amount, so it is only safe for full refunds. Partial refunds are surfaced as
+ * pending_manual to avoid refunding more money than the guest is owed.
  */
 export async function refundWompiPayment(params: {
   transactionId: string;
   amountMinor: number;
+  fullAmountMinor: number;
 }): Promise<{ refunded: boolean; providerRefundId?: string; pendingManual?: boolean; reason?: string }> {
   const cfg = getWompiConfig();
   if (!cfg) {
     return { refunded: false, pendingManual: true, reason: 'Wompi not configured' };
   }
 
-  // Wompi void endpoint covers full refunds for recent transactions.
+  if (params.amountMinor < params.fullAmountMinor) {
+    return {
+      refunded: false,
+      pendingManual: true,
+      reason:
+        'Partial refunds are not supported by the Wompi void API — process the partial amount manually in the Wompi dashboard',
+    };
+  }
+
+  // Full refund: void the transaction.
   const res = await fetch(`${wompiBase(cfg)}/transactions/${params.transactionId}/void`, {
     method: 'POST',
     headers: {

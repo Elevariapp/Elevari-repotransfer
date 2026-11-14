@@ -620,6 +620,19 @@ export async function webhookRoutes(app: FastifyInstance) {
       return reply.status(409).send({ error: 'Amount mismatch' });
     }
 
+    // Currency validation — the charge currency is frozen per payment (COP only).
+    if (parsed.currency && payment.currency && parsed.currency !== payment.currency) {
+      await recordPaymentEvent({
+        type: 'webhook_currency_mismatch',
+        correlationId: newCorrelationId(),
+        paymentId: payment.id,
+        bookingId: payment.bookingId,
+        payload: { expected: payment.currency, got: parsed.currency },
+      });
+      request.log.error({ paymentId: payment.id }, 'Wompi webhook currency mismatch — ignoring');
+      return reply.status(409).send({ error: 'Currency mismatch' });
+    }
+
     if (parsed.status === 'APPROVED') {
       await confirmPaymentSuccess({
         paymentId: payment.id,
