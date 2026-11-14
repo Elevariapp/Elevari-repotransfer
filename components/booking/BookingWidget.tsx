@@ -264,13 +264,8 @@ export default function BookingWidget({
             <span>{formatMoney(quote.fees.subtotal, currency)}</span>
           </div>
           <div className="flex justify-between text-wana-muted">
-            <span>Impuestos y servicio</span>
-            <span>
-              {formatMoney(
-                quote.fees.inc_tax + quote.fees.parafiscal_tax + quote.fees.wana_commission,
-                currency,
-              )}
-            </span>
+            <span>Tarifa de Servicio Elevari</span>
+            <span>{formatMoney(quote.fees.platform_fee_amount, currency)}</span>
           </div>
           <div className="flex justify-between border-t border-wana-border pt-3 font-semibold text-wana-charcoal">
             <span>Total</span>

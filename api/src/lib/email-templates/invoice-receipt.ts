@@ -47,7 +47,7 @@ Este comprobante respalda tu pago. Consérvalo para tus registros.
     { label: 'Noches', value: String(params.nights) },
     ...(params.subtotal != null ? [{ label: 'Subtotal', value: formatCop(params.subtotal) }] : []),
     ...(params.taxesAndFees != null
-      ? [{ label: 'Impuestos y servicio', value: formatCop(params.taxesAndFees) }]
+      ? [{ label: 'Tarifa de Servicio Elevari', value: formatCop(params.taxesAndFees) }]
       : []),
     { label: 'Total pagado', value: formatCop(params.totalCharge) },
   ];

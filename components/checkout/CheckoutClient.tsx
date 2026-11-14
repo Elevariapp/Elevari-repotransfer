@@ -199,10 +199,8 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
                 <span>{formatCop(fees.subtotal)}</span>
               </div>
               <div className="flex justify-between text-wana-muted">
-                <span>Impuestos y servicio</span>
-                <span>
-                  {formatCop(fees.inc_tax + fees.parafiscal_tax + fees.wana_commission)}
-                </span>
+                <span>Tarifa de Servicio Elevari</span>
+                <span>{formatCop(fees.platform_fee_amount)}</span>
               </div>
               <div className="flex justify-between border-t border-wana-border pt-3 font-bold text-wana-charcoal">
                 <span>Total (COP)</span>

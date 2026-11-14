@@ -1,37 +1,64 @@
 /**
- * Waná fee calculation (Colombia) — keep in sync with web `lib/tax-logic.ts`.
+ * Waná pricing engine — MVP (Phase 2).
+ *
+ * Single pricing model. No active tax engine. No INC. No Parafiscal.
+ * No VAT line shown to customers. No tax breakdown shown to customers.
+ *
+ *   BASE_AMOUNT + PLATFORM_FEE = TOTAL_AMOUNT
+ *
+ * Platform fee is configurable via PLATFORM_FEE_PERCENT (default 15%).
+ * Guest-facing label: "Tarifa de Servicio Elevari".
+ *
+ * Persisted per booking in fees_breakdown:
+ *   base_amount, platform_fee_percent, platform_fee_amount, total_amount
+ * Keep in sync with web `lib/tax-logic.ts`.
  */
 export interface WanaFees {
-  subtotal: number;
-  inc_tax: number;
-  parafiscal_tax: number;
-  subtotal_with_taxes: number;
-  wana_commission: number;
+  /** Base: price_per_night × nights */
+  base_amount: number;
+  /** Configurable percent (default 15) */
+  platform_fee_percent: number;
+  platform_fee_amount: number;
+  /** base_amount + platform_fee_amount — authoritative charge */
+  total_amount: number;
+  /** Alias of total_amount for legacy readers (payments, marketing, cancellation) */
   total_charge_to_guest: number;
+  /** base_amount − platform_fee_amount */
   host_receives: number;
+  /** Alias of base_amount for legacy readers (widget, emails, alegra) */
+  subtotal: number;
   nights: number;
   price_per_night: number;
 }
 
 const round = (n: number) => Math.round(n * 100) / 100;
 
-/** Core fee math from base amount (price × nights). */
-export function calculateWanaFeesFromBase(baseAmount: number): Omit<WanaFees, 'nights' | 'price_per_night'> {
-  const inc_tax = baseAmount * 0.08;
-  const parafiscal_tax = baseAmount * 0.0025;
-  const subtotal_with_taxes = baseAmount + inc_tax + parafiscal_tax;
-  const wana_commission = baseAmount * 0.15;
-  const total_charge_to_guest = subtotal_with_taxes + wana_commission;
-  const host_receives = baseAmount - wana_commission;
+/** Platform fee percent — configurable, default 15%. */
+export function getPlatformFeePercent(): number {
+  const raw = Number(process.env.PLATFORM_FEE_PERCENT ?? 15);
+  if (!Number.isFinite(raw) || raw < 0 || raw > 100) {
+    throw new Error('PLATFORM_FEE_PERCENT must be a number between 0 and 100');
+  }
+  return raw;
+}
+
+/** Core pricing math from base amount (price × nights). */
+export function calculateWanaFeesFromBase(
+  baseAmount: number,
+  feePercent: number = getPlatformFeePercent(),
+): Omit<WanaFees, 'nights' | 'price_per_night'> {
+  const platform_fee_amount = baseAmount * (feePercent / 100);
+  const total_amount = baseAmount + platform_fee_amount;
+  const host_receives = baseAmount - platform_fee_amount;
 
   return {
-    subtotal: round(baseAmount),
-    inc_tax: round(inc_tax),
-    parafiscal_tax: round(parafiscal_tax),
-    subtotal_with_taxes: round(subtotal_with_taxes),
-    wana_commission: round(wana_commission),
-    total_charge_to_guest: round(total_charge_to_guest),
+    base_amount: round(baseAmount),
+    platform_fee_percent: feePercent,
+    platform_fee_amount: round(platform_fee_amount),
+    total_amount: round(total_amount),
+    total_charge_to_guest: round(total_amount),
     host_receives: round(host_receives),
+    subtotal: round(baseAmount),
   };
 }
 

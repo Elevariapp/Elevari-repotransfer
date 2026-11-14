@@ -70,13 +70,13 @@ export interface BookingQuote {
   nights: number;
   available: boolean;
   fees: {
-    subtotal: number;
-    inc_tax: number;
-    parafiscal_tax: number;
-    subtotal_with_taxes: number;
-    wana_commission: number;
+    base_amount: number;
+    platform_fee_percent: number;
+    platform_fee_amount: number;
+    total_amount: number;
     total_charge_to_guest: number;
     host_receives: number;
+    subtotal: number;
     nights: number;
     price_per_night: number;
   };

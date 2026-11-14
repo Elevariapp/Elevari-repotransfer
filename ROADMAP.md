@@ -8,7 +8,7 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 |------|--------|--------|----------------------|
 | **0** | Infraestructura | ✅ Hecho | Docker, PostgreSQL, Fastify API, Prisma |
 | **1** | Reservas UI | ✅ Hecho | Listado, detalle, checkout, estado de booking |
-| **2** | Pagos | ✅ Hecho | Wompi-first + FX quotes + disclosure + refunds + webhooks (mock validado; live pendiente keys) |
+| **2** | Pagos | ✅ Hecho | Wompi-only + pricing MVP (base + 15% Tarifa de Servicio) + FX quotes + disclosure + refunds + webhooks |
 | **3** | Media | ✅ Hecho | MinIO, upload host, galería imagen/video |
 | **Auth** | JWT | ✅ Hecho | Register/login, protección host/account |
 | **4** | Marketing | ✅ Hecho | GA4, Meta Pixel, SEO, emails, CAPI |
@@ -16,6 +16,38 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 | **6E** | Producción | ✅ Hecho | docker-compose.prod, nginx, Dockerfile web, CI |
 | **5** | Apps móviles | 📋 Planificada | Expo/React Native, misma API REST |
 | **6** | Ops restantes | 📋 Parcial | Admin UI, mensajería, búsqueda, legacy cleanup |
+
+---
+
+## Fase 2 — Pagos (completada)
+
+**Objetivo:** ciclo completo Property → Booking → Quote → Checkout → Pago → Webhook → Booking Confirmado → Confirmación al usuario. Un pago exitoso confirma la reserva; un pago fallido nunca la confirma; booking y pago siempre sincronizados.
+
+### Estrategia de proveedor
+- **Wompi es el único proveedor activo.** Bold y Stripe permanecen en el repo, ocultos y deshabilitados (`PAYMENTS_BOLD_ENABLED=false`, `PAYMENTS_STRIPE_ENABLED=false`). Sin selección de proveedor en UI.
+- Producción: `PAYMENTS_WOMPI_ENABLED=true`, `PAYMENTS_MODE=live`. Staging: `PAYMENTS_MODE=mock`.
+- Config: 4 variables únicamente — `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` (ver `.env.wompi.example`). El entorno se deriva del prefijo de la llave (`pub_prod_`/`pub_test_`); llaves de ambientes mezclados abortan el arranque.
+
+### Pricing MVP (sin motor de impuestos)
+- `BASE_AMOUNT + PLATFORM_FEE = TOTAL_AMOUNT`. Sin INC, sin parafiscal, sin línea de IVA, sin desglose de impuestos al cliente.
+- Platform fee **15%** configurable vía `PLATFORM_FEE_PERCENT`. Label: **"Tarifa de Servicio Elevari"**.
+- Persistido por booking: `base_amount`, `platform_fee_percent`, `platform_fee_amount`, `total_amount`.
+- Código: `api/src/lib/fees.ts` (espejo web: `lib/tax-logic.ts`).
+
+### Internacional
+- CO → display COP / charge COP. Internacional → display USD (referencia) / **charge COP** (autoritativo).
+- FX quotes congelados (`fx_quotes`): monto, tasa, fuente, timestamps, TTL 15 min.
+- Disclosure obligatorio (ES/EN) con hash SHA-256 y timestamp de aceptación antes de crear el pago.
+
+### Componentes implementados
+- State machines de pago y booking (`api/src/lib/payments/payment-state.ts`, `api/src/lib/booking-state.ts`) — solo PAID confirma.
+- Provider Wompi: checkout hosted con firma de integridad, sync por reference, webhook con checksum, refunds (`api/src/lib/payments/wompi-provider.ts`).
+- Webhook pipeline: verify → dedupe → validate amount → apply → persist (`/api/v1/webhooks/wompi`).
+- Refunds full/partial en COP, sin re-pricing FX (`payment_refunds`).
+- Observabilidad: `payment_events` con correlation IDs, timeline por pago (`GET /payments/:id/timeline`).
+- Startup validation fail-fast; validación de env en `deploy/scripts/validate-env.sh`.
+- Verificación externa: `verification-log.md` + gate CI (sin CONTRADICTED).
+- Docs operativas: `docs/PAYMENTS.md`, `legal-review-pack.md`, `knowledge/pricing-logic.md`.
 
 ---
 

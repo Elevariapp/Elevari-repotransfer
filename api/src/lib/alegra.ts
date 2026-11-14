@@ -33,8 +33,8 @@ export function buildAlegraInvoicePayload(params: {
   transactionId: string;
 }) {
   const { guestName, guestEmail, propertyTitle, nights, fees, transactionId } = params;
-  const pricePerNight = nights > 0 ? fees.subtotal / nights : fees.subtotal;
-  const taxPerNight = nights > 0 ? (fees.inc_tax + fees.parafiscal_tax) / nights : 0;
+  // MVP pricing: base + platform fee, no tax lines.
+  const pricePerNight = nights > 0 ? fees.base_amount / nights : fees.base_amount;
 
   return {
     client: {
@@ -46,7 +46,13 @@ export function buildAlegraInvoicePayload(params: {
         description: `Hospedaje — ${propertyTitle} (${nights} noches)`,
         quantity: nights > 0 ? nights : 1,
         price: pricePerNight,
-        tax: taxPerNight,
+        tax: 0,
+      },
+      {
+        description: `Tarifa de Servicio Elevari (${fees.platform_fee_percent}%)`,
+        quantity: 1,
+        price: fees.platform_fee_amount,
+        tax: 0,
       },
     ],
     currency: 'COP',

@@ -3,6 +3,19 @@
 Estado: implementado y validado en mock/staging. Wompi es el **único proveedor activo**.
 Bold y Stripe permanecen en el repositorio, ocultos y deshabilitados.
 
+## Pricing (MVP — sin motor de impuestos)
+
+```
+BASE_AMOUNT + PLATFORM_FEE = TOTAL_AMOUNT
+```
+
+- Sin INC, sin parafiscal, sin IVA, sin desglose de impuestos al cliente.
+- Platform fee **15%** por defecto, configurable con `PLATFORM_FEE_PERCENT`.
+- Label al huésped: **"Tarifa de Servicio Elevari"**.
+- Persistido en `bookings.fees_breakdown`: `base_amount`, `platform_fee_percent`,
+  `platform_fee_amount`, `total_amount` (+ alias legacy `total_charge_to_guest`, `subtotal`).
+- Código: `api/src/lib/fees.ts` — espejo web `lib/tax-logic.ts`.
+
 ## Ciclo de vida booking → pago → confirmación
 
 ```

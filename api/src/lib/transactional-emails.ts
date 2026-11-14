@@ -60,8 +60,8 @@ export async function sendInvoiceReceiptEmail(params: {
     return { sent: false, reason: 'no fees breakdown' };
   }
 
-  const taxesAndFees =
-    (fees.inc_tax ?? 0) + (fees.parafiscal_tax ?? 0) + (fees.wana_commission ?? 0);
+  // MVP pricing: no tax lines — only the Elevari service fee.
+  const taxesAndFees = fees.platform_fee_amount ?? 0;
 
   const { subject, text, html } = buildInvoiceReceiptEmail({
     guestName: booking.guestName,
