@@ -1,16 +1,7 @@
-'use client';
-
-import { motion } from 'framer-motion';
-
+/**
+ * Page wrapper: intentionally animation-free so first paint is not delayed.
+ * Per-section animation stays in the section components.
+ */
 export default function Template({ children }: { children: React.ReactNode }) {
-  return (
-    <motion.div
-      initial={false}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
-      transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <>{children}</>;
 }

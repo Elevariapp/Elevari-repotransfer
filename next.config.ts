@@ -9,8 +9,9 @@ const nextConfig: NextConfig = {
   },
     images: {
       formats: ['image/webp'],
-      deviceSizes: [640, 768, 1024, 1280],
+      deviceSizes: [640, 750, 828, 1080, 1200, 1920],
       imageSizes: [256, 384, 640],
+      qualities: [60, 72, 75],
       minimumCacheTTL: 86400,
     remotePatterns: [
       { protocol: 'http', hostname: 'localhost', port: '9000', pathname: '/wana-media/**' },

@@ -2,14 +2,21 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { DayPicker, type DateRange } from 'react-day-picker';
+import type { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 import SearchDropdown from '@/components/ui/SearchDropdown';
 import { stayRangeError } from '@/lib/booking-dates';
 import 'react-day-picker/dist/style.css';
+
+/** Calendar is loaded only when the guest opens the dates panel (keeps home JS small). */
+const DayPicker = dynamic(() => import('react-day-picker').then((mod) => mod.DayPicker), {
+  ssr: false,
+  loading: () => <div className="h-[320px] w-[300px] animate-pulse rounded-xl bg-elevari-sand" aria-hidden />,
+});
 
 const HERO_COVER = '/properties/glamping-wana/01-cover.jpeg';
 const HERO_SLIDES = [
@@ -240,9 +247,15 @@ export default function SearchHero() {
   return (
     <section id="buscar" className="relative flex min-h-[85vh] flex-col justify-end lg:min-h-[92vh]">
       <div className="absolute inset-0 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${HERO_COVER})` }}
+        <Image
+          src={HERO_COVER}
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          quality={60}
+          className="object-cover object-center"
           aria-hidden
         />
         {slideshowReady &&
@@ -251,24 +264,24 @@ export default function SearchHero() {
               key={src}
               className={`absolute inset-0 transition-opacity duration-[2s] ease-in-out ${i === slideIndex ? 'opacity-100' : 'opacity-0'}`}
             >
-              <Image src={src} alt="" fill sizes="100vw" quality={75} className="object-cover scale-105 animate-hero-kenburns" />
+              <Image src={src} alt="" fill sizes="100vw" quality={60} className="object-cover scale-105 animate-hero-kenburns" />
             </div>
           ))}
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/55 to-black/90" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/25" />
       </div>
 
-      <div className="relative z-20 wana-container pb-8 pt-24 sm:pb-12 sm:pt-28 lg:pb-16 lg:pt-32">
+      <div className="relative z-20 wana-container pb-8 pt-14 sm:pb-12 sm:pt-28 lg:pb-16 lg:pt-32">
         <div className="max-w-3xl animate-slide-up">
           <p className="wana-eyebrow wana-eyebrow-lux !text-elevari-amber-soft">Colección curada · Sabana de Bogotá</p>
           <h1 className="wana-display-hero wana-display-hero--light mt-3 sm:mt-4">
             Escapes naturales, sin complicaciones
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/95 sm:mt-5 sm:text-lg">
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/95 sm:mt-5 sm:text-lg">
             Domos, cabañas y refugios elegidos uno a uno en Sutatausa, Cucunubá y la sabana.
-            Precio total antes de pagar y confirmación clara.
+            <span className="hidden sm:inline"> Precio total antes de pagar y confirmación clara.</span>
           </p>
-          <ul className="mt-5 flex flex-wrap gap-2 text-xs font-semibold text-white sm:gap-3 sm:text-sm">
+          <ul className="mt-5 hidden flex-wrap gap-2 text-xs font-semibold text-white sm:flex sm:gap-3 sm:text-sm">
             <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
               ✓ Anfitriones verificados
             </li>
@@ -281,10 +294,10 @@ export default function SearchHero() {
           </ul>
         </div>
 
-        <div className="relative z-30 mt-8 max-w-4xl animate-slide-up lg:mt-10" style={{ animationDelay: '80ms' }}>
+        <div className="relative z-30 mt-6 max-w-4xl animate-slide-up sm:mt-8 lg:mt-10" style={{ animationDelay: '80ms' }}>
           <div className="wana-search-luxury overflow-visible">
             {/* Mobile: stacked fields + inline expand */}
-            <div className="flex flex-col gap-2 p-2 md:hidden">
+            <div className="flex flex-col gap-1.5 p-1.5 md:hidden">
               <button type="button" onClick={() => openPanel('location')} className={fieldClass(panel === 'location')} {...panelButtonA11y('location')}>
                 <span className="flex w-full flex-col items-start gap-0.5">
                   <span className="wana-search-label">Destino</span>
@@ -430,7 +443,7 @@ export default function SearchHero() {
           </div>
         </div>
 
-        <div className="mt-8 flex justify-center sm:mt-10 sm:justify-start">
+        <div className="mt-8 hidden justify-center sm:mt-10 sm:flex sm:justify-start">
           <a href="#coleccion" className="group flex flex-col items-center gap-2 text-white/70 transition hover:text-white">
             <span className="text-[10px] font-bold uppercase tracking-[0.25em]">Descubre</span>
             <span className="flex h-10 w-6 items-start justify-center rounded-full border border-white/35 p-1 group-hover:border-elevari-amber-light">
