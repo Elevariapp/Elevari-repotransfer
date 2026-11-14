@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-label="Elevari Path">
+  <!-- Concept 2 — ELEVARI PATH: ascending abstract path with destination point -->
+  <rect width="512" height="512" rx="120" fill="#1E4835"/>
+  <path d="M152 360C216 360 216 296 256 296C296 296 296 232 320 232C344 232 352 208 352 184" stroke="#5FA76A" stroke-width="30" stroke-linecap="round" fill="none"/>
+  <circle cx="352" cy="184" r="26" fill="#E9A820"/>
+  <circle cx="152" cy="360" r="14" fill="#F6E3B8" opacity="0.9"/>
+</svg>

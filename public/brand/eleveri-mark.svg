@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" role="img" aria-label="Eleveri">
-  <rect width="40" height="40" rx="12" fill="#0A0A0A"/>
-  <path d="M13 27C13 18 15.5 12 20 12C24.5 12 27 18 27 27" stroke="#D4AF7A" stroke-width="2.75" stroke-linecap="round"/>
-  <path d="M14.5 21.5H25.5" stroke="#D4AF7A" stroke-width="2.75" stroke-linecap="round"/>
-  <path d="M15.75 16.5H24.25" stroke="#E8D5B5" stroke-width="2.4" stroke-linecap="round" opacity="0.85"/>
-  <circle cx="28.5" cy="12.75" r="1.6" fill="#E8D5B5"/>
+  <rect width="40" height="40" rx="12" fill="#1E4835"/>
+  <path d="M13 27C13 18 15.5 12 20 12C24.5 12 27 18 27 27" stroke="#5FA76A" stroke-width="2.75" stroke-linecap="round"/>
+  <path d="M14.5 21.5H25.5" stroke="#5FA76A" stroke-width="2.75" stroke-linecap="round"/>
+  <path d="M15.75 16.5H24.25" stroke="#F6E3B8" stroke-width="2.4" stroke-linecap="round" opacity="0.85"/>
+  <circle cx="28.5" cy="12.75" r="1.6" fill="#E9A820"/>
 </svg>

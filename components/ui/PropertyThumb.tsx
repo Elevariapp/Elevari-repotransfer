@@ -18,7 +18,7 @@ export default function PropertyThumb({ src, alt, size = 'md', className = '' }:
 
   if (src) {
     return (
-      <div className={`relative shrink-0 overflow-hidden bg-wana-sand ${dim} ${className}`}>
+      <div className={`relative shrink-0 overflow-hidden bg-elevari-sand ${dim} ${className}`}>
         <Image
           src={src}
           alt={alt}
@@ -35,7 +35,7 @@ export default function PropertyThumb({ src, alt, size = 'md', className = '' }:
       className={`wana-empty-media shrink-0 ring-1 ring-wana-border/60 ${dim} ${className}`}
       aria-hidden
     >
-      <span className="text-lg text-wana-gold">✦</span>
+      <span className="text-lg text-elevari-amber">✦</span>
       <span>Eleveri</span>
     </div>
   );
