@@ -19,10 +19,20 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
   const { login, loginWithGoogle } = useAuth();
 
   const needsTurnstile = TURNSTILE_ENABLED && !turnstileToken;
+
+  const validateFields = () => {
+    const next: { email?: string; password?: string } = {};
+    const trimmed = email.trim();
+    if (!trimmed) next.email = 'Escribe tu email.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) next.email = 'Escribe un email válido.';
+    if (!password) next.password = 'Escribe tu contraseña.';
+    return next;
+  };
 
   const refreshTurnstile = () => {
     setTurnstileToken('');
@@ -35,6 +45,12 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const nextFieldErrors = validateFields();
+    setFieldErrors(nextFieldErrors);
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setError(null);
+      return;
+    }
     if (TURNSTILE_ENABLED && !turnstileToken) {
       setError('Completa la verificación de seguridad');
       return;
@@ -83,29 +99,57 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
         </div>
       )}
 
-      <form onSubmit={handleLogin} className="space-y-4">
-        <label className="block space-y-1.5">
-          <span className="wana-label">Email</span>
+      <form onSubmit={handleLogin} noValidate className="space-y-4">
+        <div className="space-y-1.5">
+          <label htmlFor="login-email" className="wana-label block">
+            Email
+          </label>
           <input
+            id="login-email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
+            }}
             className="wana-input"
             autoComplete="email"
             required
+            aria-required="true"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-describedby={fieldErrors.email ? 'login-email-error' : undefined}
           />
-        </label>
-        <label className="block space-y-1.5">
-          <span className="wana-label">Contraseña</span>
+          {fieldErrors.email && (
+            <p id="login-email-error" role="alert" className="text-xs font-medium text-elevari-error">
+              {fieldErrors.email}
+            </p>
+          )}
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="login-password" className="wana-label block">
+            Contraseña
+          </label>
           <input
+            id="login-password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
+            }}
             className="wana-input"
             autoComplete="current-password"
             required
+            aria-required="true"
+            aria-invalid={fieldErrors.password ? true : undefined}
+            aria-describedby={fieldErrors.password ? 'login-password-error' : undefined}
           />
-        </label>
+          {fieldErrors.password && (
+            <p id="login-password-error" role="alert" className="text-xs font-medium text-elevari-error">
+              {fieldErrors.password}
+            </p>
+          )}
+        </div>
 
         {TURNSTILE_ENABLED && (
           <TurnstileWidget
@@ -119,7 +163,9 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
         )}
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          <div role="alert" className="rounded-xl border border-elevari-error/30 bg-elevari-error-soft px-4 py-3 text-sm text-elevari-error">
+            {error}
+          </div>
         )}
 
         <button

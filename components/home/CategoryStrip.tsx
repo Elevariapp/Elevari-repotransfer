@@ -46,7 +46,11 @@ export default function CategoryStrip({ activeCity }: { activeCity?: string }) {
                   >
                     <span className="text-left">
                       <span className="block leading-tight">{item.label}</span>
-                      <span className="mt-0.5 block text-[10px] font-normal text-elevari-muted sm:hidden">
+                      <span
+                        className={`mt-0.5 block text-[10px] font-normal sm:hidden ${
+                          active ? 'text-white' : 'text-elevari-muted'
+                        }`}
+                      >
                         {item.detail}
                       </span>
                     </span>

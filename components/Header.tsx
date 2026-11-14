@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -19,6 +19,8 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -29,6 +31,20 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
     return () => {
       document.body.style.overflow = '';
     };
+  }, [menuOpen]);
+
+  /** Disclosure behaviour: Escape closes and returns focus to the trigger. */
+  useEffect(() => {
+    if (!menuOpen) return;
+    mobilePanelRef.current?.querySelector<HTMLElement>('a, button')?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [menuOpen]);
 
   const handleLogout = () => {
@@ -108,8 +124,10 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
 
           <button
             type="button"
+            ref={menuButtonRef}
             className="wana-header-menu-btn lg:hidden"
             aria-expanded={menuOpen}
+            aria-controls="elevari-mobile-menu"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
             onClick={() => setMenuOpen((o) => !o)}
           >
@@ -125,7 +143,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
       </div>
 
       {menuOpen && (
-        <div className="wana-header-mobile-panel lg:hidden">
+        <div ref={mobilePanelRef} id="elevari-mobile-menu" className="wana-header-mobile-panel lg:hidden">
           <nav className="wana-container flex max-h-[calc(100dvh-3.5rem)] flex-col gap-1 overflow-y-auto py-4 sm:max-h-[calc(100dvh-4rem)]">
             {navLinks.map((link) => (
               <Link

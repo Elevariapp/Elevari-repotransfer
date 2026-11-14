@@ -27,6 +27,7 @@ export default function RegisterClient({
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
   const { register, loginWithGoogle } = useAuth();
 
@@ -34,6 +35,17 @@ export default function RegisterClient({
   const loginHref = redirectTo !== '/'
     ? `/auth/login?redirect=${encodeURIComponent(redirectTo)}`
     : '/auth/login';
+
+  const validateFields = () => {
+    const next: { name?: string; email?: string; password?: string } = {};
+    if (!name.trim()) next.name = 'Escribe tu nombre.';
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) next.email = 'Escribe tu email.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail)) next.email = 'Escribe un email válido.';
+    if (!password) next.password = 'Crea una contraseña.';
+    else if (password.length < 8) next.password = 'La contraseña debe tener al menos 8 caracteres.';
+    return next;
+  };
 
   const refreshTurnstile = () => {
     setTurnstileToken('');
@@ -46,6 +58,12 @@ export default function RegisterClient({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const nextFieldErrors = validateFields();
+    setFieldErrors(nextFieldErrors);
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setError(null);
+      return;
+    }
     if (TURNSTILE_ENABLED && !turnstileToken) {
       setError('Completa la verificación de seguridad antes de continuar');
       return;
@@ -103,46 +121,89 @@ export default function RegisterClient({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="block space-y-1.5">
-          <span className="wana-label">Nombre</span>
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+        <div className="space-y-1.5">
+          <label htmlFor="register-name" className="wana-label block">
+            Nombre
+          </label>
           <input
+            id="register-name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }));
+            }}
             className="wana-input"
             autoComplete="name"
             required
+            aria-required="true"
+            aria-invalid={fieldErrors.name ? true : undefined}
+            aria-describedby={fieldErrors.name ? 'register-name-error' : undefined}
           />
-        </label>
-        <label className="block space-y-1.5">
-          <span className="wana-label">Email</span>
+          {fieldErrors.name && (
+            <p id="register-name-error" role="alert" className="text-xs font-medium text-elevari-error">
+              {fieldErrors.name}
+            </p>
+          )}
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="register-email" className="wana-label block">
+            Email
+          </label>
           <input
+            id="register-email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
+            }}
             className="wana-input"
             autoComplete="email"
             required
+            aria-required="true"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-describedby={fieldErrors.email ? 'register-email-error' : undefined}
           />
-        </label>
-        <label className="block space-y-1.5">
-          <span className="wana-label">Contraseña (mín. 8)</span>
+          {fieldErrors.email && (
+            <p id="register-email-error" role="alert" className="text-xs font-medium text-elevari-error">
+              {fieldErrors.email}
+            </p>
+          )}
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="register-password" className="wana-label block">
+            Contraseña (mín. 8)
+          </label>
           <input
+            id="register-password"
             type="password"
             minLength={8}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
+            }}
             className="wana-input"
             autoComplete="new-password"
             required
+            aria-required="true"
+            aria-invalid={fieldErrors.password ? true : undefined}
+            aria-describedby={fieldErrors.password ? 'register-password-error' : undefined}
           />
-        </label>
+          {fieldErrors.password && (
+            <p id="register-password-error" role="alert" className="text-xs font-medium text-elevari-error">
+              {fieldErrors.password}
+            </p>
+          )}
+        </div>
         <fieldset className="space-y-2">
           <legend className="wana-label">Quiero</legend>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setRole('guest')}
+              aria-pressed={role === 'guest'}
               className={`wana-chip ${role === 'guest' ? 'wana-chip-active' : ''}`}
             >
               Reservar
@@ -150,6 +211,7 @@ export default function RegisterClient({
             <button
               type="button"
               onClick={() => setRole('host')}
+              aria-pressed={role === 'host'}
               className={`wana-chip ${role === 'host' ? 'wana-chip-active' : ''}`}
             >
               Anfitrión
@@ -169,7 +231,9 @@ export default function RegisterClient({
         )}
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          <div role="alert" className="rounded-xl border border-elevari-error/30 bg-elevari-error-soft px-4 py-3 text-sm text-elevari-error">
+            {error}
+          </div>
         )}
 
         <button
