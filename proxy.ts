@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebJwt } from '@/lib/verify-jwt';
 
+/**
+ * Next.js 16 proxy (formerly middleware.ts).
+ * Docs: https://nextjs.org/docs/app/api-reference/file-conventions/proxy
+ */
 const PROTECTED_PREFIXES = ['/host', '/account', '/admin'];
 const ADMIN_PREFIX = '/admin';
 
-export async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const needsAuth = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
