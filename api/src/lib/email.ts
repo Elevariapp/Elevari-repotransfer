@@ -1,3 +1,10 @@
+function maskEmail(value: string): string {
+  const [local, domain] = value.split('@');
+  if (!domain) return '[invalid-email]';
+  const head = local.slice(0, 2);
+  return `${head}***@${domain}`;
+}
+
 export async function sendEmail(params: {
   to: string;
   subject: string;
@@ -7,7 +14,13 @@ export async function sendEmail(params: {
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) {
     if (process.env.NODE_ENV === 'development') {
-      console.log('[email:mock]', params);
+      // Never log guest PII or message bodies.
+      console.log('[email:mock]', {
+        to: maskEmail(params.to),
+        subject: params.subject,
+        textLength: params.text.length,
+        hasHtml: Boolean(params.html),
+      });
     }
     return { sent: false, reason: 'RESEND_API_KEY not configured' };
   }

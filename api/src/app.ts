@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
+import { randomUUID } from 'node:crypto';
 import { healthRoutes } from './routes/health.js';
 import { propertyRoutes } from './routes/properties.js';
 import { bookingRoutes } from './routes/bookings.js';
@@ -12,7 +13,26 @@ import { adminRoutes } from './routes/admin.js';
 import { hostRoutes } from './routes/host.js';
 
 export async function buildApp() {
-  const app = Fastify({ logger: true });
+  const app = Fastify({
+    // Structured logs with request correlation and secret redaction.
+    logger: {
+      level: process.env.LOG_LEVEL ?? 'info',
+      redact: {
+        paths: [
+          'req.headers.authorization',
+          'req.headers.cookie',
+          'res.headers["set-cookie"]',
+          'req.headers["x-wompi-signature"]',
+        ],
+        censor: '[redacted]',
+      },
+    },
+    genReqId: (req) => {
+      const incoming = req.headers['x-request-id'];
+      return (Array.isArray(incoming) ? incoming[0] : incoming) ?? randomUUID();
+    },
+    requestIdHeader: 'x-request-id',
+  });
 
   await app.register(cors, {
     origin: (origin, callback) => {
