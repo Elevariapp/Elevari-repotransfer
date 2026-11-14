@@ -34,7 +34,7 @@ test.describe('Pre-live mock booking', () => {
     await expect(page.locator(`a[href*="/properties/${PROPERTY_SLUG}"]`).first()).toBeVisible();
   });
 
-  test('full flow: reserve → mock Bold payment → confirmed', async ({ page }) => {
+  test('full flow: reserve → mock Wompi payment → confirmed', async ({ page }) => {
     await loginAsGuest(page);
     await page.goto(`/properties/${PROPERTY_SLUG}`);
     await expect(page.getByRole('button', { name: 'Reservar' }).first()).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('Pre-live mock booking', () => {
     await expect(page).toHaveURL(/\/checkout\//, { timeout: 20_000 });
     await expect(page.getByRole('heading', { name: 'Confirma y paga' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Bold' }).click();
+    await page.getByRole('button', { name: 'Wompi' }).click();
 
     await expect(page).toHaveURL(/\/checkout\/.*\/success/, { timeout: 30_000 });
     await expect(page.getByText(/confirmada|Confirmada/i)).toBeVisible({ timeout: 30_000 });

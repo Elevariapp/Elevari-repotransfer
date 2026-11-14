@@ -181,7 +181,7 @@ export async function bookingRoutes(app: FastifyInstance) {
       where: { id },
       include: {
         property: {
-          select: { id: true, slug: true, title: true, city: true },
+          select: { id: true, slug: true, title: true, city: true, country: true },
         },
         payments: { orderBy: { createdAt: 'desc' }, take: 5 },
       },

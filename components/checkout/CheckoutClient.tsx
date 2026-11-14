@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
 import toast from 'react-hot-toast';
-import { wanaApi, type BookingDetail } from '@/lib/api-client';
+import { ApiError, wanaApi, type BookingDetail, type DisclosurePayload, type FxQuoteInfo } from '@/lib/api-client';
 import { formatCop, formatDateRange } from '@/lib/format';
 import { formatPropertyLocation } from '@/lib/property-location';
 import PropertyThumb from '@/components/ui/PropertyThumb';
-import StripePaymentForm from './StripePaymentForm';
 import CheckoutStepper from './CheckoutStepper';
 
 interface CheckoutClientProps {
@@ -17,18 +16,22 @@ interface CheckoutClientProps {
   coverImage?: string | null;
 }
 
+function formatMinor(minor: number, currency: string): string {
+  const major = minor / 100;
+  return currency === 'USD'
+    ? `US$${major.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : formatCop(major);
+}
+
 export default function CheckoutClient({ booking, propertySlug, coverImage }: CheckoutClientProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState<'bold' | 'stripe' | 'mock' | null>(null);
-  const [stripeSession, setStripeSession] = useState<{
-    paymentId: string;
-    clientSecret: string;
-    publishableKey: string;
-    mode: string;
-  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [disclosure, setDisclosure] = useState<DisclosurePayload | null>(null);
+  const [quote, setQuote] = useState<FxQuoteInfo | null>(null);
 
   const fees = booking.feesBreakdown;
   const total = fees?.total_charge_to_guest ?? 0;
+  const isInternational = (booking.property.country ?? 'CO') !== 'CO';
 
   useEffect(() => {
     analytics.beginCheckout(booking.id, total);
@@ -52,15 +55,20 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
     );
   }
 
-  const createIntent = async (provider: 'bold' | 'stripe') => {
-    setLoading(provider);
+  const startPayment = async (acceptedDisclosure?: DisclosurePayload) => {
+    setLoading(true);
     try {
       const returnUrl = `${window.location.origin}/checkout/${booking.id}/success`;
       const result = await wanaApi.createPaymentIntent({
         booking_id: booking.id,
-        provider,
-        idempotency_key: `pay_${booking.id}_${provider}`,
+        idempotency_key: `pay_${booking.id}_wompi`,
         return_url: returnUrl,
+        display_currency: isInternational ? 'USD' : 'COP',
+        quote_id: quote?.id,
+        locale: 'es',
+        disclosure: acceptedDisclosure
+          ? { version: acceptedDisclosure.version, hash: acceptedDisclosure.hash, accepted: true }
+          : undefined,
       });
 
       if (result.already_paid) {
@@ -69,62 +77,36 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
         return;
       }
 
-      if (provider === 'bold') {
-        if (result.mode === 'mock') {
-          await wanaApi.mockCompletePayment(result.payment_id);
-          toast.success('Pago simulado (Bold)');
-          goSuccess();
-          return;
-        }
-        if (result.checkout_url) {
-          window.location.href = result.checkout_url;
-          return;
-        }
+      if (result.mode === 'mock') {
+        await wanaApi.mockCompletePayment(result.payment_id);
+        toast.success('Pago simulado (Wompi)');
+        goSuccess();
+        return;
       }
 
-      if (provider === 'stripe' && result.client_secret) {
-        if (result.mode === 'mock' || result.client_secret.startsWith('mock_secret_')) {
-          setStripeSession({
-            paymentId: result.payment_id,
-            clientSecret: result.client_secret,
-            publishableKey: result.publishable_key ?? 'pk_test_mock',
-            mode: 'mock',
-          });
-        } else if (result.publishable_key) {
-          setStripeSession({
-            paymentId: result.payment_id,
-            clientSecret: result.client_secret,
-            publishableKey: result.publishable_key,
-            mode: 'live',
-          });
-        }
+      if (result.checkout_url) {
+        window.location.href = result.checkout_url;
+        return;
       }
+
+      toast.error('No se pudo iniciar el pago');
     } catch (err) {
+      // 428 — disclosure required for international checkout
+      if (err instanceof ApiError && err.status === 428 && err.details) {
+        const d = err.details as { disclosure?: DisclosurePayload; quote?: FxQuoteInfo };
+        if (d.disclosure) setDisclosure(d.disclosure);
+        if (d.quote) setQuote(d.quote);
+        return;
+      }
       toast.error(err instanceof Error ? err.message : 'Error al iniciar pago');
     } finally {
-      setLoading(null);
+      setLoading(false);
     }
   };
-
-  const handleMockStripePay = async () => {
-    if (!stripeSession) return;
-    setLoading('mock');
-    try {
-      await wanaApi.mockCompletePayment(stripeSession.paymentId);
-      toast.success('Pago simulado (Stripe)');
-      goSuccess();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Error');
-    } finally {
-      setLoading(null);
-    }
-  };
-
-  const checkoutStep = stripeSession ? 'payment' : 'review';
 
   return (
     <>
-      <CheckoutStepper current={checkoutStep} />
+      <CheckoutStepper current="review" />
       <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
       <div className="space-y-6">
         <section className="wana-card p-6">
@@ -148,62 +130,61 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
 
         <section className="wana-card p-6">
           <h2 className="wana-section-title">Método de pago</h2>
-          <p className="mt-2 text-sm text-wana-muted">Elige cómo quieres pagar tu estadía.</p>
+          <p className="mt-2 text-sm text-wana-muted">
+            Paga de forma segura con Wompi — tarjetas, PSE, Nequi y más.
+          </p>
 
-          {!stripeSession && (
-            <div className="mt-6 space-y-3">
+          {quote && disclosure ? (
+            <div className="mt-6 rounded-xl border border-wana-border bg-wana-cream/60 p-5">
+              <h3 className="font-semibold text-wana-charcoal">Detalle de tu pago internacional</h3>
+              <div className="mt-3 space-y-2 text-sm">
+                <div className="flex justify-between font-semibold text-wana-charcoal">
+                  <span>Monto cobrado</span>
+                  <span>{formatMinor(quote.charge_amount_minor, quote.charge_currency)}</span>
+                </div>
+                <div className="flex justify-between text-wana-muted">
+                  <span>Valor de referencia</span>
+                  <span>{formatMinor(quote.display_amount_minor, quote.display_currency)}</span>
+                </div>
+                <div className="flex justify-between text-wana-muted">
+                  <span>Tasa de cambio</span>
+                  <span>{quote.rate.toLocaleString('es-CO')} COP/USD</span>
+                </div>
+                <div className="flex justify-between text-wana-muted">
+                  <span>Cotización válida hasta</span>
+                  <span>{new Date(quote.expires_at).toLocaleTimeString('es-CO')}</span>
+                </div>
+              </div>
+              <p className="mt-4 rounded-lg bg-white/70 p-3 text-xs leading-relaxed text-wana-muted">
+                {disclosure.text}
+              </p>
               <button
                 type="button"
-                onClick={() => createIntent('bold')}
-                disabled={loading !== null}
+                onClick={() => startPayment(disclosure)}
+                disabled={loading}
+                className="wana-btn-primary mt-4 w-full"
+              >
+                {loading ? 'Preparando pago…' : 'Acepto y quiero pagar'}
+              </button>
+            </div>
+          ) : (
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => startPayment()}
+                disabled={loading}
                 className="wana-btn-select wana-btn-select-active disabled:opacity-50"
               >
                 <div>
-                  <span className="font-semibold text-wana-charcoal">Bold</span>
+                  <span className="font-semibold text-wana-charcoal">Wompi</span>
                   <p className="text-xs text-wana-muted">Tarjetas, PSE, Nequi, Bancolombia</p>
                 </div>
                 <span className="rounded-full bg-wana-black px-2.5 py-0.5 text-xs font-semibold text-white">
                   COP
                 </span>
               </button>
-
-              <button
-                type="button"
-                onClick={() => createIntent('stripe')}
-                disabled={loading !== null}
-                className="wana-btn-select disabled:opacity-50"
-              >
-                <div>
-                  <span className="font-semibold text-wana-charcoal">Stripe</span>
-                  <p className="text-xs text-wana-muted">Tarjetas internacionales</p>
-                </div>
-                <span className="text-xs font-medium text-wana-muted">USD</span>
-              </button>
-
-              {loading && <p className="text-center text-sm text-wana-muted">Preparando pago…</p>}
+              {loading && <p className="mt-3 text-center text-sm text-wana-muted">Preparando pago…</p>}
             </div>
-          )}
-
-          {stripeSession && stripeSession.mode === 'mock' && (
-            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50/80 p-4">
-              <p className="text-sm text-amber-900">Modo desarrollo — Stripe no configurado</p>
-              <button
-                type="button"
-                onClick={handleMockStripePay}
-                disabled={loading === 'mock'}
-                className="wana-btn-primary mt-4 w-full"
-              >
-                Simular pago exitoso
-              </button>
-            </div>
-          )}
-
-          {stripeSession && stripeSession.mode === 'live' && (
-            <StripePaymentForm
-              clientSecret={stripeSession.clientSecret}
-              publishableKey={stripeSession.publishableKey}
-              onSuccess={goSuccess}
-            />
           )}
         </section>
       </div>
@@ -230,7 +211,7 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
             </div>
           )}
           <p className="mt-4 text-xs text-wana-muted">
-            Stripe cobra en USD equivalente. Bold cobra en pesos colombianos.
+            Todos los pagos se procesan en pesos colombianos (COP) a través de Wompi.
           </p>
         </div>
       </aside>

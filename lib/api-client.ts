@@ -265,9 +265,12 @@ export const wanaApi = {
 
   createPaymentIntent: (body: {
     booking_id: string;
-    provider: 'bold' | 'stripe' | 'auto';
     idempotency_key: string;
     return_url: string;
+    display_currency?: 'COP' | 'USD';
+    quote_id?: string;
+    locale?: 'es' | 'en';
+    disclosure?: { version: string; hash: string; accepted: true };
   }) =>
     request<PaymentIntentResponse>('/api/v1/payments/intent', {
       method: 'POST',
@@ -387,6 +390,7 @@ export interface BookingDetail {
     slug: string;
     title: string;
     city: string | null;
+    country?: string;
   };
   payments: Array<{
     id: string;
@@ -400,7 +404,7 @@ export interface BookingDetail {
 
 export interface PaymentIntentResponse {
   payment_id: string;
-  provider: 'bold' | 'stripe';
+  provider: 'wompi' | 'bold' | 'stripe';
   mode: 'live' | 'mock';
   checkout_url?: string;
   client_secret?: string;
@@ -409,4 +413,22 @@ export interface PaymentIntentResponse {
   currency: string;
   reused?: boolean;
   already_paid?: boolean;
+  quote?: FxQuoteInfo;
+}
+
+export interface FxQuoteInfo {
+  id: string;
+  charge_currency: string;
+  charge_amount_minor: number;
+  display_currency: string;
+  display_amount_minor: number;
+  rate: number;
+  expires_at: string;
+}
+
+export interface DisclosurePayload {
+  version: string;
+  locale: 'es' | 'en';
+  text: string;
+  hash: string;
 }

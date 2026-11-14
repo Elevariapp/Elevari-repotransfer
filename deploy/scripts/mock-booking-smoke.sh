@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke test flujo reserva completo (mock, sin keys Bold/Stripe)
+# Smoke test flujo reserva completo (mock, sin keys Wompi)
 # Requiere API en marcha con PAYMENTS_MODE=mock y seed aplicado.
 #
 # Uso:
@@ -72,7 +72,7 @@ echo "✓ Booking creado: $BOOKING_ID"
 pay_resp=$(curl -sf -X POST "$BASE_URL/api/v1/payments/intent" \
   -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
-  -d "{\"booking_id\":\"$BOOKING_ID\",\"provider\":\"bold\",\"idempotency_key\":\"pay_${IDEM}\",\"return_url\":\"http://localhost/checkout/success\"}")
+  -d "{\"booking_id\":\"$BOOKING_ID\",\"idempotency_key\":\"pay_${IDEM}\",\"return_url\":\"http://localhost/checkout/success\"}")
 
 PAYMENT_ID=$(echo "$pay_resp" | python3 -c "import sys,json; print(json.load(sys.stdin)['payment_id'])")
 echo "✓ Payment intent: $PAYMENT_ID"

@@ -82,14 +82,36 @@ if [[ "${NEXT_PUBLIC_SITE_URL:-}" != https://* ]]; then
 fi
 
 echo ""
-echo "--- Pagos ---"
+echo "--- Pagos (Phase 2 — Wompi-first) ---"
 if [[ "${PAYMENTS_MODE:-}" == "live" ]]; then
-  check_required BOLD_API_KEY "$BOLD_API_KEY"
-  check_required BOLD_WEBHOOK_SECRET "$BOLD_WEBHOOK_SECRET"
-  check_required STRIPE_SECRET_KEY "$STRIPE_SECRET_KEY"
-  check_required STRIPE_PUBLISHABLE_KEY "$STRIPE_PUBLISHABLE_KEY"
-  check_required STRIPE_WEBHOOK_SECRET "$STRIPE_WEBHOOK_SECRET"
-  check_required NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY "$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
+  if [[ "${PAYMENTS_WOMPI_ENABLED:-false}" == "true" ]]; then
+    check_required WOMPI_ENV "$WOMPI_ENV"
+    check_required WOMPI_PUBLIC_KEY "$WOMPI_PUBLIC_KEY"
+    check_required WOMPI_PRIVATE_KEY "$WOMPI_PRIVATE_KEY"
+    check_required WOMPI_EVENTS_SECRET "$WOMPI_EVENTS_SECRET"
+    check_required WOMPI_INTEGRITY_SECRET "$WOMPI_INTEGRITY_SECRET"
+    check_required NEXT_PUBLIC_WOMPI_PUBLIC_KEY "$NEXT_PUBLIC_WOMPI_PUBLIC_KEY"
+    if [[ "${WOMPI_ENV:-}" == "production" && "${WOMPI_PUBLIC_KEY:-}" != pub_prod_* ]]; then
+      echo "${RED}✗ WOMPI_ENV=production pero WOMPI_PUBLIC_KEY no es pub_prod_*${NC}"
+      errors=$((errors + 1))
+    fi
+    if [[ "${WOMPI_PUBLIC_KEY:-}" != "${NEXT_PUBLIC_WOMPI_PUBLIC_KEY:-}" ]]; then
+      echo "${RED}✗ WOMPI_PUBLIC_KEY y NEXT_PUBLIC_WOMPI_PUBLIC_KEY deben coincidir${NC}"
+      errors=$((errors + 1))
+    fi
+  elif [[ "${PAYMENTS_BOLD_ENABLED:-false}" == "true" || "${PAYMENTS_STRIPE_ENABLED:-false}" == "true" ]]; then
+    echo "${YELLOW}○ Proveedor legacy habilitado (Bold/Stripe) — valida sus keys manualmente${NC}"
+    warnings=$((warnings + 1))
+  else
+    echo "${RED}✗ PAYMENTS_MODE=live sin proveedor habilitado (PAYMENTS_WOMPI_ENABLED=true requerido)${NC}"
+    errors=$((errors + 1))
+  fi
+
+  # International converted checkout gate
+  if [[ "${FX_INTL_CHECKOUT_ENABLED:-false}" == "true" && -z "${LEGAL_SIGNOFF_REF:-}" ]]; then
+    echo "${RED}✗ FX_INTL_CHECKOUT_ENABLED=true requiere LEGAL_SIGNOFF_REF (ver legal-review-pack.md)${NC}"
+    errors=$((errors + 1))
+  fi
 elif [[ "${PAYMENTS_MODE:-}" == "mock" ]]; then
   echo "${GREEN}✓ PAYMENTS_MODE=mock (pre-live OK, sin keys)${NC}"
 else
