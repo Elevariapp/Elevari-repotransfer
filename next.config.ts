@@ -55,6 +55,10 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   compress: true,
   poweredByHeader: false,
+  // Optional build concurrency cap (useful on memory-constrained CI runners).
+  experimental: process.env.NEXT_BUILD_CPUS
+    ? { cpus: Number(process.env.NEXT_BUILD_CPUS) }
+    : undefined,
   async headers() {
     // Baseline OWASP headers applied to every response (defence in depth:
     // nginx adds its own set at the edge).
