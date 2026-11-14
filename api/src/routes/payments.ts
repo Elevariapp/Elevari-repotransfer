@@ -17,8 +17,6 @@ import {
 import { recordPaymentEvent, newCorrelationId } from '../lib/payments/events.js';
 import { syncWompiPayment, verifyWompiWebhook, parseWompiWebhook } from '../lib/payments/wompi-provider.js';
 import type { WompiEventPayload } from '../lib/payments/wompi-provider.js';
-import { syncBoldPayment } from '../lib/payments/bold-provider.js';
-import { syncStripePayment } from '../lib/payments/stripe-provider.js';
 import { issuePaymentRefund } from '../lib/refund-payment.js';
 import {
   accessErrorReply,
@@ -413,19 +411,10 @@ export async function paymentRoutes(app: FastifyInstance) {
     const reference = payment.idempotencyKey;
 
     let sync;
-    if (payment.provider === 'wompi') {
-      sync = await syncWompiPayment(reference);
-    } else if (payment.provider === 'bold') {
-      if (!payment.externalId) {
-        return reply.status(400).send({ error: 'Payment has no external reference' });
-      }
-      sync = await syncBoldPayment(payment.externalId);
-    } else {
-      if (!payment.externalId) {
-        return reply.status(400).send({ error: 'Payment has no external reference' });
-      }
-      sync = await syncStripePayment(payment.externalId);
+    if (payment.provider !== 'wompi') {
+      return reply.status(400).send({ error: `Unsupported provider: ${payment.provider}` });
     }
+    sync = await syncWompiPayment(reference);
 
     if (sync.paid) {
       const result = await confirmPaymentSuccess({
@@ -669,95 +658,5 @@ export async function webhookRoutes(app: FastifyInstance) {
 
     return reply.send({ received: true });
   });
-
-  app.post('/webhooks/bold', async (request, reply) => {
-    if (!cfg.boldEnabled && cfg.mode !== 'mock') {
-      return reply.status(404).send({ error: 'Webhook disabled' });
-    }
-
-    const signature = request.headers['x-bold-signature'] as string | undefined;
-    const payload = request.body as Record<string, unknown>;
-
-    const { verifyBoldWebhook, parseBoldWebhook } = await import('../lib/payments/bold-provider.js');
-
-    if (!verifyBoldWebhook(payload, signature)) {
-      return reply.status(401).send({ error: 'Invalid webhook signature' });
-    }
-
-    const parsed = parseBoldWebhook(payload);
-    if (parsed.status !== 'PAID') {
-      return reply.send({ received: true, skipped: true });
-    }
-
-    const payment = await prisma.payment.findFirst({
-      where: {
-        OR: [{ idempotencyKey: parsed.reference }, { externalId: parsed.paymentLink }],
-      },
-    });
-
-    if (!payment) {
-      return reply.status(404).send({ error: 'Payment not found for webhook' });
-    }
-
-    await confirmPaymentSuccess({
-      paymentId: payment.id,
-      externalId: parsed.transactionId ?? parsed.paymentLink ?? payment.externalId ?? payment.id,
-      raw: payload,
-    });
-
-    return reply.send({ received: true });
-  });
-
-  app.post('/webhooks/stripe', {
-    preParsing: async (request, _reply, payload) => {
-      const chunks: Buffer[] = [];
-      for await (const chunk of payload) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-      }
-      const raw = Buffer.concat(chunks);
-      request.rawBody = raw;
-      const { Readable } = await import('node:stream');
-      return Readable.from(raw);
-    },
-  }, async (request, reply) => {
-    if (!cfg.stripeEnabled && cfg.mode !== 'mock') {
-      return reply.status(404).send({ error: 'Webhook disabled' });
-    }
-
-    const signature = request.headers['stripe-signature'] as string | undefined;
-    const rawBody = request.rawBody;
-
-    if (!rawBody) {
-      return reply.status(400).send({ error: 'Missing raw body' });
-    }
-
-    try {
-      const { constructStripeEvent } = await import('../lib/payments/stripe-provider.js');
-      const event = constructStripeEvent(rawBody, signature);
-
-      if (event.type === 'payment_intent.succeeded') {
-        const intent = event.data.object as { id: string; metadata?: { payment_id?: string } };
-        const paymentId = intent.metadata?.payment_id;
-
-        const payment = paymentId
-          ? await prisma.payment.findUnique({ where: { id: paymentId } })
-          : await prisma.payment.findFirst({ where: { externalId: intent.id } });
-
-        if (payment) {
-          await confirmPaymentSuccess({
-            paymentId: payment.id,
-            externalId: intent.id,
-            raw: { event: event.type },
-          });
-        }
-      }
-
-      return reply.send({ received: true });
-    } catch (err) {
-      request.log.error(err);
-      return reply.status(400).send({
-        error: err instanceof Error ? err.message : 'Webhook error',
-      });
-    }
-  });
 }
+

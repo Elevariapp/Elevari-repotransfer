@@ -13,7 +13,7 @@ export interface FxRateSource {
 
 /** Configurable rate source. Default: static env rate (ops-controlled). */
 export function getCopUsdRate(): FxRateSource {
-  const rate = Number(process.env.FX_COP_USD_RATE ?? process.env.STRIPE_COP_USD_RATE ?? 4000);
+  const rate = Number(process.env.FX_COP_USD_RATE ?? 4000);
   if (!Number.isFinite(rate) || rate <= 0) {
     throw new Error('FX_COP_USD_RATE must be a positive number');
   }

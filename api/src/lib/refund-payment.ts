@@ -1,5 +1,4 @@
 import type { Payment } from '@prisma/client';
-import Stripe from 'stripe';
 import { randomUUID } from 'node:crypto';
 import { prisma } from './prisma.js';
 import { refundWompiPayment } from './payments/wompi-provider.js';
@@ -12,12 +11,6 @@ export type RefundResult =
   | { status: 'pending_manual'; reason: string }
   | { status: 'skipped'; reason: string }
   | { status: 'failed'; reason: string };
-
-function getStripe(): Stripe | null {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) return null;
-  return new Stripe(key);
-}
 
 /**
  * Issue a refund for a payment. Amount is in COP major units (as stored in
@@ -132,31 +125,10 @@ export async function issuePaymentRefund(
     );
   }
 
-  // Stripe
-  if (payment.provider === 'stripe' && payment.externalId) {
-    const stripe = getStripe();
-    if (!stripe) {
-      return finalize('pending_manual', undefined, 'Stripe not configured — ops must refund manually');
-    }
-    try {
-      const refund = await stripe.refunds.create({
-        payment_intent: payment.externalId,
-        amount: refundMinor,
-      });
-      return finalize('refunded', refund.id);
-    } catch (err) {
-      return finalize('failed', undefined, err instanceof Error ? err.message : 'Stripe refund failed');
-    }
-  }
-
-  // Bold
-  if (payment.provider === 'bold') {
-    return finalize(
-      'pending_manual',
-      undefined,
-      'Bold refund must be processed manually in dashboard.bold.co',
-    );
-  }
-
-  return finalize('pending_manual', undefined, 'Unknown payment provider');
+  // Stripe / Bold are not implemented. Any non-Wompi provider must be refunded manually.
+  return finalize(
+    'pending_manual',
+    undefined,
+    `Provider "${payment.provider}" is not supported for automated refunds — process manually`,
+  );
 }

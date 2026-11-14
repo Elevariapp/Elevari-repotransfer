@@ -34,10 +34,7 @@
   "dependencies": {
     "@google-cloud/vision": "^5.3.6",
     "@hookform/resolvers": "^5.4.0",
-    "@netlify/plugin-nextjs": "^5.15.11",
     "@opentelemetry/api": "^1.9.1",
-    "@stripe/react-stripe-js": "^3.7.0",
-    "@stripe/stripe-js": "^5.10.0",
     "@upstash/ratelimit": "^0.1.0",
     "@upstash/redis": "^1.20.0",
     "date-fns": "^4.4.0",

@@ -1,12 +1,9 @@
 /**
- * Payment configuration — Phase 2 (Wompi-first).
+ * Payment configuration — Wompi-only (official provider).
  *
- * WOMPI is the only ACTIVE payment provider.
- * Bold and Stripe remain in the repository but hidden and disabled
- * unless explicitly re-enabled via PAYMENTS_BOLD_ENABLED / PAYMENTS_STRIPE_ENABLED.
- *
- * The WOMPI_* variables are the ONLY source of truth for Wompi config.
+ * The WOMPI_* variables are the ONLY source of truth for payments.
  * No hardcoded values, no duplicate configuration, no fallback secrets.
+ * Other providers are not implemented: only the provider abstraction remains.
  */
 
 export type PaymentsMode = 'live' | 'mock';
@@ -22,8 +19,6 @@ export interface WompiConfig {
 export interface PaymentsConfig {
   mode: PaymentsMode;
   wompiEnabled: boolean;
-  boldEnabled: boolean;
-  stripeEnabled: boolean;
   wompi: WompiConfig | null;
   fxIntlCheckoutEnabled: boolean;
   legalSignoffRef: string | null;
@@ -41,8 +36,6 @@ export function getPaymentsConfig(): PaymentsConfig {
 
   const mode: PaymentsMode = process.env.PAYMENTS_MODE === 'live' ? 'live' : 'mock';
   const wompiEnabled = flag(process.env.PAYMENTS_WOMPI_ENABLED, mode === 'live');
-  const boldEnabled = flag(process.env.PAYMENTS_BOLD_ENABLED, false);
-  const stripeEnabled = flag(process.env.PAYMENTS_STRIPE_ENABLED, false);
 
   let wompi: WompiConfig | null = null;
   if (wompiEnabled) {
@@ -105,18 +98,16 @@ export function getPaymentsConfig(): PaymentsConfig {
     };
   }
 
-  if (!wompiEnabled && !boldEnabled && !stripeEnabled && mode === 'live') {
+  if (!wompiEnabled && mode === 'live') {
     throw new Error(
-      'PAYMENTS STARTUP ERROR — PAYMENTS_MODE=live but no provider enabled. ' +
-        'Set PAYMENTS_WOMPI_ENABLED=true (Wompi is the active provider).',
+      'PAYMENTS STARTUP ERROR — PAYMENTS_MODE=live but Wompi is not enabled. ' +
+        'Set PAYMENTS_WOMPI_ENABLED=true (Wompi is the official provider).',
     );
   }
 
   cached = {
     mode,
     wompiEnabled,
-    boldEnabled,
-    stripeEnabled,
     wompi,
     fxIntlCheckoutEnabled: flag(process.env.FX_INTL_CHECKOUT_ENABLED, false),
     legalSignoffRef: process.env.LEGAL_SIGNOFF_REF || null,

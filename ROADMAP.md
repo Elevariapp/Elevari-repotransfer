@@ -105,7 +105,7 @@ META_ACCESS_TOKEN=
 
 ## Fase 5 — Apps móviles (recomendada siguiente)
 
-**Objetivo:** Huéspedes y anfitriones en iOS/Android con la misma API REST (sin Supabase BaaS).
+**Objetivo:** Huéspedes y anfitriones en iOS/Android con la misma API REST.
 
 ### Alcance MVP
 1. **Expo (React Native)** — monorepo `apps/mobile` o carpeta `mobile/`
@@ -138,7 +138,7 @@ META_ACCESS_TOKEN=
 ### Bloques propuestos
 
 #### 6A — Admin & moderación
-- Dashboard `/admin` sobre API (no Supabase legacy)
+- Dashboard `/admin` sobre API (Fastify + Prisma)
 - Aprobar media, moderar reseñas, ver métricas de reservas
 - Roles: `admin` en JWT
 
@@ -165,7 +165,7 @@ META_ACCESS_TOKEN=
 
 #### 6F — Deprecar legacy
 - Migrar `domos` → `properties` (ETL)
-- Eliminar Netlify Functions y rutas Supabase admin
+- ✅ Eliminado en Foundation Reboot: Netlify, Supabase y todo el stack legacy asociado
 - Un solo stack: Next + API + Postgres
 
 ### Priorización sugerida para Fase 6

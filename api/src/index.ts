@@ -9,7 +9,6 @@ import { startCheckInReminderJob } from './jobs/send-check-in-reminders.js';
 const paymentsConfig = getPaymentsConfig();
 console.log(
   `[payments] mode=${paymentsConfig.mode} wompi=${paymentsConfig.wompiEnabled ? 'enabled' : 'disabled'}` +
-    ` bold=${paymentsConfig.boldEnabled ? 'enabled' : 'disabled'} stripe=${paymentsConfig.stripeEnabled ? 'enabled' : 'disabled'}` +
     (paymentsConfig.wompi ? ` wompi_env=${paymentsConfig.wompi.env}` : ''),
 );
 

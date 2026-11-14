@@ -2,13 +2,27 @@
 
 Use this file as the entry point for deployment and environment-specific work.
 
+## Official architecture (Elevari Foundation Reboot)
+
+| Layer | Official |
+|-------|----------|
+| Compute | **AWS EC2** |
+| Database | **PostgreSQL** |
+| Object storage | **S3-compatible** (MinIO local) |
+| Edge / DNS / TLS | **Cloudflare** |
+| Payments | **Wompi** (only provider) |
+| Extensions | Fly.io · Hugging Face |
+
+**Out of scope (removed):** Vercel · Supabase · Firebase · Netlify.
+Stripe and Bold implementations were removed; only the provider abstraction remains.
+
 ## Design system & brand (Phase 3)
 
 | Topic | Reference |
 |-------|-----------|
 | Brand guide, colors, voice, contrast rules | `docs/brand/ELEVARI_BRAND_GUIDE.md` |
 | Logo concepts + app icon | `docs/brand/ELEVARI_LOGO_CONCEPTS.md` |
-| Design tokens (CSS + TS) | `docs/design/TOKEN_SYSTEM.md`, `app/globals.css`, `lib/design-tokens.ts` |
+| Design tokens (CSS + TS, light/dark/high-contrast) | `docs/design/TOKEN_SYSTEM.md`, `app/globals.css`, `lib/design-tokens.ts` |
 | Components | `docs/design/DESIGN_SYSTEM.md`, `components/ui/` |
 | Migration status | `docs/design/UI_MIGRATION_PLAN.md` |
 | Conversion analytics events | `docs/design/CONVERSION_GUIDELINES.md` |
@@ -20,7 +34,7 @@ Rule: no hardcoded visual values in components — consume `elevari-*` tokens on
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| PostgreSQL | 5432 | Primary database (replaces Supabase DB for new booking flow) |
+| PostgreSQL | 5432 | Primary database (official) |
 | Redis | 6379 | Queues, rate limits (future workers) |
 | MinIO | 9000 / 9001 | Object storage for images/video |
 | Waná API | 4000 | Fastify REST API (`api/`) |
@@ -130,8 +144,8 @@ Env: `ALEGRA_EMAIL`, `ALEGRA_API_TOKEN`. Sin credenciales → `pending_invoices`
 
 ## Legacy stack (removed Jul 2026)
 
-- ~~Supabase client, server actions, Next `/api/*` stubs~~ — eliminado; usar solo Fastify `/api/v1`
-- **Netlify:** `netlify.toml` — optional; producción usa Docker
+- Supabase client, server actions, Next `/api/*` stubs — **eliminados**; usar solo Fastify `/api/v1`
+- **Netlify:** eliminado (fuera de arquitectura); producción usa Docker en EC2
 - **Pagos mock:** checkout vía `wanaApi` + API Fastify
 
 ## Environment

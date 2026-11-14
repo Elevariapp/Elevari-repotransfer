@@ -14,9 +14,8 @@ export interface CreateIntentInput {
 export interface CreateIntentResult {
   paymentId: string;
   provider: PaymentProvider;
-  /** Bold: redirect URL. Stripe: client secret. Mock: null */
+  /** Hosted checkout URL (Wompi) or null in mock mode. */
   checkoutUrl?: string;
-  clientSecret?: string;
   externalId?: string;
   publishableKey?: string;
   mode: 'live' | 'mock';

@@ -53,7 +53,7 @@ Usa ui-ux-expert: revisar docs/PLATFORM_STATUS_CHECKLIST.md y cerrar ítems P0.
 ## Architect
 
 ```
-@Architect: Refactor the current auth flow to ensure it adheres to Supabase Auth best practices.
+@Architect: Refactor the current auth flow to ensure it adheres to the Fastify/JWT auth best practices.
 ```
 
 ```
