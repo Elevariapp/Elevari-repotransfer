@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import Image from 'next/image';
+import PropertyLink from '@/components/catalog/PropertyLink';
 import { formatPropertyLocation } from '@/lib/property-location';
 import EmptyMedia from '@/components/ui/EmptyMedia';
 
@@ -26,14 +26,31 @@ function formatPrice(amount: number) {
   }).format(amount);
 }
 
-export default function PropertyCard({ property }: { property: Property }) {
+export default function PropertyCard({
+  property,
+  position,
+  sort,
+  activeFilters,
+}: {
+  property: Property;
+  position?: number;
+  sort?: string;
+  activeFilters?: number;
+}) {
   const href = property.slug ? `/properties/${property.slug}` : '/properties';
   const image = property.cover_image ?? property.media_url;
   const location = formatPropertyLocation(property.city ?? property.location, property.country);
   const isFeatured = property.rating != null && property.rating >= 4.5;
 
   return (
-    <Link href={href} className="group block">
+    <PropertyLink
+      href={href}
+      slug={property.slug ?? property.id}
+      position={position}
+      sort={sort}
+      activeFilters={activeFilters}
+      className="group block"
+    >
       <article className="animate-fade-in">
         <div
           className="relative overflow-hidden rounded-2xl bg-elevari-sand aspect-[4/3] shadow-card ring-1 ring-elevari-ink/[0.04] transition duration-500 group-hover:shadow-elevari-lg group-hover:ring-elevari-amber/25"
@@ -92,6 +109,6 @@ export default function PropertyCard({ property }: { property: Property }) {
           )}
         </div>
       </article>
-    </Link>
+    </PropertyLink>
   );
 }

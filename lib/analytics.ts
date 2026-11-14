@@ -19,6 +19,10 @@ const GA4_EVENT_MAP: Record<string, string> = {
   payment_completed: 'purchase',
   booking_confirmed: 'purchase',
   checkout_abandoned: 'checkout_abandoned',
+  property_clicked: 'select_item',
+  property_opened: 'view_item',
+  checkout_started: 'begin_checkout',
+  reservation_completed: 'purchase',
 };
 
 function getGaId() {
@@ -51,11 +55,15 @@ function mapToMetaEvent(name: string): string {
   const map: Record<string, string> = {
     view_property: 'ViewContent',
     view_item: 'ViewContent',
+    property_clicked: 'ViewContent',
+    property_opened: 'ViewContent',
     start_checkout: 'InitiateCheckout',
     begin_checkout: 'InitiateCheckout',
+    checkout_started: 'InitiateCheckout',
     payment_started: 'AddPaymentInfo',
     payment_completed: 'Purchase',
     booking_confirmed: 'Purchase',
+    reservation_completed: 'Purchase',
     purchase: 'Purchase',
     search: 'Search',
     sign_up: 'CompleteRegistration',
@@ -165,6 +173,49 @@ export const analytics = {
       total: params.total,
       active_filters: params.activeFilters,
       sort: params.sort,
+    });
+  },
+
+  /** Phase 4 — property card clicked from a results list */
+  propertyClicked: (params: {
+    slug: string;
+    position?: number;
+    sort?: string;
+    activeFilters?: number;
+  }) => {
+    trackEvent('property_clicked', {
+      item_slug: params.slug,
+      position: params.position,
+      sort: params.sort,
+      active_filters: params.activeFilters,
+    });
+  },
+
+  /** Phase 4 — property detail opened */
+  propertyOpened: (params: { slug: string; price?: number }) => {
+    trackEvent('property_opened', {
+      item_slug: params.slug,
+      value: params.price,
+      currency: 'COP',
+    });
+  },
+
+  /** Phase 4 — canonical funnel aliases (same payloads as start_checkout/purchase) */
+  checkoutStarted: (bookingId: string, value: number) => {
+    analytics.startCheckout(bookingId, value);
+    trackEvent('checkout_started', {
+      transaction_id: bookingId,
+      value,
+      currency: 'COP',
+    });
+  },
+
+  reservationCompleted: (bookingId: string, value: number) => {
+    analytics.bookingConfirmed(bookingId, value);
+    trackEvent('reservation_completed', {
+      transaction_id: bookingId,
+      value,
+      currency: 'COP',
     });
   },
 

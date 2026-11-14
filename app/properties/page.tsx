@@ -136,9 +136,12 @@ export default async function PropertiesPage({
           ) : (
             <>
               <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {properties.map((property) => (
+                {properties.map((property, index) => (
                   <PropertyCard
                     key={property.id}
+                    position={params.offset + index + 1}
+                    sort={params.sort}
+                    activeFilters={active}
                     property={{
                       id: property.id,
                       slug: property.slug,

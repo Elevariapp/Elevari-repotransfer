@@ -19,6 +19,7 @@ export default function PropertyViewTracker({
       title: property.title,
       price: property.price_per_night,
     });
+    analytics.propertyOpened({ slug: property.slug, price: property.price_per_night });
   }, [property]);
 
   return null;
