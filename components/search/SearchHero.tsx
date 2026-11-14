@@ -253,7 +253,7 @@ export default function SearchHero() {
           fill
           priority
           fetchPriority="high"
-          sizes="100vw"
+          sizes="(max-width: 640px) 90vw, 100vw"
           quality={60}
           className="object-cover object-center"
           aria-hidden

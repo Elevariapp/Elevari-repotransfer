@@ -14,8 +14,8 @@ export default function PrivacyPage() {
           <h2 className="font-semibold text-elevari-slate">1. Responsable</h2>
           <p className="mt-2">
             Eleveri opera la plataforma de reservas de experiencias de glamping y
-            refugios en Colombia. Para consultas sobre privacidad puedes contactarnos en
-            hola@glampingwana.com.
+            refugios en Colombia. Para consultas sobre privacidad escríbenos a
+            hola@eleveri.app.
           </p>
         </section>
 
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>Datos de cuenta: nombre, correo electrónico y rol (huésped o anfitrión).</li>
             <li>Datos de reserva: fechas, número de huéspedes y desglose de precios.</li>
-            <li>Datos de pago: procesados por proveedores externos (Bold, Stripe); no almacenamos números completos de tarjeta.</li>
+            <li>Datos de pago: procesados por Wompi (tarjetas, PSE, Nequi y Bancolombia) en pesos colombianos; no almacenamos números completos de tarjeta.</li>
             <li>Contenido multimedia subido por anfitriones para describir sus espacios.</li>
             <li>Datos técnicos: cookies de sesión, logs de acceso y métricas de uso (analytics).</li>
           </ul>

@@ -825,6 +825,50 @@
     color: var(--wana-muted);
   }
 
+  /* —— Editorial rhythm for legal / long-form pages —— */
+  .elevari-prose {
+    color: var(--elevari-slate);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .elevari-prose section + section {
+    margin-top: 1.75rem;
+  }
+
+  .elevari-prose h2 {
+    font-family: var(--font-display), 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--elevari-ink);
+  }
+
+  .elevari-prose p {
+    margin-top: 0.5rem;
+  }
+
+  .elevari-prose a {
+    color: var(--elevari-forest);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .elevari-prose a:hover {
+    color: var(--elevari-forest-deep);
+  }
+
+  .elevari-prose ul {
+    margin-top: 0.5rem;
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+
+  .elevari-prose li {
+    margin-top: 0.35rem;
+  }
+
   .wana-text-body {
     color: var(--wana-charcoal);
   }
