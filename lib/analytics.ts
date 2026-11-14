@@ -144,6 +144,30 @@ export const analytics = {
     });
   },
 
+  /** Phase 4 — catalog filter applied */
+  filterApplied: (params: { key: string; value: string; activeFilters: number }) => {
+    trackEvent('filter_applied', {
+      filter_key: params.key,
+      filter_value: params.value,
+      active_filters: params.activeFilters,
+    });
+  },
+
+  /** Phase 4 — catalog sort changed */
+  sortApplied: (params: { sort: string; activeFilters: number }) => {
+    trackEvent('sort_applied', { sort: params.sort, active_filters: params.activeFilters });
+  },
+
+  /** Phase 4 — results list rendered */
+  catalogViewed: (params: { results: number; total?: number; activeFilters: number; sort: string }) => {
+    trackEvent('catalog_viewed', {
+      results: params.results,
+      total: params.total,
+      active_filters: params.activeFilters,
+      sort: params.sort,
+    });
+  },
+
   /** Legacy aliases kept for existing call sites */
   beginCheckout: (bookingId: string, value: number) => analytics.startCheckout(bookingId, value),
 

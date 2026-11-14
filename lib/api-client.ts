@@ -212,19 +212,29 @@ export const wanaApi = {
     guests?: number;
     check_in?: string;
     check_out?: string;
+    sort?: string;
+    min_price?: number;
+    max_price?: number;
+    amenities?: string;
     limit?: number;
+    offset?: number;
   }) => {
     const q = new URLSearchParams();
     if (params?.city) q.set('city', params.city);
     if (params?.guests) q.set('guests', String(params.guests));
     if (params?.check_in) q.set('check_in', params.check_in);
     if (params?.check_out) q.set('check_out', params.check_out);
+    if (params?.sort) q.set('sort', params.sort);
+    if (params?.min_price !== undefined) q.set('min_price', String(params.min_price));
+    if (params?.max_price !== undefined) q.set('max_price', String(params.max_price));
+    if (params?.amenities) q.set('amenities', params.amenities);
     if (params?.limit) q.set('limit', String(params.limit));
+    if (params?.offset) q.set('offset', String(params.offset));
     const query = q.toString();
-    return request<{ data: PropertyListItem[]; meta: { count: number } }>(
-      `/api/v1/properties${query ? `?${query}` : ''}`,
-      { next: { revalidate: 60 } },
-    );
+    return request<{
+      data: PropertyListItem[];
+      meta: { count: number; limit: number; offset: number; total: number; sort: string };
+    }>(`/api/v1/properties${query ? `?${query}` : ''}`, { next: { revalidate: 60 } });
   },
 
   getProperty: (slug: string) =>

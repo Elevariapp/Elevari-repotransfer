@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { apiErrorBody, ApiErrorCode } from '../lib/api-errors.js';
 
@@ -8,9 +9,21 @@ const listQuerySchema = z.object({
   guests: z.coerce.number().int().positive().optional(),
   check_in: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   check_out: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  sort: z.enum(['recommended', 'price_asc', 'price_desc', 'popular', 'newest']).default('recommended'),
+  min_price: z.coerce.number().int().min(0).optional(),
+  max_price: z.coerce.number().int().min(0).optional(),
+  amenities: z.string().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(50).default(24),
   offset: z.coerce.number().int().min(0).default(0),
 });
+
+const ORDER_BY: Record<string, Prisma.PropertyOrderByWithRelationInput[]> = {
+  recommended: [{ createdAt: 'desc' }],
+  price_asc: [{ pricePerNight: 'asc' }],
+  price_desc: [{ pricePerNight: 'desc' }],
+  popular: [{ bookings: { _count: 'desc' } }],
+  newest: [{ createdAt: 'desc' }],
+};
 
 function parseDateUTC(dateStr: string): Date {
   return new Date(`${dateStr}T00:00:00.000Z`);
@@ -79,7 +92,8 @@ export async function propertyRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'Invalid query', details: query.error.flatten() });
     }
 
-    const { city, guests, check_in, check_out, limit, offset } = query.data;
+    const { city, guests, check_in, check_out, sort, min_price, max_price, amenities, limit, offset } =
+      query.data;
 
     let dateFilter: Record<string, unknown> = {};
     if (check_in && check_out) {
@@ -100,29 +114,57 @@ export async function propertyRoutes(app: FastifyInstance) {
       };
     }
 
-    const properties = await prisma.property.findMany({
-      where: {
-        status: 'published',
-        ...(city ? { city: { contains: city, mode: 'insensitive' } } : {}),
-        ...(guests ? { maxGuests: { gte: guests } } : {}),
-        ...dateFilter,
-      },
-      include: {
-        media: {
-          where: { status: 'approved' },
-          orderBy: { sortOrder: 'asc' },
-          take: 5,
+    // Price range (COP major units).
+    const priceFilter =
+      min_price !== undefined || max_price !== undefined
+        ? {
+            pricePerNight: {
+              ...(min_price !== undefined ? { gte: min_price } : {}),
+              ...(max_price !== undefined ? { lte: max_price } : {}),
+            },
+          }
+        : {};
+
+    // Amenities: every requested amenity must be present in the JSON array.
+    const amenityList = (amenities ?? '')
+      .split(',')
+      .map((a) => a.trim().toLowerCase())
+      .filter(Boolean)
+      .slice(0, 10);
+    const amenityFilter = amenityList.map((amenity) => ({
+      amenities: { array_contains: amenity },
+    }));
+
+    const where: Prisma.PropertyWhereInput = {
+      status: 'published',
+      ...(city ? { city: { contains: city, mode: 'insensitive' } } : {}),
+      ...(guests ? { maxGuests: { gte: guests } } : {}),
+      ...priceFilter,
+      ...dateFilter,
+      ...(amenityFilter.length > 0 ? { AND: amenityFilter } : {}),
+    };
+
+    const [properties, total] = await Promise.all([
+      prisma.property.findMany({
+        where,
+        include: {
+          media: {
+            where: { status: 'approved' },
+            orderBy: { sortOrder: 'asc' },
+            take: 5,
+          },
+          reviews: { where: { isVisible: true }, select: { rating: true } },
         },
-        reviews: { where: { isVisible: true }, select: { rating: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip: offset,
-    });
+        orderBy: ORDER_BY[sort] ?? ORDER_BY.recommended,
+        take: limit,
+        skip: offset,
+      }),
+      prisma.property.count({ where }),
+    ]);
 
     return {
       data: properties.map(serializeProperty),
-      meta: { limit, offset, count: properties.length },
+      meta: { limit, offset, count: properties.length, total, sort },
     };
   });
 
