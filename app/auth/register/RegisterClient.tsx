@@ -93,8 +93,8 @@ export default function RegisterClient({
   return (
     <AuthShell topLink={{ href: loginHref, label: 'Iniciar sesión' }}>
       <p className="wana-eyebrow">Registro</p>
-      <h1 className="mt-2 font-display text-3xl text-wana-charcoal">Crear cuenta</h1>
-      <p className="mt-2 text-sm text-wana-muted">Huésped o anfitrión — empieza en minutos.</p>
+      <h1 className="mt-2 font-display text-3xl text-elevari-slate">Crear cuenta</h1>
+      <p className="mt-2 text-sm text-elevari-muted">Huésped o anfitrión — empieza en minutos.</p>
 
       {GOOGLE_ENABLED && (
         <div className="mt-6">
@@ -181,7 +181,7 @@ export default function RegisterClient({
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-wana-muted">
+      <p className="mt-6 text-center text-sm text-elevari-muted">
         ¿Ya tienes cuenta?{' '}
         <Link href={loginHref} className="wana-link">
           Inicia sesión

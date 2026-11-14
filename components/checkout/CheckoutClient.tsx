@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
 import toast from 'react-hot-toast';
@@ -8,6 +8,7 @@ import { ApiError, wanaApi, type BookingDetail, type DisclosurePayload, type FxQ
 import { formatCop, formatDateRange } from '@/lib/format';
 import { formatPropertyLocation } from '@/lib/property-location';
 import PropertyThumb from '@/components/ui/PropertyThumb';
+import PriceBreakdown from '@/components/ui/PriceBreakdown';
 import CheckoutStepper from './CheckoutStepper';
 
 interface CheckoutClientProps {
@@ -28,13 +29,37 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
   const [loading, setLoading] = useState(false);
   const [disclosure, setDisclosure] = useState<DisclosurePayload | null>(null);
   const [quote, setQuote] = useState<FxQuoteInfo | null>(null);
+  const paymentStartedRef = useRef(false);
 
   const fees = booking.feesBreakdown;
   const total = fees?.total_charge_to_guest ?? 0;
   const isInternational = (booking.property.country ?? 'CO') !== 'CO';
 
   useEffect(() => {
-    analytics.beginCheckout(booking.id, total);
+    analytics.startCheckout(booking.id, total);
+  }, [booking.id, total]);
+
+  /**
+   * checkout_abandoned: fires when the guest leaves checkout without starting a
+   * payment. Starting a payment (provider handoff) marks the flow as engaged.
+   */
+  useEffect(() => {
+    let reported = false;
+    const report = (reason: 'navigate_away' | 'page_hidden') => {
+      if (reported || paymentStartedRef.current) return;
+      reported = true;
+      analytics.checkoutAbandoned({ bookingId: booking.id, value: total, reason });
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') report('page_hidden');
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      report('navigate_away');
+    };
   }, [booking.id, total]);
   const checkIn = typeof booking.checkIn === 'string' ? booking.checkIn : String(booking.checkIn);
   const checkOut = typeof booking.checkOut === 'string' ? booking.checkOut : String(booking.checkOut);
@@ -46,8 +71,8 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
   if (booking.status === 'confirmed') {
     return (
       <div className="wana-card-premium p-8 text-center">
-        <p className="text-3xl text-wana-gold">✓</p>
-        <h2 className="mt-2 font-display text-2xl text-wana-charcoal">Reserva confirmada</h2>
+        <p className="text-3xl text-elevari-forest">✓</p>
+        <h2 className="mt-2 font-display text-2xl text-elevari-ink">Reserva confirmada</h2>
         <button type="button" onClick={goSuccess} className="wana-btn-primary mt-6">
           Ver confirmación
         </button>
@@ -57,6 +82,7 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
 
   const startPayment = async (acceptedDisclosure?: DisclosurePayload) => {
     setLoading(true);
+    paymentStartedRef.current = true;
     try {
       const returnUrl = `${window.location.origin}/checkout/${booking.id}/success`;
       const result = await wanaApi.createPaymentIntent({
@@ -69,6 +95,13 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
         disclosure: acceptedDisclosure
           ? { version: acceptedDisclosure.version, hash: acceptedDisclosure.hash, accepted: true }
           : undefined,
+      });
+
+      analytics.paymentStarted({
+        bookingId: booking.id,
+        value: total,
+        provider: 'wompi',
+        mode: result.mode ?? 'live',
       });
 
       if (result.already_paid) {
@@ -114,14 +147,14 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
           <div className="mt-4 flex gap-4">
             <PropertyThumb src={coverImage} alt={booking.property.title} size="md" />
             <div>
-              <p className="font-semibold text-wana-charcoal">{booking.property.title}</p>
-              <p className="text-sm text-wana-muted">
+              <p className="font-semibold text-elevari-slate">{booking.property.title}</p>
+              <p className="text-sm text-elevari-muted">
                 {formatPropertyLocation(booking.property.city)}
               </p>
-              <p className="mt-2 text-sm text-wana-muted">
+              <p className="mt-2 text-sm text-elevari-muted">
                 {formatDateRange(checkIn.slice(0, 10), checkOut.slice(0, 10))}
               </p>
-              <p className="text-sm text-wana-muted">
+              <p className="text-sm text-elevari-muted">
                 {booking.guests} huésped{booking.guests > 1 ? 'es' : ''}
               </p>
             </div>
@@ -130,32 +163,32 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
 
         <section className="wana-card p-6">
           <h2 className="wana-section-title">Método de pago</h2>
-          <p className="mt-2 text-sm text-wana-muted">
+          <p className="mt-2 text-sm text-elevari-muted">
             Paga de forma segura con Wompi — tarjetas, PSE, Nequi y más.
           </p>
 
           {quote && disclosure ? (
-            <div className="mt-6 rounded-xl border border-wana-border bg-wana-cream/60 p-5">
-              <h3 className="font-semibold text-wana-charcoal">Detalle de tu pago internacional</h3>
+            <div className="mt-6 rounded-xl border border-elevari-border bg-elevari-ivory/60 p-5">
+              <h3 className="font-semibold text-elevari-slate">Detalle de tu pago internacional</h3>
               <div className="mt-3 space-y-2 text-sm">
-                <div className="flex justify-between font-semibold text-wana-charcoal">
+                <div className="flex justify-between font-semibold text-elevari-slate">
                   <span>Monto cobrado</span>
                   <span>{formatMinor(quote.charge_amount_minor, quote.charge_currency)}</span>
                 </div>
-                <div className="flex justify-between text-wana-muted">
+                <div className="flex justify-between text-elevari-muted">
                   <span>Valor de referencia</span>
                   <span>{formatMinor(quote.display_amount_minor, quote.display_currency)}</span>
                 </div>
-                <div className="flex justify-between text-wana-muted">
+                <div className="flex justify-between text-elevari-muted">
                   <span>Tasa de cambio</span>
                   <span>{quote.rate.toLocaleString('es-CO')} COP/USD</span>
                 </div>
-                <div className="flex justify-between text-wana-muted">
+                <div className="flex justify-between text-elevari-muted">
                   <span>Cotización válida hasta</span>
                   <span>{new Date(quote.expires_at).toLocaleTimeString('es-CO')}</span>
                 </div>
               </div>
-              <p className="mt-4 rounded-lg bg-white/70 p-3 text-xs leading-relaxed text-wana-muted">
+              <p className="mt-4 rounded-lg bg-white/70 p-3 text-xs leading-relaxed text-elevari-muted">
                 {disclosure.text}
               </p>
               <button
@@ -176,14 +209,14 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
                 className="wana-btn-select wana-btn-select-active disabled:opacity-50"
               >
                 <div>
-                  <span className="font-semibold text-wana-charcoal">Wompi</span>
-                  <p className="text-xs text-wana-muted">Tarjetas, PSE, Nequi, Bancolombia</p>
+                  <span className="font-semibold text-elevari-slate">Wompi</span>
+                  <p className="text-xs text-elevari-muted">Tarjetas, PSE, Nequi, Bancolombia</p>
                 </div>
-                <span className="rounded-full bg-wana-black px-2.5 py-0.5 text-xs font-semibold text-white">
+                <span className="rounded-full bg-elevari-forest-deep px-2.5 py-0.5 text-xs font-semibold text-white">
                   COP
                 </span>
               </button>
-              {loading && <p className="mt-3 text-center text-sm text-wana-muted">Preparando pago…</p>}
+              {loading && <p className="mt-3 text-center text-sm text-elevari-muted">Preparando pago…</p>}
             </div>
           )}
         </section>
@@ -191,24 +224,16 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
 
       <aside className="lg:sticky lg:top-24 lg:self-start">
         <div className="wana-card-premium p-6">
-          <h3 className="font-semibold text-wana-charcoal">Desglose</h3>
+          <h3 className="font-semibold text-elevari-slate">Desglose</h3>
           {fees && (
-            <div className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between text-wana-charcoal">
-                <span>{formatCop(fees.price_per_night)} × {fees.nights} noches</span>
-                <span>{formatCop(fees.subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-wana-muted">
-                <span>Tarifa de Servicio Elevari</span>
-                <span>{formatCop(fees.platform_fee_amount)}</span>
-              </div>
-              <div className="flex justify-between border-t border-wana-border pt-3 font-bold text-wana-charcoal">
-                <span>Total (COP)</span>
-                <span>{formatCop(total)}</span>
-              </div>
-            </div>
+            <PriceBreakdown
+              className="mt-4"
+              fees={fees}
+              format={(amount) => formatCop(amount)}
+              totalLabel="Total (COP)"
+            />
           )}
-          <p className="mt-4 text-xs text-wana-muted">
+          <p className="mt-4 text-xs text-elevari-muted">
             Todos los pagos se procesan en pesos colombianos (COP) a través de Wompi.
           </p>
         </div>

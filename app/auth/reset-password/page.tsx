@@ -42,7 +42,7 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <div className="text-center">
-        <p className="text-wana-muted">Enlace inválido o incompleto.</p>
+        <p className="text-elevari-muted">Enlace inválido o incompleto.</p>
         <Link href="/auth/forgot-password" className="wana-btn-primary mt-6 inline-flex min-h-[48px]">
           Solicitar nuevo enlace
         </Link>
@@ -53,7 +53,7 @@ function ResetPasswordForm() {
   if (done) {
     return (
       <div className="text-center">
-        <p className="font-medium text-wana-charcoal">Contraseña actualizada. Redirigiendo al login…</p>
+        <p className="font-medium text-elevari-slate">Contraseña actualizada. Redirigiendo al login…</p>
       </div>
     );
   }
@@ -61,7 +61,7 @@ function ResetPasswordForm() {
   return (
     <>
       <p className="wana-eyebrow">Cuenta</p>
-      <h1 className="mt-2 font-display text-2xl text-wana-charcoal sm:text-3xl">Nueva contraseña</h1>
+      <h1 className="mt-2 font-display text-2xl text-elevari-slate sm:text-3xl">Nueva contraseña</h1>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <label className="block space-y-1.5">
           <span className="wana-label">Contraseña (mín. 8)</span>
@@ -103,7 +103,7 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <AuthShell image="/properties/glamping-wana/07.jpg">
-      <Suspense fallback={<p className="text-wana-muted">Cargando…</p>}>
+      <Suspense fallback={<p className="text-elevari-muted">Cargando…</p>}>
         <ResetPasswordForm />
       </Suspense>
     </AuthShell>

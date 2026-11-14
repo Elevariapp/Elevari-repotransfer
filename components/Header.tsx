@@ -135,7 +135,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
                 className={`rounded-xl px-4 py-3 text-sm font-medium min-h-[44px] ${
                   link.match(pathname)
                     ? 'bg-white/10 text-white'
-                    : 'text-white/85 hover:bg-white/8 hover:text-white'
+                    : 'text-white/85 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 {link.label}
@@ -145,7 +145,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
               <Link
                 href="/host"
                 onClick={closeMenu}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-white/85 min-h-[44px] hover:bg-white/8"
+                className="rounded-xl px-4 py-3 text-sm font-medium text-white/85 min-h-[44px] hover:bg-white/10"
               >
                 Mi panel
               </Link>
@@ -154,7 +154,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
               <Link
                 href="/admin"
                 onClick={closeMenu}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-white/85 min-h-[44px] hover:bg-white/8"
+                className="rounded-xl px-4 py-3 text-sm font-medium text-white/85 min-h-[44px] hover:bg-white/10"
               >
                 Admin
               </Link>
@@ -164,7 +164,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
                 <Link
                   href="/account"
                   onClick={closeMenu}
-                  className="rounded-xl px-4 py-3 text-sm text-white/85 min-h-[44px] hover:bg-white/8"
+                  className="rounded-xl px-4 py-3 text-sm text-white/85 min-h-[44px] hover:bg-white/10"
                 >
                   Mi cuenta{user.name ? ` · ${user.name}` : ''}
                 </Link>

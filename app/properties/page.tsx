@@ -47,20 +47,20 @@ export default async function PropertiesPage({
   return (
     <>
       <Header />
-      <main className="pb-16">
-        <div className="border-b border-wana-border/60 bg-wana-sand/25">
+      <main id="contenido" className="pb-16">
+        <div className="border-b border-elevari-border/60 bg-elevari-sand/25">
           <div className="wana-container py-10 lg:py-14">
             <header className="max-w-2xl">
               <p className="wana-eyebrow">Colección</p>
-              <h1 className="wana-display-page mt-3 text-wana-charcoal">
+              <h1 className="wana-display-page mt-3 text-elevari-slate">
                 Espacios únicos en Colombia
               </h1>
               <div className="wana-divider-gold mt-5" />
-              <p className="mt-5 text-wana-muted leading-relaxed">
+              <p className="mt-5 text-elevari-muted leading-relaxed">
                 Selecciona fechas en cada propiedad para ver el precio total antes de reservar.
               </p>
               {hasFilters && (
-                <p className="mt-5 rounded-2xl border border-wana-border bg-wana-cream px-5 py-4 text-sm text-wana-charcoal">
+                <p className="mt-5 rounded-2xl border border-elevari-border bg-elevari-ivory px-5 py-4 text-sm text-elevari-slate">
                   Filtros:
                   {city && <span className="ml-1 font-medium">{city}</span>}
                   {guests && <span className="ml-2">· {guests} huéspedes</span>}
@@ -68,15 +68,15 @@ export default async function PropertiesPage({
                     <span className="ml-2">· {checkIn} → {checkOut}</span>
                   )}
                   {checkIn && checkOut && (
-                    <span className="block mt-1 text-wana-muted">
+                    <span className="block mt-1 text-elevari-muted">
                       Mostrando espacios disponibles para esas fechas.
                     </span>
                   )}
                 </p>
               )}
               {fromApi && (
-                <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-wana-gold/30 bg-white px-4 py-1.5 text-xs font-medium text-wana-forest">
-                  <span className="h-1.5 w-1.5 rounded-full bg-wana-gold" />
+                <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-elevari-amber/30 bg-white px-4 py-1.5 text-xs font-medium text-elevari-forest">
+                  <span className="h-1.5 w-1.5 rounded-full bg-elevari-amber" />
                   Disponibilidad en tiempo real
                 </span>
               )}
@@ -87,7 +87,7 @@ export default async function PropertiesPage({
         <div className="wana-container py-10 lg:py-12">
 
           {error ? (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
+            <div role="alert" className="rounded-2xl border border-elevari-amber/40 bg-elevari-warning-soft p-6 text-elevari-warning">
               <p className="font-semibold">No pudimos cargar la colección</p>
               <p className="mt-2 text-sm leading-relaxed">{humanizeApiError(error)}</p>
               {hasFilters && (

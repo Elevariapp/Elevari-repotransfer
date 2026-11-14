@@ -8,8 +8,8 @@ type LogoProps = {
 };
 
 export default function Logo({ compact = false, onDark = true }: LogoProps) {
-  const wordColor = onDark ? 'text-white' : 'text-wana-charcoal';
-  const subColor = onDark ? 'text-wana-champagne/90' : 'text-wana-muted';
+  const wordColor = onDark ? 'text-white' : 'text-elevari-ink';
+  const subColor = onDark ? 'text-elevari-amber-soft' : 'text-elevari-muted';
 
   return (
     <Link
@@ -23,14 +23,14 @@ export default function Logo({ compact = false, onDark = true }: LogoProps) {
       {!compact && (
         <span className="min-w-0 leading-none">
           <span
-            className={`block font-sans text-[1.25rem] font-semibold tracking-[-0.04em] sm:text-[1.35rem] ${wordColor}`}
+            className={`block font-display text-[1.25rem] font-semibold tracking-[-0.03em] sm:text-[1.35rem] ${wordColor}`}
           >
             eleveri
           </span>
           <span
-            className={`mt-1 hidden text-[10px] font-medium uppercase tracking-[0.22em] sm:block ${subColor}`}
+            className={`mt-1 hidden text-[10px] font-semibold uppercase tracking-[0.22em] sm:block ${subColor}`}
           >
-            Glamping
+            Escapes naturales
           </span>
         </span>
       )}

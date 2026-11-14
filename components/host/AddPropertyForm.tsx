@@ -56,9 +56,9 @@ export default function AddPropertyForm() {
 
   return (
     <form onSubmit={handleSubmit} className="wana-card space-y-6 p-6 sm:p-8">
-      <div className="rounded-xl border border-wana-gold/30 bg-wana-cream/80 p-4 text-sm text-wana-charcoal">
+      <div className="rounded-xl border border-elevari-amber/30 bg-elevari-ivory/80 p-4 text-sm text-elevari-slate">
         <p className="font-semibold">Guía de calidad</p>
-        <p className="mt-1 text-wana-muted">
+        <p className="mt-1 text-elevari-muted">
           Usa fotos bien iluminadas en alta resolución. Tu espacio quedará en borrador hasta que un
           administrador lo publique.
         </p>

@@ -36,7 +36,7 @@ function Chevron({ open }: { open?: boolean }) {
       height="16"
       viewBox="0 0 16 16"
       fill="none"
-      className={`ml-auto shrink-0 text-wana-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+      className={`ml-auto shrink-0 text-elevari-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
       aria-hidden
     >
       <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -58,7 +58,7 @@ function GuestStepper({
   return (
     <div className="flex items-center gap-4">
       <button type="button" disabled={value <= min} onClick={() => onChange(value - 1)} className="wana-stepper-btn" aria-label="Menos huéspedes">−</button>
-      <span className="min-w-[2ch] text-center text-lg font-semibold text-wana-charcoal">{value}</span>
+      <span className="min-w-[2ch] text-center text-lg font-semibold text-elevari-slate">{value}</span>
       <button type="button" disabled={value >= max} onClick={() => onChange(value + 1)} className="wana-stepper-btn" aria-label="Más huéspedes">+</button>
     </div>
   );
@@ -82,8 +82,8 @@ function LocationPanel({
               onClick={() => onSelect(loc.value, loc.label.replace(' en Colombia', ''))}
               className={`wana-dropdown-option ${city === loc.value ? 'wana-dropdown-option-active' : ''}`}
             >
-              <span className="font-semibold text-wana-charcoal">{loc.label}</span>
-              <span className="text-xs text-wana-muted">{loc.detail}</span>
+              <span className="font-semibold text-elevari-slate">{loc.label}</span>
+              <span className="text-xs text-elevari-muted">{loc.detail}</span>
             </button>
           </li>
         ))}
@@ -108,7 +108,7 @@ function DatesPanel({
   return (
     <>
       <p className="wana-dropdown-title">Selecciona tu estadía</p>
-      <p className="mt-1 text-xs text-wana-muted">Mínimo 1 noche — la salida debe ser después de la entrada.</p>
+      <p className="mt-1 text-xs text-elevari-muted">Mínimo 1 noche — la salida debe ser después de la entrada.</p>
       <DayPicker
         mode="range"
         selected={range}
@@ -119,14 +119,14 @@ function DatesPanel({
         className="mx-auto mt-3 wana-calendar"
       />
       {range?.from && !range?.to && (
-        <p className="mt-2 text-center text-xs text-wana-muted">Selecciona la fecha de salida</p>
+        <p className="mt-2 text-center text-xs text-elevari-muted">Selecciona la fecha de salida</p>
       )}
       {dateError && (
         <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-900">
           {dateError}
         </p>
       )}
-      <div className="mt-3 flex gap-2 border-t border-wana-border pt-3">
+      <div className="mt-3 flex gap-2 border-t border-elevari-border pt-3">
         <button type="button" onClick={onClear} className="wana-btn-ghost min-h-[44px] flex-1 !py-2 text-sm">
           Limpiar
         </button>
@@ -156,8 +156,8 @@ function GuestsPanel({
     <>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-semibold text-wana-charcoal">Huéspedes</p>
-          <p className="text-xs text-wana-muted">Máximo 20 por reserva</p>
+          <p className="font-semibold text-elevari-slate">Huéspedes</p>
+          <p className="text-xs text-elevari-muted">Máximo 20 por reserva</p>
         </div>
         <GuestStepper value={guests} min={1} max={20} onChange={onChange} />
       </div>
@@ -232,6 +232,11 @@ export default function SearchHero() {
   const fieldClass = (active: boolean) =>
     `wana-search-field w-full text-left ${active ? 'wana-search-field-active' : ''}`;
 
+  const panelButtonA11y = (name: Exclude<Panel, null>) => ({
+    'aria-expanded': panel === name,
+    'aria-controls': `elevari-search-${name}-panel`,
+  });
+
   return (
     <section id="buscar" className="relative flex min-h-[85vh] flex-col justify-end lg:min-h-[92vh]">
       <div className="absolute inset-0 overflow-hidden">
@@ -249,26 +254,38 @@ export default function SearchHero() {
               <Image src={src} alt="" fill sizes="100vw" quality={75} className="object-cover scale-105 animate-hero-kenburns" />
             </div>
           ))}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/55 to-black/90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/25" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/55 to-black/90" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/25" />
       </div>
 
       <div className="relative z-20 wana-container pb-8 pt-24 sm:pb-12 sm:pt-28 lg:pb-16 lg:pt-32">
         <div className="max-w-3xl animate-slide-up">
-          <p className="wana-eyebrow wana-eyebrow-lux !text-wana-gold-light">Colección exclusiva · Sabana de Bogotá</p>
+          <p className="wana-eyebrow wana-eyebrow-lux !text-elevari-amber-soft">Colección curada · Sabana de Bogotá</p>
           <h1 className="wana-display-hero wana-display-hero--light mt-3 sm:mt-4">
-            Glamping entre montañas y estrellas
+            Escapes naturales, sin complicaciones
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/85 sm:mt-5 sm:text-lg">
-            Domos, cabañas y refugios curados en Sutatausa, Cucunubá y la sabana.
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/95 sm:mt-5 sm:text-lg">
+            Domos, cabañas y refugios elegidos uno a uno en Sutatausa, Cucunubá y la sabana.
+            Precio total antes de pagar y confirmación clara.
           </p>
+          <ul className="mt-5 flex flex-wrap gap-2 text-xs font-semibold text-white sm:gap-3 sm:text-sm">
+            <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+              ✓ Anfitriones verificados
+            </li>
+            <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+              ✓ Precio transparente
+            </li>
+            <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+              ✓ Reserva segura
+            </li>
+          </ul>
         </div>
 
         <div className="relative z-30 mt-8 max-w-4xl animate-slide-up lg:mt-10" style={{ animationDelay: '80ms' }}>
           <div className="wana-search-luxury overflow-visible">
             {/* Mobile: stacked fields + inline expand */}
             <div className="flex flex-col gap-2 p-2 md:hidden">
-              <button type="button" onClick={() => openPanel('location')} className={fieldClass(panel === 'location')}>
+              <button type="button" onClick={() => openPanel('location')} className={fieldClass(panel === 'location')} {...panelButtonA11y('location')}>
                 <span className="flex w-full flex-col items-start gap-0.5">
                   <span className="wana-search-label">Destino</span>
                   <span className="wana-search-value">{cityLabel}</span>
@@ -276,7 +293,10 @@ export default function SearchHero() {
                 <Chevron open={panel === 'location'} />
               </button>
               {panel === 'location' && (
-                <div className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-wana-border">
+                <div
+                  id="elevari-search-location-panel"
+                  className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
+                >
                   <LocationPanel
                     city={city}
                     onSelect={(value, label) => {
@@ -288,7 +308,7 @@ export default function SearchHero() {
                 </div>
               )}
 
-              <button type="button" onClick={() => openPanel('dates')} className={fieldClass(panel === 'dates')}>
+              <button type="button" onClick={() => openPanel('dates')} className={fieldClass(panel === 'dates')} {...panelButtonA11y('dates')}>
                 <span className="flex w-full flex-col items-start gap-0.5">
                   <span className="wana-search-label">Fechas</span>
                   <span className="wana-search-value">{dateLabel}</span>
@@ -296,7 +316,10 @@ export default function SearchHero() {
                 <Chevron open={panel === 'dates'} />
               </button>
               {panel === 'dates' && (
-                <div className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-wana-border">
+                <div
+                  id="elevari-search-dates-panel"
+                  className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
+                >
                   <DatesPanel
                     range={range}
                     onSelect={handleRangeSelect}
@@ -309,7 +332,7 @@ export default function SearchHero() {
                 </div>
               )}
 
-              <button type="button" onClick={() => openPanel('guests')} className={fieldClass(panel === 'guests')}>
+              <button type="button" onClick={() => openPanel('guests')} className={fieldClass(panel === 'guests')} {...panelButtonA11y('guests')}>
                 <span className="flex w-full flex-col items-start gap-0.5">
                   <span className="wana-search-label">Huéspedes</span>
                   <span className="wana-search-value">{guestsLabel}</span>
@@ -317,7 +340,10 @@ export default function SearchHero() {
                 <Chevron open={panel === 'guests'} />
               </button>
               {panel === 'guests' && (
-                <div className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-wana-border">
+                <div
+                  id="elevari-search-guests-panel"
+                  className="wana-dropdown-panel !static !mt-0 shadow-none ring-1 ring-elevari-border"
+                >
                   <GuestsPanel guests={guests} onChange={setGuests} onDone={closePanel} />
                 </div>
               )}
@@ -334,9 +360,9 @@ export default function SearchHero() {
             </div>
 
             {/* Desktop: horizontal bar + floating dropdowns */}
-            <div className="hidden md:grid md:grid-cols-[1.35fr_1fr_1fr_auto] md:divide-x md:divide-wana-border/70">
+            <div className="hidden md:grid md:grid-cols-[1.35fr_1fr_1fr_auto] md:divide-x md:divide-elevari-border/70">
               <div className="relative">
-                <button type="button" onClick={() => openPanel('location')} className={fieldClass(panel === 'location')}>
+                <button type="button" onClick={() => openPanel('location')} className={fieldClass(panel === 'location')} {...panelButtonA11y('location')}>
                   <span className="flex min-w-0 flex-col items-start">
                     <span className="wana-search-label">Destino</span>
                     <span className="wana-search-value">{cityLabel}</span>
@@ -356,7 +382,7 @@ export default function SearchHero() {
               </div>
 
               <div className="relative">
-                <button type="button" onClick={() => openPanel('dates')} className={fieldClass(panel === 'dates')}>
+                <button type="button" onClick={() => openPanel('dates')} className={fieldClass(panel === 'dates')} {...panelButtonA11y('dates')}>
                   <span className="flex min-w-0 flex-col items-start">
                     <span className="wana-search-label">Fechas</span>
                     <span className="wana-search-value">{dateLabel}</span>
@@ -377,7 +403,7 @@ export default function SearchHero() {
               </div>
 
               <div className="relative">
-                <button type="button" onClick={() => openPanel('guests')} className={fieldClass(panel === 'guests')}>
+                <button type="button" onClick={() => openPanel('guests')} className={fieldClass(panel === 'guests')} {...panelButtonA11y('guests')}>
                   <span className="flex min-w-0 flex-col items-start">
                     <span className="wana-search-label">Huéspedes</span>
                     <span className="wana-search-value">{guestsLabel}</span>
@@ -407,8 +433,8 @@ export default function SearchHero() {
         <div className="mt-8 flex justify-center sm:mt-10 sm:justify-start">
           <a href="#coleccion" className="group flex flex-col items-center gap-2 text-white/70 transition hover:text-white">
             <span className="text-[10px] font-bold uppercase tracking-[0.25em]">Descubre</span>
-            <span className="flex h-10 w-6 items-start justify-center rounded-full border border-white/35 p-1 group-hover:border-wana-gold-light">
-              <span className="h-2 w-1 rounded-full bg-wana-gold-light animate-scroll-hint" />
+            <span className="flex h-10 w-6 items-start justify-center rounded-full border border-white/35 p-1 group-hover:border-elevari-amber-light">
+              <span className="h-2 w-1 rounded-full bg-elevari-amber-soft animate-scroll-hint" />
             </span>
           </a>
         </div>

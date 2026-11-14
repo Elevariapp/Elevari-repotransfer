@@ -67,25 +67,25 @@ export default async function PropertyDetailPage({ params }: PageProps) {
         }}
       />
       <Header />
-      <main className="pb-24 lg:pb-12">
+      <main id="contenido" className="pb-24 lg:pb-12">
         <div className="wana-container py-6 lg:py-8">
           <header className="mb-5 animate-slide-up">
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <ExclusiveBadge />
               {property.rating != null && property.rating >= 4.5 && (
-                <span className="rounded-full border border-wana-gold/35 bg-wana-gold-light/50 px-3 py-1 text-xs font-semibold text-wana-charcoal">
+                <span className="rounded-full border border-elevari-amber/35 bg-elevari-amber-soft/50 px-3 py-1 text-xs font-semibold text-elevari-slate">
                   Huéspedes lo recomiendan
                 </span>
               )}
             </div>
-            <h1 className="wana-display-section text-wana-charcoal">
+            <h1 className="wana-display-section text-elevari-slate">
               {property.title}
             </h1>
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-wana-muted">
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-elevari-muted">
               {property.rating != null && (
-                <span className="flex items-center gap-1 font-medium text-wana-charcoal">
-                  <span className="text-wana-forest">★</span> {property.rating}
-                  <span className="text-wana-muted/70">({property.review_count})</span>
+                <span className="flex items-center gap-1 font-medium text-elevari-slate">
+                  <span className="text-elevari-forest">★</span> {property.rating}
+                  <span className="text-elevari-muted/70">({property.review_count})</span>
                 </span>
               )}
               {property.city && (
@@ -104,31 +104,31 @@ export default async function PropertyDetailPage({ params }: PageProps) {
           <div className="grid gap-10 lg:grid-cols-[1fr_400px] lg:items-start">
             <div className="space-y-10 min-w-0">
               <section>
-                <div className="flex items-center gap-4 rounded-2xl border border-wana-border bg-gradient-to-br from-white to-wana-cream p-5 shadow-sm ring-1 ring-wana-gold/10">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-wana-black p-2.5 shadow-sm ring-2 ring-wana-gold/25">
+                <div className="flex items-center gap-4 rounded-2xl border border-elevari-border bg-gradient-to-br from-white to-elevari-ivory p-5 shadow-sm ring-1 ring-elevari-amber/10">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-elevari-forest-deep p-2.5 shadow-sm ring-2 ring-elevari-amber/25">
                     <EleveriMark className="h-full w-full" plain />
                   </div>
                   <div>
-                    <p className="font-semibold text-wana-charcoal">Anfitrión Eleveri verificado</p>
-                    <p className="text-sm text-wana-muted">Experiencia glamping curada · respuesta rápida</p>
+                    <p className="font-semibold text-elevari-slate">Anfitrión Eleveri verificado</p>
+                    <p className="text-sm text-elevari-muted">Experiencia glamping curada · respuesta rápida</p>
                   </div>
                 </div>
               </section>
 
               <section>
                 <h2 className="wana-section-title">Sobre este espacio</h2>
-                <p className="mt-4 leading-relaxed text-wana-charcoal">
+                <p className="mt-4 leading-relaxed text-elevari-slate">
                   {property.description ?? 'Sin descripción.'}
                 </p>
               </section>
 
               {amenities.length > 0 && (
-                <section className="border-t border-wana-border pt-8">
+                <section className="border-t border-elevari-border pt-8">
                   <h2 className="wana-section-title">Lo que ofrece este lugar</h2>
                   <ul className="mt-6 grid gap-4 sm:grid-cols-2">
                     {amenities.map((item: string) => (
-                      <li key={item} className="flex items-center gap-3 text-wana-charcoal">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-wana-sand text-wana-forest text-sm">
+                      <li key={item} className="flex items-center gap-3 text-elevari-slate">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-elevari-sand text-elevari-forest text-sm">
                           ✓
                         </span>
                         {AMENITY_LABELS[item] ?? item}

@@ -33,8 +33,8 @@ export default function ChangePasswordForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-4 border-t border-wana-border pt-8">
-      <h2 className="font-display text-lg text-wana-charcoal">Cambiar contraseña</h2>
+    <form onSubmit={handleSubmit} className="mt-8 space-y-4 border-t border-elevari-border pt-8">
+      <h2 className="font-display text-lg text-elevari-slate">Cambiar contraseña</h2>
       <label className="block space-y-1.5">
         <span className="wana-label">Nueva contraseña</span>
         <input

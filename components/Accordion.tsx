@@ -15,12 +15,12 @@ export default function Accordion({ title, content }: AccordionProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-wana-charcoal min-h-[52px]"
+        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-elevari-slate min-h-[52px]"
         aria-expanded={isOpen}
       >
         <span>{title}</span>
         <span
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-wana-border bg-wana-cream text-wana-forest transition ${
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-elevari-border bg-elevari-ivory text-elevari-forest transition ${
             isOpen ? 'rotate-180' : ''
           }`}
           aria-hidden
@@ -31,7 +31,7 @@ export default function Accordion({ title, content }: AccordionProps) {
         </span>
       </button>
       {isOpen && (
-        <div className="border-t border-wana-border px-5 pb-5 pt-3 text-sm leading-relaxed text-wana-muted">
+        <div className="border-t border-elevari-border px-5 pb-5 pt-3 text-sm leading-relaxed text-elevari-muted">
           {content}
         </div>
       )}

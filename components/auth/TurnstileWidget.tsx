@@ -121,9 +121,9 @@ export default function TurnstileWidget({
 
   return (
     <div className="space-y-2">
-      <p className="text-center text-xs font-medium text-wana-muted">Verificación de seguridad</p>
+      <p className="text-center text-xs font-medium text-elevari-muted">Verificación de seguridad</p>
       {!widgetReady && !loadError && (
-        <p className="rounded-xl border border-wana-border bg-wana-cream/60 px-3 py-2 text-center text-xs text-wana-muted">
+        <p className="rounded-xl border border-elevari-border bg-elevari-ivory/60 px-3 py-2 text-center text-xs text-elevari-muted">
           Cargando verificación…
         </p>
       )}

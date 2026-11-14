@@ -21,17 +21,17 @@ export default function CheckoutStepper({ current }: { current: Step }) {
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
                     done
-                      ? 'bg-wana-forest text-white'
+                      ? 'bg-elevari-forest text-white'
                       : active
-                        ? 'bg-wana-gold text-wana-black ring-2 ring-wana-gold/40'
-                        : 'bg-wana-sand text-wana-muted'
+                        ? 'bg-elevari-amber text-elevari-ink ring-2 ring-elevari-amber/40'
+                        : 'bg-elevari-sand text-elevari-muted'
                   }`}
                 >
                   {done ? '✓' : index + 1}
                 </span>
                 <span
                   className={`truncate text-center text-xs font-medium sm:text-left sm:text-sm ${
-                    active ? 'text-wana-charcoal' : done ? 'text-wana-forest' : 'text-wana-muted'
+                    active ? 'text-elevari-slate' : done ? 'text-elevari-forest' : 'text-elevari-muted'
                   }`}
                 >
                   {step.label}
@@ -39,7 +39,7 @@ export default function CheckoutStepper({ current }: { current: Step }) {
               </div>
               {index < STEPS.length - 1 && (
                 <div
-                  className={`hidden h-px flex-1 sm:block ${done ? 'bg-wana-forest' : 'bg-wana-border'}`}
+                  className={`hidden h-px flex-1 sm:block ${done ? 'bg-elevari-forest' : 'bg-wana-border'}`}
                   aria-hidden
                 />
               )}

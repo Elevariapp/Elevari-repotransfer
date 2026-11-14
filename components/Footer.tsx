@@ -16,6 +16,7 @@ const hostLinks = [
 const legalLinks = [
   { href: '/legal/privacy', label: 'Privacidad' },
   { href: '/legal/terms', label: 'Términos' },
+  { href: '/legal/accessibility', label: 'Accesibilidad' },
 ] as const;
 
 export default function Footer() {
@@ -26,11 +27,11 @@ export default function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-4">
             <Logo onDark />
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/82">
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/80">
               Plataforma curada de glamping en Colombia. Reserva con confianza, precios claros y
               experiencias que compiten con los mejores marketplaces del mundo.
             </p>
-            <p className="mt-4 text-xs font-medium tracking-wide text-wana-champagne/90">
+            <p className="mt-4 text-xs font-medium tracking-wide text-elevari-amber/90">
               Sutatausa · Cucunubá · Sabana de Bogotá
             </p>
           </div>
@@ -75,7 +76,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/12 pt-8 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
           <p className="text-sm text-white/65">
             © {new Date().getFullYear()} Eleveri. Todos los derechos reservados.
           </p>

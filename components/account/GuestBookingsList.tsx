@@ -50,11 +50,11 @@ export default function GuestBookingsList() {
 
   if (loading) {
     return (
-      <div className="mt-8 border-t border-wana-border pt-8">
-        <h2 className="font-display text-lg text-wana-charcoal">Mis reservas</h2>
+      <div className="mt-8 border-t border-elevari-border pt-8">
+        <h2 className="font-display text-lg text-elevari-slate">Mis reservas</h2>
         <div className="mt-4 space-y-4 animate-pulse">
           {[1, 2].map((i) => (
-            <div key={i} className="h-28 rounded-2xl bg-wana-sand" />
+            <div key={i} className="h-28 rounded-2xl bg-elevari-sand" />
           ))}
         </div>
       </div>
@@ -63,8 +63,8 @@ export default function GuestBookingsList() {
 
   if (rows.length === 0) {
     return (
-      <div className="mt-8 border-t border-wana-border pt-8">
-        <h2 className="font-display text-lg text-wana-charcoal">Mis reservas</h2>
+      <div className="mt-8 border-t border-elevari-border pt-8">
+        <h2 className="font-display text-lg text-elevari-slate">Mis reservas</h2>
         <div className="mt-4">
           <EmptyState
             emoji="🌄"
@@ -79,28 +79,28 @@ export default function GuestBookingsList() {
   }
 
   return (
-    <div className="mt-8 border-t border-wana-border pt-8">
-      <h2 className="font-display text-lg text-wana-charcoal">Mis reservas</h2>
+    <div className="mt-8 border-t border-elevari-border pt-8">
+      <h2 className="font-display text-lg text-elevari-slate">Mis reservas</h2>
       <ul className="mt-4 space-y-4">
         {rows.map((row) => (
-          <li key={row.id} className="rounded-2xl border border-wana-border bg-wana-cream/40 p-4 sm:p-5">
+          <li key={row.id} className="rounded-2xl border border-elevari-border bg-elevari-ivory/40 p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <Link
                   href={`/properties/${row.property_slug}`}
-                  className="font-semibold text-wana-charcoal hover:text-wana-forest"
+                  className="font-semibold text-elevari-slate hover:text-elevari-forest"
                 >
                   {row.property_title}
                 </Link>
-                <p className="text-sm text-wana-muted">{row.property_city ?? 'Colombia'}</p>
-                <p className="mt-1 text-sm text-wana-muted">
+                <p className="text-sm text-elevari-muted">{row.property_city ?? 'Colombia'}</p>
+                <p className="mt-1 text-sm text-elevari-muted">
                   {row.check_in} → {row.check_out} · {row.guests} huéspedes
                 </p>
-                <span className="mt-2 inline-block rounded-full bg-wana-sand px-3 py-1 text-xs font-semibold text-wana-charcoal">
+                <span className="mt-2 inline-block rounded-full bg-elevari-sand px-3 py-1 text-xs font-semibold text-elevari-slate">
                   {STATUS_LABELS[row.status] ?? row.status}
                 </span>
                 {row.total != null && (
-                  <p className="mt-2 text-sm font-semibold text-wana-charcoal">{formatCop(row.total)}</p>
+                  <p className="mt-2 text-sm font-semibold text-elevari-slate">{formatCop(row.total)}</p>
                 )}
               </div>
               <div className="flex flex-wrap gap-2">

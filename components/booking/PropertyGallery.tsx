@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type MediaItem = {
@@ -46,7 +46,7 @@ function MediaSlide({
 function MediaThumb({ item, className }: { item: MediaItem; className?: string }) {
   if (item.type === 'video') {
     return (
-      <div className={`relative ${className} bg-wana-charcoal flex items-center justify-center`}>
+      <div className={`relative ${className} bg-elevari-forest-deep flex items-center justify-center`}>
         <span className="text-white text-lg">▶</span>
       </div>
     );
@@ -73,10 +73,31 @@ export default function PropertyGallery({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [active, setActive] = useState(0);
 
+  /** Keyboard support for the lightbox: Escape closes, arrows navigate. */
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setLightboxOpen(false);
+      if (event.key === 'ArrowLeft') {
+        setActive((a) => (a === 0 ? items.length - 1 : a - 1));
+      }
+      if (event.key === 'ArrowRight') {
+        setActive((a) => (a === items.length - 1 ? 0 : a + 1));
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [lightboxOpen, items.length]);
+
   if (items.length === 0) {
     return (
-      <div className="flex aspect-[16/10] items-center justify-center rounded-2xl bg-wana-sand ring-1 ring-wana-border/50">
-        <span className="text-sm text-wana-muted">Sin fotos o videos</span>
+      <div className="flex aspect-[16/10] items-center justify-center rounded-2xl bg-elevari-sand ring-1 ring-wana-border/50">
+        <span className="text-sm text-elevari-muted">Sin fotos o videos</span>
       </div>
     );
   }
@@ -97,7 +118,8 @@ export default function PropertyGallery({
           <button
             type="button"
             onClick={() => openAt(0)}
-            className="relative col-span-2 row-span-2 overflow-hidden bg-wana-sand"
+            aria-label={`Abrir galería de ${title}`}
+            className="relative col-span-2 row-span-2 overflow-hidden bg-elevari-sand"
           >
             <MediaSlide item={hero} title={title} className="h-full w-full object-cover transition hover:scale-[1.02]" />
           </button>
@@ -106,7 +128,8 @@ export default function PropertyGallery({
               key={img.id ?? i}
               type="button"
               onClick={() => openAt(i + 1)}
-              className="relative overflow-hidden bg-wana-sand"
+              aria-label={`Ver foto ${i + 2} de ${items.length}`}
+              className="relative overflow-hidden bg-elevari-sand"
             >
               <MediaThumb item={img} className="h-full w-full object-cover transition hover:scale-[1.02]" />
             </button>
@@ -116,7 +139,7 @@ export default function PropertyGallery({
           <button
             type="button"
             onClick={() => openAt(0)}
-            className="absolute bottom-4 right-4 rounded-full border border-wana-border bg-white/95 px-4 py-2 text-sm font-semibold shadow-card hover:bg-wana-cream"
+            className="absolute bottom-4 right-4 rounded-full border border-elevari-border bg-white/95 px-4 py-2 text-sm font-semibold shadow-card hover:bg-elevari-ivory"
           >
             Ver todo el media
           </button>
@@ -124,7 +147,7 @@ export default function PropertyGallery({
       </div>
 
       <div className="relative md:hidden">
-        <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-wana-sand ring-1 ring-wana-border/40">
+        <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-elevari-sand ring-1 ring-wana-border/40">
           <MediaSlide item={items[active]} title={title} className="h-full w-full object-cover" />
         </div>
         {items.length > 1 && (
@@ -162,6 +185,9 @@ export default function PropertyGallery({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Galería de ${title}`}
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4"
             onClick={() => setLightboxOpen(false)}
           >
@@ -175,7 +201,7 @@ export default function PropertyGallery({
             <div onClick={(e) => e.stopPropagation()} className="max-h-[85vh] max-w-full">
               <MediaSlide
                 item={items[active]}
-                title={title}
+                title={`${title} — foto ${active + 1} de ${items.length}`}
                 className="max-h-[85vh] max-w-full rounded-lg object-contain"
               />
             </div>
@@ -183,6 +209,7 @@ export default function PropertyGallery({
               <>
                 <button
                   type="button"
+                  aria-label="Foto anterior"
                   onClick={(e) => {
                     e.stopPropagation();
                     setActive((a) => (a === 0 ? items.length - 1 : a - 1));
@@ -193,6 +220,7 @@ export default function PropertyGallery({
                 </button>
                 <button
                   type="button"
+                  aria-label="Foto siguiente"
                   onClick={(e) => {
                     e.stopPropagation();
                     setActive((a) => (a === items.length - 1 ? 0 : a + 1));
@@ -203,6 +231,9 @@ export default function PropertyGallery({
                 </button>
               </>
             )}
+            <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/80">
+              {active + 1} / {items.length}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

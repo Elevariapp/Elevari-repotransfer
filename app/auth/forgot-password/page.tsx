@@ -28,13 +28,13 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell image="/properties/glamping-wana/06.webp">
       <p className="wana-eyebrow">Cuenta</p>
-      <h1 className="mt-2 font-display text-2xl text-wana-charcoal sm:text-3xl">Recuperar contraseña</h1>
-      <p className="mt-3 text-sm text-wana-muted">
+      <h1 className="mt-2 font-display text-2xl text-elevari-slate sm:text-3xl">Recuperar contraseña</h1>
+      <p className="mt-3 text-sm text-elevari-muted">
         Te enviaremos un enlace si el correo está registrado en Eleveri.
       </p>
 
       {sent ? (
-        <div className="mt-6 rounded-xl border border-wana-gold/30 bg-wana-sand/50 p-4 text-sm text-wana-charcoal">
+        <div className="mt-6 rounded-xl border border-elevari-amber/30 bg-elevari-sand/50 p-4 text-sm text-elevari-slate">
           Si el correo existe, recibirás un enlace en unos minutos. Revisa también spam.
         </div>
       ) : (
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
         </form>
       )}
 
-      <p className="mt-6 text-center text-sm text-wana-muted">
+      <p className="mt-6 text-center text-sm text-elevari-muted">
         <Link href="/auth/login" className="wana-link">
           Volver a iniciar sesión
         </Link>

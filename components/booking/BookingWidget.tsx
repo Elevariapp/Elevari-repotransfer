@@ -1,14 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DayPicker, type DateRange } from 'react-day-picker';
-import { format, addDays, parseISO, eachDayOfInterval } from 'date-fns';
+import { format, addDays, parseISO, eachDayOfInterval, differenceInCalendarDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { wanaApi, type BookingQuote } from '@/lib/api-client';
+import { analytics } from '@/lib/analytics';
+import PriceBreakdown from '@/components/ui/PriceBreakdown';
 import { isValidStayRange, stayRangeError } from '@/lib/booking-dates';
 import { useAuth } from '@/hooks/useAuth';
 import 'react-day-picker/dist/style.css';
@@ -46,22 +48,22 @@ function GuestStepper({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-wana-charcoal">Huéspedes</span>
+      <span className="text-sm text-elevari-slate">Huéspedes</span>
       <div className="flex items-center gap-3">
         <button
           type="button"
           disabled={value <= min}
           onClick={() => onChange(value - 1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-wana-border bg-white text-wana-forest transition hover:border-wana-gold disabled:opacity-30"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-elevari-border bg-white text-elevari-forest transition hover:border-elevari-amber disabled:opacity-30"
         >
           −
         </button>
-        <span className="w-6 text-center text-sm font-semibold text-wana-charcoal">{value}</span>
+        <span className="w-6 text-center text-sm font-semibold text-elevari-slate">{value}</span>
         <button
           type="button"
           disabled={value >= max}
           onClick={() => onChange(value + 1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-wana-border bg-white text-wana-forest transition hover:border-wana-gold disabled:opacity-30"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-elevari-border bg-white text-elevari-forest transition hover:border-elevari-amber disabled:opacity-30"
         >
           +
         </button>
@@ -89,6 +91,7 @@ export default function BookingWidget({
   const { user, loading: authLoading } = useAuth();
   const pathname = usePathname();
   const loginRedirect = `${pathname}?book=1`;
+  const lastQuoteSignature = useRef<string | null>(null);
 
   useEffect(() => {
     wanaApi.getAvailability(propertyId)
@@ -133,6 +136,17 @@ export default function BookingWidget({
         guests,
       });
       setQuote(result);
+
+      const signature = `${toDateString(range.from)}|${toDateString(range.to)}|${guests}`;
+      if (lastQuoteSignature.current !== signature) {
+        lastQuoteSignature.current = signature;
+        analytics.viewQuote({
+          propertyId,
+          nights: result.nights,
+          total: result.fees?.total_charge_to_guest ?? 0,
+          available: result.available,
+        });
+      }
     } catch (err) {
       setQuote(null);
       toast.error(err instanceof Error ? err.message : 'No se pudo calcular el precio');
@@ -150,6 +164,14 @@ export default function BookingWidget({
     const error = stayRangeError(next);
     setDateError(error);
     if (error) setQuote(null);
+    if (next?.from && next?.to && !error) {
+      analytics.selectDates({
+        propertyId,
+        checkIn: toDateString(next.from),
+        checkOut: toDateString(next.to),
+        nights: differenceInCalendarDays(next.to, next.from),
+      });
+    }
   };
 
   const handleReserve = async () => {
@@ -191,32 +213,32 @@ export default function BookingWidget({
       : formatMoney(pricePerNight, currency);
 
   const widgetBody = (
-    <div className="wana-card-premium p-6 lg:shadow-wana-lg ring-1 ring-wana-gold/10">
+    <div className="wana-card-premium p-6 lg:shadow-wana-lg ring-1 ring-elevari-amber/10">
       <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-semibold text-wana-charcoal">{formatMoney(pricePerNight, currency)}</span>
-        <span className="text-wana-muted">/ noche</span>
+        <span className="text-2xl font-semibold text-elevari-slate">{formatMoney(pricePerNight, currency)}</span>
+        <span className="text-elevari-muted">/ noche</span>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-xl border border-wana-border bg-white/80">
+      <div className="mt-5 overflow-hidden rounded-xl border border-elevari-border bg-white/80">
         <button
           type="button"
           onClick={() => setShowCalendar((s) => !s)}
-          className="grid w-full grid-cols-2 border-b border-wana-border text-left"
+          className="grid w-full grid-cols-2 border-b border-elevari-border text-left"
         >
-          <div className="border-r border-wana-border p-3 hover:bg-wana-cream/80">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-wana-muted">Entrada</p>
-            <p className="text-sm text-wana-charcoal">
+          <div className="border-r border-elevari-border p-3 hover:bg-elevari-ivory/80">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-elevari-muted">Entrada</p>
+            <p className="text-sm text-elevari-slate">
               {range?.from ? format(range.from, 'd MMM', { locale: es }) : 'Agregar'}
             </p>
           </div>
-          <div className="p-3 hover:bg-wana-cream/80">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-wana-muted">Salida</p>
-            <p className="text-sm text-wana-charcoal">
+          <div className="p-3 hover:bg-elevari-ivory/80">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-elevari-muted">Salida</p>
+            <p className="text-sm text-elevari-slate">
               {range?.to ? format(range.to, 'd MMM', { locale: es }) : 'Agregar'}
             </p>
           </div>
         </button>
-        <div className="p-3 hover:bg-wana-cream/80">
+        <div className="p-3 hover:bg-elevari-ivory/80">
           <GuestStepper value={guests} min={1} max={maxGuests} onChange={setGuests} />
         </div>
       </div>
@@ -229,7 +251,7 @@ export default function BookingWidget({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="wana-calendar mt-4 flex justify-center rounded-xl bg-wana-sand/50 p-2">
+            <div className="wana-calendar mt-4 flex justify-center rounded-xl bg-elevari-sand/50 p-2">
               <DayPicker
                 mode="range"
                 selected={range}
@@ -244,34 +266,23 @@ export default function BookingWidget({
       </AnimatePresence>
 
       {dateError && (
-        <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p role="alert" className="mt-4 rounded-xl border border-elevari-amber/40 bg-elevari-warning-soft px-4 py-3 text-sm text-elevari-warning">
           {dateError}
         </p>
       )}
 
       {quote && !quote.available && !dateError && (
-        <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p role="status" className="mt-4 rounded-xl border border-elevari-amber/40 bg-elevari-warning-soft px-4 py-3 text-sm text-elevari-warning">
           Estas fechas no están disponibles. Prueba otro rango.
         </p>
       )}
 
       {quote?.available && nights > 0 && (
-        <div className="mt-5 space-y-2.5 text-sm">
-          <div className="flex justify-between text-wana-charcoal">
-            <span className="underline decoration-wana-border">
-              {formatMoney(quote.fees.price_per_night, currency)} × {nights} noches
-            </span>
-            <span>{formatMoney(quote.fees.subtotal, currency)}</span>
-          </div>
-          <div className="flex justify-between text-wana-muted">
-            <span>Tarifa de Servicio Elevari</span>
-            <span>{formatMoney(quote.fees.platform_fee_amount, currency)}</span>
-          </div>
-          <div className="flex justify-between border-t border-wana-border pt-3 font-semibold text-wana-charcoal">
-            <span>Total</span>
-            <span>{formatMoney(quote.fees.total_charge_to_guest, currency)}</span>
-          </div>
-        </div>
+        <PriceBreakdown
+          className="mt-5"
+          fees={quote.fees}
+          format={(amount) => formatMoney(amount, currency)}
+        />
       )}
 
       <button
@@ -282,7 +293,7 @@ export default function BookingWidget({
       >
         {!user ? 'Inicia sesión para reservar' : bookingLoading ? 'Reservando…' : quoteLoading ? 'Calculando…' : 'Reservar'}
       </button>
-      <p className="mt-3 text-center text-xs text-wana-muted">No se hará ningún cobro por ahora</p>
+      <p className="mt-3 text-center text-xs text-elevari-muted">No se hará ningún cobro por ahora</p>
     </div>
   );
 
@@ -291,11 +302,11 @@ export default function BookingWidget({
       <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">{widgetBody}</div>
 
       {/* Mobile bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-wana-border wana-glass px-4 py-3 shadow-[0_-8px_30px_rgba(15,31,24,0.08)] lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-elevari-border wana-glass px-4 py-3 shadow-[0_-8px_30px_rgba(15,31,24,0.08)] lg:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
           <div>
-            <p className="font-semibold text-wana-charcoal">{totalDisplay}</p>
-            <p className="text-xs text-wana-muted">
+            <p className="font-semibold text-elevari-slate">{totalDisplay}</p>
+            <p className="text-xs text-elevari-muted">
               {nights > 0 ? `${nights} noches` : 'Selecciona fechas'}
             </p>
           </div>
@@ -325,10 +336,13 @@ export default function BookingWidget({
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
               onClick={(e) => e.stopPropagation()}
-              className="absolute bottom-0 left-0 right-0 max-h-[92vh] overflow-y-auto rounded-t-3xl bg-wana-cream p-4 pb-8"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="booking-sheet-title"
+              className="absolute bottom-0 left-0 right-0 max-h-[92vh] overflow-y-auto rounded-t-3xl bg-elevari-ivory p-4 pb-8"
             >
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-wana-charcoal">Tu estadía</h3>
+                <h3 id="booking-sheet-title" className="font-display font-semibold text-elevari-ink">Tu estadía</h3>
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}

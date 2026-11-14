@@ -7,6 +7,7 @@ import ExperiencePillars from '@/components/home/ExperiencePillars';
 import TrustStrip from '@/components/home/TrustStrip';
 import CategoryStrip from '@/components/home/CategoryStrip';
 import CinematicBand from '@/components/home/CinematicBand';
+import { ButtonLink } from '@/components/ui';
 
 export const revalidate = 60;
 
@@ -22,7 +23,7 @@ export default async function HomePage() {
   return (
     <>
       <Header />
-      <main>
+      <main id="contenido">
         <SearchHero />
         <CategoryStrip />
 
@@ -40,14 +41,14 @@ export default async function HomePage() {
               <div className="mb-10 flex items-end justify-between gap-4">
                 <div>
                   <p className="wana-eyebrow">Selección</p>
-                  <h2 className="wana-display-section mt-3 text-wana-charcoal">
+                  <h2 className="wana-display-section mt-3 text-elevari-slate">
                     Destacados esta semana
                   </h2>
-                  <p className="mt-3 text-wana-muted">Espacios con la mejor valoración de huéspedes</p>
+                  <p className="mt-3 text-elevari-muted">Espacios con la mejor valoración de huéspedes</p>
                 </div>
                 <Link
                   href="/properties"
-                  className="hidden text-sm font-semibold text-wana-forest hover:text-wana-gold sm:inline-flex sm:items-center sm:gap-1"
+                  className="hidden text-sm font-semibold text-elevari-forest hover:text-elevari-amber sm:inline-flex sm:items-center sm:gap-1"
                 >
                   Ver colección <span aria-hidden>→</span>
                 </Link>
@@ -79,7 +80,7 @@ export default async function HomePage() {
 
         <CinematicBand image="/properties/glamping-wana/05.webp" alt="Montañas de Sutatausa" overlay="dark">
           <div className="wana-container py-16 sm:py-20 text-center text-white">
-            <p className="wana-eyebrow wana-eyebrow-lux !text-wana-gold-light">Sabana de Bogotá</p>
+            <p className="wana-eyebrow wana-eyebrow-lux !text-elevari-amber-soft">Sabana de Bogotá</p>
             <h2 className="wana-display-section wana-display-section--light mt-4 max-w-2xl mx-auto">
               Amaneceres en la montaña, noches bajo las estrellas
             </h2>
@@ -87,12 +88,14 @@ export default async function HomePage() {
               Espacios exclusivos en Sutatausa y Cucunubá — silencio, naturaleza y confort a poca distancia
               de la ciudad.
             </p>
-            <Link
+            <ButtonLink
               href="/properties/glamping-wana"
-              className="mt-8 inline-flex min-h-[48px] items-center rounded-full bg-white px-8 py-3 text-sm font-semibold text-wana-charcoal shadow-lg transition hover:bg-wana-gold-light"
+              variant="accent"
+              size="lg"
+              className="mt-8"
             >
               Ver espacio destacado
-            </Link>
+            </ButtonLink>
           </div>
         </CinematicBand>
 
@@ -103,22 +106,19 @@ export default async function HomePage() {
             image="/properties/glamping-wana/03.webp"
             alt="Experiencia glamping"
             overlay="dark"
-            className="rounded-[1.75rem] shadow-wana-lg ring-1 ring-wana-gold/20"
+            className="rounded-[1.75rem] shadow-wana-lg ring-1 ring-elevari-amber/20"
           >
             <div className="px-8 py-14 text-center text-white sm:px-14 sm:py-16">
-              <p className="wana-eyebrow !text-wana-gold-light">Tu próximo escape</p>
+              <p className="wana-eyebrow !text-elevari-amber-soft">Tu próximo escape</p>
               <h2 className="wana-display-section wana-display-section--light mt-4">
                 ¿Listo para desconectar?
               </h2>
               <p className="mt-4 max-w-lg mx-auto text-white/80 leading-relaxed">
                 Reserva con precios claros. Pago seguro y confirmación al instante.
               </p>
-              <Link
-                href="/properties"
-                className="mt-8 inline-flex min-h-[48px] items-center rounded-full border border-white/30 bg-white/10 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
-              >
+              <ButtonLink href="/properties" variant="accent" size="lg" className="mt-8">
                 Ver toda la colección
-              </Link>
+              </ButtonLink>
             </div>
           </CinematicBand>
         </section>

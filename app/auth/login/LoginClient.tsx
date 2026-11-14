@@ -73,8 +73,8 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
   return (
     <AuthShell topLink={{ href: '/auth/register', label: 'Crear cuenta' }}>
       <p className="wana-eyebrow">Bienvenido</p>
-      <h1 className="mt-2 font-display text-3xl text-wana-charcoal">Iniciar sesión</h1>
-      <p className="mt-2 text-sm text-wana-muted">Reserva con la confianza de una plataforma internacional.</p>
+      <h1 className="mt-2 font-display text-3xl text-elevari-slate">Iniciar sesión</h1>
+      <p className="mt-2 text-sm text-elevari-muted">Reserva con la confianza de una plataforma internacional.</p>
 
       {(GOOGLE_ENABLED || TURNSTILE_ENABLED) && GOOGLE_ENABLED && (
         <div className="mt-6">
@@ -137,7 +137,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
         </Link>
       </p>
 
-      <p className="mt-6 text-center text-sm text-wana-muted">
+      <p className="mt-6 text-center text-sm text-elevari-muted">
         ¿No tienes cuenta?{' '}
         <Link href={redirectTo !== '/' ? `/auth/register?redirect=${encodeURIComponent(redirectTo)}` : '/auth/register'} className="wana-link">
           Regístrate

@@ -39,14 +39,14 @@ export default function AuthShell({
           {topLink ? (
             <Link
               href={topLink.href}
-              className="text-sm font-medium text-white/85 transition hover:text-wana-champagne-light"
+              className="text-sm font-medium text-white/85 transition hover:text-elevari-amber-soft"
             >
               {topLink.label}
             </Link>
           ) : (
             <Link
               href="/properties"
-              className="text-sm font-medium text-white/85 transition hover:text-wana-champagne-light"
+              className="text-sm font-medium text-white/85 transition hover:text-elevari-amber-soft"
             >
               Explorar
             </Link>
@@ -57,11 +57,11 @@ export default function AuthShell({
           <div className="wana-auth-form-card w-full max-w-[420px]">{children}</div>
           <p className="mt-6 max-w-sm text-center text-xs leading-relaxed text-white/75">
             Al continuar aceptas nuestros{' '}
-            <Link href="/legal/terms" className="font-medium text-wana-champagne-light hover:underline">
+            <Link href="/legal/terms" className="font-medium text-elevari-amber-soft hover:underline">
               términos
             </Link>{' '}
             y{' '}
-            <Link href="/legal/privacy" className="font-medium text-wana-champagne-light hover:underline">
+            <Link href="/legal/privacy" className="font-medium text-elevari-amber-soft hover:underline">
               privacidad
             </Link>
             .

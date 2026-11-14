@@ -36,11 +36,11 @@ export default function ExperiencePillars() {
       <div className="wana-container relative py-16 lg:py-24">
         <div className="mx-auto max-w-2xl text-center">
           <p className="wana-eyebrow">Por qué Eleveri</p>
-          <h2 className="wana-display-section mt-4 text-wana-charcoal">
+          <h2 className="wana-display-section mt-4 text-elevari-slate">
             Más que un alojamiento, una experiencia
           </h2>
           <div className="wana-divider-gold mx-auto mt-5" />
-          <p className="mt-5 text-wana-muted leading-relaxed">
+          <p className="mt-5 text-elevari-muted leading-relaxed">
             Glamping y refugios seleccionados con el cuidado de un anfitrión, no de un marketplace
             masivo.
           </p>
@@ -53,12 +53,12 @@ export default function ExperiencePillars() {
               style={{ animationDelay: `${i * 80}ms` }}
             >
               <span
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-wana-gold/30 bg-wana-cream text-lg text-wana-charcoal transition group-hover:border-wana-gold group-hover:bg-wana-black group-hover:text-wana-champagne-light"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-elevari-amber/30 bg-elevari-ivory text-lg text-elevari-slate transition group-hover:border-elevari-amber group-hover:bg-elevari-forest-deep group-hover:text-elevari-amber-soft"
               >
                 {p.icon}
               </span>
-              <h3 className="mt-5 font-semibold text-wana-charcoal">{p.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-wana-muted">{p.desc}</p>
+              <h3 className="mt-5 font-semibold text-elevari-slate">{p.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-elevari-muted">{p.desc}</p>
             </div>
           ))}
         </div>

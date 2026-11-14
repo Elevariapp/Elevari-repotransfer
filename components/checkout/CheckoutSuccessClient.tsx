@@ -49,7 +49,9 @@ export default function CheckoutSuccessClient({
           if (confirmed && !purchaseTracked.current) {
             purchaseTracked.current = true;
             const fees = refreshed.booking.feesBreakdown;
-            analytics.purchase(bookingId, fees?.total_charge_to_guest ?? 0);
+            const value = fees?.total_charge_to_guest ?? 0;
+            analytics.paymentCompleted(bookingId, value);
+            analytics.bookingConfirmed(bookingId, value);
           }
         }
       } catch {
@@ -76,13 +78,15 @@ export default function CheckoutSuccessClient({
     <div className="mx-auto max-w-lg text-center">
       <div
         className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full text-2xl ${
-          status === 'confirmed' ? 'bg-wana-sand text-wana-charcoal' : 'bg-wana-sand text-wana-muted'
+          status === 'confirmed'
+            ? 'bg-elevari-success-soft text-elevari-success'
+            : 'bg-elevari-sand text-elevari-muted'
         }`}
       >
         {status === 'loading' ? '…' : status === 'confirmed' ? '✓' : '⏳'}
       </div>
 
-      <h1 className="mt-6 font-display text-3xl text-wana-charcoal">
+      <h1 className="mt-6 font-display text-3xl text-elevari-ink">
         {status === 'confirmed'
           ? '¡Reserva confirmada!'
           : status === 'loading'
@@ -90,7 +94,7 @@ export default function CheckoutSuccessClient({
             : 'Pago en proceso'}
       </h1>
 
-      <p className="mt-3 text-wana-muted">
+      <p className="mt-3 text-elevari-muted">
         {status === 'confirmed'
           ? 'Te enviaremos los detalles a tu correo. ¡Nos vemos pronto!'
           : status === 'loading'
@@ -100,16 +104,16 @@ export default function CheckoutSuccessClient({
 
       <div className="mt-10 flex flex-col gap-3 text-sm">
         {status === 'pending' && (
-          <Link href="/account" className="font-medium text-wana-forest hover:underline">
+          <Link href="/account" className="font-medium text-elevari-forest hover:underline">
             Ir a mi cuenta
           </Link>
         )}
         {propertySlug && (
-          <Link href={`/properties/${propertySlug}`} className="font-medium text-wana-forest hover:underline">
+          <Link href={`/properties/${propertySlug}`} className="font-medium text-elevari-forest hover:underline">
             Volver a la propiedad
           </Link>
         )}
-        <Link href="/properties" className="text-wana-muted hover:text-wana-forest">
+        <Link href="/properties" className="text-elevari-muted hover:text-elevari-forest">
           Explorar más espacios
         </Link>
       </div>

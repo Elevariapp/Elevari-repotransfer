@@ -42,17 +42,17 @@ export default function AdminInvoicesPanel() {
     }
   };
 
-  if (authLoading || loading) return <p className="text-wana-muted">Cargando facturas…</p>;
+  if (authLoading || loading) return <p className="text-elevari-muted">Cargando facturas…</p>;
 
   if (!user || user.role !== 'admin') {
-    return <p className="text-wana-muted">Acceso restringido a administradores.</p>;
+    return <p className="text-elevari-muted">Acceso restringido a administradores.</p>;
   }
 
   return (
     <div className="wana-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-wana-border bg-wana-sand/50 text-wana-muted">
+          <thead className="border-b border-elevari-border bg-elevari-sand/50 text-elevari-muted">
             <tr>
               <th className="px-4 py-3">Reserva / propiedad</th>
               <th className="px-4 py-3">Huésped</th>
@@ -64,25 +64,25 @@ export default function AdminInvoicesPanel() {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-wana-muted">
+                <td colSpan={5} className="px-4 py-8 text-center text-elevari-muted">
                   Sin facturas pendientes
                 </td>
               </tr>
             ) : (
               rows.map((row) => (
-                <tr key={row.id} className="border-b border-wana-border/60">
+                <tr key={row.id} className="border-b border-elevari-border/60">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-wana-charcoal">
+                    <p className="font-medium text-elevari-slate">
                       {row.booking?.property?.title ?? '—'}
                     </p>
-                    <p className="text-xs text-wana-muted">{row.bookingId}</p>
+                    <p className="text-xs text-elevari-muted">{row.bookingId}</p>
                   </td>
                   <td className="px-4 py-3">
                     <p>{row.guestName ?? '—'}</p>
-                    <p className="text-xs text-wana-muted">{row.guestEmail ?? '—'}</p>
+                    <p className="text-xs text-elevari-muted">{row.guestEmail ?? '—'}</p>
                   </td>
                   <td className="px-4 py-3 capitalize">{row.status}</td>
-                  <td className="max-w-xs truncate px-4 py-3 text-xs text-wana-muted">
+                  <td className="max-w-xs truncate px-4 py-3 text-xs text-elevari-muted">
                     {row.alegraError ?? '—'}
                   </td>
                   <td className="px-4 py-3">

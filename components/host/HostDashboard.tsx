@@ -19,13 +19,13 @@ export default function HostDashboard() {
   }, [user]);
 
   if (authLoading) {
-    return <p className="text-wana-muted">Cargando…</p>;
+    return <p className="text-elevari-muted">Cargando…</p>;
   }
 
   if (!user) {
     return (
       <div className="wana-card p-8 text-center">
-        <p className="text-wana-muted">Inicia sesión como anfitrión para gestionar tus propiedades.</p>
+        <p className="text-elevari-muted">Inicia sesión como anfitrión para gestionar tus propiedades.</p>
         <Link href="/auth/login?redirect=/host" className="wana-btn-primary mt-6 inline-flex min-h-[48px]">
           Iniciar sesión
         </Link>
@@ -36,7 +36,7 @@ export default function HostDashboard() {
   if (user.role === 'guest') {
     return (
       <div className="wana-card p-8 text-center">
-        <p className="text-wana-muted">Tu cuenta es de huésped. Regístrate como anfitrión para publicar espacios.</p>
+        <p className="text-elevari-muted">Tu cuenta es de huésped. Regístrate como anfitrión para publicar espacios.</p>
         <Link href="/auth/register" className="wana-btn-primary mt-6 inline-flex min-h-[48px]">
           Crear cuenta anfitrión
         </Link>
@@ -52,7 +52,7 @@ export default function HostDashboard() {
 
       {properties.length === 0 ? (
         <div className="wana-card p-8 text-center">
-          <p className="text-wana-muted">Aún no tienes propiedades publicadas.</p>
+          <p className="text-elevari-muted">Aún no tienes propiedades publicadas.</p>
           <Link href="/host/add-property" className="wana-btn-primary mt-6 inline-flex min-h-[48px]">
             Publicar tu primer espacio
           </Link>
@@ -65,17 +65,17 @@ export default function HostDashboard() {
               href={`/host/properties/${p.id}/media`}
               className="wana-card overflow-hidden transition hover:shadow-card"
             >
-              <div className="aspect-[16/10] bg-wana-sand">
+              <div className="aspect-[16/10] bg-elevari-sand">
                 {p.cover_image ? (
                   <img src={p.cover_image} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-wana-muted/70">Sin foto</div>
+                  <div className="flex h-full items-center justify-center text-elevari-muted/70">Sin foto</div>
                 )}
               </div>
               <div className="p-4">
-                <h2 className="font-semibold text-wana-charcoal">{p.title}</h2>
-                <p className="text-sm text-wana-muted">{p.city ?? 'Colombia'}</p>
-                <p className="mt-2 text-xs font-semibold text-wana-forest">
+                <h2 className="font-semibold text-elevari-slate">{p.title}</h2>
+                <p className="text-sm text-elevari-muted">{p.city ?? 'Colombia'}</p>
+                <p className="mt-2 text-xs font-semibold text-elevari-forest">
                   {p.media_count} archivo{p.media_count !== 1 ? 's' : ''} · Gestionar →
                 </p>
               </div>

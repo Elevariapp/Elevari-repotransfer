@@ -5,10 +5,10 @@ export default function NotFound() {
   return (
     <>
       <Header sticky={false} />
-      <main className="wana-container flex min-h-[60vh] flex-col items-center justify-center py-16 text-center">
+      <main id="contenido" className="wana-container flex min-h-[60vh] flex-col items-center justify-center py-16 text-center">
         <p className="wana-eyebrow">404</p>
-        <h1 className="mt-3 font-display text-3xl text-wana-charcoal sm:text-4xl">Página no encontrada</h1>
-        <p className="mt-3 max-w-md text-wana-muted">
+        <h1 className="mt-3 font-display text-3xl text-elevari-slate sm:text-4xl">Página no encontrada</h1>
+        <p className="mt-3 max-w-md text-elevari-muted">
           El refugio que buscas no está aquí. Explora nuestra colección en Sutatausa y Cucunubá.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">

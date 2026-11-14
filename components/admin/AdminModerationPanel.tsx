@@ -54,15 +54,15 @@ export default function AdminModerationPanel() {
     }
   };
 
-  if (authLoading || loading) return <p className="text-wana-muted">Cargando media pendiente…</p>;
+  if (authLoading || loading) return <p className="text-elevari-muted">Cargando media pendiente…</p>;
 
   if (!user || user.role !== 'admin') {
-    return <p className="text-wana-muted">Acceso restringido a administradores.</p>;
+    return <p className="text-elevari-muted">Acceso restringido a administradores.</p>;
   }
 
   if (items.length === 0) {
     return (
-      <div className="wana-card p-8 text-center text-wana-muted">
+      <div className="wana-card p-8 text-center text-elevari-muted">
         No hay fotos o videos pendientes de revisión.
       </div>
     );
@@ -72,7 +72,7 @@ export default function AdminModerationPanel() {
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => (
         <article key={item.id} className="wana-card overflow-hidden">
-          <div className="aspect-[4/3] bg-wana-sand">
+          <div className="aspect-[4/3] bg-elevari-sand">
             {item.type === 'video' ? (
               <video src={item.url} controls className="h-full w-full object-cover" />
             ) : (
@@ -84,8 +84,8 @@ export default function AdminModerationPanel() {
             )}
           </div>
           <div className="p-4 space-y-3">
-            <p className="font-medium text-wana-charcoal">{item.property_title}</p>
-            <p className="text-xs text-wana-muted">{item.type}</p>
+            <p className="font-medium text-elevari-slate">{item.property_title}</p>
+            <p className="text-xs text-elevari-muted">{item.type}</p>
             <div className="flex gap-2">
               <button
                 type="button"

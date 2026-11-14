@@ -44,17 +44,17 @@ export default function AdminPropertiesPanel() {
     }
   };
 
-  if (authLoading || loading) return <p className="text-wana-muted">Cargando propiedades…</p>;
+  if (authLoading || loading) return <p className="text-elevari-muted">Cargando propiedades…</p>;
 
   if (!user || user.role !== 'admin') {
-    return <p className="text-wana-muted">Acceso restringido a administradores.</p>;
+    return <p className="text-elevari-muted">Acceso restringido a administradores.</p>;
   }
 
   return (
     <div className="wana-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-wana-border bg-wana-sand/50 text-wana-muted">
+          <thead className="border-b border-elevari-border bg-elevari-sand/50 text-elevari-muted">
             <tr>
               <th className="px-4 py-3">Título</th>
               <th className="px-4 py-3">Ciudad</th>
@@ -66,21 +66,21 @@ export default function AdminPropertiesPanel() {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-wana-muted">
+                <td colSpan={5} className="px-4 py-8 text-center text-elevari-muted">
                   Sin propiedades
                 </td>
               </tr>
             ) : (
               rows.map((row) => (
-                <tr key={row.id} className="border-b border-wana-border last:border-0">
-                  <td className="px-4 py-3 font-medium text-wana-charcoal">{row.title}</td>
-                  <td className="px-4 py-3 text-wana-muted">{row.city ?? '—'}</td>
+                <tr key={row.id} className="border-b border-elevari-border last:border-0">
+                  <td className="px-4 py-3 font-medium text-elevari-slate">{row.title}</td>
+                  <td className="px-4 py-3 text-elevari-muted">{row.city ?? '—'}</td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-wana-sand px-3 py-1 text-xs font-medium">
+                    <span className="rounded-full bg-elevari-sand px-3 py-1 text-xs font-medium">
                       {STATUS_LABELS[row.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-wana-muted">{row.host_email}</td>
+                  <td className="px-4 py-3 text-elevari-muted">{row.host_email}</td>
                   <td className="px-4 py-3">
                     {row.status === 'draft' && (
                       <button

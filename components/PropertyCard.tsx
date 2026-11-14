@@ -36,7 +36,7 @@ export default function PropertyCard({ property }: { property: Property }) {
     <Link href={href} className="group block">
       <article className="animate-fade-in">
         <div
-          className="relative overflow-hidden rounded-2xl bg-wana-sand aspect-[4/3] shadow-card ring-1 ring-black/[0.04] transition duration-500 group-hover:shadow-wana-lg group-hover:ring-wana-gold/25"
+          className="relative overflow-hidden rounded-2xl bg-elevari-sand aspect-[4/3] shadow-card ring-1 ring-black/[0.04] transition duration-500 group-hover:shadow-wana-lg group-hover:ring-elevari-amber/25"
         >
           {image ? (
             <>
@@ -60,13 +60,13 @@ export default function PropertyCard({ property }: { property: Property }) {
 
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             {isFeatured && (
-              <span className="rounded-full border border-wana-gold/40 bg-black/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-wana-gold-light shadow-sm">
+              <span className="rounded-full border border-elevari-amber/40 bg-black/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-elevari-amber-soft shadow-sm">
                 Destacado
               </span>
             )}
             {property.rating != null && (
-              <span className="flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-wana-charcoal shadow-sm">
-                <span className="text-wana-gold">★</span> {property.rating}
+              <span className="flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-elevari-slate shadow-sm">
+                <span className="text-elevari-amber">★</span> {property.rating}
               </span>
             )}
           </div>
@@ -82,12 +82,12 @@ export default function PropertyCard({ property }: { property: Property }) {
         </div>
 
         <div className="mt-3.5 space-y-1 px-0.5">
-          <h3 className="font-semibold text-wana-charcoal line-clamp-1 transition group-hover:text-wana-black">
+          <h3 className="font-semibold text-elevari-slate line-clamp-1 transition group-hover:text-elevari-ink">
             {property.title ?? 'Propiedad sin título'}
           </h3>
-          <p className="text-sm text-wana-muted line-clamp-1">{location ?? 'Colombia'}</p>
+          <p className="text-sm text-elevari-muted line-clamp-1">{location ?? 'Colombia'}</p>
           {property.review_count != null && property.review_count > 0 && (
-            <p className="text-xs text-wana-muted/80">{property.review_count} reseñas</p>
+            <p className="text-xs text-elevari-muted/80">{property.review_count} reseñas</p>
           )}
         </div>
       </article>

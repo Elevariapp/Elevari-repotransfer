@@ -19,7 +19,7 @@ export default function CinematicBand({
     overlay === 'dark'
       ? 'bg-black/55'
       : overlay === 'light'
-        ? 'bg-wana-cream/88'
+        ? 'bg-elevari-ivory/88'
         : 'bg-gradient-to-r from-black/88 via-black/65 to-black/75';
 
   return (
