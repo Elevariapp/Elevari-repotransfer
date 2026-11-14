@@ -1,0 +1,128 @@
+{
+  "generatedAt": "2026-11-14T15:04:22.078Z",
+  "suite": "shareability",
+  "cases": [
+    {
+      "id": "share.complete",
+      "status": "PASS",
+      "expected": {
+        "ok": true,
+        "missing": []
+      },
+      "actual": {
+        "ok": true,
+        "missing": []
+      },
+      "error": null
+    },
+    {
+      "id": "share.canonical",
+      "status": "PASS",
+      "expected": "https://eleveri.app/properties/glamping-wana",
+      "actual": "https://eleveri.app/properties/glamping-wana",
+      "error": null
+    },
+    {
+      "id": "share.og_image_route",
+      "status": "PASS",
+      "expected": "https://eleveri.app/properties/glamping-wana/opengraph-image",
+      "actual": "https://eleveri.app/properties/glamping-wana/opengraph-image",
+      "error": null
+    },
+    {
+      "id": "share.og_size",
+      "status": "PASS",
+      "expected": [
+        1200,
+        630
+      ],
+      "actual": [
+        1200,
+        630
+      ],
+      "error": null
+    },
+    {
+      "id": "share.twitter_card",
+      "status": "PASS",
+      "expected": "summary_large_image",
+      "actual": "summary_large_image",
+      "error": null
+    },
+    {
+      "id": "share.title_has_location",
+      "status": "PASS",
+      "expected": "Domo entre montañas · Sutatausa, Colombia",
+      "actual": "Domo entre montañas · Sutatausa, Colombia",
+      "error": null
+    },
+    {
+      "id": "share.locale",
+      "status": "PASS",
+      "expected": "es_CO",
+      "actual": "es_CO",
+      "error": null
+    },
+    {
+      "id": "share.site_name",
+      "status": "PASS",
+      "expected": "Elevari",
+      "actual": "Elevari",
+      "error": null
+    },
+    {
+      "id": "fallback_price_label",
+      "status": "PASS",
+      "expected": "$450.000 COP",
+      "actual": "$450.000 COP",
+      "error": null
+    },
+    {
+      "id": "fallback_no_price",
+      "status": "PASS",
+      "expected": null,
+      "actual": null,
+      "error": null
+    },
+    {
+      "id": "fallback_location_default",
+      "status": "PASS",
+      "expected": "",
+      "actual": "",
+      "error": null
+    },
+    {
+      "id": "fallback_description_with_price",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "fallback_still_shareable",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "validator_detects_missing",
+      "status": "PASS",
+      "expected": [
+        "og:image",
+        "og:image:alt",
+        "twitter:card"
+      ],
+      "actual": [
+        "og:image",
+        "og:image:alt",
+        "twitter:card"
+      ],
+      "error": null
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "pass": 14
+  }
+}

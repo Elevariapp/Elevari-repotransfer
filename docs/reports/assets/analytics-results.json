@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T14:41:47.038Z",
+  "generatedAt": "2026-11-14T15:04:22.194Z",
   "source": "lib/analytics.ts",
   "cases": [
     {
@@ -268,6 +268,199 @@
       "status": "PASS"
     },
     {
+      "id": "property_clicked",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "property_clicked",
+          "params": {
+            "item_slug": "domo-1",
+            "position": 3,
+            "sort": "price_asc",
+            "active_filters": 2
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "select_item",
+          "params": {
+            "item_slug": "domo-1",
+            "position": 3,
+            "sort": "price_asc",
+            "active_filters": 2
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "ViewContent",
+          "params": {
+            "item_slug": "domo-1",
+            "position": 3,
+            "sort": "price_asc",
+            "active_filters": 2
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "property_opened",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "property_opened",
+          "params": {
+            "item_slug": "domo-1",
+            "value": 450000,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "view_item",
+          "params": {
+            "item_slug": "domo-1",
+            "value": 450000,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "ViewContent",
+          "params": {
+            "item_slug": "domo-1",
+            "value": 450000,
+            "currency": "COP"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "checkout_started",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "start_checkout",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "begin_checkout",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "InitiateCheckout",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "checkout_started",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "begin_checkout",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "InitiateCheckout",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "reservation_completed",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "booking_confirmed",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "purchase",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "Purchase",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "reservation_completed",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "purchase",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "Purchase",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
       "id": "no_op_without_keys",
       "status": "PASS",
       "failures": [],
@@ -275,8 +468,8 @@
     }
   ],
   "summary": {
-    "total": 9,
-    "pass": 9,
+    "total": 13,
+    "pass": 13,
     "fail": 0
   }
 }

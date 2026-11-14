@@ -1,6 +1,6 @@
 {
   "baseUrl": "http://localhost:3000",
-  "generatedAt": "2026-11-14T14:37:10.718Z",
+  "generatedAt": "2026-11-14T14:59:06.133Z",
   "routes": [
     {
       "viewport": "360x800",
@@ -223,30 +223,6 @@
       "horizontalOverflow": false,
       "overflowingElements": [
         {
-          "tag": "img",
-          "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 410,
-          "left": -20
-        },
-        {
-          "tag": "img",
-          "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 410,
-          "left": -20
-        },
-        {
-          "tag": "img",
-          "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 410,
-          "left": -20
-        },
-        {
-          "tag": "img",
-          "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 410,
-          "left": -20
-        },
-        {
           "tag": "span",
           "cls": "text-left",
           "right": 537,
@@ -271,9 +247,9 @@
           "left": -10
         }
       ],
-      "overflowingCount": 8,
+      "overflowingCount": 4,
       "h1Count": 1,
-      "images": 8,
+      "images": 4,
       "imagesMissingAlt": 0,
       "unnamedInteractive": 0,
       "title": "Eleveri — Glamping en Colombia",
@@ -629,26 +605,26 @@
         {
           "tag": "img",
           "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 1077,
-          "left": -53
+          "right": 1076,
+          "left": -52
         },
         {
           "tag": "img",
           "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 1077,
-          "left": -53
+          "right": 1076,
+          "left": -52
         },
         {
           "tag": "img",
           "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 1077,
-          "left": -53
+          "right": 1076,
+          "left": -52
         },
         {
           "tag": "img",
           "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 1077,
-          "left": -53
+          "right": 1076,
+          "left": -52
         },
         {
           "tag": "img",

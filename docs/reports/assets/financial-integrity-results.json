@@ -1,0 +1,210 @@
+{
+  "generatedAt": "2026-11-14T15:04:22.531Z",
+  "suites": [
+    "reconciliation",
+    "audit-trail"
+  ],
+  "cases": [
+    {
+      "id": "A.matched",
+      "status": "PASS",
+      "expected": "MATCHED",
+      "actual": "MATCHED",
+      "error": null
+    },
+    {
+      "id": "B.orphan_payment",
+      "status": "PASS",
+      "expected": "ORPHAN_PAYMENT",
+      "actual": "ORPHAN_PAYMENT",
+      "error": null
+    },
+    {
+      "id": "B.orphan_missing_booking_row",
+      "status": "PASS",
+      "expected": "ORPHAN_PAYMENT",
+      "actual": "ORPHAN_PAYMENT",
+      "error": null
+    },
+    {
+      "id": "C.missing_payment",
+      "status": "PASS",
+      "expected": 1,
+      "actual": 1,
+      "error": null
+    },
+    {
+      "id": "C.no_false_positive",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "error": null
+    },
+    {
+      "id": "D.amount_mismatch",
+      "status": "PASS",
+      "expected": "AMOUNT_MISMATCH",
+      "actual": "AMOUNT_MISMATCH",
+      "error": null
+    },
+    {
+      "id": "E.currency_mismatch",
+      "status": "PASS",
+      "expected": "CURRENCY_MISMATCH",
+      "actual": "CURRENCY_MISMATCH",
+      "error": null
+    },
+    {
+      "id": "F.captured_on_pending_booking",
+      "status": "PASS",
+      "expected": "STATUS_MISMATCH",
+      "actual": "STATUS_MISMATCH",
+      "error": null
+    },
+    {
+      "id": "F.confirmed_on_failed_payment",
+      "status": "PASS",
+      "expected": "STATUS_MISMATCH",
+      "actual": "STATUS_MISMATCH",
+      "error": null
+    },
+    {
+      "id": "F.refunded_on_cancelled_booking",
+      "status": "PASS",
+      "expected": "STATUS_MISMATCH",
+      "actual": "STATUS_MISMATCH",
+      "error": null
+    },
+    {
+      "id": "F.pending_on_pending_booking",
+      "status": "PASS",
+      "expected": "MATCHED",
+      "actual": "MATCHED",
+      "error": null
+    },
+    {
+      "id": "helper.expected_amount_from_meta",
+      "status": "PASS",
+      "expected": 1150000,
+      "actual": 1150000,
+      "error": null
+    },
+    {
+      "id": "helper.expected_amount_fallback",
+      "status": "PASS",
+      "expected": 1150000,
+      "actual": 1150000,
+      "error": null
+    },
+    {
+      "id": "helper.currency_from_meta",
+      "status": "PASS",
+      "expected": "COP",
+      "actual": "COP",
+      "error": null
+    },
+    {
+      "id": "report.counts",
+      "status": "PASS",
+      "expected": {
+        "matched": 1,
+        "anomalies": 5,
+        "byStatus": {
+          "MATCHED": 1,
+          "ORPHAN_PAYMENT": 1,
+          "MISSING_PAYMENT": 1,
+          "AMOUNT_MISMATCH": 1,
+          "CURRENCY_MISMATCH": 1,
+          "STATUS_MISMATCH": 1
+        },
+        "generatedAt": "2026-11-14T00:00:00.000Z"
+      },
+      "actual": {
+        "matched": 1,
+        "anomalies": 5,
+        "byStatus": {
+          "MATCHED": 1,
+          "ORPHAN_PAYMENT": 1,
+          "MISSING_PAYMENT": 1,
+          "AMOUNT_MISMATCH": 1,
+          "CURRENCY_MISMATCH": 1,
+          "STATUS_MISMATCH": 1
+        },
+        "generatedAt": "2026-11-14T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "report.zero_anomalies",
+      "status": "PASS",
+      "expected": [
+        1,
+        0
+      ],
+      "actual": [
+        1,
+        0
+      ],
+      "error": null
+    },
+    {
+      "id": "trail.complete",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "trail.ordered",
+      "status": "PASS",
+      "expected": [
+        "2026-11-14T10:00:00.000Z",
+        "2026-11-14T10:01:00.000Z",
+        "2026-11-14T10:02:00.000Z",
+        "2026-11-14T10:03:00.000Z",
+        "2026-11-14T10:05:00.000Z"
+      ],
+      "actual": [
+        "2026-11-14T10:00:00.000Z",
+        "2026-11-14T10:01:00.000Z",
+        "2026-11-14T10:02:00.000Z",
+        "2026-11-14T10:03:00.000Z",
+        "2026-11-14T10:05:00.000Z"
+      ],
+      "error": null
+    },
+    {
+      "id": "trail.missing_outcome",
+      "status": "PASS",
+      "expected": [
+        "payment_outcome"
+      ],
+      "actual": [
+        "payment_outcome"
+      ],
+      "error": null
+    },
+    {
+      "id": "trail.missing_booking",
+      "status": "PASS",
+      "expected": [
+        "booking_created"
+      ],
+      "actual": [
+        "booking_created"
+      ],
+      "error": null
+    },
+    {
+      "id": "trail.refund_entry",
+      "status": "PASS",
+      "expected": 1,
+      "actual": 1,
+      "error": null
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "pass": 21
+  }
+}
