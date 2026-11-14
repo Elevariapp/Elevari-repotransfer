@@ -8,6 +8,7 @@ import ExclusiveBadge from '@/components/ExclusiveBadge';
 import PropertyLocation from '@/components/booking/PropertyLocation';
 import EleveriMark from '@/components/brand/EleveriMark';
 import { formatPropertyLocation } from '@/lib/property-location';
+import { formatCop } from '@/lib/format';
 import { wanaApi } from '@/lib/api-client';
 import { notFound } from 'next/navigation';
 
@@ -122,6 +123,33 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </p>
               </section>
 
+              <section className="rounded-2xl border border-elevari-border bg-elevari-surface p-5 shadow-[var(--elevari-shadow-soft)]">
+                <h2 className="font-display text-lg font-semibold text-elevari-ink">
+                  Precio y transparencia
+                </h2>
+                <dl className="mt-3 space-y-2 text-sm">
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-elevari-muted">Desde</dt>
+                    <dd className="font-semibold text-elevari-ink">
+                      {formatCop(property.price_per_night)}{' '}
+                      <span className="font-normal text-elevari-muted">/ noche</span>
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-elevari-muted">Tarifa de Servicio Elevari</dt>
+                    <dd className="text-elevari-slate">15% · incluida en el total</dd>
+                  </div>
+                  <div className="flex justify-between gap-4 border-t border-elevari-border pt-2">
+                    <dt className="text-elevari-muted">Total</dt>
+                    <dd className="text-elevari-slate">Se calcula con tus fechas antes de pagar</dd>
+                  </div>
+                </dl>
+                <p className="mt-3 text-xs leading-relaxed text-elevari-muted">
+                  Verás el desglose completo (noches + tarifa de servicio) antes de confirmar. El cobro se
+                  procesa en pesos colombianos (COP) con Wompi.
+                </p>
+              </section>
+
               {amenities.length > 0 && (
                 <section className="border-t border-elevari-border pt-8">
                   <h2 className="elevari-section-title">Lo que ofrece este lugar</h2>
@@ -137,6 +165,51 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   </ul>
                 </section>
               )}
+
+              <section className="border-t border-elevari-border pt-8">
+                <h2 className="wana-section-title">Políticas de la estancia</h2>
+                <div className="mt-6 grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <h3 className="text-sm font-semibold text-elevari-ink">Llegada y salida</h3>
+                    <ul className="mt-2 space-y-1 text-sm text-elevari-slate">
+                      <li>Check-in desde las 15:00</li>
+                      <li>Check-out hasta las 12:00</li>
+                      <li>Máximo {property.max_guests} huéspedes</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-elevari-ink">Cancelación</h3>
+                    <ul className="mt-2 space-y-1 text-sm text-elevari-slate">
+                      <li>Reembolso total con 5 días o más</li>
+                      <li>50% entre 2 y 4 días antes</li>
+                      <li>Sin reembolso con menos de 48 horas</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-elevari-ink">Normas de la casa</h3>
+                    <ul className="mt-2 space-y-1 text-sm text-elevari-slate">
+                      <li>No se permiten fiestas ni eventos</li>
+                      <li>Prohibido fumar en espacios interiores</li>
+                      <li>Mascotas: consultar con el anfitrión</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-elevari-ink">Pago</h3>
+                    <ul className="mt-2 space-y-1 text-sm text-elevari-slate">
+                      <li>Cobro en COP con Wompi</li>
+                      <li>Tarjetas, PSE, Nequi y Bancolombia</li>
+                      <li>Confirmación por correo al pagar</li>
+                    </ul>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs text-elevari-muted">
+                  ¿Dudas? Consulta las{' '}
+                  <a href="/legal/faq" className="font-semibold text-elevari-forest underline underline-offset-2">
+                    preguntas frecuentes
+                  </a>
+                  .
+                </p>
+              </section>
 
               <PropertyReviews
                 reviews={reviews}
