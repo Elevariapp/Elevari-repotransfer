@@ -1,0 +1,140 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "generatedAt": "2026-11-14T04:59:01.347Z",
+  "axe": [
+    {
+      "viewport": "390x844",
+      "route": "/",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "390x844",
+      "route": "/properties",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "390x844",
+      "route": "/legal/faq",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "390x844",
+      "route": "/legal/accessibility",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "390x844",
+      "route": "/auth/login",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "390x844",
+      "route": "/auth/register",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "390x844",
+      "route": "/ruta-inexistente-certificacion",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "1440x900",
+      "route": "/",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "1440x900",
+      "route": "/properties",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "1440x900",
+      "route": "/legal/faq",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "1440x900",
+      "route": "/legal/accessibility",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "1440x900",
+      "route": "/auth/login",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "1440x900",
+      "route": "/auth/register",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "viewport": "1440x900",
+      "route": "/ruta-inexistente-certificacion",
+      "violations": [],
+      "incomplete": 1
+    }
+  ],
+  "interactions": {
+    "keyboard": {
+      "skipLink": {
+        "text": "Saltar al contenido principal",
+        "tag": "A",
+        "outline": "2px solid rgb(47, 107, 79)",
+        "top": 16,
+        "visible": true
+      },
+      "tabOrder": [
+        "A:eleveriEscapes naturales— ir a:solid",
+        "A:ColecciónColección:solid",
+        "A:DestacadoGlamping destacado:solid",
+        "A:PublicarPublicar:solid",
+        "A:FAQFAQ:solid",
+        "A:Iniciar sesión:solid",
+        "BUTTON:DestinoCualquier lugar:solid",
+        "BUTTON:FechasAgregar fechas:solid",
+        "BUTTON:Huéspedes2 huéspedes:solid",
+        "BUTTON:Buscar:solid",
+        "A:Descubre:solid",
+        "BUTTON:Toda la colecciónColombia:solid"
+      ]
+    },
+    "reducedMotion": {
+      "found": true,
+      "animationDuration": "1e-05s",
+      "scrollBehavior": "auto"
+    },
+    "mobileMenu": {
+      "triggerFound": true,
+      "opened": {
+        "ariaExpanded": "true",
+        "panelVisible": true
+      },
+      "closedByEscape": true
+    },
+    "formValidation": {
+      "hasForm": true,
+      "invalidFields": 2,
+      "alerts": [
+        "Escribe tu email.",
+        "Escribe tu contraseña."
+      ],
+      "nativeValidation": [
+        "Please fill out this field.",
+        "Please fill out this field."
+      ]
+    }
+  }
+}

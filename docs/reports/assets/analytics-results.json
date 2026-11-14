@@ -1,0 +1,282 @@
+{
+  "generatedAt": "2026-11-14T04:59:48.079Z",
+  "source": "lib/analytics.ts",
+  "cases": [
+    {
+      "id": "view_property",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "view_property",
+          "params": {
+            "item_id": "p1",
+            "item_slug": "domo-1",
+            "item_name": "Domo",
+            "value": 450000,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "view_item",
+          "params": {
+            "item_id": "p1",
+            "item_slug": "domo-1",
+            "item_name": "Domo",
+            "value": 450000,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "ViewContent",
+          "params": {
+            "item_id": "p1",
+            "item_slug": "domo-1",
+            "item_name": "Domo",
+            "value": 450000,
+            "currency": "COP"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "select_dates",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "select_dates",
+          "params": {
+            "property_id": "p1",
+            "check_in": "2026-07-01",
+            "check_out": "2026-07-04",
+            "nights": 3
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "select_dates",
+          "params": {
+            "property_id": "p1",
+            "check_in": "2026-07-01",
+            "check_out": "2026-07-04",
+            "nights": 3
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "view_quote",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "view_quote",
+          "params": {
+            "property_id": "p1",
+            "nights": 3,
+            "value": 1552500,
+            "currency": "COP",
+            "available": true
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "view_quote",
+          "params": {
+            "property_id": "p1",
+            "nights": 3,
+            "value": 1552500,
+            "currency": "COP",
+            "available": true
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "start_checkout",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "start_checkout",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "begin_checkout",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "InitiateCheckout",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "payment_started",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "payment_started",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP",
+            "payment_provider": "wompi",
+            "payment_mode": "mock"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "add_payment_info",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP",
+            "payment_provider": "wompi",
+            "payment_mode": "mock"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "AddPaymentInfo",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP",
+            "payment_provider": "wompi",
+            "payment_mode": "mock"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "payment_completed",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "payment_completed",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "purchase",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "Purchase",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "booking_confirmed",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "booking_confirmed",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "ga4",
+          "name": "purchase",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "Purchase",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "checkout_abandoned",
+      "emitted": [
+        {
+          "dest": "ga4",
+          "name": "checkout_abandoned",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP",
+            "reason": "navigate_away"
+          }
+        },
+        {
+          "dest": "meta",
+          "name": "checkout_abandoned",
+          "params": {
+            "transaction_id": "b1",
+            "value": 1552500,
+            "currency": "COP",
+            "reason": "navigate_away"
+          }
+        }
+      ],
+      "failures": [],
+      "status": "PASS"
+    },
+    {
+      "id": "no_op_without_keys",
+      "status": "PASS",
+      "failures": [],
+      "emitted": []
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "pass": 9,
+    "fail": 0
+  }
+}

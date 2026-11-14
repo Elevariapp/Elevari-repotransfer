@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-11-14T05:00:46.361Z",
+  "cases": [
+    {
+      "id": "base_1m_fee_15",
+      "status": "PASS",
+      "actual": {
+        "fee": 150000,
+        "total": 1150000,
+        "host": 850000,
+        "subtotal": 1000000
+      },
+      "expected": {
+        "fee": 150000,
+        "total": 1150000,
+        "host": 850000,
+        "subtotal": 1000000
+      }
+    },
+    {
+      "id": "rounding_333333",
+      "status": "PASS",
+      "actual": {
+        "fee": 49999.95,
+        "total": 383332.95,
+        "invariant": true
+      },
+      "expected": {
+        "fee": 49999.95,
+        "total": 383332.95,
+        "invariant": true
+      }
+    },
+    {
+      "id": "zero_base",
+      "status": "PASS",
+      "actual": {
+        "total": 0,
+        "fee": 0
+      },
+      "expected": {
+        "total": 0,
+        "fee": 0
+      }
+    },
+    {
+      "id": "zero_fee_percent",
+      "status": "PASS",
+      "actual": {
+        "total": 100,
+        "fee": 0
+      },
+      "expected": {
+        "total": 100,
+        "fee": 0
+      }
+    },
+    {
+      "id": "default_fee_percent_matches",
+      "status": "PASS",
+      "actual": {
+        "web": true,
+        "api": true
+      },
+      "expected": {
+        "web": true,
+        "api": true
+      }
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "pass": 5
+  }
+}
