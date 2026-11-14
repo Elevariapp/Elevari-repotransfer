@@ -116,7 +116,18 @@ Pendiente recomendado: auditoría con lector de pantalla (NVDA/VoiceOver) y axe 
 
 ---
 
-## 8. Cómo añadir un componente
+## 8. Temas y superficies
+
+El sistema soporta **Light**, **Dark** y **High contrast** mediante `data-theme` / `data-contrast` en `<html>` (ver `TOKEN_SYSTEM.md` §10).
+
+Reglas de componente:
+
+- Toda superficie usa `bg-elevari-surface` (nunca `bg-white` fijo).
+- Los CTA primarios usan `bg-elevari-action` (se mantiene oscuro en dark para conservar el texto blanco AA).
+- Los enlaces usan `text-elevari-forest` (se aclara en dark).
+- El toggle vive en `components/theme/ThemeToggle.tsx` y se muestra en el header (desktop y menú móvil).
+
+## 9. Cómo añadir un componente
 
 1. Verificar si existe una primitiva que cubra el caso.
 2. Si necesita un valor visual nuevo → crear token en `@theme` y en `:root`, y documentarlo en `TOKEN_SYSTEM.md`.

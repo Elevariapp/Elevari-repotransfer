@@ -143,6 +143,44 @@ typography.sizes.hero;
 
 ## 9. Verificación
 
+- Contrastes: tabla en `docs/brand/ELEVARI_BRAND_GUIDE.md` §4 y en §10 de este documento.
+- Búsqueda de valores prohibidos: `Select-String -Pattern '#[0-9a-fA-F]{3,8}'` en `components/` (solo deben aparecer SVG de marca).
+- Al añadir un token: actualizar `@theme`, `:root`, `lib/design-tokens.ts` y este documento en el mismo commit.
+
+---
+
+## 10. Temas (Light · Dark · High contrast)
+
+Los tokens semánticos se redefinen por atributo en `<html>`:
+
+```html
+<html data-theme="dark" data-contrast="high">
+```
+
+| Tema | Activación | Notas |
+|------|-----------|-------|
+| Light | por defecto | `color-scheme: light` |
+| Dark | `data-theme="dark"` | `color-scheme: dark`; superficies `#0E1916`/`#16241F`, texto `#E7EFEA`, enlaces `#7ED0A6` |
+| High contrast | `data-contrast="high"` | Refuerza `muted`, `border` y el anillo de foco (3 px) |
+
+Reglas:
+
+1. **Action tokens** (`--color-elevari-action`, `--color-elevari-action-hover`) permanecen oscuros en ambos temas para que el texto blanco del CTA mantenga AA.
+2. `text-elevari-forest` es el token de **texto/enlace**: se aclara en dark.
+3. `amber-ink` permanece oscuro porque se usa sobre chips `amber-soft` claros.
+4. Las superficies deben usar `bg-elevari-surface` / `var(--elevari-surface)`, nunca `white` fijo.
+5. El tema se aplica antes del primer paint con `themeInitScript` (sin flash) y se persiste en `localStorage` (`elevari-theme`, `elevari-contrast`).
+6. Componente: `components/theme/ThemeToggle.tsx` (Claro · Oscuro · Alto contraste), con `aria-pressed`.
+
+### Contraste medido por tema (home, 1440×900)
+
+| Tema | Contraste cuerpo | axe (WCAG 2.2 AA) |
+|------|------------------|-------------------|
+| Light | 12.10 | 0 violaciones |
+| Dark | 15.34 | 0 violaciones |
+| High contrast | 12.10 | 0 violaciones |
+
+
 - Contrastes: tabla en `docs/brand/ELEVARI_BRAND_GUIDE.md` §4.
 - Búsqueda de valores prohibidos: `Select-String -Pattern '#[0-9a-fA-F]{3,8}'` en `components/` (solo deben aparecer SVG de marca).
 - Al añadir un token: actualizar `@theme`, `:root`, `lib/design-tokens.ts` y este documento en el mismo commit.

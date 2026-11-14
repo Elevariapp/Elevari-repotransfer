@@ -1,30 +1,30 @@
 {
   "baseUrl": "http://localhost:3000",
-  "generatedAt": "2026-11-14T05:33:44.836Z",
+  "generatedAt": "2026-11-14T13:07:48.663Z",
   "axe": [
     {
       "viewport": "390x844",
       "route": "/",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "390x844",
       "route": "/properties",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "390x844",
       "route": "/legal/faq",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "390x844",
       "route": "/legal/accessibility",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "390x844",
@@ -42,31 +42,31 @@
       "viewport": "390x844",
       "route": "/ruta-inexistente-certificacion",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "1440x900",
       "route": "/",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "1440x900",
       "route": "/properties",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "1440x900",
       "route": "/legal/faq",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "1440x900",
       "route": "/legal/accessibility",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     },
     {
       "viewport": "1440x900",
@@ -84,7 +84,7 @@
       "viewport": "1440x900",
       "route": "/ruta-inexistente-certificacion",
       "violations": [],
-      "incomplete": 1
+      "incomplete": 2
     }
   ],
   "interactions": {
@@ -102,13 +102,13 @@
         "A:DestacadoGlamping destacado:solid",
         "A:PublicarPublicar:solid",
         "A:FAQFAQ:solid",
+        "BUTTON:Tema claro:solid",
+        "BUTTON:Tema oscuro:solid",
+        "BUTTON:Alto contraste:solid",
         "A:Iniciar sesión:solid",
         "BUTTON:DestinoCualquier lugar:solid",
         "BUTTON:FechasAgregar fechas:solid",
-        "BUTTON:Huéspedes2 huéspedes:solid",
-        "BUTTON:Buscar:solid",
-        "A:Descubre:solid",
-        "BUTTON:Toda la colecciónColombia:solid"
+        "BUTTON:Huéspedes2 huéspedes:solid"
       ]
     },
     "reducedMotion": {

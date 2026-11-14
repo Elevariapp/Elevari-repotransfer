@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-11-14T13:06:01.493Z",
+  "modes": [
+    {
+      "mode": "light",
+      "styles": {
+        "dataTheme": "light",
+        "dataContrast": null,
+        "bodyBg": "rgb(247, 244, 236)",
+        "bodyColor": "rgb(34, 49, 63)",
+        "h1Color": "rgb(255, 255, 255)",
+        "linkColor": "rgba(255, 255, 255, 0.72)",
+        "tokenIvory": "#f7f4ec",
+        "tokenSlate": "#22313f",
+        "tokenMuted": "#5c6b65"
+      },
+      "axe": [],
+      "bodyContrast": "12.10"
+    },
+    {
+      "mode": "dark",
+      "styles": {
+        "dataTheme": "dark",
+        "dataContrast": null,
+        "bodyBg": "rgb(14, 25, 22)",
+        "bodyColor": "rgb(231, 239, 234)",
+        "h1Color": "rgb(255, 255, 255)",
+        "linkColor": "rgba(255, 255, 255, 0.72)",
+        "tokenIvory": "#0e1916",
+        "tokenSlate": "#e7efea",
+        "tokenMuted": "#a9bab3"
+      },
+      "axe": [],
+      "bodyContrast": "15.34"
+    },
+    {
+      "mode": "high-contrast",
+      "styles": {
+        "dataTheme": "light",
+        "dataContrast": "high",
+        "bodyBg": "rgb(247, 244, 236)",
+        "bodyColor": "rgb(34, 49, 63)",
+        "h1Color": "rgb(255, 255, 255)",
+        "linkColor": "rgba(255, 255, 255, 0.72)",
+        "tokenIvory": "#f7f4ec",
+        "tokenSlate": "#22313f",
+        "tokenMuted": "#2f403a"
+      },
+      "axe": [],
+      "bodyContrast": "12.10"
+    }
+  ]
+}
