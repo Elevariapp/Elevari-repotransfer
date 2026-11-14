@@ -136,7 +136,10 @@ export interface WompiEventPayload {
 export function verifyWompiWebhook(payload: WompiEventPayload): boolean {
   const cfg = getWompiConfig();
   if (!cfg) {
-    return process.env.NODE_ENV !== 'production' && process.env.PAYMENTS_MODE === 'mock';
+    // No Wompi configuration: unsigned webhooks are rejected unless an operator
+    // explicitly opts in (e.g. local mock testing). Never infer this from
+    // PAYMENTS_MODE, so staging cannot silently accept forged events.
+    return process.env.ALLOW_UNSIGNED_WEBHOOKS === 'true';
   }
 
   const props = payload?.signature?.properties;
