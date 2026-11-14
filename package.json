@@ -21,6 +21,8 @@
     "go-live:remote": "./deploy/scripts/remote-deploy.sh",
     "go-live:staging": "./deploy/scripts/deploy-staging.sh",
     "go-live:verify": "./deploy/scripts/verify-health.sh",
+    "db:backup": "bash deploy/scripts/backup-db.sh",
+    "db:restore": "bash deploy/scripts/restore-db.sh",
     "go-live:smoke:mock": "./deploy/scripts/mock-booking-smoke.sh",
     "check:turnstile": "./deploy/scripts/check-turnstile-config.sh",
     "api:dev": "cd api && npm run dev",
