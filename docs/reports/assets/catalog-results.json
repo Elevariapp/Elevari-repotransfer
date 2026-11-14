@@ -1,0 +1,229 @@
+{
+  "generatedAt": "2026-11-14T14:41:46.916Z",
+  "suite": "catalog-params",
+  "cases": [
+    {
+      "id": "defaults",
+      "status": "PASS",
+      "expected": {
+        "sort": "recommended",
+        "amenities": [],
+        "offset": 0,
+        "limit": 24
+      },
+      "actual": {
+        "sort": "recommended",
+        "amenities": [],
+        "offset": 0,
+        "limit": 24
+      },
+      "error": null
+    },
+    {
+      "id": "invalid_sort_falls_back",
+      "status": "PASS",
+      "expected": "recommended",
+      "actual": "recommended",
+      "error": null
+    },
+    {
+      "id": "valid_sort",
+      "status": "PASS",
+      "expected": "price_asc",
+      "actual": "price_asc",
+      "error": null
+    },
+    {
+      "id": "amenities_filtered",
+      "status": "PASS",
+      "expected": [
+        "wifi",
+        "fogata"
+      ],
+      "actual": [
+        "wifi",
+        "fogata"
+      ],
+      "error": null
+    },
+    {
+      "id": "price_swap",
+      "status": "PASS",
+      "expected": [
+        300000,
+        900000
+      ],
+      "actual": [
+        300000,
+        900000
+      ],
+      "error": null
+    },
+    {
+      "id": "negative_price_ignored",
+      "status": "PASS",
+      "expected": null,
+      "actual": null,
+      "error": null
+    },
+    {
+      "id": "guests_out_of_range_ignored",
+      "status": "PASS",
+      "expected": null,
+      "actual": null,
+      "error": null
+    },
+    {
+      "id": "guests_valid",
+      "status": "PASS",
+      "expected": 4,
+      "actual": 4,
+      "error": null
+    },
+    {
+      "id": "invalid_date_dropped",
+      "status": "PASS",
+      "expected": null,
+      "actual": null,
+      "error": null
+    },
+    {
+      "id": "valid_dates",
+      "status": "PASS",
+      "expected": [
+        "2026-12-01",
+        "2026-12-04"
+      ],
+      "actual": [
+        "2026-12-01",
+        "2026-12-04"
+      ],
+      "error": null
+    },
+    {
+      "id": "limit_over_max_falls_back",
+      "status": "PASS",
+      "expected": 24,
+      "actual": 24,
+      "error": null
+    },
+    {
+      "id": "offset_kept",
+      "status": "PASS",
+      "expected": 48,
+      "actual": 48,
+      "error": null
+    },
+    {
+      "id": "api_query_omits_defaults",
+      "status": "PASS",
+      "expected": "",
+      "actual": "",
+      "error": null
+    },
+    {
+      "id": "api_query_includes_filters",
+      "status": "PASS",
+      "expected": "city=Sutatausa&sort=price_desc&min_price=300000&amenities=wifi",
+      "actual": "city=Sutatausa&sort=price_desc&min_price=300000&amenities=wifi",
+      "error": null
+    },
+    {
+      "id": "href_roundtrip",
+      "status": "PASS",
+      "expected": {
+        "city": "Cucunubá",
+        "guests": 2,
+        "sort": "popular",
+        "amenities": [
+          "vista"
+        ],
+        "offset": 24
+      },
+      "actual": {
+        "city": "Cucunubá",
+        "guests": 2,
+        "sort": "popular",
+        "amenities": [
+          "vista"
+        ],
+        "offset": 24
+      },
+      "error": null
+    },
+    {
+      "id": "href_empty_is_clean",
+      "status": "PASS",
+      "expected": "/properties",
+      "actual": "/properties",
+      "error": null
+    },
+    {
+      "id": "toggle_adds_and_resets_offset",
+      "status": "PASS",
+      "expected": [
+        [
+          "wifi"
+        ],
+        0
+      ],
+      "actual": [
+        [
+          "wifi"
+        ],
+        0
+      ],
+      "error": null
+    },
+    {
+      "id": "toggle_removes",
+      "status": "PASS",
+      "expected": [
+        "fogata"
+      ],
+      "actual": [
+        "fogata"
+      ],
+      "error": null
+    },
+    {
+      "id": "price_preset_match",
+      "status": "PASS",
+      "expected": "300-600",
+      "actual": "300-600",
+      "error": null
+    },
+    {
+      "id": "price_preset_none",
+      "status": "PASS",
+      "expected": "any",
+      "actual": "any",
+      "error": null
+    },
+    {
+      "id": "active_filters_count",
+      "status": "PASS",
+      "expected": 5,
+      "actual": 5,
+      "error": null
+    },
+    {
+      "id": "has_more_with_total",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "has_more_at_end",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "pass": 23
+  }
+}
