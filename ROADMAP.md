@@ -21,6 +21,8 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 
 ## Fase 2 — Pagos (completada)
 
+> **CLOSED** — ver `docs/PHASE2_CLOSEOUT.md`. No further Phase 2 development is required. Siguiente fase: Production Verification and Operational Launch (tareas Go-Live, no bloquean).
+
 **Objetivo:** ciclo completo Property → Booking → Quote → Checkout → Pago → Webhook → Booking Confirmado → Confirmación al usuario. Un pago exitoso confirma la reserva; un pago fallido nunca la confirma; booking y pago siempre sincronizados.
 
 ### Estrategia de proveedor
