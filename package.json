@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit --ignoreDeprecations 6.0",
-    "test:cert": "node scripts/certification/catalog-params-audit.mjs && node scripts/certification/analytics-audit.mjs && node scripts/certification/money-fees-audit.mjs",
+    "test:cert": "node scripts/certification/catalog-params-audit.mjs && node scripts/certification/shareability-audit.mjs && node scripts/certification/analytics-audit.mjs && node scripts/certification/money-fees-audit.mjs && node --import ./scripts/certification/register.mjs scripts/certification/financial-integrity-audit.mjs",
     "test:domain": "node --import ./scripts/certification/register.mjs scripts/certification/foundation-logic-audit.mjs",
     "docker:infra": "docker compose up -d postgres redis minio minio-init",
     "docker:up": "docker compose up -d",

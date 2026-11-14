@@ -87,6 +87,29 @@ run('checkout_abandoned', () => analytics.checkoutAbandoned({ bookingId: 'b1', v
   { dest: 'ga4', name: 'checkout_abandoned', required: ['transaction_id', 'value', 'reason'], equals: { reason: 'navigate_away' } },
 ]);
 
+run('property_clicked', () => analytics.propertyClicked({ slug: 'domo-1', position: 3, sort: 'price_asc', activeFilters: 2 }), [
+  { dest: 'ga4', name: 'property_clicked', required: ['item_slug', 'position', 'sort', 'active_filters'] },
+  { dest: 'ga4', name: 'select_item' },
+  { dest: 'meta', name: 'ViewContent' },
+]);
+
+run('property_opened', () => analytics.propertyOpened({ slug: 'domo-1', price: 450000 }), [
+  { dest: 'ga4', name: 'property_opened', required: ['item_slug', 'value'] },
+  { dest: 'ga4', name: 'view_item' },
+]);
+
+run('checkout_started', () => analytics.checkoutStarted('b1', 1552500), [
+  { dest: 'ga4', name: 'start_checkout', required: ['transaction_id', 'value'] },
+  { dest: 'ga4', name: 'checkout_started', required: ['transaction_id'] },
+  { dest: 'ga4', name: 'begin_checkout' },
+]);
+
+run('reservation_completed', () => analytics.reservationCompleted('b1', 1552500), [
+  { dest: 'ga4', name: 'booking_confirmed', required: ['transaction_id', 'value'] },
+  { dest: 'ga4', name: 'reservation_completed', required: ['transaction_id'] },
+  { dest: 'meta', name: 'Purchase' },
+]);
+
 // No-op without keys
 const callsWithoutKeys = [];
 globalThis.window = {
