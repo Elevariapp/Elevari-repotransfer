@@ -1,6 +1,8 @@
 import { prisma } from '../prisma.js';
 import { assertTransition } from '../booking-state.js';
 import { onBookingConfirmed } from '../marketing.js';
+import { assertPaymentTransition } from './payment-state.js';
+import { recordPaymentEvent, newCorrelationId } from './events.js';
 
 export async function confirmPaymentSuccess(params: {
   paymentId: string;
@@ -39,6 +41,7 @@ export async function confirmPaymentSuccess(params: {
         : {};
 
     if (booking.status === 'cancelled') {
+      assertPaymentTransition(payment.status, 'succeeded');
       await tx.payment.update({
         where: { id: paymentId },
         data: {
@@ -80,6 +83,7 @@ export async function confirmPaymentSuccess(params: {
     }
 
     if (booking.status !== 'pending_payment') {
+      assertPaymentTransition(payment.status, 'succeeded');
       await tx.payment.update({
         where: { id: paymentId },
         data: {
@@ -105,6 +109,7 @@ export async function confirmPaymentSuccess(params: {
       };
     }
 
+    assertPaymentTransition(payment.status, 'succeeded');
     await tx.payment.update({
       where: { id: paymentId },
       data: {
@@ -157,6 +162,10 @@ export async function confirmPaymentSuccess(params: {
 
 export async function markPaymentFailed(paymentId: string, error: string, raw?: unknown) {
   await prisma.$transaction(async (tx) => {
+    const payment = await tx.payment.findUnique({ where: { id: paymentId } });
+    if (!payment) throw new Error('PAYMENT_NOT_FOUND');
+    // FAILED never confirms a booking; booking stays in its current status.
+    assertPaymentTransition(payment.status, 'failed');
     await tx.payment.update({
       where: { id: paymentId },
       data: { status: 'failed' },
@@ -169,5 +178,14 @@ export async function markPaymentFailed(paymentId: string, error: string, raw?: 
         raw: raw ? (raw as object) : undefined,
       },
     });
+  });
+
+  const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
+  await recordPaymentEvent({
+    type: 'payment_failed',
+    correlationId: newCorrelationId(),
+    paymentId,
+    bookingId: payment?.bookingId,
+    payload: { error },
   });
 }

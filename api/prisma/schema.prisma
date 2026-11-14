@@ -41,6 +41,7 @@ enum BookingStatus {
 }
 
 enum PaymentProvider {
+  wompi
   bold
   stripe
 }
@@ -50,6 +51,8 @@ enum PaymentStatus {
   processing
   succeeded
   failed
+  cancelled
+  partially_refunded
   refunded
 }
 
@@ -227,9 +230,71 @@ model Payment {
 
   booking  Booking          @relation(fields: [bookingId], references: [id])
   attempts PaymentAttempt[]
+  events   PaymentEvent[]
+  refunds  PaymentRefund[]
 
   @@index([bookingId])
   @@map("payments")
+}
+
+model PaymentRefund {
+  id                String        @id @default(uuid())
+  paymentId         String        @map("payment_id")
+  amountMinor       Int           @map("amount_minor")
+  currency          String        @default("COP")
+  status            String        @default("pending")
+  providerRefundId  String?       @map("provider_refund_id")
+  originalAmountMinor Int?        @map("original_amount_minor")
+  quoteRate         Decimal?      @map("quote_rate") @db.Decimal(14, 6)
+  reason            String?
+  metadata          Json?
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId, createdAt])
+  @@map("payment_refunds")
+}
+
+model PaymentEvent {
+  id            String   @id @default(uuid())
+  paymentId     String?  @map("payment_id")
+  bookingId     String?  @map("booking_id")
+  quoteId       String?  @map("quote_id")
+  refundId      String?  @map("refund_id")
+  correlationId String   @map("correlation_id")
+  type          String
+  payload       Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([paymentId, createdAt])
+  @@index([bookingId, createdAt])
+  @@index([correlationId])
+  @@map("payment_events")
+}
+
+model FxQuote {
+  id                  String   @id @default(uuid())
+  bookingId           String   @map("booking_id")
+  chargeCurrency      String   @default("COP") @map("charge_currency")
+  chargeAmountMinor   Int      @map("charge_amount_minor")
+  displayCurrency     String   @map("display_currency")
+  displayAmountMinor  Int      @map("display_amount_minor")
+  rate                Decimal  @db.Decimal(14, 6)
+  rateSource          String   @map("rate_source")
+  lockedAt            DateTime @default(now()) @map("locked_at")
+  expiresAt           DateTime @map("expires_at")
+  disclosureVersion   String?  @map("disclosure_version")
+  disclosureLocale    String?  @map("disclosure_locale")
+  disclosureHash      String?  @map("disclosure_hash")
+  disclosureAcceptedAt DateTime? @map("disclosure_accepted_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@index([bookingId, createdAt])
+  @@map("fx_quotes")
 }
 
 model PaymentAttempt {

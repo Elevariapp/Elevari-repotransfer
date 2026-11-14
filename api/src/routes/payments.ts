@@ -1,10 +1,25 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { randomUUID, createHash } from 'node:crypto';
 import { prisma } from '../lib/prisma.js';
 import { createProviderIntent, resolveProvider } from '../lib/payments/router.js';
-import { confirmPaymentSuccess } from '../lib/payments/confirm-payment.js';
+import { getPaymentsConfig, assertIntlCheckoutAllowed } from '../lib/payments/config.js';
+import { confirmPaymentSuccess, markPaymentFailed } from '../lib/payments/confirm-payment.js';
+import { assertPaymentTransition } from '../lib/payments/payment-state.js';
+import { createFxQuote, assertQuoteValid } from '../lib/payments/fx.js';
+import { toMinorUnits } from '../lib/payments/money.js';
+import {
+  buildDisclosureText,
+  hashDisclosure,
+  normalizeLocale,
+  DISCLOSURE_VERSION,
+} from '../lib/payments/disclosure.js';
+import { recordPaymentEvent, newCorrelationId } from '../lib/payments/events.js';
+import { syncWompiPayment, verifyWompiWebhook, parseWompiWebhook } from '../lib/payments/wompi-provider.js';
+import type { WompiEventPayload } from '../lib/payments/wompi-provider.js';
 import { syncBoldPayment } from '../lib/payments/bold-provider.js';
 import { syncStripePayment } from '../lib/payments/stripe-provider.js';
+import { issuePaymentRefund } from '../lib/refund-payment.js';
 import {
   accessErrorReply,
   getBookingForGuestOrAdmin,
@@ -14,9 +29,18 @@ import { authenticate } from '../plugins/auth.js';
 
 const intentSchema = z.object({
   booking_id: z.string().uuid(),
-  provider: z.enum(['bold', 'stripe', 'auto']).default('auto'),
   idempotency_key: z.string().min(8).max(128),
   return_url: z.string().url(),
+  display_currency: z.enum(['COP', 'USD']).default('COP'),
+  quote_id: z.string().uuid().optional(),
+  locale: z.enum(['es', 'en']).optional(),
+  disclosure: z
+    .object({
+      version: z.string(),
+      hash: z.string(),
+      accepted: z.literal(true),
+    })
+    .optional(),
 });
 
 function getTotalFromFees(fees: unknown): number {
@@ -32,7 +56,9 @@ export async function paymentRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'Invalid body', details: body.error.flatten() });
     }
 
-    const { booking_id, provider: requested, idempotency_key, return_url } = body.data;
+    const { booking_id, idempotency_key, return_url, display_currency, quote_id, disclosure } = body.data;
+    const locale = normalizeLocale(body.data.locale);
+    const correlationId = newCorrelationId();
 
     const access = await getBookingForGuestOrAdmin(booking_id, request.auth!);
     if ('error' in access) {
@@ -50,11 +76,7 @@ export async function paymentRoutes(app: FastifyInstance) {
       }
 
       if (existing.status === 'succeeded') {
-        return reply.send({
-          payment: existing,
-          reused: true,
-          already_paid: true,
-        });
+        return reply.send({ payment: existing, reused: true, already_paid: true });
       }
 
       if (existing.metadata && typeof existing.metadata === 'object') {
@@ -101,8 +123,123 @@ export async function paymentRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'Invalid booking amount' });
     }
 
-    const currency = booking.property.country === 'CO' ? 'COP' : 'USD';
-    const provider = resolveProvider(requested, currency, booking.property.country);
+    // FX quote — charge COP, display per request. International requires legal gate.
+    const isInternational = display_currency !== 'COP';
+    if (isInternational) {
+      try {
+        assertIntlCheckoutAllowed();
+      } catch (err) {
+        return reply.status(403).send({
+          error: err instanceof Error ? err.message : 'International checkout blocked',
+          code: 'INTERNATIONAL_CHECKOUT_BLOCKED',
+        });
+      }
+    }
+
+    let quote;
+    if (quote_id) {
+      try {
+        quote = await assertQuoteValid(quote_id, booking_id);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Invalid quote';
+        const status = msg === 'QUOTE_EXPIRED' ? 410 : 400;
+        return reply.status(status).send({ error: msg, code: msg });
+      }
+    } else {
+      quote = await createFxQuote({
+        bookingId: booking_id,
+        chargeAmountCopMajor: amount,
+        displayCurrency: display_currency,
+      });
+    }
+
+    // Disclosure — mandatory for international (display ≠ charge).
+    if (isInternational) {
+      if (quote.disclosureAcceptedAt) {
+        // previously accepted on this quote — ok
+      } else {
+        if (!disclosure) {
+          const text = buildDisclosureText(
+            {
+              chargeAmountMinor: quote.chargeAmountMinor,
+              chargeCurrency: quote.chargeCurrency,
+              displayAmountMinor: quote.displayAmountMinor,
+              displayCurrency: quote.displayCurrency,
+              rate: Number(quote.rate),
+              lockedAt: quote.lockedAt,
+              expiresAt: quote.expiresAt,
+            },
+            locale,
+          );
+          await recordPaymentEvent({
+            type: 'fx_quote_shown',
+            correlationId,
+            bookingId: booking_id,
+            quoteId: quote.id,
+            payload: { display_currency: quote.displayCurrency },
+          });
+          return reply.status(428).send({
+            error: 'DISCLOSURE_REQUIRED',
+            code: 'DISCLOSURE_REQUIRED',
+            disclosure: {
+              version: DISCLOSURE_VERSION,
+              locale,
+              text,
+              hash: hashDisclosure(text),
+            },
+            quote: {
+              id: quote.id,
+              charge_currency: quote.chargeCurrency,
+              charge_amount_minor: quote.chargeAmountMinor,
+              display_currency: quote.displayCurrency,
+              display_amount_minor: quote.displayAmountMinor,
+              rate: Number(quote.rate),
+              expires_at: quote.expiresAt,
+            },
+          });
+        }
+
+        const text = buildDisclosureText(
+          {
+            chargeAmountMinor: quote.chargeAmountMinor,
+            chargeCurrency: quote.chargeCurrency,
+            displayAmountMinor: quote.displayAmountMinor,
+            displayCurrency: quote.displayCurrency,
+            rate: Number(quote.rate),
+            lockedAt: quote.lockedAt,
+            expiresAt: quote.expiresAt,
+          },
+          locale,
+        );
+        const expectedHash = hashDisclosure(text);
+        if (disclosure.version !== DISCLOSURE_VERSION || disclosure.hash !== expectedHash) {
+          return reply.status(400).send({
+            error: 'Disclosure hash mismatch — the quote may have changed. Request a fresh disclosure.',
+            code: 'DISCLOSURE_MISMATCH',
+          });
+        }
+
+        await prisma.fxQuote.update({
+          where: { id: quote.id },
+          data: {
+            disclosureVersion: disclosure.version,
+            disclosureLocale: locale,
+            disclosureHash: disclosure.hash,
+            disclosureAcceptedAt: new Date(),
+          },
+        });
+        await recordPaymentEvent({
+          type: 'fx_disclosure_accepted',
+          correlationId,
+          bookingId: booking_id,
+          quoteId: quote.id,
+          payload: { version: disclosure.version, locale, hash: disclosure.hash },
+        });
+      }
+    }
+
+    const currency = 'COP';
+    const provider = resolveProvider(currency, booking.property.country);
 
     let payment = existing;
     if (!payment) {
@@ -117,6 +254,15 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       });
     }
+
+    await recordPaymentEvent({
+      type: 'payment_intent_created',
+      correlationId,
+      paymentId: payment.id,
+      bookingId: booking_id,
+      quoteId: quote.id,
+      payload: { provider, amount, currency },
+    });
 
     try {
       const result = await createProviderIntent(
@@ -134,6 +280,7 @@ export async function paymentRoutes(app: FastifyInstance) {
         payment.id,
       );
 
+      assertPaymentTransition(payment.status, 'processing');
       await prisma.payment.update({
         where: { id: payment.id },
         data: {
@@ -144,6 +291,12 @@ export async function paymentRoutes(app: FastifyInstance) {
             client_secret: result.clientSecret,
             publishable_key: result.publishableKey,
             mode: result.mode,
+            quote_id: quote.id,
+            charge_amount_minor: quote.chargeAmountMinor,
+            display_currency: quote.displayCurrency,
+            display_amount_minor: quote.displayAmountMinor,
+            quote_rate: Number(quote.rate),
+            quote_timestamp: quote.lockedAt.toISOString(),
           },
         },
       });
@@ -157,11 +310,29 @@ export async function paymentRoutes(app: FastifyInstance) {
         publishable_key: result.publishableKey,
         amount,
         currency,
+        quote: {
+          id: quote.id,
+          charge_currency: quote.chargeCurrency,
+          charge_amount_minor: quote.chargeAmountMinor,
+          display_currency: quote.displayCurrency,
+          display_amount_minor: quote.displayAmountMinor,
+          rate: Number(quote.rate),
+          expires_at: quote.expiresAt,
+        },
       });
     } catch (err) {
+      assertPaymentTransition(payment.status, 'failed');
       await prisma.payment.update({
         where: { id: payment.id },
         data: { status: 'failed' },
+      });
+      await recordPaymentEvent({
+        type: 'payment_intent_failed',
+        correlationId,
+        paymentId: payment.id,
+        bookingId: booking_id,
+        quoteId: quote.id,
+        payload: { error: err instanceof Error ? err.message : 'unknown' },
       });
       return reply.status(502).send({
         error: err instanceof Error ? err.message : 'Payment provider error',
@@ -191,6 +362,21 @@ export async function paymentRoutes(app: FastifyInstance) {
     return { payment };
   });
 
+  app.get('/payments/:id/timeline', { preHandler: authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const access = await getPaymentForGuestOrAdmin(id, request.auth!);
+    if ('error' in access) {
+      const err = accessErrorReply(access.error);
+      return reply.status(err.status).send(err.body);
+    }
+
+    const events = await prisma.paymentEvent.findMany({
+      where: { paymentId: id },
+      orderBy: { createdAt: 'asc' },
+    });
+    return { events };
+  });
+
   app.get('/payments/by-booking/:bookingId', { preHandler: authenticate }, async (request, reply) => {
     const { bookingId } = request.params as { bookingId: string };
     const access = await getBookingForGuestOrAdmin(bookingId, request.auth!);
@@ -209,6 +395,7 @@ export async function paymentRoutes(app: FastifyInstance) {
 
   app.post('/payments/:id/sync', { preHandler: authenticate }, async (request, reply) => {
     const { id } = request.params as { id: string };
+    const correlationId = newCorrelationId();
 
     const access = await getPaymentForGuestOrAdmin(id, request.auth!);
     if ('error' in access) {
@@ -222,20 +409,36 @@ export async function paymentRoutes(app: FastifyInstance) {
       return { status: 'succeeded', booking_id: payment.bookingId };
     }
 
-    if (!payment.externalId) {
-      return reply.status(400).send({ error: 'Payment has no external reference' });
-    }
+    const meta = (payment.metadata ?? {}) as Record<string, unknown>;
+    const reference = payment.idempotencyKey;
 
-    const sync =
-      payment.provider === 'bold'
-        ? await syncBoldPayment(payment.externalId)
-        : await syncStripePayment(payment.externalId);
+    let sync;
+    if (payment.provider === 'wompi') {
+      sync = await syncWompiPayment(reference);
+    } else if (payment.provider === 'bold') {
+      if (!payment.externalId) {
+        return reply.status(400).send({ error: 'Payment has no external reference' });
+      }
+      sync = await syncBoldPayment(payment.externalId);
+    } else {
+      if (!payment.externalId) {
+        return reply.status(400).send({ error: 'Payment has no external reference' });
+      }
+      sync = await syncStripePayment(payment.externalId);
+    }
 
     if (sync.paid) {
       const result = await confirmPaymentSuccess({
         paymentId: payment.id,
-        externalId: sync.externalId ?? payment.externalId,
+        externalId: sync.externalId ?? payment.externalId ?? payment.id,
         raw: sync.raw,
+      });
+      await recordPaymentEvent({
+        type: isInternationalPayment(meta) ? 'payment_paid_international' : 'payment_paid',
+        correlationId,
+        paymentId: payment.id,
+        bookingId: payment.bookingId,
+        payload: { source: 'sync' },
       });
       return {
         status: 'succeeded',
@@ -244,7 +447,60 @@ export async function paymentRoutes(app: FastifyInstance) {
       };
     }
 
+    if (sync.declined && (payment.status === 'pending' || payment.status === 'processing')) {
+      await markPaymentFailed(payment.id, 'Provider reported declined', sync.raw);
+      await recordPaymentEvent({
+        type: isInternationalPayment(meta) ? 'payment_failed_international' : 'payment_failed',
+        correlationId,
+        paymentId: payment.id,
+        bookingId: payment.bookingId,
+        payload: { source: 'sync' },
+      });
+      return { status: 'failed' };
+    }
+
     return { status: payment.status };
+  });
+
+  app.post('/payments/:id/refund', { preHandler: authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    if (request.auth!.role !== 'admin') {
+      return reply.status(403).send({ error: 'Not authorized' });
+    }
+
+    const body = (request.body ?? {}) as { amount_minor?: number; reason?: string };
+    const correlationId = newCorrelationId();
+
+    const payment = await prisma.payment.findUnique({
+      where: { id },
+      include: { booking: true },
+    });
+    if (!payment) {
+      return reply.status(404).send({ error: 'Payment not found' });
+    }
+
+    const chargedMinor = toMinorUnits(Number(payment.amount));
+    const refundMinor = body.amount_minor ?? chargedMinor;
+
+    if (!Number.isInteger(refundMinor) || refundMinor <= 0 || refundMinor > chargedMinor) {
+      return reply.status(400).send({ error: 'Invalid refund amount (minor units)' });
+    }
+
+    const result = await issuePaymentRefund(payment, refundMinor / 100);
+
+    await recordPaymentEvent({
+      type: 'refund_requested',
+      correlationId,
+      paymentId: payment.id,
+      bookingId: payment.bookingId,
+      payload: { amount_minor: refundMinor, status: result.status, reason: body.reason },
+    });
+
+    if (result.status === 'failed') {
+      return reply.status(502).send(result);
+    }
+    return result;
   });
 
   app.post('/payments/:id/mock-complete', { preHandler: authenticate }, async (request, reply) => {
@@ -265,12 +521,40 @@ export async function paymentRoutes(app: FastifyInstance) {
       raw: { mock: true },
     });
 
+    await recordPaymentEvent({
+      type: 'payment_paid',
+      correlationId: newCorrelationId(),
+      paymentId: id,
+      bookingId: result.bookingId,
+      payload: { source: 'mock' },
+    });
+
     return {
       status: 'succeeded',
       booking_id: result.bookingId,
       refund_required: result.refundRequired ?? false,
     };
   });
+
+  app.post('/payments/:id/mock-fail', { preHandler: authenticate }, async (request, reply) => {
+    if (process.env.PAYMENTS_MODE !== 'mock' && process.env.NODE_ENV === 'production') {
+      return reply.status(403).send({ error: 'Mock payments disabled' });
+    }
+
+    const { id } = request.params as { id: string };
+    const access = await getPaymentForGuestOrAdmin(id, request.auth!);
+    if ('error' in access) {
+      const err = accessErrorReply(access.error);
+      return reply.status(err.status).send(err.body);
+    }
+
+    await markPaymentFailed(id, 'Mock failure', { mock: true });
+    return { status: 'failed' };
+  });
+}
+
+function isInternationalPayment(meta: Record<string, unknown>): boolean {
+  return typeof meta.display_currency === 'string' && meta.display_currency !== 'COP';
 }
 
 declare module 'fastify' {
@@ -280,7 +564,104 @@ declare module 'fastify' {
 }
 
 export async function webhookRoutes(app: FastifyInstance) {
+  const cfg = getPaymentsConfig();
+
+  app.post('/webhooks/wompi', async (request, reply) => {
+    const payload = request.body as WompiEventPayload;
+
+    if (!verifyWompiWebhook(payload)) {
+      request.log.warn({ correlationId: newCorrelationId() }, 'Wompi webhook signature invalid');
+      return reply.status(401).send({ error: 'Invalid webhook signature' });
+    }
+
+    const parsed = parseWompiWebhook(payload);
+    if (!parsed.reference) {
+      return reply.send({ received: true, skipped: true });
+    }
+
+    // Dedupe — event id = hash of transaction id + status + timestamp.
+    const eventKey = createHash('sha256')
+      .update(`${parsed.transactionId}:${parsed.status}:${payload.timestamp}`)
+      .digest('hex');
+    const dedupeKey = `wompi_evt_${eventKey}`;
+
+    const payment = await prisma.payment.findFirst({
+      where: {
+        OR: [{ idempotencyKey: parsed.reference }, { externalId: parsed.transactionId }],
+      },
+    });
+
+    if (!payment) {
+      request.log.warn({ reference: parsed.reference }, 'Wompi webhook for unknown payment');
+      return reply.status(404).send({ error: 'Payment not found for webhook' });
+    }
+
+    const alreadyProcessed = await prisma.paymentEvent.findFirst({
+      where: { paymentId: payment.id, type: 'webhook_applied', payload: { path: ['dedupe_key'], equals: dedupeKey } },
+    });
+    if (alreadyProcessed) {
+      return reply.send({ received: true, duplicate: true });
+    }
+
+    // Amount validation — webhook amount must match the frozen charge.
+    const meta = (payment.metadata ?? {}) as Record<string, unknown>;
+    const expectedMinor = typeof meta.charge_amount_minor === 'number'
+      ? meta.charge_amount_minor
+      : toMinorUnits(Number(payment.amount));
+    if (parsed.amountMinor !== undefined && parsed.amountMinor !== expectedMinor) {
+      await recordPaymentEvent({
+        type: 'webhook_amount_mismatch',
+        correlationId: newCorrelationId(),
+        paymentId: payment.id,
+        bookingId: payment.bookingId,
+        payload: { expected: expectedMinor, got: parsed.amountMinor },
+      });
+      request.log.error({ paymentId: payment.id }, 'Wompi webhook amount mismatch — ignoring');
+      return reply.status(409).send({ error: 'Amount mismatch' });
+    }
+
+    if (parsed.status === 'APPROVED') {
+      await confirmPaymentSuccess({
+        paymentId: payment.id,
+        externalId: parsed.transactionId ?? payment.externalId ?? payment.id,
+        raw: payload,
+      });
+      await recordPaymentEvent({
+        type: isInternationalPayment(meta) ? 'payment_paid_international' : 'payment_paid',
+        correlationId: newCorrelationId(),
+        paymentId: payment.id,
+        bookingId: payment.bookingId,
+        payload: { source: 'webhook', transaction: parsed.transactionId },
+      });
+    } else if (parsed.status === 'DECLINED' || parsed.status === 'ERROR' || parsed.status === 'VOIDED') {
+      if (payment.status === 'pending' || payment.status === 'processing') {
+        await markPaymentFailed(payment.id, `Wompi status ${parsed.status}`, payload);
+        await recordPaymentEvent({
+          type: isInternationalPayment(meta) ? 'payment_failed_international' : 'payment_failed',
+          correlationId: newCorrelationId(),
+          paymentId: payment.id,
+          bookingId: payment.bookingId,
+          payload: { source: 'webhook', status: parsed.status },
+        });
+      }
+    }
+
+    await recordPaymentEvent({
+      type: 'webhook_applied',
+      correlationId: newCorrelationId(),
+      paymentId: payment.id,
+      bookingId: payment.bookingId,
+      payload: { dedupe_key: dedupeKey, event: parsed.eventType, status: parsed.status },
+    });
+
+    return reply.send({ received: true });
+  });
+
   app.post('/webhooks/bold', async (request, reply) => {
+    if (!cfg.boldEnabled && cfg.mode !== 'mock') {
+      return reply.status(404).send({ error: 'Webhook disabled' });
+    }
+
     const signature = request.headers['x-bold-signature'] as string | undefined;
     const payload = request.body as Record<string, unknown>;
 
@@ -326,6 +707,10 @@ export async function webhookRoutes(app: FastifyInstance) {
       return Readable.from(raw);
     },
   }, async (request, reply) => {
+    if (!cfg.stripeEnabled && cfg.mode !== 'mock') {
+      return reply.status(404).send({ error: 'Webhook disabled' });
+    }
+
     const signature = request.headers['stripe-signature'] as string | undefined;
     const rawBody = request.rawBody;
 

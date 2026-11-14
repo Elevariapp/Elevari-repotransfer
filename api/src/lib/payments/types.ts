@@ -24,6 +24,8 @@ export interface CreateIntentResult {
 
 export interface ProviderSyncResult {
   paid: boolean;
+  /** True when the provider reports a definitive decline/error/void. */
+  declined?: boolean;
   externalId?: string;
   raw?: unknown;
 }
