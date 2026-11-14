@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Button from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
 
 type MediaItem = {
   id?: string;
@@ -136,13 +138,15 @@ export default function PropertyGallery({
           ))}
         </div>
         {items.length > 1 && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => openAt(0)}
-            className="absolute bottom-4 right-4 rounded-full border border-elevari-border bg-elevari-surface/95 px-4 py-2 text-sm font-semibold shadow-card hover:bg-elevari-ivory"
+            className="absolute bottom-4 right-4 shadow-card"
           >
             Ver todo el media
-          </button>
+          </Button>
         )}
       </div>
 
@@ -152,22 +156,24 @@ export default function PropertyGallery({
         </div>
         {items.length > 1 && (
           <>
-            <button
-              type="button"
+            <IconButton
+              variant="glass"
+              size="sm"
+              label="Anterior"
               onClick={() => setActive((a) => (a === 0 ? items.length - 1 : a - 1))}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-elevari-surface/95 p-2 shadow-card"
-              aria-label="Anterior"
+              className="absolute left-3 top-1/2 -translate-y-1/2"
             >
               ‹
-            </button>
-            <button
-              type="button"
+            </IconButton>
+            <IconButton
+              variant="glass"
+              size="sm"
+              label="Siguiente"
               onClick={() => setActive((a) => (a === items.length - 1 ? 0 : a + 1))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-elevari-surface/95 p-2 shadow-card"
-              aria-label="Siguiente"
+              className="absolute right-3 top-1/2 -translate-y-1/2"
             >
               ›
-            </button>
+            </IconButton>
           </>
         )}
         <button
