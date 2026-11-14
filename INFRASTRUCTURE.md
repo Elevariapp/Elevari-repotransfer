@@ -2,6 +2,20 @@
 
 Use this file as the entry point for deployment and environment-specific work.
 
+## Design system & brand (Phase 3)
+
+| Topic | Reference |
+|-------|-----------|
+| Brand guide, colors, voice, contrast rules | `docs/brand/ELEVARI_BRAND_GUIDE.md` |
+| Logo concepts + app icon | `docs/brand/ELEVARI_LOGO_CONCEPTS.md` |
+| Design tokens (CSS + TS) | `docs/design/TOKEN_SYSTEM.md`, `app/globals.css`, `lib/design-tokens.ts` |
+| Components | `docs/design/DESIGN_SYSTEM.md`, `components/ui/` |
+| Migration status | `docs/design/UI_MIGRATION_PLAN.md` |
+| Conversion analytics events | `docs/design/CONVERSION_GUIDELINES.md` |
+| Phase closeout | `docs/PHASE3_CLOSEOUT.md` |
+
+Rule: no hardcoded visual values in components — consume `elevari-*` tokens only.
+
 ## Phase 0 stack (current — non-serverless foundation)
 
 | Service | Port | Purpose |

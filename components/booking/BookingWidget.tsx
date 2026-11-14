@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DayPicker, type DateRange } from 'react-day-picker';
 import { format, addDays, parseISO, eachDayOfInterval, differenceInCalendarDays } from 'date-fns';

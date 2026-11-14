@@ -10,6 +10,7 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 | **1** | Reservas UI | ✅ Hecho | Listado, detalle, checkout, estado de booking |
 | **2** | Pagos | ✅ Hecho | Wompi-only + pricing MVP (base + 15% Tarifa de Servicio) + FX quotes + disclosure + refunds + webhooks |
 | **3** | Media | ✅ Hecho | MinIO, upload host, galería imagen/video |
+| **3E** | Experience System | ✅ Hecho | Marca, design tokens, componentes, UX, a11y AA, analítica de conversión (`docs/PHASE3_CLOSEOUT.md`) |
 | **Auth** | JWT | ✅ Hecho | Register/login, protección host/account |
 | **4** | Marketing | ✅ Hecho | GA4, Meta Pixel, SEO, emails, CAPI |
 | **6B** | Facturación Alegra | ✅ Hecho | Emisión post-pago + pending_invoices + admin retry |
@@ -50,6 +51,21 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 - Startup validation fail-fast; validación de env en `deploy/scripts/validate-env.sh`.
 - Verificación externa: `verification-log.md` + gate CI (sin CONTRADICTED).
 - Docs operativas: `docs/PAYMENTS.md`, `legal-review-pack.md`, `knowledge/pricing-logic.md`.
+
+---
+
+## Fase 3E — Elevari Experience System (completada)
+
+> **CLOSED** — ver `docs/PHASE3_CLOSEOUT.md`. Brand, Design System, UX, accesibilidad y analítica de conversión implementados.
+
+- **Marca:** forest `#2F6B4F`, fresh `#5FA76A`, amber `#E9A820`, ivory `#F7F4EC`, slate `#22313F`.
+- **Tipografía:** Plus Jakarta Sans (display/logo) + Inter (interfaz). Sin serif.
+- **Tokens:** `app/globals.css` (`@theme` + `:root`), espejo tipado `lib/design-tokens.ts`.
+- **Componentes:** `components/ui/` — Button, ButtonLink, Card, Input, Badge, Modal, PriceBreakdown, Toast.
+- **UX:** hero con propuesta de valor, desglose de precio único, estados vacío/error/carga, checkout y confirmación.
+- **Accesibilidad:** WCAG 2.2 AA — skip link, foco visible, contraste validado, diálogos y teclado.
+- **Analítica:** `view_property`, `select_dates`, `view_quote`, `start_checkout`, `payment_started`, `payment_completed`, `booking_confirmed`, `checkout_abandoned`.
+- **Docs:** `docs/brand/*`, `docs/design/*`, `app/legal/accessibility`.
 
 ---
 
