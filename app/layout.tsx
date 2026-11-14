@@ -4,6 +4,7 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import ConditionalFooter from '@/components/layout/ConditionalFooter';
 import MarketingScripts from '@/components/analytics/MarketingScripts';
+import ObservabilityProvider from '@/components/observability/ObservabilityProvider';
 import { themeInitScript } from '@/components/theme/ThemeToggle';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eleveri.app';
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Saltar al contenido principal
         </a>
         <MarketingScripts />
+        <ObservabilityProvider />
         {children}
         <ConditionalFooter />
         <Toaster
