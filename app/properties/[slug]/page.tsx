@@ -9,6 +9,7 @@ import PropertyLocation from '@/components/booking/PropertyLocation';
 import EleveriMark from '@/components/brand/EleveriMark';
 import { formatPropertyLocation } from '@/lib/property-location';
 import { formatCop } from '@/lib/format';
+import { buildPropertyShareMetadata } from '@/lib/share-metadata';
 import { wanaApi } from '@/lib/api-client';
 import { notFound } from 'next/navigation';
 
@@ -27,15 +28,24 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   try {
     const property = await wanaApi.getProperty(slug);
-    const description = property.description?.slice(0, 160) ?? 'Reserva en Eleveri';
-    return {
-      title: property.title,
-      description,
-      openGraph: {
+    const share = buildPropertyShareMetadata(
+      {
+        slug: property.slug,
         title: property.title,
-        description,
-        images: property.cover_image ? [{ url: property.cover_image }] : undefined,
+        city: property.city,
+        country: property.country,
+        pricePerNight: property.price_per_night,
+        coverImage: property.cover_image,
+        description: property.description,
       },
+      process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eleveri.app',
+    );
+    return {
+      title: share.title,
+      description: share.description,
+      alternates: { canonical: share.canonical },
+      openGraph: share.openGraph,
+      twitter: share.twitter,
     };
   } catch {
     return { title: 'Propiedad | Eleveri' };
