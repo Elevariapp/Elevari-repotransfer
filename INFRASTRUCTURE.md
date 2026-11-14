@@ -60,7 +60,7 @@ Or all-in-docker: `npm run docker:up`
 
 | Proveedor | Estado | Env vars |
 |-----------|--------|----------|
-| **Wompi** | **Activo** (COP, Colombia + internacional) | `WOMPI_ENV`, `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` — ver `.env.wompi.example` |
+| **Wompi** | **Activo** (COP, Colombia + internacional) | `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` (4 vars; entorno derivado del prefijo de la llave) — ver `.env.wompi.example` |
 | **Bold** | En repo, oculto y deshabilitado | `PAYMENTS_BOLD_ENABLED=false` |
 | **Stripe** | En repo, oculto y deshabilitado | `PAYMENTS_STRIPE_ENABLED=false` |
 | **Mock** | Local/staging sin keys | `PAYMENTS_MODE=mock` en `api/.env` |

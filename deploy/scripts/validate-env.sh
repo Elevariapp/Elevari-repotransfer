@@ -85,17 +85,22 @@ echo ""
 echo "--- Pagos (Phase 2 — Wompi-first) ---"
 if [[ "${PAYMENTS_MODE:-}" == "live" ]]; then
   if [[ "${PAYMENTS_WOMPI_ENABLED:-false}" == "true" ]]; then
-    check_required WOMPI_ENV "$WOMPI_ENV"
     check_required WOMPI_PUBLIC_KEY "$WOMPI_PUBLIC_KEY"
     check_required WOMPI_PRIVATE_KEY "$WOMPI_PRIVATE_KEY"
     check_required WOMPI_EVENTS_SECRET "$WOMPI_EVENTS_SECRET"
     check_required WOMPI_INTEGRITY_SECRET "$WOMPI_INTEGRITY_SECRET"
-    check_required NEXT_PUBLIC_WOMPI_PUBLIC_KEY "$NEXT_PUBLIC_WOMPI_PUBLIC_KEY"
-    if [[ "${WOMPI_ENV:-}" == "production" && "${WOMPI_PUBLIC_KEY:-}" != pub_prod_* ]]; then
-      echo "${RED}✗ WOMPI_ENV=production pero WOMPI_PUBLIC_KEY no es pub_prod_*${NC}"
+    # Environment derived from key prefixes — must match and be recognized
+    if [[ "${WOMPI_PUBLIC_KEY:-}" == pub_prod_* && "${WOMPI_PRIVATE_KEY:-}" != prv_prod_* ]]; then
+      echo "${RED}✗ WOMPI_PUBLIC_KEY es prod pero WOMPI_PRIVATE_KEY no es prv_prod_*${NC}"
+      errors=$((errors + 1))
+    elif [[ "${WOMPI_PUBLIC_KEY:-}" == pub_test_* && "${WOMPI_PRIVATE_KEY:-}" != prv_test_* ]]; then
+      echo "${RED}✗ WOMPI_PUBLIC_KEY es test pero WOMPI_PRIVATE_KEY no es prv_test_*${NC}"
+      errors=$((errors + 1))
+    elif [[ "${WOMPI_PUBLIC_KEY:-}" != pub_prod_* && "${WOMPI_PUBLIC_KEY:-}" != pub_test_* ]]; then
+      echo "${RED}✗ WOMPI_PUBLIC_KEY debe empezar con pub_prod_ o pub_test_${NC}"
       errors=$((errors + 1))
     fi
-    if [[ "${WOMPI_PUBLIC_KEY:-}" != "${NEXT_PUBLIC_WOMPI_PUBLIC_KEY:-}" ]]; then
+    if [[ -n "${NEXT_PUBLIC_WOMPI_PUBLIC_KEY:-}" && "${WOMPI_PUBLIC_KEY:-}" != "${NEXT_PUBLIC_WOMPI_PUBLIC_KEY:-}" ]]; then
       echo "${RED}✗ WOMPI_PUBLIC_KEY y NEXT_PUBLIC_WOMPI_PUBLIC_KEY deben coincidir${NC}"
       errors=$((errors + 1))
     fi

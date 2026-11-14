@@ -89,7 +89,8 @@ Ver `legal-review-pack.md`. El checkout doméstico COP no se bloquea.
 ## Startup validation
 
 Si `PAYMENTS_WOMPI_ENABLED=true` y falta cualquier `WOMPI_*`, la API **no arranca**
-(error explícito). `WOMPI_ENV=production` exige llave `pub_prod_*`.
+(error explícito). El entorno se deriva del prefijo de la llave (`pub_prod_`/`pub_test_`);
+llaves pública y privada de ambientes distintos abortan el arranque.
 Código: `api/src/lib/payments/config.ts`.
 
 ## Verificación externa

@@ -47,13 +47,11 @@ export function getPaymentsConfig(): PaymentsConfig {
   let wompi: WompiConfig | null = null;
   if (wompiEnabled) {
     const missing: string[] = [];
-    const env = process.env.WOMPI_ENV;
     const publicKey = process.env.WOMPI_PUBLIC_KEY;
     const privateKey = process.env.WOMPI_PRIVATE_KEY;
     const eventsSecret = process.env.WOMPI_EVENTS_SECRET;
     const integritySecret = process.env.WOMPI_INTEGRITY_SECRET;
 
-    if (!env) missing.push('WOMPI_ENV');
     if (!publicKey) missing.push('WOMPI_PUBLIC_KEY');
     if (!privateKey) missing.push('WOMPI_PRIVATE_KEY');
     if (!eventsSecret) missing.push('WOMPI_EVENTS_SECRET');
@@ -67,20 +65,39 @@ export function getPaymentsConfig(): PaymentsConfig {
       );
     }
 
-    if (env !== 'sandbox' && env !== 'production') {
+    // Environment is derived from the key prefix — Wompi keys are
+    // pub_prod_*/prv_prod_* (production) or pub_test_*/prv_test_* (sandbox).
+    const derivedEnv: 'sandbox' | 'production' | null = publicKey!.startsWith('pub_prod_')
+      ? 'production'
+      : publicKey!.startsWith('pub_test_')
+        ? 'sandbox'
+        : null;
+    if (!derivedEnv) {
       throw new Error(
-        `PAYMENTS STARTUP ERROR — WOMPI_ENV must be "sandbox" or "production" (got "${env}").`,
+        'PAYMENTS STARTUP ERROR — WOMPI_PUBLIC_KEY must start with pub_prod_ or pub_test_. Refusing to start with an unrecognized key format.',
+      );
+    }
+    const keyEnv = privateKey!.startsWith('prv_prod_')
+      ? 'production'
+      : privateKey!.startsWith('prv_test_')
+        ? 'sandbox'
+        : null;
+    if (keyEnv !== derivedEnv) {
+      throw new Error(
+        'PAYMENTS STARTUP ERROR — WOMPI_PUBLIC_KEY and WOMPI_PRIVATE_KEY belong to different environments. Refusing to start with mismatched keys.',
       );
     }
 
-    if (env === 'production' && !publicKey!.startsWith('pub_prod_')) {
+    // WOMPI_ENV is optional; when present it must match the derived environment.
+    const envFlag = process.env.WOMPI_ENV;
+    if (envFlag && envFlag !== derivedEnv) {
       throw new Error(
-        'PAYMENTS STARTUP ERROR — WOMPI_ENV=production but WOMPI_PUBLIC_KEY is not a production key (pub_prod_…). Refusing to start with mismatched configuration.',
+        `PAYMENTS STARTUP ERROR — WOMPI_ENV=${envFlag} but keys are ${derivedEnv}. Remove WOMPI_ENV or fix the keys.`,
       );
     }
 
     wompi = {
-      env,
+      env: derivedEnv,
       publicKey: publicKey!,
       privateKey: privateKey!,
       eventsSecret: eventsSecret!,
