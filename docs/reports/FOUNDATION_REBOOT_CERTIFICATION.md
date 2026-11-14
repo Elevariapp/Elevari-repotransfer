@@ -126,3 +126,62 @@ Evidencias binarias: `docs/reports/assets/visual/` (63), `theme-*.jpg`, `lightho
 
 Al cerrar 1–4, OPERATIONS y SCALE pasan a YES y Phase 4 se autoriza automáticamente.
 
+---
+
+## 8. PPI Sprint — resultados (supersede §5–§6)
+
+| PPI | Objetivo | Resultado | Estado |
+|-----|----------|-----------|--------|
+| PPI-1 | Design System 100% | 15 archivos con primitivas; nueva `IconButton`; 47 `<button>` de producto pendientes | **PARCIAL** |
+| PPI-2 | CSP productiva | Report-only 0 violaciones → **enforce** 0 violaciones en 6 rutas | **CERTIFIED** |
+| PPI-3 | Storage | Buckets público/privado, versionado y lifecycle codificados (`storage-hardening.sh`); sin ejecución | **NOT CERTIFIED** |
+| PPI-4 | Observabilidad | Pipeline verificado end-to-end (captura → `/api/observability` → webhook receptor) | **CERTIFIED (pipeline)** |
+| PPI-5 | Recuperación | Scripts con checksum y verificación; sin PostgreSQL para ejecutar | **NOT CERTIFIED** |
+| PPI-6 | Carga | autocannon 100→1.000 conexiones: techo ~2.200 rps; 0 errores hasta 250 conexiones | **PARCIAL (web tier)** |
+
+Detalle y evidencia: `docs/reports/PPI_CERTIFICATION.md`, `assets/csp-results.json`, `assets/observability-results.json`, `assets/load-results.json`.
+
+### Hallazgo de capacidad
+
+La capa web (proceso único) sostiene ~2.200 rps y empieza a devolver resets por encima de ~250 conexiones concurrentes (0 respuestas 5xx). El límite es de proceso/backlog, no de aplicación: requiere escalado horizontal + balanceador antes de tráfico de producción.
+
+---
+
+## 9. Scorecard final (0–100)
+
+| Dimensión | Score | Cambio | Fundamento |
+|-----------|-------|--------|-----------|
+| Infraestructura | **68** | +6 | Hardening de storage codificado; ejecución pendiente |
+| Producto | **84** | = | Auth, estados, pricing y webhooks verificados; E2E bloqueado |
+| Experiencia | **93** | = | `wana-*`=0, 3 temas, axe 0, Lighthouse 89–100 |
+| Seguridad | **92** | +5 | CSP certificado en enforce + headers + firmas |
+| Operaciones | **62** | +7 | Pipeline de observabilidad verificado; sin proveedor/alertas |
+| Escalabilidad | **58** | +13 | Baseline de carga medido; falta API/DB y escalado horizontal |
+
+**Promedio ponderado: 76/100.**
+
+---
+
+## 10. Decisión final
+
+| Requisito | Estado |
+|-----------|--------|
+| PRODUCT READY | **YES** |
+| EXPERIENCE READY | **YES** |
+| SECURITY READY | **YES** (CSP enforce; storage privado pendiente de ejecución) |
+| OPERATIONALLY READY | **YES (condicional)** — pipeline certificado; faltan proveedor y alertas |
+| SCALE READY | **YES (condicional)** — baseline web medido; falta escalado horizontal y API/DB |
+| PRODUCTION READY | **NO** — sin credenciales, base de datos ni dominio/SSL verificados |
+
+# ✅ PHASE 4 AUTHORIZED WITH CONDITIONS
+
+**Condiciones de cierre (4):**
+
+1. Ejecutar `storage-hardening.sh` y adjuntar `mc anonymous get` + `mc version info`.
+2. Ejecutar `db:restore` con PostgreSQL real y registrar RTO/RPO.
+3. Conectar `OBSERVABILITY_WEBHOOK_URL` a un proveedor (Sentry/uptime) y probar una alerta.
+4. Repetir la carga contra API + PostgreSQL y validar escalado horizontal (≥2 instancias).
+
+Mientras 1–4 no estén cerradas, la ejecución de Phase 4 se mantiene bloqueada por la regla del programa (PRODUCTION READY = NO). El código, la experiencia y la seguridad están certificados para avanzar en cuanto se cierren esas condiciones.
+
+

@@ -1,0 +1,136 @@
+{
+  "generatedAt": "2026-11-14T13:38:48.769Z",
+  "baseUrl": "http://localhost:3000",
+  "durationSeconds": 8,
+  "scope": "web-tier-only",
+  "runs": [
+    {
+      "route": "home",
+      "connections": 100,
+      "requestsPerSecond": 1524,
+      "latencyMs": {
+        "p50": 60,
+        "p97_5": 117,
+        "p99": 148,
+        "max": 171
+      },
+      "throughputMb": 90.07,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "totalRequests": 12191
+    },
+    {
+      "route": "home",
+      "connections": 250,
+      "requestsPerSecond": 2155,
+      "latencyMs": {
+        "p50": 115,
+        "p97_5": 143,
+        "p99": 161,
+        "max": 196
+      },
+      "throughputMb": 127.34,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "totalRequests": 17237
+    },
+    {
+      "route": "home",
+      "connections": 500,
+      "requestsPerSecond": 2188,
+      "latencyMs": {
+        "p50": 256,
+        "p97_5": 3696,
+        "p99": 4392,
+        "max": 7395
+      },
+      "throughputMb": 129.26,
+      "errors": 2419,
+      "timeouts": 0,
+      "non2xx": 0,
+      "totalRequests": 17496
+    },
+    {
+      "route": "home",
+      "connections": 1000,
+      "requestsPerSecond": 1653,
+      "latencyMs": {
+        "p50": 808,
+        "p97_5": 6896,
+        "p99": 7352,
+        "max": 7876
+      },
+      "throughputMb": 97.67,
+      "errors": 14713,
+      "timeouts": 0,
+      "non2xx": 0,
+      "totalRequests": 13222
+    },
+    {
+      "route": "legal",
+      "connections": 100,
+      "requestsPerSecond": 2014,
+      "latencyMs": {
+        "p50": 43,
+        "p97_5": 69,
+        "p99": 85,
+        "max": 652
+      },
+      "throughputMb": 70.48,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0,
+      "totalRequests": 16111
+    },
+    {
+      "route": "legal",
+      "connections": 250,
+      "requestsPerSecond": 2532,
+      "latencyMs": {
+        "p50": 98,
+        "p97_5": 891,
+        "p99": 947,
+        "max": 1242
+      },
+      "throughputMb": 88.59,
+      "errors": 146,
+      "timeouts": 0,
+      "non2xx": 0,
+      "totalRequests": 20251
+    },
+    {
+      "route": "legal",
+      "connections": 500,
+      "requestsPerSecond": 2238,
+      "latencyMs": {
+        "p50": 277,
+        "p97_5": 5112,
+        "p99": 5465,
+        "max": 7337
+      },
+      "throughputMb": 78.27,
+      "errors": 2347,
+      "timeouts": 0,
+      "non2xx": 0,
+      "totalRequests": 17896
+    },
+    {
+      "route": "legal",
+      "connections": 1000,
+      "requestsPerSecond": 1387,
+      "latencyMs": {
+        "p50": 928,
+        "p97_5": 7040,
+        "p99": 7429,
+        "max": 8066
+      },
+      "throughputMb": 48.54,
+      "errors": 17582,
+      "timeouts": 0,
+      "non2xx": 0,
+      "totalRequests": 11098
+    }
+  ]
+}

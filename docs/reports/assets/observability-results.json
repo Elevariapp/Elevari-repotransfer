@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-11-14T13:38:13.838Z",
+  "receiverPort": 4010,
+  "forwardedPayload": {
+    "source": "web",
+    "receivedAt": "2026-11-14T13:38:13.634Z",
+    "message": "ppi4-observability-probe",
+    "stack": "Error: ppi4-observability-probe\n    at eval (eval at evaluate (:303:30), <anonymous>:2:23)\n    at UtilityScript.evaluate (<anonymous>:305:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+    "name": "Error",
+    "route": "/",
+    "level": "error",
+    "tags": {
+      "source": "unhandledrejection"
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "timestamp": "2026-11-14T13:38:13.624Z"
+  },
+  "malformedBodyStatus": 400,
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_SSL_PROTOCOL_ERROR",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  ],
+  "pass": true
+}
