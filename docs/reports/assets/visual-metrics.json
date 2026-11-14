@@ -1,6 +1,6 @@
 {
   "baseUrl": "http://localhost:3000",
-  "generatedAt": "2026-11-14T04:58:19.319Z",
+  "generatedAt": "2026-11-14T05:33:02.430Z",
   "routes": [
     {
       "viewport": "360x800",
@@ -12,51 +12,57 @@
       "horizontalOverflow": false,
       "overflowingElements": [
         {
-          "tag": "span",
-          "cls": "text-left",
-          "right": 381,
-          "left": 317
-        },
-        {
-          "tag": "span",
-          "cls": "block leading-tight",
-          "right": 381,
-          "left": 317
-        },
-        {
-          "tag": "span",
-          "cls": "mt-0.5 block text-[10px] font-normal sm:hidden text-elevari-",
-          "right": 381,
-          "left": 317
-        },
-        {
-          "tag": "span",
-          "cls": "text-left",
-          "right": 537,
-          "left": 423
-        },
-        {
-          "tag": "span",
-          "cls": "block leading-tight",
-          "right": 537,
-          "left": 423
-        },
-        {
-          "tag": "span",
-          "cls": "mt-0.5 block text-[10px] font-normal sm:hidden text-elevari-",
-          "right": 537,
-          "left": 423
+          "tag": "img",
+          "cls": "object-cover scale-105 animate-hero-kenburns",
+          "right": 378,
+          "left": -18
         },
         {
           "tag": "img",
-          "cls": "object-cover scale-105 transition-transform duration-[8s] ea",
-          "right": 369,
-          "left": -9
+          "cls": "object-cover scale-105 animate-hero-kenburns",
+          "right": 378,
+          "left": -18
+        },
+        {
+          "tag": "img",
+          "cls": "object-cover scale-105 animate-hero-kenburns",
+          "right": 378,
+          "left": -18
+        },
+        {
+          "tag": "img",
+          "cls": "object-cover scale-105 animate-hero-kenburns",
+          "right": 378,
+          "left": -18
+        },
+        {
+          "tag": "span",
+          "cls": "text-left",
+          "right": 381,
+          "left": 317
+        },
+        {
+          "tag": "span",
+          "cls": "block leading-tight",
+          "right": 381,
+          "left": 317
+        },
+        {
+          "tag": "span",
+          "cls": "mt-0.5 block text-[10px] font-normal sm:hidden text-elevari-",
+          "right": 381,
+          "left": 317
+        },
+        {
+          "tag": "span",
+          "cls": "text-left",
+          "right": 537,
+          "left": 423
         }
       ],
-      "overflowingCount": 7,
+      "overflowingCount": 11,
       "h1Count": 1,
-      "images": 4,
+      "images": 8,
       "imagesMissingAlt": 0,
       "unnamedInteractive": 0,
       "title": "Eleveri — Glamping en Colombia",
@@ -623,26 +629,26 @@
         {
           "tag": "img",
           "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 1076,
-          "left": -52
+          "right": 1077,
+          "left": -53
         },
         {
           "tag": "img",
           "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 1076,
-          "left": -52
+          "right": 1077,
+          "left": -53
         },
         {
           "tag": "img",
           "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 1076,
-          "left": -52
+          "right": 1077,
+          "left": -53
         },
         {
           "tag": "img",
           "cls": "object-cover scale-105 animate-hero-kenburns",
-          "right": 1076,
-          "left": -52
+          "right": 1077,
+          "left": -53
         },
         {
           "tag": "img",

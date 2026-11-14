@@ -1,0 +1,378 @@
+{
+  "generatedAt": "2026-11-14T05:39:51.980Z",
+  "suites": [
+    "payment-state",
+    "booking-state",
+    "wompi-config",
+    "webhook-signature",
+    "refund-guard",
+    "fx",
+    "disclosure"
+  ],
+  "cases": [
+    {
+      "id": "payment.pending->processing",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.pending->succeeded",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.pending->failed",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.processing->succeeded",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.succeeded->partially_refunded",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.partially_refunded->refunded",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.failed->succeeded (blocked)",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "payment.refunded->succeeded (blocked)",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "payment.succeeded->pending (blocked)",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "payment.terminal.failed",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.terminal.refunded",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.paid.succeeded",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "payment.paid.failed",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "payment.idempotent.noop",
+      "status": "PASS",
+      "expected": "no-throw",
+      "actual": "no-throw",
+      "error": null
+    },
+    {
+      "id": "payment.invalid.throws",
+      "status": "PASS",
+      "expected": "throws Invalid payment transition",
+      "actual": "Invalid payment transition: failed → succeeded"
+    },
+    {
+      "id": "booking.draft->pending_payment",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "booking.pending_payment->confirmed",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "booking.confirmed->checked_in",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "booking.checked_in->completed",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "booking.confirmed->completed (blocked)",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "booking.completed->confirmed (blocked)",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "booking.cancelled->confirmed (blocked)",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "booking.invalid.throws",
+      "status": "PASS",
+      "expected": "throws Invalid booking transition",
+      "actual": "Invalid booking transition: completed → confirmed"
+    },
+    {
+      "id": "config.sandbox.derived",
+      "status": "PASS",
+      "expected": {
+        "env": "sandbox",
+        "mode": "mock",
+        "wompiEnabled": true
+      },
+      "actual": {
+        "env": "sandbox",
+        "mode": "mock",
+        "wompiEnabled": true
+      },
+      "error": null
+    },
+    {
+      "id": "config.mixed_keys.blocked",
+      "status": "PASS",
+      "expected": "throws different environments",
+      "actual": "PAYMENTS STARTUP ERROR — WOMPI_PUBLIC_KEY and WOMPI_PRIVATE_KEY belong to different environments. Refusing to start with mismatched keys."
+    },
+    {
+      "id": "config.missing_secret.blocked",
+      "status": "PASS",
+      "expected": "throws missing configuration",
+      "actual": "PAYMENTS STARTUP ERROR — Wompi enabled but missing configuration: WOMPI_EVENTS_SECRET. Set all WOMPI_* variables (see .env.wompi.example) or set PAYMENTS_WOMPI_ENABLED=false. Partial configuration is not allowed."
+    },
+    {
+      "id": "config.bad_prefix.blocked",
+      "status": "PASS",
+      "expected": "throws pub_prod_ or pub_test_",
+      "actual": "PAYMENTS STARTUP ERROR — WOMPI_PUBLIC_KEY must start with pub_prod_ or pub_test_. Refusing to start with an unrecognized key format."
+    },
+    {
+      "id": "webhook.valid_signature",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "webhook.tampered_amount",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "webhook.tampered_status",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "webhook.wrong_secret",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "webhook.missing_properties",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "webhook.missing_timestamp",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "webhook.unsigned.rejected_by_default",
+      "status": "PASS",
+      "expected": false,
+      "actual": false,
+      "error": null
+    },
+    {
+      "id": "webhook.unsigned.explicit_optin",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "refund.partial.pending_manual",
+      "status": "PASS",
+      "expected": {
+        "refunded": false,
+        "pendingManual": true,
+        "reason": "Partial refunds..."
+      },
+      "actual": {
+        "refunded": false,
+        "pendingManual": true,
+        "reason": "Partial refunds are not supported by the Wompi void API — process the partial amount manually in the Wompi dashboard"
+      }
+    },
+    {
+      "id": "fx.default_rate",
+      "status": "PASS",
+      "expected": 4000,
+      "actual": 4000,
+      "error": null
+    },
+    {
+      "id": "fx.env_rate",
+      "status": "PASS",
+      "expected": 4150,
+      "actual": 4150,
+      "error": null
+    },
+    {
+      "id": "fx.invalid_rate.blocked",
+      "status": "PASS",
+      "expected": "throws positive number",
+      "actual": "FX_COP_USD_RATE must be a positive number"
+    },
+    {
+      "id": "fx.default_ttl",
+      "status": "PASS",
+      "expected": 15,
+      "actual": 15,
+      "error": null
+    },
+    {
+      "id": "fx.env_ttl",
+      "status": "PASS",
+      "expected": 30,
+      "actual": 30,
+      "error": null
+    },
+    {
+      "id": "fx.invalid_ttl.fallback",
+      "status": "PASS",
+      "expected": 15,
+      "actual": 15,
+      "error": null
+    },
+    {
+      "id": "disclosure.es.contains_charge",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "disclosure.es.contains_refund_rule",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "disclosure.en.contains_reference",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "disclosure.hash.deterministic",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "disclosure.hash.locale_sensitive",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "error": null
+    },
+    {
+      "id": "disclosure.hash.sha256_length",
+      "status": "PASS",
+      "expected": 64,
+      "actual": 64,
+      "error": null
+    },
+    {
+      "id": "disclosure.locale.default",
+      "status": "PASS",
+      "expected": "es",
+      "actual": "es",
+      "error": null
+    },
+    {
+      "id": "disclosure.locale.en",
+      "status": "PASS",
+      "expected": "en",
+      "actual": "en",
+      "error": null
+    }
+  ],
+  "summary": {
+    "total": 50,
+    "pass": 50,
+    "fail": 0
+  }
+}
