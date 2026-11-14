@@ -7,31 +7,18 @@
  * Quotes are persisted in `fx_quotes`, locked at creation, and expire
  * after FX_QUOTE_TTL_MINUTES (default 15). The charged COP amount is
  * authoritative; the USD display amount is informational only.
+ *
+ * Pure rate/TTL helpers live in `fx-rate.ts` so they can be tested
+ * without a database.
  */
 import { randomUUID } from 'node:crypto';
 import type { FxQuote } from '@prisma/client';
 import { prisma } from '../prisma.js';
 import { assertMinorUnits, toMinorUnits } from './money.js';
+import { getCopUsdRate, quoteTtlMinutes } from './fx-rate.js';
 
-export interface FxRateSource {
-  name: string;
-  /** COP per 1 USD */
-  copPerUsd: number;
-}
-
-/** Configurable rate source. Default: static env rate (ops-controlled). */
-export function getCopUsdRate(): FxRateSource {
-  const rate = Number(process.env.FX_COP_USD_RATE ?? process.env.STRIPE_COP_USD_RATE ?? 4000);
-  if (!Number.isFinite(rate) || rate <= 0) {
-    throw new Error('FX_COP_USD_RATE must be a positive number');
-  }
-  return { name: 'env:FX_COP_USD_RATE', copPerUsd: rate };
-}
-
-export function quoteTtlMinutes(): number {
-  const ttl = Number(process.env.FX_QUOTE_TTL_MINUTES ?? 15);
-  return Number.isFinite(ttl) && ttl > 0 ? ttl : 15;
-}
+export { getCopUsdRate, quoteTtlMinutes } from './fx-rate.js';
+export type { FxRateSource } from './fx-rate.js';
 
 /**
  * Create and persist a locked FX quote for a booking.
