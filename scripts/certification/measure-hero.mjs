@@ -18,8 +18,8 @@ for (const vp of [
     return {
       viewport: window.innerHeight,
       hero: rect('#buscar'),
-      searchBar: rect('#buscar .wana-search-luxury'),
-      searchButton: rect('#buscar .wana-btn-primary'),
+      searchBar: rect('#buscar .elevari-search-luxury'),
+      searchButton: rect('#buscar .elevari-btn-primary'),
       badges: rect('#buscar ul'),
       h1: rect('#buscar h1'),
     };

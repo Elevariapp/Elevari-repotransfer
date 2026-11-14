@@ -145,13 +145,13 @@ for (const vp of VIEWPORTS) {
       const btn = document.querySelector('button[aria-label="Cerrar menú"]');
       return {
         ariaExpanded: btn?.getAttribute('aria-expanded') ?? null,
-        panelVisible: !!document.querySelector('.wana-header-mobile-panel'),
+        panelVisible: !!document.querySelector('.elevari-header-mobile-panel'),
       };
     });
     await page.screenshot({ path: join(OUT, 'mobile-menu-open.jpg'), type: 'jpeg', quality: 80 });
     await page.keyboard.press('Escape');
     await page.waitForTimeout(250);
-    closedByEscape = await page.evaluate(() => !document.querySelector('.wana-header-mobile-panel'));
+    closedByEscape = await page.evaluate(() => !document.querySelector('.elevari-header-mobile-panel'));
   }
   results.interactions.mobileMenu = { triggerFound: exists > 0, opened, closedByEscape };
   await context.close();
