@@ -52,3 +52,10 @@ jobs:
           sed -i 's/^POSTGRES_PASSWORD=change_me$/POSTGRES_PASSWORD=staging_pg_password_123/' .env.staging
           sed -i 's/change_me_minio/staging_minio_secret_123/g' .env.staging
       - run: STAGING=1 ./deploy/scripts/validate-env.sh
+
+  verification-log:
+    name: Verification log gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./deploy/scripts/check-verification-log.sh verification-log.md
