@@ -286,7 +286,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           status: 'processing',
           metadata: {
             checkout_url: result.checkoutUrl,
-            client_secret: result.clientSecret,
+            client_secret: result.checkoutUrl,
             publishable_key: result.publishableKey,
             mode: result.mode,
             quote_id: quote.id,
@@ -304,7 +304,7 @@ export async function paymentRoutes(app: FastifyInstance) {
         provider: result.provider,
         mode: result.mode,
         checkout_url: result.checkoutUrl,
-        client_secret: result.clientSecret,
+        client_secret: result.checkoutUrl,
         publishable_key: result.publishableKey,
         amount,
         currency,
