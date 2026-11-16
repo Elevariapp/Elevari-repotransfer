@@ -4,7 +4,7 @@ import { colors, radius, spacing, typography, shadows } from '@/lib/design-token
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'accent';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-interface ButtonProps extends PressableProps, ViewProps {
+interface ButtonProps extends PressableProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
@@ -52,7 +52,7 @@ export function Button({
           ...(vs.border && { borderWidth: 1, borderColor: vs.border }),
           ...(style && { ...style }),
         },
-        disabled || loading && { opacity: 0.6 },
+        ...(disabled || loading ? [{ opacity: 0.6 }] : []),
       ]}
       {...props}
     >

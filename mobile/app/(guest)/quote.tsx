@@ -13,7 +13,7 @@ export default function QuoteScreen() {
   const [quote, setQuote] = useState<any>(null);
   const [error, setError] = useState('');
 
-  const propertyId = router.getQueryParams()?.propertyId as string;
+  const propertyId = (router as any).query?.propertyId;
 
   const createQuote = async () => {
     setLoading(true);

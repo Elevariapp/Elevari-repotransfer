@@ -9,7 +9,7 @@ import { Property } from '@/types';
 
 export default function PropertyDetailScreen() {
   const router = useRouter();
-  const { params } = router;
+  const { params } = router as unknown as { params: { id: string } };
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
 

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TextInput, TextInputProps, View, ViewProps } from 'react-native';
 import { colors, radius, spacing, typography } from '@/lib/design-tokens';
 
-interface InputProps extends TextInputProps, ViewProps {
+interface InputProps extends TextInputProps {
   label?: string;
   hint?: string;
   error?: string;

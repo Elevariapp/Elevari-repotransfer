@@ -7,7 +7,7 @@ import { colors } from '@/lib/design-tokens';
 
 export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
-  const { isLoading, setLoading, user, setUser, setAuthenticated } = useAppStore();
+  const { isLoading, setLoading, user, setUser, setAuthenticated, isAuthenticated } = useAppStore();
 
   useEffect(() => {
     async function bootstrap() {
@@ -34,9 +34,7 @@ export default function RootLayout() {
     return (
       <Stack.Screen
         options={{ headerShown: false, statusBarStyle: 'auto' }}
-      >
-        <StatusBar style="auto" backgroundColor={colors.forest} />
-      </Stack.Screen>
+      />
     );
   }
 

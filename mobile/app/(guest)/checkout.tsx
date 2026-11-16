@@ -13,7 +13,7 @@ export default function CheckoutScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const quoteId = router.getQueryParams()?.quoteId as string;
+  const quoteId = (router as any).query?.quoteId;
 
   const payWithWompi = async () => {
     setLoading(true);
@@ -74,7 +74,7 @@ export default function CheckoutScreen() {
         variant="ghost"
         size="lg"
         fullWidth
-        onPress={() => router.goBack()}
+        onPress={() => router.back()}
       >
         Volver
       </Button>

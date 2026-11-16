@@ -11,7 +11,7 @@ export default function BookingScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const quoteId = router.getQueryParams()?.quoteId as string;
+  const quoteId = (router as any).query?.quoteId;
 
   const createBooking = async () => {
     setLoading(true);
@@ -35,7 +35,7 @@ export default function BookingScreen() {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.subtitle>Revisa los detalles antes de pagar</Text>
+        <Text style={styles.subtitle}>Revisa los detalles antes de pagar</Text>
         <View style={styles.infoCard}>
           <Text style={styles.label}>Propiedad</Text>
           <Text style={styles.value}>Cabaña en el bosque</Text>
