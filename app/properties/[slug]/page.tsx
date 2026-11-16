@@ -3,25 +3,23 @@ import PropertyGallery from '@/components/booking/PropertyGallery';
 import BookingWidget from '@/components/booking/BookingWidget';
 import PropertyReviews from '@/components/booking/PropertyReviews';
 import PropertyJsonLd from '@/components/analytics/PropertyJsonLd';
-import PropertyViewTracker from '@/components/analytics/PropertyViewTracker';
+import PropertyViewTracker from '@/components/conversion/PropertyViewTracker';
 import ExclusiveBadge from '@/components/ExclusiveBadge';
+import FavoriteButton from '@/components/conversion/FavoriteButton';
+import TrustSignals from '@/components/conversion/TrustSignals';
+import SimilarProperties from '@/components/conversion/SimilarProperties';
 import PropertyLocation from '@/components/booking/PropertyLocation';
 import EleveriMark from '@/components/brand/EleveriMark';
 import { formatPropertyLocation } from '@/lib/property-location';
 import { formatCop } from '@/lib/format';
 import { buildPropertyShareMetadata } from '@/lib/share-metadata';
 import { wanaApi } from '@/lib/api-client';
-import { notFound } from 'next/navigation';
+import { siteUrl } from '@/lib/site-url';
+import { AMENITY_LABELS, normalizeAmenity } from '@/lib/seo/similarity';
+import { findSimilar } from '@/lib/conversion/similar-properties';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-};
-
-const AMENITY_LABELS: Record<string, string> = {
-  wifi: 'WiFi',
-  fogata: 'Fogata',
-  vista: 'Vista panorámica',
-  estacionamiento: 'Estacionamiento',
 };
 
 export async function generateMetadata({ params }: PageProps) {
@@ -38,7 +36,7 @@ export async function generateMetadata({ params }: PageProps) {
         coverImage: property.cover_image,
         description: property.description,
       },
-      process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eleveri.app',
+      siteUrl(),
     );
     return {
       title: share.title,
@@ -48,7 +46,7 @@ export async function generateMetadata({ params }: PageProps) {
       twitter: share.twitter,
     };
   } catch {
-    return { title: 'Propiedad | Eleveri' };
+    return { title: 'Propiedad | Elevari' };
   }
 }
 
@@ -58,13 +56,48 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   let property: Awaited<ReturnType<typeof wanaApi.getProperty>>;
   try {
     property = await wanaApi.getProperty(slug);
-  } catch {
-    notFound();
+  } catch (err) {
+    // API error → 500, not 404
+    throw new Error(`Failed to load property ${slug}`);
   }
 
   const media = (property.media as Array<Record<string, unknown>>) ?? [];
   const amenities = Array.isArray(property.amenities) ? property.amenities : [];
   const reviews = (property as { reviews?: Array<{ id: string; rating: number; comment?: string | null }> }).reviews ?? [];
+
+  // Fetch candidates for similar properties
+  let similarCandidates: Awaited<ReturnType<typeof wanaApi.listProperties>>['data'] = [];
+  try {
+    const { data } = await wanaApi.listProperties({
+      city: property.city ?? undefined,
+      limit: 20,
+    });
+    similarCandidates = data.filter(p => p.id !== property.id);
+  } catch {
+    similarCandidates = [];
+  }
+
+  const currentSummary = {
+    id: property.id,
+    slug: property.slug,
+    title: property.title,
+    city: property.city ?? '',
+    price_per_night: property.price_per_night,
+    max_guests: property.max_guests,
+    amenities,
+  };
+
+  const candidatesSummary = similarCandidates.map(p => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    city: p.city ?? '',
+    price_per_night: p.price_per_night,
+    max_guests: p.max_guests,
+    amenities: Array.isArray(p.amenities) ? p.amenities : [],
+  }));
+
+  const similar = findSimilar(currentSummary, candidatesSummary);
 
   return (
     <>
@@ -92,6 +125,9 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             <h1 className="elevari-display-section text-elevari-slate">
               {property.title}
             </h1>
+            <div className="mt-2 flex items-center gap-3">
+              <FavoriteButton id={property.id} />
+            </div>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-elevari-muted">
               {property.rating != null && (
                 <span className="flex items-center gap-1 font-medium text-elevari-slate">
@@ -164,14 +200,17 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 <section className="border-t border-elevari-border pt-8">
                   <h2 className="elevari-section-title">Lo que ofrece este lugar</h2>
                   <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-                    {amenities.map((item: string) => (
-                      <li key={item} className="flex items-center gap-3 text-elevari-slate">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-elevari-sand text-elevari-forest text-sm">
-                          ✓
-                        </span>
-                        {AMENITY_LABELS[item] ?? item}
-                      </li>
-                    ))}
+                    {amenities.map((item: string) => {
+                      const normalized = normalizeAmenity(item);
+                      return (
+                        <li key={item} className="flex items-center gap-3 text-elevari-slate">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-elevari-sand text-elevari-forest text-sm">
+                            ✓
+                          </span>
+                          {AMENITY_LABELS[normalized] ?? item}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </section>
               )}
@@ -221,6 +260,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </p>
               </section>
 
+              <TrustSignals />
+
               <PropertyReviews
                 reviews={reviews}
                 rating={property.rating}
@@ -233,6 +274,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 latitude={property.latitude}
                 longitude={property.longitude}
               />
+              <SimilarProperties current={currentSummary} candidates={similar} />
             </div>
 
             <aside>

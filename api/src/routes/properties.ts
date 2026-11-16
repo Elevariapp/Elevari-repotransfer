@@ -42,6 +42,7 @@ function serializeProperty(property: {
   latitude?: { toString(): string } | null;
   longitude?: { toString(): string } | null;
   amenities: unknown;
+  updatedAt?: Date;
   media: Array<{
     id: string;
     type: string;
@@ -77,6 +78,7 @@ function serializeProperty(property: {
     latitude: property.latitude != null ? Number(property.latitude) : null,
     longitude: property.longitude != null ? Number(property.longitude) : null,
     amenities: property.amenities,
+    updated_at: property.updatedAt?.toISOString() ?? null,
     cover_image: property.media[0]?.thumbnailUrl ?? property.media[0]?.url ?? null,
     media: property.media,
     rating: avgRating ? Math.round(avgRating * 10) / 10 : null,

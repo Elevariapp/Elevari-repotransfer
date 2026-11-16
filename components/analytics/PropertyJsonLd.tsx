@@ -1,3 +1,5 @@
+import { buildLodgingBusinessSchema, escapeJsonLdString } from '@/lib/seo/schema';
+
 export default function PropertyJsonLd({
   property,
 }: {
@@ -13,37 +15,15 @@ export default function PropertyJsonLd({
     review_count: number;
   };
 }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://wana.co';
-  const url = `${siteUrl}/properties/${property.slug}`;
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'LodgingBusiness',
-    name: property.title,
-    description: property.description ?? undefined,
-    url,
-    image: property.cover_image ?? undefined,
-    priceRange: `COP ${property.price_per_night}`,
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: property.city ?? 'Sutatausa',
-      addressRegion: 'Cundinamarca',
-      addressCountry: property.country ?? 'CO',
-    },
-    aggregateRating:
-      property.rating != null && property.review_count > 0
-        ? {
-            '@type': 'AggregateRating',
-            ratingValue: property.rating,
-            reviewCount: property.review_count,
-          }
-        : undefined,
-  };
+  const schema = buildLodgingBusinessSchema(property);
+  const json = JSON.stringify(schema);
+  // Harden against injection
+  const safe = json.replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: safe }}
     />
   );
 }

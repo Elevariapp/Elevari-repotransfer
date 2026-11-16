@@ -5,6 +5,8 @@ import EmptyState from '@/components/ui/EmptyState';
 import CatalogFilters from '@/components/catalog/CatalogFilters';
 import CatalogPagination from '@/components/catalog/CatalogPagination';
 import CatalogViewTracker from '@/components/catalog/CatalogViewTracker';
+import RecentlyViewed from '@/components/conversion/RecentlyViewed';
+import IntentRecoveryBanner from '@/components/conversion/IntentRecoveryBanner';
 import { wanaApi } from '@/lib/api-client';
 import { humanizeApiError } from '@/lib/api-errors';
 import { activeFilterCount, parseCatalogParams } from '@/lib/catalog-params';
@@ -69,6 +71,8 @@ export default async function PropertiesPage({
         sort={params.sort}
       />
       <main id="contenido" className="pb-16">
+        <IntentRecoveryBanner />
+        <RecentlyViewed />
         <div className="border-b border-elevari-border/60 bg-elevari-sand/25">
           <div className="wana-container py-10 lg:py-14">
             <header className="max-w-2xl">

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { analytics } from '@/lib/analytics';
+import { saveLastSearch } from '@/lib/conversion/intent-recovery';
 import {
   CATALOG_AMENITIES,
   CATALOG_SORTS,
@@ -22,6 +23,14 @@ export default function CatalogFilters({ params }: { params: CatalogParams }) {
   const currentPreset = pricePreset(params);
 
   const go = (next: CatalogParams) => {
+    saveLastSearch({
+      city: next.city,
+      guests: next.guests,
+      sort: next.sort,
+      min_price: next.minPrice,
+      max_price: next.maxPrice,
+      amenities: next.amenities,
+    });
     startTransition(() => {
       router.push(toCatalogHref(next), { scroll: false });
     });

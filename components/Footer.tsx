@@ -78,7 +78,7 @@ export default function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
           <p className="text-sm text-white/65">
-            © {new Date().getFullYear()} Eleveri. Todos los derechos reservados.
+            © {new Date().getFullYear()} Elevari. Todos los derechos reservados.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
             <Link href="/auth/login" className="elevari-footer-link">

@@ -55,6 +55,7 @@ export interface PropertyListItem {
   latitude?: number | null;
   longitude?: number | null;
   amenities?: unknown;
+  updated_at?: string | null;
   cover_image: string | null;
   rating: number | null;
   review_count: number;

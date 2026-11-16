@@ -7,14 +7,17 @@ import MarketingScripts from '@/components/analytics/MarketingScripts';
 import ObservabilityProvider from '@/components/observability/ObservabilityProvider';
 import { themeInitScript } from '@/components/theme/ThemeToggle';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eleveri.app';
+import { siteUrl } from '@/lib/site-url';
+import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema';
+
+const SITE_URL = siteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: 'Eleveri — Glamping en Colombia', template: '%s | Eleveri' },
+  title: { default: 'Elevari — Glamping en Colombia', template: '%s | Elevari' },
   description: 'Reserva experiencias de glamping únicas en Colombia. Naturaleza, confort y aventura.',
   openGraph: {
-    siteName: 'Eleveri',
+    siteName: 'Elevari',
     locale: 'es_CO',
     type: 'website',
   },
@@ -34,11 +37,15 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const orgSchema = buildOrganizationSchema();
+  const webSchema = buildWebSiteSchema();
   return (
     <html lang="es" suppressHydrationWarning className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSchema) }} />
       </head>
       <body className="elevari-page-bg min-h-screen font-sans text-elevari-slate antialiased">
         <a href="#contenido" className="elevari-skip-link">

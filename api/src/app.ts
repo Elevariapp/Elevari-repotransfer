@@ -12,6 +12,7 @@ import { authRoutes } from './routes/auth.js';
 import { adminRoutes } from './routes/admin.js';
 import { financialRoutes } from './routes/financial.js';
 import { hostRoutes } from './routes/host.js';
+import { analyticsRoutes } from './routes/analytics.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -80,6 +81,7 @@ export async function buildApp() {
   await app.register(hostRoutes, { prefix: '/api/v1' });
   await app.register(adminRoutes, { prefix: '/api/v1' });
   await app.register(financialRoutes, { prefix: '/api/v1' });
+  await app.register(analyticsRoutes, { prefix: '/api/v1' });
 
   return app;
 }
