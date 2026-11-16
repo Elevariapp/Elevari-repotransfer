@@ -22,7 +22,7 @@ try {
   startPendingBookingExpiryJob(app.log);
   startOtaCalendarSyncJob(app.log);
   startCheckInReminderJob(app.log);
-  console.log(`Waná API listening on http://${host}:${port}`);
+  console.log(`Wana API listening on http://${host}:${port}`);
 } catch (err) {
   app.log.error(err);
   process.exit(1);

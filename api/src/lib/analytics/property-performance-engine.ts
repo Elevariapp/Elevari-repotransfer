@@ -1,5 +1,5 @@
 /**
- * Property Performance Score Engine - REV-4
+ * Property Performance Score Engine - REV-5
  * 
  * NOTE: Schema validation shows no Message model exists.
  * Response time metric is disabled until messaging schema is added.

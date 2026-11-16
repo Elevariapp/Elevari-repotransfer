@@ -28,7 +28,7 @@ export async function issueBookingInvoice(bookingId: string): Promise<void> {
 
   const nights = fees.nights ?? nightsBetween(booking.checkIn, booking.checkOut);
   const guestEmail = booking.guestEmail ?? '';
-  const guestName = booking.guestName ?? 'Huésped Waná';
+  const guestName = booking.guestName ?? 'Huésped Wana';
   const transactionId = payment?.externalId ?? payment?.id ?? bookingId;
 
   const payload = buildAlegraInvoicePayload({
@@ -143,7 +143,7 @@ export async function retryPendingInvoice(pendingInvoiceId: string): Promise<boo
   const transactionId = pending.transactionId ?? pending.bookingId;
 
   const payload = buildAlegraInvoicePayload({
-    guestName: pending.guestName ?? 'Huésped Waná',
+    guestName: pending.guestName ?? 'Huésped Wana',
     guestEmail: pending.guestEmail ?? '',
     propertyTitle: pending.booking.property.title,
     nights,
