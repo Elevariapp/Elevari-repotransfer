@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 /** Cada enlace va a un destino distinto — sin duplicar /properties */
 const navLinks = [
@@ -123,6 +124,8 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
               Iniciar sesión
             </Link>
           )}
+
+          <NotificationBell />
 
           <button
             type="button"

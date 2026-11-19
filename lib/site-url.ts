@@ -1,4 +1,4 @@
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://elevari.app';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://elevari.live';
 
 export function siteUrl(path = '') {
   const base = SITE_URL.replace(/\/$/, '');

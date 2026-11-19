@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { authStorage } from '@/lib/auth';
+import { mobileNotificationService } from '@/lib/notifications';
 
 export default function GuestLayout() {
   const { isAuthenticated, logout } = useAppStore();
@@ -11,6 +12,10 @@ export default function GuestLayout() {
       authStorage.logout();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    mobileNotificationService.initialize();
+  }, []);
 
   return (
     <Stack>
