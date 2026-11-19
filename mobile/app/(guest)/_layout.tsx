@@ -21,6 +21,15 @@ export default function GuestLayout() {
       <Stack.Screen options={{ headerShown: false }} name="checkout" />
       <Stack.Screen options={{ headerShown: false }} name="my-bookings" />
       <Stack.Screen options={{ headerShown: false }} name="profile" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/terms" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/privacy" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/refund" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/account-deletion" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/account-deletion/confirm" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/content-moderation" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/contact" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/accessibility" />
+      <Stack.Screen options={{ headerShown: false }} name="legal/faq" />
     </Stack>
   );
 }

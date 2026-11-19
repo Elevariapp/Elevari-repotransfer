@@ -1,0 +1,64 @@
+{
+  "title": "Términos y Condiciones de Uso",
+  "lastUpdated": "Última actualización: 19 de noviembre de 2026",
+  "intro": "Bienvenido a Waná. Estos términos rigen el uso de nuestra plataforma de alquiler de propiedades vacacionales. Al acceder o usar Waná, aceptas estos términos.",
+  "sections": {
+    "acceptance": {
+      "title": "1. Aceptación de los Términos",
+      "content": "Al crear una cuenta o usar la plataforma, aceptas quedar vinculado por estos Términos y Condiciones, nuestra Política de Privacidad y nuestra Política de Reembolso."
+    },
+    "eligibility": {
+      "title": "2. Elegibilidad",
+      "content": "Debes tener al menos 18 años para crear una cuenta y usar Waná. Los menores de 18 años solo pueden usar la plataforma con la supervisión de un padre o tutor."
+    },
+    "accounts": {
+      "title": "3. Cuentas de Usuario",
+      "content": "Eres responsable de mantener la confidencialidad de tu contraseña y de todas las actividades que ocurran bajo tu cuenta. Debes proporcionar información precisa y actualizada."
+    },
+    "bookings": {
+      "title": "4. Reservas y Pagos",
+      "content": "Todas las reservas están sujetas a disponibilidad. Los pagos se procesan a través de nuestra plataforma segura. Se aplica una tarifa de servicio del 15% sobre el monto base de cada reserva."
+    },
+    "cancellation": {
+      "title": "5. Cancelaciones y Reembolsos",
+      "content": "Las cancelaciones se rigen por nuestra Política de Reembolso. Los anfitriones pueden establecer sus propias políticas de cancelación, las cuales se mostrarán antes de confirmar la reserva."
+    },
+    "conduct": {
+      "title": "6. Conducta del Usuario",
+      "content": "Te comprometes a usar la plataforma de manera legal y respetuosa. Está prohibido el acoso, el fraude, la publicación de contenido falso o cualquier actividad ilegal."
+    },
+    "content": {
+      "title": "7. Contenido Generado por el Usuario",
+      "content": "Tú retienes la propiedad de tu contenido, pero nos otorgas una licencia no exclusiva para usarlo, mostrarlo y distribuirlo en relación con la operación de Waná."
+    },
+    "moderation": {
+      "title": "8. Moderación de Contenido",
+      "content": "Nos reservamos el derecho de revisar, editar o eliminar cualquier contenido que viole nuestros términos. Consulta nuestra Política de Moderación de Contenido para más detalles."
+    },
+    "liability": {
+      "title": "9. Limitación de Responsabilidad",
+      "content": "Waná no se responsabiliza por daños indirectos, incidentales o consecuentes derivados del uso de la plataforma. Nuestra responsabilidad total se limita al monto pagado por la reserva en cuestión."
+    },
+    "termination": {
+      "title": "10. Terminación",
+      "content": "Podemos suspender o terminar tu cuenta en cualquier momento por violación de estos términos, sin previo aviso."
+    },
+    "governingLaw": {
+      "title": "11. Ley Aplicable",
+      "content": "Estos términos se rigen por las leyes de la República de Colombia. Cualquier disputa se resolverá en los tribunales competentes de Medellín, Antioquia."
+    },
+    "changes": {
+      "title": "12. Cambios a los Términos",
+      "content": "Podemos actualizar estos términos periódicamente. Te notificaremos por correo electrónico sobre cambios significativos. El uso continuado de la plataforma implica aceptación de los nuevos términos."
+    },
+    "contact": {
+      "title": "13. Contacto",
+      "content": "Si tienes preguntas sobre estos términos, contáctanos a través de nuestra página de Información de Contacto o envía un correo a legal@waná.co."
+    }
+  },
+  "buttons": {
+    "accept": "Acepto los términos",
+    "decline": "No acepto",
+    "backToHome": "Volver al inicio"
+  }
+}

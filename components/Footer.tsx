@@ -16,6 +16,10 @@ const hostLinks = [
 const legalLinks = [
   { href: '/legal/privacy', label: 'Privacidad' },
   { href: '/legal/terms', label: 'Términos' },
+  { href: '/legal/refund', label: 'Reembolsos' },
+  { href: '/legal/account-deletion', label: 'Eliminar mi cuenta' },
+  { href: '/legal/content-moderation', label: 'Moderación de contenido' },
+  { href: '/legal/contact', label: 'Contacto' },
   { href: '/legal/accessibility', label: 'Accesibilidad' },
 ] as const;
 

@@ -51,11 +51,23 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/my-bookings')}>
           <Text style={styles.menuItemText}>Mis reservas</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Text style={styles.menuItemText}>Configuración</Text>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/legal/terms')}>
+          <Text style={styles.menuItemText}>Términos y condiciones</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Text style={styles.menuItemText}>Ayuda y soporte</Text>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/legal/privacy')}>
+          <Text style={styles.menuItemText}>Política de privacidad</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/legal/refund')}>
+          <Text style={styles.menuItemText}>Política de reembolso</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/legal/account-deletion')}>
+          <Text style={styles.menuItemText}>Eliminar mi cuenta</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/legal/content-moderation')}>
+          <Text style={styles.menuItemText}>Moderación de contenido</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/legal/contact')}>
+          <Text style={styles.menuItemText}>Contacto y soporte</Text>
         </TouchableOpacity>
       </View>
 

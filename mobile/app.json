@@ -79,7 +79,18 @@
         "projectId": "wana-mobile"
       },
       "API_BASE_URL": "https://api.wana.co",
-      "WOMPI_PUBLIC_KEY": "pub_test_..."
+      "WOMPI_PUBLIC_KEY": "pub_test_...",
+      "PRIVACY_URL": "https://www.eleveri.app/legal/privacy",
+      "TERMS_URL": "https://www.eleveri.app/legal/terms",
+      "REFUND_URL": "https://www.eleveri.app/legal/refund",
+      "ACCOUNT_DELETION_URL": "https://www.eleveri.app/legal/account-deletion",
+      "CONTACT_URL": "https://www.eleveri.app/legal/contact",
+      "COMPLIANCE": {
+        "dataProtectionLaw": "Ley 1581 de 2012 (Colombia)",
+        "platformFeePercent": 15,
+        "currency": "COP",
+        "taxEngine": false
+      }
     }
   }
 }
