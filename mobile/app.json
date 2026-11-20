@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "co.wana.app",
+      "bundleIdentifier": "elevari.androidapp",
       "infoPlist": {
         "NSUserNotificationUsageDescription": "Waná necesita enviar notificaciones push para confirmaciones de reserva y actualizaciones de anfitrión.",
         "NSLocationWhenInUseUsageDescription": "Waná usa tu ubicación para mostrar propiedades cercanas.",
@@ -25,7 +25,7 @@
       ]
     },
     "android": {
-      "package": "co.wana.app",
+      "package": "elevari.androidapp",
       "adaptiveIcon": {
         "backgroundColor": "#2F6B4F",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -40,7 +40,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "app.wana.co",
+              "host": "app.eleveri.app",
               "pathPrefix": "/"
             }
           ],
@@ -71,9 +71,20 @@
       "expo-file-system",
       "react-native-svg",
       "react-native-reanimated",
-      "react-native-gesture-handler"
+      "react-native-gesture-handler",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "googleServicesFile": "./google-services.json",
+            "gradleVersion": "8.1.1",
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34
+          }
+        }
+      ]
     ],
-    "scheme": "wana",
+    "scheme": "elevari",
     "extra": {
       "eas": {
         "projectId": "wana-mobile"
