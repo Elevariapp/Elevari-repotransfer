@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ChatSession {
+  id            String      @id @default(uuid()) @db.Uuid
+  channel       String      // web | app | whatsapp
+  channelUserId String      @db.Text
+  userId        String?     @db.Uuid
+  status        String      @default("active") // active | escalated | closed
+  context       Json        @default("{}")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  messages      ChatMessage[]
+  escalations   ChatEscalation[]
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id          String   @id @default(uuid()) @db.Uuid
+  sessionId   String   @db.Uuid
+  role        String   // user | assistant | system | tool
+  content     String   @db.Text
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+model ChatEscalation {
+  id          String   @id @default(uuid()) @db.Uuid
+  sessionId   String   @db.Uuid
+  reason      String?
+  assignedTo  String?  @db.Uuid
+  status      String   @default("open") // open | closed
+  createdAt   DateTime @default(now())
+
+  session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_escalations")
+}
+
+model RagDocument {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String
+  content   String   @db.Text
+  source    String?
+  embedding String?  // Vector almacenado en PGVector
+  createdAt DateTime @default(now())
+
+  @@map("rag_documents")
+}

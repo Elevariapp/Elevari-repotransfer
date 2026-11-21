@@ -1,0 +1,24 @@
+{
+  "name": "elevari-bot",
+  "version": "1.0.0",
+  "description": "Concierge IA de Elevari para Web, App y WhatsApp Business",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test tests/"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.4.2",
+    "@fastify/formbody": "^7.4.0",
+    "@prisma/client": "^5.10.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.4.0",
+    "fastify": "^4.25.0",
+    "pg": "^8.11.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.0"
+  }
+}
