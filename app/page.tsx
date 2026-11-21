@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import SearchHero from '@/components/search/SearchHero';
 import PropertyCard from '@/components/PropertyCard';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import ExperiencePillars from '@/components/home/ExperiencePillars';
 import TrustStrip from '@/components/home/TrustStrip';
 import CategoryStrip from '@/components/home/CategoryStrip';
@@ -12,9 +12,9 @@ import { ButtonLink } from '@/components/ui';
 export const revalidate = 60;
 
 export default async function HomePage() {
-  let featured: Awaited<ReturnType<typeof wanaApi.listProperties>>['data'] = [];
+  let featured: Awaited<ReturnType<typeof elevariApi.listProperties>>['data'] = [];
   try {
-    const res = await wanaApi.listProperties({ limit: 4 });
+    const res = await elevariApi.listProperties({ limit: 4 });
     featured = res.data;
   } catch {
     featured = [];

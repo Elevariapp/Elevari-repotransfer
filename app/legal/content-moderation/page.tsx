@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Moderación de contenido | Eleveri',
-  description: 'Política de moderación de contenido de Eleveri para propiedades, reseñas y perfiles.',
+  title: 'Moderación de contenido | Elevari',
+  description: 'Política de moderación de contenido de Elevari para propiedades, reseñas y perfiles.',
 };
 
 export default function ContentModerationPage() {
@@ -16,7 +16,7 @@ export default function ContentModerationPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">1. Propósito</h2>
           <p className="mt-2">
-            Esta política describe cómo Eleveri revisa, aprueba y elimina el contenido publicado en
+            Esta política describe cómo Elevari revisa, aprueba y elimina el contenido publicado en
             la plataforma, incluidos anuncios de propiedades, fotos, descripciones, reseñas y
             perfiles de usuario. Nuestro objetivo es mantener una comunidad segura, confiable y
             respetuosa.
@@ -47,7 +47,7 @@ export default function ContentModerationPage() {
           </p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-elevari-slate">
             <li>Revisión automatizada de palabras clave y contenido sensible.</li>
-            <li>Revisión manual por el equipo de moderación de Eleveri.</li>
+            <li>Revisión manual por el equipo de moderación de Elevari.</li>
             <li>Verificación de identidad y propiedad para anfitriones.</li>
           </ul>
           <p className="mt-2">
@@ -60,7 +60,7 @@ export default function ContentModerationPage() {
           <h2 className="font-semibold text-elevari-slate">4. Apelaciones</h2>
           <p className="mt-2">
             Si tu contenido es rechazado o eliminado, puedes apelar la decisión enviando un correo a
-            moderacion@eleveri.app explicando por qué consideras que la decisión es incorrecta.
+            reserve@elevari.live explicando por qué consideras que la decisión es incorrecta.
             Revisaremos tu apelación en un plazo de 5 días hábiles.
           </p>
         </section>
@@ -70,7 +70,7 @@ export default function ContentModerationPage() {
           <p className="mt-2">
             Cualquier usuario puede reportar contenido que considere inapropiado desde la página del
             anuncio o reseña correspondiente. Los reportes se revisan en un plazo de 72 horas.
-            Eleveri tomará las medidas adecuadas, que pueden incluir la eliminación del contenido o
+            Elevari tomará las medidas adecuadas, que pueden incluir la eliminación del contenido o
             la suspensión de la cuenta del infractor.
           </p>
         </section>

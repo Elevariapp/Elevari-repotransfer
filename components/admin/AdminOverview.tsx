@@ -3,16 +3,16 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 
 export default function AdminOverview() {
   const { user, loading: authLoading } = useAuth();
-  const [stats, setStats] = useState<Awaited<ReturnType<typeof wanaApi.adminOverview>> | null>(null);
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof elevariApi.adminOverview>> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user || user.role !== 'admin') return;
-    wanaApi
+    elevariApi
       .adminOverview()
       .then(setStats)
       .catch((e) => setError(e instanceof Error ? e.message : 'Error'));

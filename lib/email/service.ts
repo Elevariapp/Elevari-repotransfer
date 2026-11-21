@@ -1,4 +1,4 @@
-import { resend, EMAIL_FROM } from './client';
+import { getResend, EMAIL_FROM } from './client';
 import { BookingConfirmationEmail } from './templates/booking-confirmation';
 import { SecurityAlertEmail } from './templates/security-alert';
 import { WelcomeEmail } from './templates/welcome';
@@ -8,10 +8,10 @@ export type EmailType = 'booking-confirmation' | 'security-alert' | 'welcome';
 export interface SendEmailParams {
   to: string;
   type: EmailType;
-  data: Record<string, unknown>;
+  data: object;
 }
 
-const templateMap: Record<EmailType, { subject: string; component: typeof BookingConfirmationEmail }> = {
+const templateMap: Record<EmailType, { subject: string; component: (args: { data: never }) => string }> = {
   'booking-confirmation': {
     subject: 'Confirmación de reserva - Elevari',
     component: BookingConfirmationEmail,
@@ -37,10 +37,10 @@ export async function sendEmail({ to, type, data }: SendEmailParams) {
     return { success: false, error: `Unknown email type: ${type}` };
   }
 
-  const html = template.component({ data: data as Parameters<typeof template.component>[0]['data'] });
+  const html = template.component({ data: data as never });
 
   try {
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from: EMAIL_FROM,
       to,
       subject: template.subject,

@@ -86,11 +86,11 @@ const nextConfig: NextConfig = {
       qualities: [50, 60, 72, 75],
       minimumCacheTTL: 86400,
     remotePatterns: [
-      { protocol: 'http', hostname: 'localhost', port: '9000', pathname: '/wana-media/**' },
-      { protocol: 'http', hostname: '164.92.241.30', pathname: '/wana-media/**' },
-      // HTTPS is required for remote property media. Plaintext wildcard removed:
-      // it allowed the image optimizer to fetch arbitrary http URLs (SSRF/resource abuse).
-      { protocol: 'https', hostname: '**' },
+      { protocol: 'http', hostname: 'localhost', port: '9000', pathname: '/elevari-media/**' },
+      // Only our own media origins: an open https wildcard lets the image optimizer fetch arbitrary hosts (SSRF/resource abuse).
+      { protocol: 'https', hostname: 'media.elevari.live', pathname: '/elevari-media/**' },
+      { protocol: 'https', hostname: 'elevari.live' },
+      { protocol: 'https', hostname: 'www.elevari.live' },
     ],
   },
 };

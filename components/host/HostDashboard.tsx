@@ -2,17 +2,17 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 
 export default function HostDashboard() {
   const { user, loading: authLoading } = useAuth();
-  const [properties, setProperties] = useState<Awaited<ReturnType<typeof wanaApi.listHostProperties>>['data']>([]);
+  const [properties, setProperties] = useState<Awaited<ReturnType<typeof elevariApi.listHostProperties>>['data']>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user || (user.role !== 'host' && user.role !== 'admin')) return;
-    wanaApi
+    elevariApi
       .listHostProperties()
       .then((r) => setProperties(r.data))
       .catch((e) => setError(e instanceof Error ? e.message : 'Error'));

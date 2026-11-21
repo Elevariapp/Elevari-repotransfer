@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { wanaApi, type AdminBookingRow } from '@/lib/api-client';
+import { elevariApi, type AdminBookingRow } from '@/lib/api-client';
 
 export default function AdminBookingsPanel() {
   const { user, loading: authLoading } = useAuth();
@@ -16,7 +16,7 @@ export default function AdminBookingsPanel() {
       setLoading(false);
       return;
     }
-    wanaApi
+    elevariApi
       .adminBookings()
       .then((r) => setRows(r.data))
       .catch((e) => toast.error(e instanceof Error ? e.message : 'Error'))

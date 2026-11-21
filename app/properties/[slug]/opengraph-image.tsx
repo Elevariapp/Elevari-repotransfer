@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import { formatCopLabel, propertyLocation } from '@/lib/share-metadata';
 
 export const alt = 'Elevari — escape natural en Colombia';
@@ -27,7 +27,7 @@ export default async function OpengraphImage({
   let cover: string | null = null;
 
   try {
-    const property = await wanaApi.getProperty(slug);
+    const property = await elevariApi.getProperty(slug);
     title = property.title;
     location = propertyLocation({
       slug,
@@ -98,7 +98,7 @@ export default async function OpengraphImage({
               ◠
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1 }}>eleveri</span>
+              <span style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1 }}>elevari</span>
               <span style={{ fontSize: 15, letterSpacing: 4, color: '#F6E3B8' }}>ESCAPES NATURALES</span>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default async function OpengraphImage({
                 color: '#F7F4EC',
               }}
             >
-              eleveri.app
+              elevari.live
             </span>
           </div>
         </div>

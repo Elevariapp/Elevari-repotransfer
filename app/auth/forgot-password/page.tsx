@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import AuthShell from '@/components/auth/AuthShell';
 
 export default function ForgotPasswordPage() {
@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
     setError(null);
     setLoading(true);
     try {
-      await wanaApi.forgotPassword(email);
+      await elevariApi.forgotPassword(email);
       setSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al enviar');
@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
       <p className="elevari-eyebrow">Cuenta</p>
       <h1 className="mt-2 font-display text-2xl text-elevari-slate sm:text-3xl">Recuperar contraseña</h1>
       <p className="mt-3 text-sm text-elevari-muted">
-        Te enviaremos un enlace si el correo está registrado en Eleveri.
+        Te enviaremos un enlace si el correo está registrado en Elevari.
       </p>
 
       {sent ? (

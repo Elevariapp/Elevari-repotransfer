@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 
 export default function ChangePasswordForm() {
   const [password, setPassword] = useState('');
@@ -21,7 +21,7 @@ export default function ChangePasswordForm() {
     }
     setLoading(true);
     try {
-      await wanaApi.changePassword(password);
+      await elevariApi.changePassword(password);
       toast.success('Contraseña actualizada');
       setPassword('');
       setConfirm('');

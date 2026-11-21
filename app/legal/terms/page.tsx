@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Términos y condiciones | Eleveri',
-  description: 'Términos y condiciones de uso de la plataforma Eleveri.',
+  title: 'Términos y condiciones | Elevari',
+  description: 'Términos y condiciones de uso de la plataforma Elevari.',
 };
 
 export default function TermsPage() {
@@ -14,7 +14,7 @@ export default function TermsPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">1. Aceptación</h2>
           <p className="mt-2">
-            Al usar Eleveri aceptas estos términos. Si no estás de acuerdo, no utilices la
+            Al usar Elevari aceptas estos términos. Si no estás de acuerdo, no utilices la
             plataforma. El uso de la plataforma implica la aceptación plena y sin reservas de todas
             las disposiciones incluidas en este documento.
           </p>
@@ -23,7 +23,7 @@ export default function TermsPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">2. Servicio</h2>
           <p className="mt-2">
-            Eleveri conecta huéspedes con anfitriones de espacios de glamping y refugios. Eleveri no
+            Elevari conecta huéspedes con anfitriones de espacios de glamping y refugios. Elevari no
             es propietario de los alojamientos salvo que se indique expresamente. La plataforma
             funciona como intermediario para facilitar reservas y pagos.
           </p>
@@ -42,7 +42,7 @@ export default function TermsPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">4. Tarifa de servicio de Elevari</h2>
           <p className="mt-2">
-            Eleveri aplica una tarifa de servicio del 15% sobre el precio del alojamiento. Esta
+            Elevari aplica una tarifa de servicio del 15% sobre el precio del alojamiento. Esta
             tarifa se muestra desglosada antes de confirmar el pago y no es reembolsable salvo en
             casos de cancelación por el anfitrión o fuerza mayor.
           </p>
@@ -52,7 +52,7 @@ export default function TermsPage() {
           <h2 className="font-semibold text-elevari-slate">5. Anfitriones</h2>
           <p className="mt-2">
             Los anfitriones deben proporcionar información veraz, mantener calendarios actualizados y
-            cumplir normas locales de turismo y seguridad. Eleveri puede suspender listados que
+            cumplir normas locales de turismo y seguridad. Elevari puede suspender listados que
             incumplan estándares de calidad o legalidad.
           </p>
         </section>
@@ -68,8 +68,8 @@ export default function TermsPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">7. Limitación de responsabilidad</h2>
           <p className="mt-2">
-            Eleveri facilita la conexión entre partes. No garantizamos disponibilidad continua del
-            servicio ni ausencia de errores. La responsabilidad directa de Eleveri se limita al valor
+            Elevari facilita la conexión entre partes. No garantizamos disponibilidad continua del
+            servicio ni ausencia de errores. La responsabilidad directa de Elevari se limita al valor
             de la reserva correspondiente cuando la ley lo permita.
           </p>
         </section>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { wanaApi, type GuestBookingRow } from '@/lib/api-client';
+import { elevariApi, type GuestBookingRow } from '@/lib/api-client';
 import { formatCop } from '@/lib/format';
 import EmptyState from '@/components/ui/EmptyState';
 
@@ -21,7 +21,7 @@ export default function GuestBookingsList() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
-    wanaApi
+    elevariApi
       .myBookings()
       .then((r) => setRows(r.data))
       .catch((e) => toast.error(e instanceof Error ? e.message : 'Error'))
@@ -32,7 +32,7 @@ export default function GuestBookingsList() {
     if (!window.confirm('¿Seguro que deseas cancelar esta reserva?')) return;
     setBusyId(id);
     try {
-      const res = await wanaApi.cancelBooking(id);
+      const res = await elevariApi.cancelBooking(id);
       setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'cancelled' } : r)));
       const refund = (res as { cancellation?: { refund_amount?: number; reason?: string } })
         .cancellation;

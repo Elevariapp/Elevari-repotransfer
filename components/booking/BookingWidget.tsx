@@ -7,7 +7,7 @@ import { format, addDays, parseISO, eachDayOfInterval, differenceInCalendarDays 
 import { es } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { wanaApi, type BookingQuote } from '@/lib/api-client';
+import { elevariApi, type BookingQuote } from '@/lib/api-client';
 import { analytics } from '@/lib/analytics';
 import PriceBreakdown from '@/components/ui/PriceBreakdown';
 import Button from '@/components/ui/Button';
@@ -94,7 +94,7 @@ export default function BookingWidget({
   const lastQuoteSignature = useRef<string | null>(null);
 
   useEffect(() => {
-    wanaApi.getAvailability(propertyId)
+    elevariApi.getAvailability(propertyId)
       .then((data) => setBlockedRanges(data.blocked_ranges))
       .catch(() => setBlockedRanges([]));
   }, [propertyId]);
@@ -129,7 +129,7 @@ export default function BookingWidget({
     }
     setQuoteLoading(true);
     try {
-      const result = await wanaApi.quoteBooking({
+      const result = await elevariApi.quoteBooking({
         property_id: propertyId,
         check_in: toDateString(range.from),
         check_out: toDateString(range.to),
@@ -187,7 +187,7 @@ export default function BookingWidget({
 
     setBookingLoading(true);
     try {
-      const { booking, reused } = await wanaApi.createBooking({
+      const { booking, reused } = await elevariApi.createBooking({
         property_id: propertyId,
         check_in: toDateString(range.from),
         check_out: toDateString(range.to),

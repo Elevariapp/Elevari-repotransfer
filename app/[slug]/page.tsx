@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getCollection, COLLECTIONS } from '@/lib/seo/collections';
 import { siteUrl } from '@/lib/site-url';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import { buildBreadcrumbListSchema, buildFAQPageSchema, buildItemListSchema } from '@/lib/seo/schema';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
@@ -36,7 +36,7 @@ export default async function CollectionPage({ params }: { params: { slug: strin
 
   let properties: any[] = [];
   try {
-    const res = await wanaApi.listProperties({
+    const res = await elevariApi.listProperties({
       city: query.city,
       amenities: query.amenities,
       limit: Number(query.limit) || 24,

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
@@ -12,15 +12,26 @@ import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema';
 
 const SITE_URL = siteUrl();
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#2F6B4F',
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  applicationName: 'Elevari',
   title: { default: 'Elevari — Glamping en Colombia', template: '%s | Elevari' },
   description: 'Reserva experiencias de glamping únicas en Colombia. Naturaleza, confort y aventura.',
+  alternates: { canonical: '/' },
+  robots: { index: true, follow: true },
   openGraph: {
     siteName: 'Elevari',
     locale: 'es_CO',
     type: 'website',
+    url: '/',
   },
+  twitter: { card: 'summary_large_image' },
 };
 
 const inter = Inter({
@@ -42,7 +53,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" suppressHydrationWarning className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSchema) }} />

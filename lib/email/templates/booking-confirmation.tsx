@@ -76,7 +76,7 @@ export function BookingConfirmationEmail({ data }: { data: BookingConfirmationDa
             </div>
           </div>
           <div class="footer">
-            <p>¿Preguntas? Contáctanos en <a href="mailto:soporte@elevari.live">soporte@elevari.live</a></p>
+            <p>¿Preguntas? Contáctanos en <a href="mailto:reserve@elevari.live">reserve@elevari.live</a></p>
             <p>© ${new Date().getFullYear()} Elevari. Todos los derechos reservados.</p>
           </div>
         </div>

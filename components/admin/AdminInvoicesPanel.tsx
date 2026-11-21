@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { wanaApi, type AdminPendingInvoiceRow } from '@/lib/api-client';
+import { elevariApi, type AdminPendingInvoiceRow } from '@/lib/api-client';
 
 export default function AdminInvoicesPanel() {
   const { user, loading: authLoading } = useAuth();
@@ -18,7 +18,7 @@ export default function AdminInvoicesPanel() {
       return;
     }
     setLoading(true);
-    wanaApi
+    elevariApi
       .adminPendingInvoices()
       .then((r) => setRows(r.data))
       .catch((e) => toast.error(e instanceof Error ? e.message : 'Error'))
@@ -32,7 +32,7 @@ export default function AdminInvoicesPanel() {
   const retry = async (id: string) => {
     setBusyId(id);
     try {
-      await wanaApi.adminRetryInvoice(id);
+      await elevariApi.adminRetryInvoice(id);
       toast.success('Reintento enviado');
       load();
     } catch (e) {

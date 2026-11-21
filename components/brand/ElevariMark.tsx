@@ -1,4 +1,4 @@
-type EleveriMarkProps = {
+type ElevariMarkProps = {
   className?: string;
   /** Icon only (no background plate) */
   plain?: boolean;
@@ -9,7 +9,7 @@ type EleveriMarkProps = {
  * Brand colors: forest plate, fresh loop, amber horizon.
  * See docs/brand/ELEVARI_LOGO_CONCEPTS.md
  */
-export default function EleveriMark({ className = 'h-9 w-9', plain = false }: EleveriMarkProps) {
+export default function ElevariMark({ className = 'h-9 w-9', plain = false }: ElevariMarkProps) {
   return (
     <svg
       viewBox="0 0 32 32"

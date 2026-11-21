@@ -1,10 +1,11 @@
 export type AuditResult = { ok: boolean; message: string };
 
 export function cgc1_brandConsistency(content: string): AuditResult {
-  const hasEleveri = /Eleveri/i.test(content);
-  const hasElevari = /Elevari/i.test(content);
-  if (hasEleveri && !hasElevari) {
-    return { ok: false, message: 'Brand mismatch: Eleveri found, Elevari expected' };
+  // "Glamping Waná" is a property name and stays valid; any other Wana/Eleveri is a legacy brand leak.
+  const withoutProperty = content.replace(/Glamping\s+Wan[aá]/gi, '');
+  const legacy = /Eleveri|Wan[aá]/i.exec(withoutProperty);
+  if (legacy) {
+    return { ok: false, message: `Brand mismatch: legacy brand "${legacy[0]}" found, Elevari expected` };
   }
   return { ok: true, message: 'Brand consistent' };
 }

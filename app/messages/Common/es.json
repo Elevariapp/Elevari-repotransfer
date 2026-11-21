@@ -53,7 +53,7 @@
     "welcomeBack": "Bienvenido de vuelta",
     "signIn": "Inicia sesión para continuar",
     "createAccount": "Crear cuenta",
-    "join": "Únete a Waná y empieza a explorar",
+    "join": "Únete a Elevari y empieza a explorar",
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "tu@correo.com",
     "passwordLabel": "Contraseña",
@@ -110,7 +110,7 @@
     "earnings": "Ganancias",
     "settings": "Configuración",
     "newProperty": "Nueva propiedad",
-    "createListing": "Crea tu anuncio en Waná",
+    "createListing": "Crea tu anuncio en Elevari",
     "title": "Título",
     "titlePlaceholder": "Cabaña acogedora en el bosque",
     "location": "Ubicación",
@@ -127,7 +127,7 @@
     "bathroomsPlaceholder": "1",
     "publish": "Publicar propiedad",
     "hostProfile": "Perfil de Anfitrión",
-    "hostMember": "Anfitrión Waná",
+    "hostMember": "Anfitrión Elevari",
     "manageProperties": "Gestiona tus propiedades"
   },
   "currency": {

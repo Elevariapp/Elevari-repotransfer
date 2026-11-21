@@ -33,11 +33,26 @@ function getMetaPixelId() {
   return process.env.NEXT_PUBLIC_META_PIXEL_ID;
 }
 
+function getGtmId() {
+  return process.env.NEXT_PUBLIC_GTM_ID;
+}
+
 export function trackEvent(name: string, params?: EventParams) {
   if (typeof window === 'undefined') return;
 
+  // With GTM, events go to the dataLayer; GA4 is configured inside the container.
+  if (getGtmId()) {
+    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ event: name, ...(params ?? {}) });
+    const ga4Name = GA4_EVENT_MAP[name];
+    if (ga4Name && ga4Name !== name) {
+      w.dataLayer.push({ event: ga4Name, ...(params ?? {}) });
+    }
+  }
+
   const gaId = getGaId();
-  if (gaId && typeof window.gtag === 'function') {
+  if (!getGtmId() && gaId && typeof window.gtag === 'function') {
     window.gtag('event', name, params ?? {});
     const ga4Name = GA4_EVENT_MAP[name];
     if (ga4Name && ga4Name !== name) {

@@ -53,7 +53,7 @@
     "welcomeBack": "Bienvenue de retour",
     "signIn": "Connectez-vous pour continuer",
     "createAccount": "Créer un compte",
-    "join": "Rejoignez Waná et commencez à explorer",
+    "join": "Rejoignez Elevari et commencez à explorer",
     "emailLabel": "E-mail",
     "emailPlaceholder": "votre@email.com",
     "passwordLabel": "Mot de passe",
@@ -110,7 +110,7 @@
     "earnings": "Gains",
     "settings": "Paramètres",
     "newProperty": "Nouvelle propriété",
-    "createListing": "Créez votre annonce sur Waná",
+    "createListing": "Créez votre annonce sur Elevari",
     "title": "Titre",
     "titlePlaceholder": "Cabane confortable dans la forêt",
     "location": "Emplacement",
@@ -127,7 +127,7 @@
     "bathroomsPlaceholder": "1",
     "publish": "Publier la propriété",
     "hostProfile": "Profil d'hôte",
-    "hostMember": "Hôte Waná",
+    "hostMember": "Hôte Elevari",
     "manageProperties": "Gérez vos propriétés"
   },
   "currency": {

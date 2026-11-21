@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Política de reembolso | Eleveri',
-  description: 'Política de reembolso y cancelación de reservas de Eleveri.',
+  title: 'Política de reembolso | Elevari',
+  description: 'Política de reembolso y cancelación de reservas de Elevari.',
 };
 
 export default function RefundPage() {
@@ -17,7 +17,7 @@ export default function RefundPage() {
           <h2 className="font-semibold text-elevari-slate">1. Alcance</h2>
           <p className="mt-2">
             Esta política se aplica a todas las reservas realizadas a través de la plataforma
-            Eleveri (web y móvil). Los reembolsos se procesan según la política de cancelación
+            Elevari (web y móvil). Los reembolsos se procesan según la política de cancelación
             publicada por cada anfitrión y los plazos establecidos a continuación.
           </p>
         </section>
@@ -57,7 +57,7 @@ export default function RefundPage() {
           <h2 className="font-semibold text-elevari-slate">4. Fuerza mayor</h2>
           <p className="mt-2">
             En casos de fuerza mayor (desastres naturales, restricciones gubernamentales,
-            emergencias sanitarias), se evaluará cada caso individualmente. Eleveri se reserva el
+            emergencias sanitarias), se evaluará cada caso individualmente. Elevari se reserva el
             derecho de ofrecer reembolsos completos o créditos para futuras reservas.
           </p>
         </section>
@@ -67,7 +67,7 @@ export default function RefundPage() {
           <p className="mt-2">
             Los reembolsos se procesan al mismo método de pago utilizado para la reserva. El tiempo
             de acreditación depende de la entidad financiera y puede tardar entre 5 y 10 días
-            hábiles. Eleveri no cobra comisiones por procesar reembolsos.
+            hábiles. Elevari no cobra comisiones por procesar reembolsos.
           </p>
         </section>
 
@@ -85,7 +85,7 @@ export default function RefundPage() {
           <p className="mt-2">
             Para solicitar un reembolso o reportar un problema con tu reserva, contáctanos a través
             de nuestra página de Información de Contacto o envía un correo a
-            soporte@eleveri.app.
+            reserve@elevari.live.
           </p>
         </section>
       </div>

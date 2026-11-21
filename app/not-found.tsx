@@ -1,5 +1,5 @@
 import Header from '@/components/Header';
-import EleveriMark from '@/components/brand/EleveriMark';
+import ElevariMark from '@/components/brand/ElevariMark';
 import { ButtonLink } from '@/components/ui';
 
 export default function NotFound() {
@@ -11,7 +11,7 @@ export default function NotFound() {
         className="elevari-container flex min-h-[70vh] flex-col items-center justify-center py-16 text-center"
       >
         <div className="flex items-center gap-3">
-          <EleveriMark className="h-12 w-12" />
+          <ElevariMark className="h-12 w-12" />
           <span className="h-8 w-px bg-elevari-border" aria-hidden />
           <p className="font-display text-2xl font-semibold tracking-tight text-elevari-forest">404</p>
         </div>

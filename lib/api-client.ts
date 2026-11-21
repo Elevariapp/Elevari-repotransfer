@@ -91,7 +91,7 @@ export interface AuthUser {
   role: 'guest' | 'host' | 'admin';
 }
 
-export const wanaApi = {
+export const elevariApi = {
   health: () => request<{ status: string; database: string }>('/health'),
 
   login: (email: string, password: string, turnstile_token?: string) =>

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-const DEMO_EMAIL = 'guest@wana.local';
-const DEMO_PASSWORD = 'wana12345';
+const DEMO_EMAIL = 'guest@elevari.local';
+const DEMO_PASSWORD = 'elevari12345';
 const PROPERTY_SLUG = 'glamping-wana';
 
 async function loginAsGuest(page: import('@playwright/test').Page) {

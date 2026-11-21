@@ -7,7 +7,7 @@ import CatalogPagination from '@/components/catalog/CatalogPagination';
 import CatalogViewTracker from '@/components/catalog/CatalogViewTracker';
 import RecentlyViewed from '@/components/conversion/RecentlyViewed';
 import IntentRecoveryBanner from '@/components/conversion/IntentRecoveryBanner';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import { humanizeApiError } from '@/lib/api-errors';
 import { activeFilterCount, parseCatalogParams } from '@/lib/catalog-params';
 
@@ -36,12 +36,12 @@ export default async function PropertiesPage({
   const active = activeFilterCount(params);
   const hasFilters = active > 0;
 
-  let properties: Awaited<ReturnType<typeof wanaApi.listProperties>>['data'] = [];
+  let properties: Awaited<ReturnType<typeof elevariApi.listProperties>>['data'] = [];
   let total: number | null = null;
   let error: string | null = null;
 
   try {
-    const { data, meta } = await wanaApi.listProperties({
+    const { data, meta } = await elevariApi.listProperties({
       city: params.city,
       guests: params.guests,
       check_in: params.checkIn,
@@ -74,13 +74,13 @@ export default async function PropertiesPage({
         <IntentRecoveryBanner />
         <RecentlyViewed />
         <div className="border-b border-elevari-border/60 bg-elevari-sand/25">
-          <div className="wana-container py-10 lg:py-14">
+          <div className="elevari-container py-10 lg:py-14">
             <header className="max-w-2xl">
-              <p className="wana-eyebrow">Colección</p>
-              <h1 className="wana-display-page mt-3 text-elevari-slate">
+              <p className="elevari-eyebrow">Colección</p>
+              <h1 className="elevari-display-page mt-3 text-elevari-slate">
                 Espacios únicos en Colombia
               </h1>
-              <div className="wana-divider-gold mt-5" />
+              <div className="elevari-divider-gold mt-5" />
               <p className="mt-5 text-elevari-muted leading-relaxed">
                 Selecciona fechas en cada propiedad para ver el precio total antes de reservar.
               </p>
@@ -111,7 +111,7 @@ export default async function PropertiesPage({
           </div>
         </div>
 
-        <div className="wana-container py-10 lg:py-12">
+        <div className="elevari-container py-10 lg:py-12">
           {error ? (
             <div
               role="alert"
@@ -120,7 +120,7 @@ export default async function PropertiesPage({
               <p className="font-semibold">No pudimos cargar la colección</p>
               <p className="mt-2 text-sm leading-relaxed">{humanizeApiError(error)}</p>
               {hasFilters && (
-                <Link href="/properties" className="wana-link mt-4 inline-block text-sm font-medium">
+                <Link href="/properties" className="elevari-link mt-4 inline-block text-sm font-medium">
                   Ver todas las propiedades
                 </Link>
               )}

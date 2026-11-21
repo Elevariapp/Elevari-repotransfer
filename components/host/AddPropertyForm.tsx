@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import { uploadPropertyMedia } from '@/lib/media-api';
 
 const AMENITY_OPTIONS = ['WiFi', 'Agua caliente', 'Estacionamiento', 'Cocina', 'Vista', 'Pet friendly'];
@@ -32,7 +32,7 @@ export default function AddPropertyForm() {
     const maxGuests = Number(form.get('max_guests') ?? 2);
 
     try {
-      const { property } = await wanaApi.createHostProperty({
+      const { property } = await elevariApi.createHostProperty({
         title,
         description,
         city,

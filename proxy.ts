@@ -16,7 +16,7 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const rawToken = req.cookies.get('wana_token')?.value;
+  const rawToken = req.cookies.get('elevari_token')?.value;
   if (!rawToken) {
     const login = new URL('/auth/login', req.url);
     login.searchParams.set('redirect', pathname);
@@ -35,7 +35,7 @@ export default async function proxy(req: NextRequest) {
     const login = new URL('/auth/login', req.url);
     login.searchParams.set('redirect', pathname);
     const res = NextResponse.redirect(login);
-    res.cookies.set('wana_token', '', { path: '/', maxAge: 0 });
+    res.cookies.set('elevari_token', '', { path: '/', maxAge: 0 });
     return res;
   }
 

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import { siteUrl } from '@/lib/site-url';
 import { COLLECTIONS } from '@/lib/seo/collections';
 
@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   try {
-    const { data } = await wanaApi.listProperties({ limit: 50 });
+    const { data } = await elevariApi.listProperties({ limit: 50 });
     const propertyRoutes: MetadataRoute.Sitemap = data.map((p) => ({
       url: siteUrl(`/properties/${p.slug}`),
       lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),

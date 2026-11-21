@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 import CheckoutClient from '@/components/checkout/CheckoutClient';
-import { wanaApi, ApiError } from '@/lib/api-client';
+import { elevariApi, ApiError } from '@/lib/api-client';
 import { getServerBooking } from '@/lib/api-server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -33,7 +33,7 @@ export default async function CheckoutPage({
   let coverImage: string | null = null;
   if (propertySlug) {
     try {
-      const prop = await wanaApi.getProperty(propertySlug);
+      const prop = await elevariApi.getProperty(propertySlug);
       coverImage = prop.cover_image;
     } catch {
       coverImage = null;

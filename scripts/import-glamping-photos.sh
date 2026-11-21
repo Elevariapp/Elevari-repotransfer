@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Copia fotos de Glamping Waná → public/properties/glamping-wana/
-# Uso: ./scripts/import-glamping-photos.sh "/Users/macbook/Downloads/Wana-Photos 1.0"
+# Uso: ./scripts/import-glamping-photos.sh "/Users/macbook/Downloads/Elevari-Photos 1.0"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../" && pwd)"

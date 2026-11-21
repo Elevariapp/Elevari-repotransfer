@@ -13,7 +13,7 @@ export default function ReviewsDisplay({ reviews }: { reviews: Review[] }) {
       <h2 className="font-display text-2xl text-elevari-slate sm:text-3xl">
         Lo que dicen nuestros huéspedes
       </h2>
-      <p className="mt-2 text-elevari-muted">Experiencias reales en espacios Eleveri</p>
+      <p className="mt-2 text-elevari-muted">Experiencias reales en espacios Elevari</p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {reviews.length === 0 ? (

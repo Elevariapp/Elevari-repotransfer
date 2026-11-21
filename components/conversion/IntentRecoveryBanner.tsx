@@ -41,7 +41,7 @@ export default function IntentRecoveryBanner() {
   };
 
   return (
-    <div className="wana-container py-4">
+    <div className="elevari-container py-4">
       <div className="rounded-2xl border border-elevari-amber/30 bg-elevari-sand/40 p-4 flex items-center justify-between gap-4">
         <p className="text-sm text-elevari-slate">
           ¿Quieres <strong>continuar búsqueda anterior</strong>?

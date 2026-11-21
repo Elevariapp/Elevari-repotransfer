@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import { analytics } from '@/lib/analytics';
 
 export default function CheckoutSuccessClient({
@@ -27,10 +27,10 @@ export default function CheckoutSuccessClient({
     async function sync() {
       try {
         if (isMock && paymentId) {
-          await wanaApi.mockCompletePayment(paymentId);
+          await elevariApi.mockCompletePayment(paymentId);
         }
 
-        const { booking } = await wanaApi.getBooking(bookingId);
+        const { booking } = await elevariApi.getBooking(bookingId);
 
         if (booking.status !== 'confirmed') {
           const pending = booking.payments?.find(
@@ -38,11 +38,11 @@ export default function CheckoutSuccessClient({
           );
           const toSync = paymentId ?? pending?.id;
           if (toSync) {
-            await wanaApi.syncPayment(toSync);
+            await elevariApi.syncPayment(toSync);
           }
         }
 
-        const refreshed = await wanaApi.getBooking(bookingId);
+        const refreshed = await elevariApi.getBooking(bookingId);
         if (!cancelled) {
           const confirmed = refreshed.booking.status === 'confirmed';
           setStatus(confirmed ? 'confirmed' : 'pending');

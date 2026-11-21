@@ -3,7 +3,7 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import AuthShell from '@/components/auth/AuthShell';
 
 function ResetPasswordForm() {
@@ -29,7 +29,7 @@ function ResetPasswordForm() {
     setError(null);
     setLoading(true);
     try {
-      await wanaApi.resetPassword(token, password);
+      await elevariApi.resetPassword(token, password);
       setDone(true);
       setTimeout(() => router.push('/auth/login'), 2500);
     } catch (err) {

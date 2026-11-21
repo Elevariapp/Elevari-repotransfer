@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
 import toast from 'react-hot-toast';
-import { ApiError, wanaApi, type BookingDetail, type DisclosurePayload, type FxQuoteInfo } from '@/lib/api-client';
+import { ApiError, elevariApi, type BookingDetail, type DisclosurePayload, type FxQuoteInfo } from '@/lib/api-client';
 import { formatCop, formatDateRange } from '@/lib/format';
 import { formatPropertyLocation } from '@/lib/property-location';
 import PropertyThumb from '@/components/ui/PropertyThumb';
@@ -85,7 +85,7 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
     paymentStartedRef.current = true;
     try {
       const returnUrl = `${window.location.origin}/checkout/${booking.id}/success`;
-      const result = await wanaApi.createPaymentIntent({
+      const result = await elevariApi.createPaymentIntent({
         booking_id: booking.id,
         idempotency_key: `pay_${booking.id}_wompi`,
         return_url: returnUrl,
@@ -111,7 +111,7 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
       }
 
       if (result.mode === 'mock') {
-        await wanaApi.mockCompletePayment(result.payment_id);
+        await elevariApi.mockCompletePayment(result.payment_id);
         toast.success('Pago simulado (Wompi)');
         goSuccess();
         return;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { wanaApi, type AuthUser } from '@/lib/api-client';
+import { elevariApi, type AuthUser } from '@/lib/api-client';
 import { clearSession, getToken, setSession } from '@/lib/auth-session';
 
 const ME_TIMEOUT_MS = 12_000;
@@ -27,7 +27,7 @@ export function useAuth() {
       return;
     }
     try {
-      const { user: me } = await withTimeout(wanaApi.me(), ME_TIMEOUT_MS);
+      const { user: me } = await withTimeout(elevariApi.me(), ME_TIMEOUT_MS);
       setUser(me);
     } catch {
       clearSession();
@@ -42,7 +42,7 @@ export function useAuth() {
   }, [refresh]);
 
   const login = async (email: string, password: string, turnstile_token?: string) => {
-    const { token, user: u } = await wanaApi.login(email, password, turnstile_token);
+    const { token, user: u } = await elevariApi.login(email, password, turnstile_token);
     setSession(token);
     setUser(u);
     return u;
@@ -55,7 +55,7 @@ export function useAuth() {
     role?: 'guest' | 'host';
     turnstile_token?: string;
   }) => {
-    const { token, user: u } = await wanaApi.register(data);
+    const { token, user: u } = await elevariApi.register(data);
     setSession(token);
     setUser(u);
     return u;
@@ -65,7 +65,7 @@ export function useAuth() {
     credential: string,
     options?: { turnstile_token?: string; role?: 'guest' | 'host' },
   ) => {
-    const { token, user: u } = await wanaApi.googleAuth(credential, options);
+    const { token, user: u } = await elevariApi.googleAuth(credential, options);
     setSession(token);
     setUser(u);
     return u;

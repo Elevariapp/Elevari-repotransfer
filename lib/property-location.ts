@@ -1,5 +1,5 @@
 /**
- * Texto de ubicación para propiedades Waná (Glamping Waná · Sutatausa / Cucunubá).
+ * Texto de ubicación para propiedades Elevari (Glamping Waná · Sutatausa / Cucunubá).
  */
 export function formatPropertyLocation(city: string | null | undefined, country?: string) {
   if (!city) return country === 'CO' ? 'Colombia' : country ?? 'Colombia';

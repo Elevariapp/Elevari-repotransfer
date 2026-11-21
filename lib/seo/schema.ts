@@ -68,11 +68,19 @@ export function buildOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': `${siteUrl()}/#organization`,
     name: 'Elevari',
     url: siteUrl(),
-    logo: siteUrl('/logo.png'),
-    sameAs: [
-      'https://www.instagram.com/elevari',
+    logo: siteUrl('/brand/elevari-mark.svg'),
+    areaServed: 'CO',
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        email: 'reserve@elevari.live',
+        areaServed: 'CO',
+        availableLanguage: ['es', 'en', 'pt', 'fr'],
+      },
     ],
   };
 }

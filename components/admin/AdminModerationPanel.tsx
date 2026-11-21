@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { wanaApi, type AdminPendingMedia } from '@/lib/api-client';
+import { elevariApi, type AdminPendingMedia } from '@/lib/api-client';
 
 export default function AdminModerationPanel() {
   const { user, loading: authLoading } = useAuth();
@@ -12,7 +12,7 @@ export default function AdminModerationPanel() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = () => {
-    wanaApi
+    elevariApi
       .adminPendingMedia()
       .then((r) => setItems(r.data))
       .catch((e) => toast.error(e instanceof Error ? e.message : 'Error'))
@@ -31,7 +31,7 @@ export default function AdminModerationPanel() {
   const approve = async (id: string) => {
     setBusyId(id);
     try {
-      await wanaApi.adminApproveMedia(id);
+      await elevariApi.adminApproveMedia(id);
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast.success('Media aprobada');
     } catch (e) {
@@ -44,7 +44,7 @@ export default function AdminModerationPanel() {
   const reject = async (id: string) => {
     setBusyId(id);
     try {
-      await wanaApi.adminRejectMedia(id);
+      await elevariApi.adminRejectMedia(id);
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast.success('Media rechazada');
     } catch (e) {

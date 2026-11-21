@@ -9,11 +9,11 @@ import FavoriteButton from '@/components/conversion/FavoriteButton';
 import TrustSignals from '@/components/conversion/TrustSignals';
 import SimilarProperties from '@/components/conversion/SimilarProperties';
 import PropertyLocation from '@/components/booking/PropertyLocation';
-import EleveriMark from '@/components/brand/EleveriMark';
+import ElevariMark from '@/components/brand/ElevariMark';
 import { formatPropertyLocation } from '@/lib/property-location';
 import { formatCop } from '@/lib/format';
 import { buildPropertyShareMetadata } from '@/lib/share-metadata';
-import { wanaApi } from '@/lib/api-client';
+import { elevariApi } from '@/lib/api-client';
 import { siteUrl } from '@/lib/site-url';
 import { AMENITY_LABELS, normalizeAmenity } from '@/lib/seo/similarity';
 import { findSimilar } from '@/lib/conversion/similar-properties';
@@ -25,7 +25,7 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   try {
-    const property = await wanaApi.getProperty(slug);
+    const property = await elevariApi.getProperty(slug);
     const share = buildPropertyShareMetadata(
       {
         slug: property.slug,
@@ -53,9 +53,9 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function PropertyDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
-  let property: Awaited<ReturnType<typeof wanaApi.getProperty>>;
+  let property: Awaited<ReturnType<typeof elevariApi.getProperty>>;
   try {
-    property = await wanaApi.getProperty(slug);
+    property = await elevariApi.getProperty(slug);
   } catch (err) {
     // API error → 500, not 404
     throw new Error(`Failed to load property ${slug}`);
@@ -66,9 +66,9 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const reviews = (property as { reviews?: Array<{ id: string; rating: number; comment?: string | null }> }).reviews ?? [];
 
   // Fetch candidates for similar properties
-  let similarCandidates: Awaited<ReturnType<typeof wanaApi.listProperties>>['data'] = [];
+  let similarCandidates: Awaited<ReturnType<typeof elevariApi.listProperties>>['data'] = [];
   try {
-    const { data } = await wanaApi.listProperties({
+    const { data } = await elevariApi.listProperties({
       city: property.city ?? undefined,
       limit: 20,
     });
@@ -153,10 +153,10 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <section>
                 <div className="flex items-center gap-4 rounded-2xl border border-elevari-border bg-gradient-to-br from-white to-elevari-ivory p-5 shadow-sm ring-1 ring-elevari-amber/10">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-elevari-forest-deep p-2.5 shadow-sm ring-2 ring-elevari-amber/25">
-                    <EleveriMark className="h-full w-full" plain />
+                    <ElevariMark className="h-full w-full" plain />
                   </div>
                   <div>
-                    <p className="font-semibold text-elevari-slate">Anfitrión Eleveri verificado</p>
+                    <p className="font-semibold text-elevari-slate">Anfitrión Elevari verificado</p>
                     <p className="text-sm text-elevari-muted">Experiencia glamping curada · respuesta rápida</p>
                   </div>
                 </div>
@@ -216,7 +216,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               )}
 
               <section className="border-t border-elevari-border pt-8">
-                <h2 className="wana-section-title">Políticas de la estancia</h2>
+                <h2 className="elevari-section-title">Políticas de la estancia</h2>
                 <div className="mt-6 grid gap-6 sm:grid-cols-2">
                   <div>
                     <h3 className="text-sm font-semibold text-elevari-ink">Llegada y salida</h3>

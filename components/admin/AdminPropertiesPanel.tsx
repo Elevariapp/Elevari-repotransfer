@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { wanaApi, type AdminPropertyRow, type PropertyStatus } from '@/lib/api-client';
+import { elevariApi, type AdminPropertyRow, type PropertyStatus } from '@/lib/api-client';
 
 const STATUS_LABELS: Record<PropertyStatus, string> = {
   draft: 'Borrador',
@@ -24,7 +24,7 @@ export default function AdminPropertiesPanel() {
       setLoading(false);
       return;
     }
-    wanaApi
+    elevariApi
       .adminProperties()
       .then((r) => setRows(r.data))
       .catch((e) => toast.error(e instanceof Error ? e.message : 'Error'))
@@ -34,7 +34,7 @@ export default function AdminPropertiesPanel() {
   const updateStatus = async (id: string, status: PropertyStatus) => {
     setBusyId(id);
     try {
-      await wanaApi.adminUpdatePropertyStatus(id, status);
+      await elevariApi.adminUpdatePropertyStatus(id, status);
       setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
       toast.success('Estado actualizado');
     } catch (e) {

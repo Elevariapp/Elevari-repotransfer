@@ -38,7 +38,7 @@ export default function FAQPage() {
         <p className="elevari-eyebrow">Ayuda</p>
         <h1 className="mt-2 font-display text-3xl text-elevari-slate">Preguntas frecuentes</h1>
         <p className="mt-2 text-elevari-muted">
-          Respuestas sobre reservas, anfitriones y tu cuenta en Eleveri.
+          Respuestas sobre reservas, anfitriones y tu cuenta en Elevari.
         </p>
         <div className="mt-8 space-y-3">
           {faqItems.map((item) => (
