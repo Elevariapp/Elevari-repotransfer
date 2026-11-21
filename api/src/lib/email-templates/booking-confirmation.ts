@@ -24,7 +24,7 @@ export function buildBookingConfirmationEmail(params: {
   const text = `
 Hola ${name},
 
-¡Tu reserva en Eleveri está confirmada!
+¡Tu reserva en Elevari está confirmada!
 
 Propiedad: ${params.propertyTitle}
 ${params.city ? `Ubicación: ${params.city}\n` : ''}Entrada: ${params.checkIn}
@@ -37,7 +37,7 @@ Mi cuenta: ${accountUrl}
 
 Te esperamos en la naturaleza.
 
-— Eleveri
+— Elevari
 `.trim();
 
   const rows = [
@@ -57,7 +57,7 @@ Te esperamos en la naturaleza.
     eyebrow: 'Reserva confirmada',
     title: 'Tu escapada está confirmada',
     bodyHtml: `
-      <p style="margin:0 0 14px;">Hola <strong>${name}</strong>, gracias por confiar en Eleveri. Hemos recibido tu pago y tu estadía quedó reservada.</p>
+      <p style="margin:0 0 14px;">Hola <strong>${name}</strong>, gracias por confiar en Elevari. Hemos recibido tu pago y tu estadía quedó reservada.</p>
       <p style="margin:0;">Prepara la mochila — te espera una experiencia de glamping con confort, naturaleza y detalle en cada paso.</p>
       ${renderInfoCard(rows)}
     `,

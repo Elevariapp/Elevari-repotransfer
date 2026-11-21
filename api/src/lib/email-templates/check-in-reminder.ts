@@ -22,7 +22,7 @@ export function buildCheckInReminderEmail(params: {
   const text = `
 Hola ${name},
 
-¡Mañana comienza tu estadía en Eleveri!
+¡Mañana comienza tu estadía en Elevari!
 
 Propiedad: ${params.propertyTitle}
 ${params.city ? `Ubicación: ${params.city}\n` : ''}Entrada: ${params.checkIn}
@@ -40,7 +40,7 @@ FAQ: ${faqUrl}
 
 Te deseamos una estadía inolvidable.
 
-— Eleveri
+— Elevari
 `.trim();
 
   const rows = [

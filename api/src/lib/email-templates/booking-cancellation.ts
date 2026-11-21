@@ -33,7 +33,7 @@ export function buildBookingCancellationEmail(params: {
   const text = `
 Hola ${name},
 
-${params.expiredUnpaid ? 'Tu reserva no se completó a tiempo y las fechas quedaron liberadas.' : 'Confirmamos la cancelación de tu reserva en Eleveri.'}
+${params.expiredUnpaid ? 'Tu reserva no se completó a tiempo y las fechas quedaron liberadas.' : 'Confirmamos la cancelación de tu reserva en Elevari.'}
 
 Propiedad: ${params.propertyTitle}
 ${params.city ? `Ubicación: ${params.city}\n` : ''}Entrada: ${params.checkIn}
@@ -45,7 +45,7 @@ ${params.reason}${refundLine}
 Ver reservas: ${accountUrl}
 Explorar otros espacios: ${exploreUrl}
 
-— Eleveri
+— Elevari
 `.trim();
 
   const rows = [

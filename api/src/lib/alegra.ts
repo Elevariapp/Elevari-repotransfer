@@ -1,4 +1,4 @@
-import type { WanaFees } from './fees.js';
+import type { ElevariFees } from './fees.js';
 
 export interface AlegraClient {
   headers: Record<string, string>;
@@ -29,7 +29,7 @@ export function buildAlegraInvoicePayload(params: {
   guestEmail: string;
   propertyTitle: string;
   nights: number;
-  fees: WanaFees;
+  fees: ElevariFees;
   transactionId: string;
 }) {
   const { guestName, guestEmail, propertyTitle, nights, fees, transactionId } = params;
@@ -56,7 +56,7 @@ export function buildAlegraInvoicePayload(params: {
       },
     ],
     currency: 'COP',
-    observations: `Waná reserva · Ref: ${transactionId}`,
+    observations: `Elevari reserva · Ref: ${transactionId}`,
   };
 }
 

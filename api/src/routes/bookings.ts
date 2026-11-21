@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { apiErrorBody, ApiErrorCode, maxGuestsError } from '../lib/api-errors.js';
 import { isPropertyAvailable } from '../lib/availability.js';
-import { calculateWanaFees, nightsBetween } from '../lib/fees.js';
+import { calculateElevariFees, nightsBetween } from '../lib/fees.js';
 import { assertTransition } from '../lib/booking-state.js';
 import {
   createBookingWithAvailabilityBlock,
@@ -61,7 +61,7 @@ export async function bookingRoutes(app: FastifyInstance) {
     const nights = nightsBetween(checkIn, checkOut);
     const available = await isPropertyAvailable(property_id, checkIn, checkOut);
 
-    const fees = calculateWanaFees(Number(property.pricePerNight), nights);
+    const fees = calculateElevariFees(Number(property.pricePerNight), nights);
 
     return {
       property_id,
@@ -109,7 +109,7 @@ export async function bookingRoutes(app: FastifyInstance) {
     }
 
     const nights = nightsBetween(checkIn, checkOut);
-    const fees = calculateWanaFees(Number(property.pricePerNight), nights);
+    const fees = calculateElevariFees(Number(property.pricePerNight), nights);
 
     try {
       const booking = await createBookingWithAvailabilityBlock({

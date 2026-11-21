@@ -1,4 +1,4 @@
-/** Default Waná policy: moderate — aligns with knowledge/policies.txt after update. */
+/** Default Elevari policy: moderate — aligns with knowledge/policies.txt after update. */
 export type CancellationTier = 'flexible' | 'moderate' | 'strict';
 
 export interface RefundCalculation {

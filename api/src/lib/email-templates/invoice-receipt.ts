@@ -23,7 +23,7 @@ export function buildInvoiceReceiptEmail(params: {
   const text = `
 Hola ${name},
 
-Adjuntamos el resumen de facturación de tu reserva en Eleveri.
+Adjuntamos el resumen de facturación de tu reserva en Elevari.
 
 Referencia: ${ref}
 Propiedad: ${params.propertyTitle}
@@ -36,7 +36,7 @@ Ver reservas: ${accountUrl}
 
 Este comprobante respalda tu pago. Consérvalo para tus registros.
 
-— Eleveri
+— Elevari
 `.trim();
 
   const rows = [
@@ -53,11 +53,11 @@ Este comprobante respalda tu pago. Consérvalo para tus registros.
   ];
 
   const html = renderEmailLayout({
-    preheader: `Comprobante Eleveri por ${formatCop(params.totalCharge)} — ${params.propertyTitle}`,
+    preheader: `Comprobante Elevari por ${formatCop(params.totalCharge)} — ${params.propertyTitle}`,
     eyebrow: 'Facturación',
     title: 'Comprobante de pago',
     bodyHtml: `
-      <p style="margin:0 0 14px;">Hola <strong>${name}</strong>, aquí tienes el resumen de tu transacción en Eleveri.</p>
+      <p style="margin:0 0 14px;">Hola <strong>${name}</strong>, aquí tienes el resumen de tu transacción en Elevari.</p>
       <p style="margin:0;">Correo de la reserva: <strong>${params.guestEmail}</strong></p>
       ${renderInfoCard(rows)}
       ${renderHighlightBox(`
@@ -65,7 +65,7 @@ Este comprobante respalda tu pago. Consérvalo para tus registros.
       `)}
     `,
     cta: { href: accountUrl, label: 'Ver mis reservas' },
-    footerNote: 'Eleveri — experiencias de glamping en Colombia.',
+    footerNote: 'Elevari — experiencias de glamping en Colombia.',
   });
 
   return { subject, text, html };

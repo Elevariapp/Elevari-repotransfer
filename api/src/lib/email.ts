@@ -32,7 +32,7 @@ export async function sendEmail(params: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM ?? 'Wana <reservas@wanacasa.app>',
+      from: process.env.RESEND_FROM ?? 'Elevari <reserve@elevari.live>',
       to: params.to,
       subject: params.subject,
       text: params.text,

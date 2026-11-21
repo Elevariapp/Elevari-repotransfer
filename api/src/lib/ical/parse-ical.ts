@@ -3,7 +3,7 @@ export interface IcalEvent {
   uid: string;
   /** Inclusive check-in day (UTC date). */
   startDate: Date;
-  /** Exclusive check-out day (UTC date), matching Eleveri [start, end) semantics. */
+  /** Exclusive check-out day (UTC date), matching Elevari [start, end) semantics. */
   endDate: Date;
 }
 

@@ -138,7 +138,7 @@ export function verifyWompiWebhook(payload: WompiEventPayload): boolean {
   if (!cfg) {
     // No Wompi configuration: unsigned webhooks are rejected unless an operator
     // explicitly opts in (e.g. local mock testing). Never infer this from
-    // PAYMENTS_MODE, so staging cannot silently accept forged events.
+    // PAYMENTS_MODE, so a non-live environment cannot silently accept forged events.
     return process.env.ALLOW_UNSIGNED_WEBHOOKS === 'true';
   }
 

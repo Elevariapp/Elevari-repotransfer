@@ -9,10 +9,10 @@ import {
   buildPasswordResetEmail,
   buildWelcomeEmail,
 } from './email-templates/index.js';
-import type { WanaFees } from './fees.js';
+import type { ElevariFees } from './fees.js';
 
 function skipDemoEmail(email: string): boolean {
-  return email.trim().toLowerCase().endsWith('@wana.local');
+  return email.trim().toLowerCase().endsWith('@elevari.local');
 }
 
 export async function sendBookingConfirmationEmail(bookingId: string): Promise<void> {
@@ -25,7 +25,7 @@ export async function sendBookingConfirmationEmail(bookingId: string): Promise<v
 
   if (!booking?.guestEmail || skipDemoEmail(booking.guestEmail)) return;
 
-  const fees = booking.feesBreakdown as WanaFees | null;
+  const fees = booking.feesBreakdown as ElevariFees | null;
   const { subject, text, html } = buildBookingConfirmationEmail({
     guestName: booking.guestName,
     propertyTitle: booking.property.title,
@@ -55,7 +55,7 @@ export async function sendInvoiceReceiptEmail(params: {
     return { sent: false, reason: 'no guest email' };
   }
 
-  const fees = booking.feesBreakdown as WanaFees | null;
+  const fees = booking.feesBreakdown as ElevariFees | null;
   if (!fees?.total_charge_to_guest) {
     return { sent: false, reason: 'no fees breakdown' };
   }
@@ -179,7 +179,7 @@ export async function sendCheckInReminderEmail(bookingId: string): Promise<{ sen
     return { sent: false, reason: 'booking not confirmed' };
   }
 
-  const fees = booking.feesBreakdown as WanaFees | null;
+  const fees = booking.feesBreakdown as ElevariFees | null;
   const { subject, text, html } = buildCheckInReminderEmail({
     guestName: booking.guestName,
     propertyTitle: booking.property.title,

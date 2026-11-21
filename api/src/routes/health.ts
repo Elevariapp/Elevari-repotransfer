@@ -14,7 +14,7 @@ export async function healthRoutes(app: FastifyInstance) {
 
     return {
       status: dbOk ? 'ok' : 'degraded',
-      service: 'wana-api',
+      service: 'elevari-api',
       database: dbOk ? 'connected' : 'disconnected',
       turnstile_required: turnstileRequired(),
       timestamp: new Date().toISOString(),

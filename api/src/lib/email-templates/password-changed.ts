@@ -9,22 +9,22 @@ export function buildPasswordChangedEmail(params: {
   const url = siteUrl();
   const forgotUrl = `${url}/auth/forgot-password`;
 
-  const subject = 'Tu contraseña fue actualizada — Eleveri';
+  const subject = 'Tu contraseña fue actualizada — Elevari';
   const text = `
 Hola ${name},
 
-Confirmamos que la contraseña de tu cuenta Eleveri (${params.email}) se actualizó correctamente.
+Confirmamos que la contraseña de tu cuenta Elevari (${params.email}) se actualizó correctamente.
 
 Si fuiste tú, no necesitas hacer nada más.
 
 Si no reconoces este cambio, restablece tu acceso de inmediato:
 ${forgotUrl}
 
-— Eleveri
+— Elevari
 `.trim();
 
   const html = renderEmailLayout({
-    preheader: 'Confirmación de cambio de contraseña en tu cuenta Eleveri.',
+    preheader: 'Confirmación de cambio de contraseña en tu cuenta Elevari.',
     eyebrow: 'Seguridad',
     title: 'Contraseña actualizada',
     bodyHtml: `

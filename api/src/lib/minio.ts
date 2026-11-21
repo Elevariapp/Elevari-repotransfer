@@ -7,13 +7,13 @@ function getConfig() {
   const port = process.env.MINIO_PORT ?? '9000';
   const useSsl = process.env.MINIO_USE_SSL === 'true';
   const protocol = useSsl ? 'https' : 'http';
-  const bucket = process.env.MINIO_BUCKET ?? 'wana-media';
+  const bucket = process.env.MINIO_BUCKET ?? 'elevari-media';
 
   return {
     bucket,
     endpointUrl: `${protocol}://${endpoint}:${port}`,
-    accessKey: process.env.MINIO_ACCESS_KEY ?? 'wana_minio',
-    secretKey: process.env.MINIO_SECRET_KEY ?? 'wana_minio_password',
+    accessKey: process.env.MINIO_ACCESS_KEY ?? 'elevari_minio',
+    secretKey: process.env.MINIO_SECRET_KEY ?? 'elevari_minio_password',
     publicBase:
       process.env.MINIO_PUBLIC_URL ?? `${protocol}://${endpoint}:${port}/${bucket}`,
   };

@@ -270,7 +270,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           amount,
           currency,
           idempotencyKey: idempotency_key,
-          description: `Reserva Waná — ${booking.property.title}`,
+          description: `Reserva Elevari — ${booking.property.title}`,
           guestEmail: booking.guestEmail ?? '',
           guestName: booking.guestName ?? 'Huésped',
           returnUrl: return_url,

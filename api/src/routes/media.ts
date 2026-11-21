@@ -174,7 +174,7 @@ export async function mediaRoutes(app: FastifyInstance) {
 
       try {
         const urlPath = new URL(media.url).pathname;
-        const key = urlPath.split('/wana-media/')[1];
+        const key = urlPath.split('/elevari-media/')[1];
         if (key) await deleteObject(key);
       } catch {
         /* best-effort */

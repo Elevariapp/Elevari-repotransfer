@@ -1,9 +1,9 @@
 import { publicSiteUrl } from '../email.js';
 
 export const EMAIL_BRAND = {
-  name: 'Eleveri',
+  name: 'Elevari',
   tagline: 'Glamping en Colombia',
-  supportEmail: 'reservas@eleveri.app',
+  supportEmail: 'reserve@elevari.live',
   colors: {
     black: '#0A0A0A',
     cream: '#FAF9F7',

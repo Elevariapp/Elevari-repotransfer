@@ -1,5 +1,5 @@
 /**
- * Waná pricing engine — MVP (Phase 2).
+ * Elevari pricing engine — MVP (Phase 2).
  *
  * Single pricing model. No active tax engine. No INC. No Parafiscal.
  * No VAT line shown to customers. No tax breakdown shown to customers.
@@ -13,7 +13,7 @@
  *   base_amount, platform_fee_percent, platform_fee_amount, total_amount
  * Keep in sync with web `lib/tax-logic.ts`.
  */
-export interface WanaFees {
+export interface ElevariFees {
   /** Base: price_per_night × nights */
   base_amount: number;
   /** Configurable percent (default 15) */
@@ -43,10 +43,10 @@ export function getPlatformFeePercent(): number {
 }
 
 /** Core pricing math from base amount (price × nights). */
-export function calculateWanaFeesFromBase(
+export function calculateElevariFeesFromBase(
   baseAmount: number,
   feePercent: number = getPlatformFeePercent(),
-): Omit<WanaFees, 'nights' | 'price_per_night'> {
+): Omit<ElevariFees, 'nights' | 'price_per_night'> {
   const platform_fee_amount = baseAmount * (feePercent / 100);
   const total_amount = baseAmount + platform_fee_amount;
   const host_receives = baseAmount - platform_fee_amount;
@@ -62,10 +62,10 @@ export function calculateWanaFeesFromBase(
   };
 }
 
-export function calculateWanaFees(pricePerNight: number, nights: number): WanaFees {
+export function calculateElevariFees(pricePerNight: number, nights: number): ElevariFees {
   const baseAmount = pricePerNight * nights;
   return {
-    ...calculateWanaFeesFromBase(baseAmount),
+    ...calculateElevariFeesFromBase(baseAmount),
     nights,
     price_per_night: pricePerNight,
   };

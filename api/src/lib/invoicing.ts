@@ -1,5 +1,5 @@
 import { prisma } from './prisma.js';
-import { nightsBetween, type WanaFees } from './fees.js';
+import { nightsBetween, type ElevariFees } from './fees.js';
 import { buildAlegraInvoicePayload, createAlegraInvoice, getAlegraClient } from './alegra.js';
 import { sendInvoiceReceiptEmail } from './transactional-emails.js';
 
@@ -20,7 +20,7 @@ export async function issueBookingInvoice(bookingId: string): Promise<void> {
     return;
   }
 
-  const fees = booking.feesBreakdown as WanaFees | null;
+  const fees = booking.feesBreakdown as ElevariFees | null;
   if (!fees) {
     console.warn('[invoicing] No fees breakdown for booking', bookingId);
     return;
@@ -28,7 +28,7 @@ export async function issueBookingInvoice(bookingId: string): Promise<void> {
 
   const nights = fees.nights ?? nightsBetween(booking.checkIn, booking.checkOut);
   const guestEmail = booking.guestEmail ?? '';
-  const guestName = booking.guestName ?? 'Huésped Wana';
+  const guestName = booking.guestName ?? 'Huésped Elevari';
   const transactionId = payment?.externalId ?? payment?.id ?? bookingId;
 
   const payload = buildAlegraInvoicePayload({
@@ -105,7 +105,7 @@ export async function issueBookingInvoice(bookingId: string): Promise<void> {
 async function storePendingInvoice(params: {
   bookingId: string;
   transactionId: string;
-  invoiceData: WanaFees;
+  invoiceData: ElevariFees;
   guestEmail: string;
   guestName: string;
   error?: string;
@@ -138,12 +138,12 @@ export async function retryPendingInvoice(pendingInvoiceId: string): Promise<boo
 
   if (!pending || pending.status === 'issued') return false;
 
-  const fees = pending.invoiceData as unknown as WanaFees;
+  const fees = pending.invoiceData as unknown as ElevariFees;
   const nights = fees.nights ?? nightsBetween(pending.booking.checkIn, pending.booking.checkOut);
   const transactionId = pending.transactionId ?? pending.bookingId;
 
   const payload = buildAlegraInvoicePayload({
-    guestName: pending.guestName ?? 'Huésped Wana',
+    guestName: pending.guestName ?? 'Huésped Elevari',
     guestEmail: pending.guestEmail ?? '',
     propertyTitle: pending.booking.property.title,
     nights,

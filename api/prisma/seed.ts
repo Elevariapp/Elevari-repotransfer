@@ -7,16 +7,20 @@ import {
 } from './glamping-wana.js';
 
 const prisma = new PrismaClient();
-const DEMO_PASSWORD = 'wana12345';
+const DEMO_PASSWORD = 'elevari12345';
 
 async function main() {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_SEED !== 'true') {
+    console.error('Refusing to run the demo seed in production. Use create-admin and seed:property.');
+    process.exit(1);
+  }
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
   const host = await prisma.user.upsert({
-    where: { email: 'host@wana.local' },
+    where: { email: 'host@elevari.local' },
     update: { passwordHash, role: 'host', name: 'Glamping Waná' },
     create: {
-      email: 'host@wana.local',
+      email: 'host@elevari.local',
       name: 'Glamping Waná',
       role: 'host',
       passwordHash,
@@ -24,10 +28,10 @@ async function main() {
   });
 
   const guest = await prisma.user.upsert({
-    where: { email: 'guest@wana.local' },
+    where: { email: 'guest@elevari.local' },
     update: { passwordHash, role: 'guest' },
     create: {
-      email: 'guest@wana.local',
+      email: 'guest@elevari.local',
       name: 'Demo Guest',
       role: 'guest',
       passwordHash,
@@ -35,11 +39,11 @@ async function main() {
   });
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@wana.local' },
+    where: { email: 'admin@elevari.local' },
     update: { passwordHash, role: 'admin' },
     create: {
-      email: 'admin@wana.local',
-      name: 'Waná Admin',
+      email: 'admin@elevari.local',
+      name: 'Elevari Admin',
       role: 'admin',
       passwordHash,
     },
@@ -114,9 +118,9 @@ async function main() {
     location: 'Sutatausa, Cucunubá, Cundinamarca',
     demoPassword: DEMO_PASSWORD,
     accounts: {
-      guest: 'guest@wana.local',
-      host: 'host@wana.local',
-      admin: 'admin@wana.local',
+      guest: 'guest@elevari.local',
+      host: 'host@elevari.local',
+      admin: 'admin@elevari.local',
     },
     photos: 'Coloca JPG en public/properties/glamping-wana/ (ver scripts/import-glamping-photos.sh)',
   });

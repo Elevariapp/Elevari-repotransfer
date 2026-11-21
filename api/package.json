@@ -1,5 +1,5 @@
 {
-  "name": "wana-api",
+  "name": "elevari-api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,6 +12,8 @@
     "db:migrate:dev": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "create-admin": "tsx prisma/create-admin.ts",
+    "seed:property": "tsx prisma/seed-property.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {

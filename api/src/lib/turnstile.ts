@@ -32,7 +32,7 @@ export async function verifyTurnstileToken(
 }
 
 export function turnstileRequired(): boolean {
-  if (process.env.TURNSTILE_DISABLED === '1') return false;
+  if (['1', 'true'].includes(process.env.TURNSTILE_DISABLED ?? '')) return false;
   return Boolean(process.env.TURNSTILE_SECRET_KEY);
 }
 

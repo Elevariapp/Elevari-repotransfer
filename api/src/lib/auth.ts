@@ -2,9 +2,9 @@ import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import type { UserRole } from '@prisma/client';
 
-const JWT_ISSUER = 'wana-api';
-const JWT_AUDIENCE = 'wana-web';
-const JWT_RESET_AUDIENCE = 'wana-reset';
+const JWT_ISSUER = 'elevari-api';
+const JWT_AUDIENCE = 'elevari-web';
+const JWT_RESET_AUDIENCE = 'elevari-reset';
 const EXPIRY = '7d';
 const RESET_EXPIRY = '1h';
 
@@ -20,9 +20,23 @@ export interface JwtPayload {
   role: UserRole;
 }
 
+const DEV_FALLBACK_SECRET = 'elevari_dev_jwt_secret_change_in_production';
+
+/** In production a strong JWT_SECRET is mandatory; the dev fallback is never used there. */
 function getSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET ?? 'wana_dev_jwt_secret_change_in_production';
-  return new TextEncoder().encode(secret);
+  const secret = process.env.JWT_SECRET;
+  if (process.env.NODE_ENV === 'production') {
+    if (!secret || secret.length < 32 || secret === DEV_FALLBACK_SECRET) {
+      throw new Error('JWT_SECRET must be set to a strong value (>= 32 chars) in production');
+    }
+    return new TextEncoder().encode(secret);
+  }
+  return new TextEncoder().encode(secret ?? DEV_FALLBACK_SECRET);
+}
+
+/** Fail fast at startup instead of on the first login. */
+export function assertJwtSecret(): void {
+  getSecret();
 }
 
 export async function hashPassword(password: string): Promise<string> {

@@ -8,11 +8,11 @@ export function buildPasswordResetEmail(params: {
   const name = firstName(params.name);
   const url = siteUrl();
 
-  const subject = 'Restablece tu contraseña — Eleveri';
+  const subject = 'Restablece tu contraseña — Elevari';
   const text = `
 Hola ${name},
 
-Recibimos una solicitud para restablecer la contraseña de tu cuenta Eleveri.
+Recibimos una solicitud para restablecer la contraseña de tu cuenta Elevari.
 
 Abre este enlace (válido 1 hora):
 ${params.resetUrl}
@@ -21,7 +21,7 @@ Si no solicitaste este cambio, ignora este correo. Tu contraseña seguirá igual
 
 Ayuda: ${url}/legal/faq
 
-— Eleveri
+— Elevari
 `.trim();
 
   const html = renderEmailLayout({
