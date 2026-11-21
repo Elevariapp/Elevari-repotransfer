@@ -103,6 +103,8 @@ services:
       PORT: 3000
       # Server-side (SSR) calls go over the Docker network, not through the public domain.
       INTERNAL_API_URL: http://api:4000
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/robots.txt || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 10

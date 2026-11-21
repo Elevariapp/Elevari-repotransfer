@@ -83,6 +83,11 @@ jobs:
           sed -i 's/^RESEND_API_KEY=.*/RESEND_API_KEY=re_ci/' .env.production
           sed -i 's/^TURNSTILE_SECRET_KEY=.*/TURNSTILE_SECRET_KEY=ci_turnstile_secret/' .env.production
       - run: bash ./deploy/scripts/validate-env.sh
+      - name: Compose file must be valid and every service healthcheck defined
+        run: |
+          docker compose -f docker-compose.prod.yml --env-file .env.production config -q
+          docker compose -f docker-compose.prod.yml --env-file .env.production config --format json \
+            | python3 -c "import json,sys; c=json.load(sys.stdin)['services']; missing=[n for n in ('api','web') if 'healthcheck' not in c[n]]; sys.exit('missing healthcheck: %s' % missing) if missing else print('healthchecks ok')"
 
   docs-lint:
     name: Canonical docs lint
