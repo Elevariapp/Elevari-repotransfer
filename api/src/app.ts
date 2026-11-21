@@ -16,6 +16,9 @@ import { analyticsRoutes } from './routes/analytics.js';
 
 export async function buildApp() {
   const app = Fastify({
+    // The API is only reachable through nginx (port 4000 is not published) and nginx overwrites X-Forwarded-For
+    // with the real client IP, so it is safe to trust it. Without this every user shares one rate-limit bucket.
+    trustProxy: true,
     // Structured logs with request correlation and secret redaction.
     logger: {
       level: process.env.LOG_LEVEL ?? 'info',
@@ -68,7 +71,12 @@ export async function buildApp() {
     global: true,
     max: 120,
     timeWindow: '1 minute',
-    allowList: (req) => req.url === '/health' || req.url.startsWith('/api/v1/webhooks/'),
+    // Server-side calls from the web container (SSR) reach the API directly on the Docker network without
+    // X-Forwarded-For; public traffic always carries it (set by nginx). SSR must not be throttled as one "user".
+    allowList: (req) =>
+      req.url === '/health' ||
+      req.url.startsWith('/api/v1/webhooks/') ||
+      !req.headers['x-forwarded-for'],
   });
 
   await app.register(healthRoutes);

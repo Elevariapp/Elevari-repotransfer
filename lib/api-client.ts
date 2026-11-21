@@ -1,7 +1,8 @@
 import { getToken } from './auth-session';
 import { humanizeApiError } from './api-errors';
+import { apiBase } from './api-base';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+
 
 function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -22,7 +23,7 @@ export class ApiError extends Error {
 async function request<T>(path: string, options?: RequestInit & { auth?: boolean }): Promise<T> {
   const token = options?.auth ? getAuthToken() : null;
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${apiBase()}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

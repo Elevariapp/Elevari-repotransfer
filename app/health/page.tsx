@@ -1,10 +1,11 @@
 import Header from '@/components/Header';
+import { apiBase } from '@/lib/api-base';
 
 // Must reflect live API status; never prerender at build time (no API in the Docker build).
 export const dynamic = 'force-dynamic';
 
 async function getApiHealth() {
-  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+  const base = apiBase();
   try {
     const res = await fetch(`${base}/health`, { cache: 'no-store' });
     if (!res.ok) return null;

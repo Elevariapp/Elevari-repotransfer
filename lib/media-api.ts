@@ -1,6 +1,7 @@
 import { authHeaders } from '@/lib/auth-session';
+import { apiBase } from './api-base';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+
 
 export interface PropertyMediaItem {
   id: string;
@@ -21,7 +22,7 @@ export async function uploadPropertyMedia(
   form.append('property_id', propertyId);
   form.append('file', file);
 
-  const res = await fetch(`${API_BASE}/api/v1/media/upload`, {
+  const res = await fetch(`${apiBase()}/api/v1/media/upload`, {
     method: 'POST',
     headers: authHeaders(),
     body: form,
@@ -35,14 +36,14 @@ export async function uploadPropertyMedia(
 }
 
 export async function listPropertyMediaPublic(propertyId: string): Promise<PropertyMediaItem[]> {
-  const res = await fetch(`${API_BASE}/api/v1/media/property/${propertyId}`);
+  const res = await fetch(`${apiBase()}/api/v1/media/property/${propertyId}`);
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error ?? 'Failed to load media');
   return (data.media as PropertyMediaItem[]) ?? [];
 }
 
 export async function listPropertyMediaManage(propertyId: string): Promise<PropertyMediaItem[]> {
-  const res = await fetch(`${API_BASE}/api/v1/media/property/${propertyId}/manage`, {
+  const res = await fetch(`${apiBase()}/api/v1/media/property/${propertyId}/manage`, {
     headers: authHeaders(),
   });
   const data = await res.json().catch(() => ({}));
@@ -51,7 +52,7 @@ export async function listPropertyMediaManage(propertyId: string): Promise<Prope
 }
 
 export async function deletePropertyMedia(mediaId: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/media/${mediaId}`, {
+  const res = await fetch(`${apiBase()}/api/v1/media/${mediaId}`, {
     method: 'DELETE',
     headers: authHeaders(),
   });

@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers';
 import { ApiError, type BookingDetail } from './api-client';
+import { apiBase } from './api-base';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+
 
 async function serverRequest<T>(path: string): Promise<T> {
   const cookieStore = await cookies();
@@ -11,7 +12,7 @@ async function serverRequest<T>(path: string): Promise<T> {
     throw new ApiError('Authentication required', 401);
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${apiBase()}${path}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',
