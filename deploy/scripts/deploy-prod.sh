@@ -8,7 +8,7 @@ cd "$ROOT"
 COMPOSE_FILE="docker-compose.prod.yml"
 ENV_FILE="${ENV_FILE:-.env.production}"
 
-echo "=== Waná — deploy producción ==="
+echo "=== Elevari — deploy producción ==="
 
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "Error: falta $ENV_FILE"
@@ -23,9 +23,8 @@ fi
 echo "→ Validando variables..."
 ENV_FILE="$ROOT/$ENV_FILE" "$ROOT/deploy/scripts/validate-env.sh" || {
   echo ""
-  echo "Corrige .env.production antes de continuar (o usa PAYMENTS_MODE=mock solo para staging)."
-  read -r -p "¿Continuar de todos modos? [y/N] " ans
-  [[ "$ans" =~ ^[yY]$ ]] || exit 1
+  echo "Corrige .env.production antes de continuar."
+  exit 1
 }
 
 echo "→ Build imágenes..."

@@ -15,7 +15,7 @@ mkdir -p "$BACKUP_DIR"
 # shellcheck disable=SC1090
 source "$ENV_FILE"
 
-OUTPUT="$BACKUP_DIR/wana_${TIMESTAMP}.sql.gz"
+OUTPUT="$BACKUP_DIR/elevari_${TIMESTAMP}.sql.gz"
 
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T postgres \
   pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > "$OUTPUT"
@@ -30,8 +30,8 @@ fi
 sha256sum "$OUTPUT" > "${OUTPUT}.sha256"
 
 # Retention: remove dumps (and checksums) older than RETENTION_DAYS.
-find "$BACKUP_DIR" -name 'wana_*.sql.gz' -type f -mtime "+${RETENTION_DAYS}" -delete
-find "$BACKUP_DIR" -name 'wana_*.sql.gz.sha256' -type f -mtime "+${RETENTION_DAYS}" -delete
+find "$BACKUP_DIR" -name 'elevari_*.sql.gz' -type f -mtime "+${RETENTION_DAYS}" -delete
+find "$BACKUP_DIR" -name 'elevari_*.sql.gz.sha256' -type f -mtime "+${RETENTION_DAYS}" -delete
 
 echo "Backup saved: $OUTPUT (${SIZE} bytes)"
 echo "Checksum:     ${OUTPUT}.sha256"

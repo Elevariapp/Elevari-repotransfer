@@ -4,15 +4,15 @@
 #
 # Uso:
 #   BASE_URL=http://localhost:4000 ./deploy/scripts/mock-booking-smoke.sh
-#   BASE_URL=http://164.92.241.30 ./deploy/scripts/mock-booking-smoke.sh
+#   BASE_URL=http://localhost:4000 ./deploy/scripts/mock-booking-smoke.sh (local dev, PAYMENTS_MODE=mock)
 set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://localhost:4000}"
-EMAIL="${SMOKE_EMAIL:-guest@wana.local}"
-PASSWORD="${SMOKE_PASSWORD:-wana12345}"
+EMAIL="${SMOKE_EMAIL:-guest@elevari.local}"
+PASSWORD="${SMOKE_PASSWORD:-elevari12345}"
 SMOKE_AUTH_SECRET="${SMOKE_AUTH_SECRET:-}"
 
-echo "=== Waná mock booking smoke ($BASE_URL) ==="
+echo "=== Elevari mock booking smoke ($BASE_URL) ==="
 
 health=$(curl -sf "$BASE_URL/health" || true)
 if [[ -z "$health" ]]; then
@@ -33,7 +33,7 @@ login_resp=$(curl -sf -X POST "$login_url" \
   "${login_headers[@]}" \
   -d "{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}") || {
   echo "✗ Login falló"
-  echo "  Tip: si staging usa Turnstile, define SMOKE_AUTH_SECRET en API y pásalo al script:"
+  echo "  Tip: si Turnstile est? activo, define SMOKE_AUTH_SECRET en API y pásalo al script:"
   echo "  SMOKE_AUTH_SECRET=... BASE_URL=... npm run go-live:smoke:mock"
   exit 1
 }

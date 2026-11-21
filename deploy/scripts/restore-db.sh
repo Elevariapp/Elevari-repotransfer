@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Restore a PostgreSQL backup into the production/staging compose stack.
-# Usage: ./deploy/scripts/restore-db.sh backups/wana_YYYYmmdd_HHMMSS.sql.gz [--yes]
+# Restore a PostgreSQL backup into the production compose stack.
+# Usage: ./deploy/scripts/restore-db.sh backups/elevari_YYYYmmdd_HHMMSS.sql.gz [--yes]
 # Requires an explicit --yes flag: restore is destructive for the target database.
 set -euo pipefail
 

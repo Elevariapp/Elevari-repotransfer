@@ -2,13 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [b-main, main, 'chore/**']
   pull_request:
-    branches: [main, master]
+    branches: [b-main, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   api:
-    name: API build
+    name: API typecheck + build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -21,10 +25,12 @@ jobs:
           cache: npm
           cache-dependency-path: api/package-lock.json
       - run: npm ci
+      - run: npx prisma generate
+      - run: npx tsc --noEmit
       - run: npm run build
 
   web:
-    name: Web build
+    name: Web typecheck + build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,24 +40,59 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
+      - run: npm run typecheck
       - run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: http://localhost:4000
-          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          # Unreachable API on purpose: the build must not depend on a running backend.
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:1
+          NEXT_PUBLIC_SITE_URL: https://elevari.live
           JWT_SECRET: ci_jwt_secret_min_32_chars_for_build_only
 
-  validate-staging-env:
-    name: Validate staging env template
+  docker-build:
+    name: Production images build
+    runs-on: ubuntu-latest
+    needs: [api, web]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build api image
+        run: docker build -t elevari-api ./api
+      - name: Build web image
+        run: |
+          docker build -t elevari-web \
+            --build-arg NEXT_PUBLIC_API_URL=https://elevari.live \
+            --build-arg NEXT_PUBLIC_SITE_URL=https://elevari.live .
+
+  validate-production-env:
+    name: Validate production env template
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create staging env from example
+      - name: Fill the template with throw-away CI values
         run: |
-          cp deploy/.env.staging.example .env.staging
-          sed -i 's/change_me_jwt_min_32_chars/ci_staging_jwt_secret_min_32_chars_x/g' .env.staging
-          sed -i 's/^POSTGRES_PASSWORD=change_me$/POSTGRES_PASSWORD=staging_pg_password_123/' .env.staging
-          sed -i 's/change_me_minio/staging_minio_secret_123/g' .env.staging
-      - run: STAGING=1 ./deploy/scripts/validate-env.sh
+          cp deploy/.env.production.example .env.production
+          sed -i 's/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=ci_pg_password_123/' .env.production
+          sed -i 's/^JWT_SECRET=.*/JWT_SECRET=ci_jwt_secret_min_32_chars_for_validation_only/' .env.production
+          sed -i 's/^MINIO_SECRET_KEY=.*/MINIO_SECRET_KEY=ci_minio_secret_123456/' .env.production
+          sed -i 's/^WOMPI_PUBLIC_KEY=.*/WOMPI_PUBLIC_KEY=pub_prod_ci/' .env.production
+          sed -i 's/^NEXT_PUBLIC_WOMPI_PUBLIC_KEY=.*/NEXT_PUBLIC_WOMPI_PUBLIC_KEY=pub_prod_ci/' .env.production
+          sed -i 's/^WOMPI_PRIVATE_KEY=.*/WOMPI_PRIVATE_KEY=prv_prod_ci/' .env.production
+          sed -i 's/^WOMPI_EVENTS_SECRET=.*/WOMPI_EVENTS_SECRET=prod_events_ci/' .env.production
+          sed -i 's/^WOMPI_INTEGRITY_SECRET=.*/WOMPI_INTEGRITY_SECRET=prod_integrity_ci/' .env.production
+          sed -i 's/^ALEGRA_EMAIL=.*/ALEGRA_EMAIL=ci@example.com/' .env.production
+          sed -i 's/^ALEGRA_API_TOKEN=.*/ALEGRA_API_TOKEN=ci_token/' .env.production
+          sed -i 's/^RESEND_API_KEY=.*/RESEND_API_KEY=re_ci/' .env.production
+          sed -i 's/^TURNSTILE_SECRET_KEY=.*/TURNSTILE_SECRET_KEY=ci_turnstile_secret/' .env.production
+      - run: ./deploy/scripts/validate-env.sh
+
+  docs-lint:
+    name: Canonical docs lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run docs:lint
 
   verification-log:
     name: Verification log gate
@@ -68,38 +109,10 @@ jobs:
         working-directory: mobile
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: mobile/package-lock.json
-      - name: Install dependencies
-        run: npm ci
-      - name: TypeScript typecheck
-        run: npm run typecheck
-
-  mobile-build-android:
-    name: Mobile Android build (production)
-    runs-on: ubuntu-latest
-    needs: mobile-typecheck
-    if: github.ref == 'refs/heads/b-main' || github.ref == 'refs/heads/main'
-    defaults:
-      run:
-        working-directory: mobile
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: mobile/package-lock.json
-      - name: Install dependencies
-        run: npm ci
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-      - name: EAS login
-        run: eas login --non-interactive --token ${{ secrets.EXPO_TOKEN }}
-      - name: Build Android (production)
-        run: eas build --platform android --profile production --non-interactive
+      - run: npm ci
+      - run: npm run typecheck

@@ -1,5 +1,5 @@
 {
-  "name": "wana-2026",
+  "name": "elevari-2026",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -15,12 +15,8 @@
     "docker:prod:build": "docker compose -f docker-compose.prod.yml --env-file .env.production build",
     "docker:prod:up": "docker compose -f docker-compose.prod.yml --env-file .env.production up -d",
     "docker:prod:down": "docker compose -f docker-compose.prod.yml --env-file .env.production down",
-    "go-live:setup": "./deploy/scripts/go-live-setup.sh",
     "go-live:validate": "./deploy/scripts/validate-env.sh",
-    "go-live:validate:staging": "STAGING=1 ./deploy/scripts/validate-env.sh",
     "go-live:deploy": "./deploy/scripts/deploy-prod.sh",
-    "go-live:remote": "./deploy/scripts/remote-deploy.sh",
-    "go-live:staging": "./deploy/scripts/deploy-staging.sh",
     "go-live:verify": "./deploy/scripts/verify-health.sh",
     "db:backup": "bash deploy/scripts/backup-db.sh",
     "db:restore": "bash deploy/scripts/restore-db.sh",
@@ -29,6 +25,7 @@
     "api:dev": "cd api && npm run dev",
     "api:migrate": "cd api && npx prisma migrate deploy",
     "api:seed": "cd api && npx prisma db seed",
+    "docs:lint": "node scripts/docs-lint.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

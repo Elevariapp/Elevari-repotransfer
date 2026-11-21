@@ -2,10 +2,10 @@
 # Smoke: auth API + Resend (forgot-password + booking confirmation)
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-http://eleveri.app}"
+BASE_URL="${BASE_URL:-http://elevari.live}"
 SMOKE_AUTH_SECRET="${SMOKE_AUTH_SECRET:-}"
-EMAIL="${SMOKE_EMAIL:-guest@wana.local}"
-PASSWORD="${SMOKE_PASSWORD:-wana12345}"
+EMAIL="${SMOKE_EMAIL:-guest@elevari.local}"
+PASSWORD="${SMOKE_PASSWORD:-elevari12345}"
 
 pass=0
 fail=0
@@ -17,7 +17,7 @@ json_field() {
   python3 -c "import sys,json; d=json.load(sys.stdin); print(d$1)"
 }
 
-echo "=== Waná auth + Resend smoke ($BASE_URL) ==="
+echo "=== Elevari auth + Resend smoke ($BASE_URL) ==="
 
 if ! curl -sf "$BASE_URL/health" >/dev/null; then
   echo "✗ API health unreachable"
@@ -38,7 +38,7 @@ smoke_login() {
     -d "{\"email\":\"$role_email\",\"password\":\"$PASSWORD\"}"
 }
 
-for account in guest@wana.local host@wana.local admin@wana.local; do
+for account in guest@elevari.local host@elevari.local admin@elevari.local; do
   resp=$(smoke_login "$account") || { bad "smoke-login $account"; continue; }
   token=$(echo "$resp" | json_field "['token']")
   role=$(echo "$resp" | json_field "['user']['role']")
@@ -56,7 +56,7 @@ guest_token=$(smoke_login "$EMAIL" | json_field "['token']")
 change_resp=$(curl -sf -X POST "$BASE_URL/api/v1/auth/change-password" \
   -H "Authorization: Bearer $guest_token" \
   -H 'Content-Type: application/json' \
-  -d '{"password":"wana12345"}') || true
+  -d '{"password":"elevari12345"}') || true
 if echo "$change_resp" | grep -q '"success":true'; then
   ok "change-password (idempotent reset to demo pass)"
 else
