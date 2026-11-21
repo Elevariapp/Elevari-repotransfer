@@ -82,7 +82,7 @@ jobs:
           sed -i 's/^ALEGRA_API_TOKEN=.*/ALEGRA_API_TOKEN=ci_token/' .env.production
           sed -i 's/^RESEND_API_KEY=.*/RESEND_API_KEY=re_ci/' .env.production
           sed -i 's/^TURNSTILE_SECRET_KEY=.*/TURNSTILE_SECRET_KEY=ci_turnstile_secret/' .env.production
-      - run: ./deploy/scripts/validate-env.sh
+      - run: bash ./deploy/scripts/validate-env.sh
 
   docs-lint:
     name: Canonical docs lint
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ./deploy/scripts/check-verification-log.sh verification-log.md
+      - run: bash ./deploy/scripts/check-verification-log.sh verification-log.md
 
   mobile-typecheck:
     name: Mobile TypeScript typecheck
@@ -111,8 +111,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: mobile/package-lock.json
-      - run: npm ci
+      # The Expo dependency tree has an upstream react/react-dom peer mismatch; the lockfile is generated with this flag.
+      - run: npm ci --legacy-peer-deps
       - run: npm run typecheck
