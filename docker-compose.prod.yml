@@ -34,9 +34,11 @@ services:
       - elevari_internal
 
   minio:
-    image: minio/minio:latest
+    # Chainguard build (Docker Hub's minio/minio is no longer published). Pinned by digest on purpose:
+    # refresh deliberately with `docker pull cgr.dev/chainguard/minio:latest` and update the digest.
+    image: cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    command: ["server", "/data", "--console-address", ":9001"]
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
@@ -45,22 +47,7 @@ services:
     networks:
       - elevari_internal
 
-  minio-init:
-    image: minio/mc:latest
-    depends_on:
-      minio:
-        condition: service_started
-    entrypoint: >
-      /bin/sh -c "
-      sleep 5;
-      mc alias set elevari http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
-      mc mb elevari/${MINIO_BUCKET} --ignore-existing;
-      mc anonymous set download elevari/${MINIO_BUCKET};
-      exit 0;
-      "
-    networks:
-      - elevari_internal
-
+  # The api creates the bucket and its public-read policy at startup (see api/src/lib/minio.ts ensureBucket).
   api:
     build:
       context: ./api

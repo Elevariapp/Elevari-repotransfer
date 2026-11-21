@@ -12,7 +12,7 @@ Fuente de versiones exactas: `package.json` (raíz), `api/package.json`, `mobile
 | Docker / Compose | 29 / v2 | Servidor Hetzner |
 | PostgreSQL | 16 | `postgres:16-alpine` |
 | Redis | 7 | `redis:7-alpine` |
-| MinIO | `latest` | `minio/minio` |
+| MinIO | digest fijado | `cgr.dev/chainguard/minio` (Docker Hub ya no publica `minio/minio`) |
 | nginx | 1.27 | `nginx:1.27-alpine` |
 
 ## Web (raíz)

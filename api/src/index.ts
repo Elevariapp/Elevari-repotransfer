@@ -5,6 +5,7 @@ import { startPendingBookingExpiryJob } from './jobs/expire-pending-bookings.js'
 import { startOtaCalendarSyncJob } from './jobs/sync-ota-calendars.js';
 import { startCheckInReminderJob } from './jobs/send-check-in-reminders.js';
 import { assertJwtSecret } from './lib/auth.js';
+import { ensureBucket } from './lib/minio.js';
 
 // Startup validation — fail fast on bad production configuration.
 assertJwtSecret();
@@ -40,6 +41,7 @@ try {
   startPendingBookingExpiryJob(app.log);
   startOtaCalendarSyncJob(app.log);
   startCheckInReminderJob(app.log);
+  void ensureBucket(app.log);
   console.log(`Elevari API listening on http://${host}:${port}`);
 } catch (err) {
   app.log.error(err);

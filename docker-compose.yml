@@ -32,10 +32,11 @@ services:
       retries: 10
 
   minio:
-    image: minio/minio:latest
+    # Same pinned Chainguard build as production (Docker Hub's minio/minio is no longer published).
+    image: cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
     container_name: elevari-minio
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    command: ["server", "/data", "--console-address", ":9001"]
     environment:
       MINIO_ROOT_USER: elevari_minio
       MINIO_ROOT_PASSWORD: elevari_minio_password
@@ -44,26 +45,8 @@ services:
       - "9001:9001"
     volumes:
       - elevari_minio_data:/data
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  minio-init:
-    image: minio/mc:latest
-    container_name: elevari-minio-init
-    depends_on:
-      minio:
-        condition: service_started
-    entrypoint: >
-      /bin/sh -c "
-      sleep 3;
-      mc alias set elevari http://minio:9000 elevari_minio elevari_minio_password;
-      mc mb elevari/elevari-media --ignore-existing;
-      mc anonymous set download elevari/elevari-media;
-      exit 0;
-      "
+  # The api creates the bucket and its public-read policy at startup (ensureBucket).
 
   api:
     build:

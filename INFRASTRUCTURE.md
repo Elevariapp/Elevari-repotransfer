@@ -25,7 +25,7 @@ Solo existe producción. No hay staging.
 |----------|----------------|-------|
 | `postgres` | `postgres:16-alpine` | volumen `elevari_pg_data`, healthcheck `pg_isready` |
 | `redis` | `redis:7-alpine` | AOF activado, volumen `elevari_redis_data` |
-| `minio` | `minio/minio:latest` | volumen `elevari_minio_data`; consola :9001 solo interna |
+| `minio` | `cgr.dev/chainguard/minio` (fijado por digest) | volumen `elevari_minio_data`; consola :9001 solo interna |
 | `minio-init` | `minio/mc:latest` | crea el bucket `MINIO_BUCKET` y lo marca lectura anónima |
 | `api` | `./api/Dockerfile` | ejecuta `prisma migrate deploy` al arrancar; puerto 4000 interno |
 | `web` | `./Dockerfile` | Next standalone, puerto 3000 interno; `NEXT_PUBLIC_*` como build args |
