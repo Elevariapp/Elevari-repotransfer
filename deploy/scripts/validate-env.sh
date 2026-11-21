@@ -92,6 +92,10 @@ echo "--- Facturación (Alegra) ---"
 if [[ "${PAYMENTS_MODE:-}" == "live" ]]; then
   check_required ALEGRA_EMAIL "${ALEGRA_EMAIL:-}"
   check_required ALEGRA_API_TOKEN "${ALEGRA_API_TOKEN:-}"
+  if [[ "${ALEGRA_INVOICE_STATUS:-}" != "open" ]]; then
+    echo -e "${YELLOW}⚠ ALEGRA_INVOICE_STATUS no es 'open': no se crean facturas en Alegra (quedan pendientes). Activar tras habilitar la facturación electrónica DIAN${NC}"
+    warnings=$((warnings + 1))
+  fi
 else
   echo -e "${YELLOW}⚠ Alegra no se valida fuera de PAYMENTS_MODE=live${NC}"
 fi

@@ -24,7 +24,7 @@ const faqItems = [
   {
     title: '¿El precio que veo es el precio final?',
     content:
-      'Sí. Antes de pagar ves el desglose completo: precio por noche × número de noches + Tarifa de Servicio Elevari = total. No añadimos cargos sorpresa en el checkout.',
+      'Sí. Antes de pagar ves el desglose completo: precio por noche × número de noches + Tarifa de Servicio Elevari (IVA incluido) = total. No añadimos cargos sorpresa en el checkout.',
   },
   {
     title: '¿Cómo cambio mi contraseña?',
