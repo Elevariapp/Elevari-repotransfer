@@ -1,8 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
-import { authStorage } from './auth';
-import { api } from './api';
+import { getEasProjectId } from './config';
 
 const PUSH_TOKEN_KEY = 'push_token';
 
@@ -20,10 +18,19 @@ export class MobileNotificationService {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
         shouldPlaySound: true,
         shouldSetBadge: true,
       }),
     });
+
+    // Remote push needs a real EAS project id; without it skip silently.
+    const projectId = getEasProjectId();
+    if (!projectId) {
+      if (__DEV__) console.warn('[Push] No valid EAS project id configured; skipping push token.');
+      return;
+    }
 
     // Request permissions
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -35,25 +42,20 @@ export class MobileNotificationService {
     }
 
     if (finalStatus !== 'granted') {
-      console.warn('[Push] Notification permissions not granted');
+      if (__DEV__) console.warn('[Push] Notification permissions not granted');
       return;
     }
 
-    // Get and register push token
     try {
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId: process.env.EXPO_PUBLIC_PROJECT_ID || 'wana-mobile',
-      });
+      const token = await Notifications.getExpoPushTokenAsync({ projectId });
       this.expoPushToken = token.data;
       await SecureStore.setItemAsync(PUSH_TOKEN_KEY, this.expoPushToken);
 
-      // Register token with backend if authenticated
-      const tokenStored = await authStorage.getToken();
-      if (tokenStored && this.expoPushToken) {
-        await this.registerPushToken(this.expoPushToken);
-      }
+      // TODO: the API has no endpoint to register device push tokens yet. Once one exists
+      // (e.g. POST /api/v1/push/register), send `this.expoPushToken` to it here for
+      // authenticated users. Until then the token is only stored locally.
     } catch (error) {
-      console.error('[Push] Failed to get push token:', error);
+      if (__DEV__) console.warn('[Push] Failed to get push token:', error);
     }
   }
 
@@ -62,14 +64,6 @@ export class MobileNotificationService {
     const stored = await SecureStore.getItemAsync(PUSH_TOKEN_KEY);
     this.expoPushToken = stored;
     return stored;
-  }
-
-  async registerPushToken(pushToken: string) {
-    try {
-      await api.post('/mobile/push/register', { pushToken });
-    } catch (error) {
-      console.error('[Push] Failed to register token with backend:', error);
-    }
   }
 
   async sendLocalNotification(payload: PushNotificationPayload) {

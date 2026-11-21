@@ -1,38 +1,54 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { useRef, useState } from 'react';
+import { StyleSheet, View, Text, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { TurnstileWebView, TurnstileWebViewHandle } from '@/components/TurnstileWebView';
 import { colors, spacing, typography } from '@/lib/design-tokens';
 import { api } from '@/lib/api';
-import { authStorage } from '@/lib/auth';
-import { useAppStore } from '@/lib/store';
-import * as SplashScreen from 'expo-splash-screen';
+import { getErrorMessage } from '@/lib/errors';
+import { startSession } from '@/lib/session';
+import type { AuthResponse } from '@/types';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { setUser, setAuthenticated } = useAppStore();
+  const turnstileRef = useRef<TurnstileWebViewHandle>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const canSubmit = !loading && !!turnstileToken && !!email.trim() && !!password;
+
   const handleLogin = async () => {
+    const cleanEmail = email.trim();
+    if (!EMAIL_RE.test(cleanEmail)) {
+      setError('Ingresa un correo electrónico válido.');
+      return;
+    }
+    if (!turnstileToken) {
+      setError('Completa la verificación de seguridad para continuar.');
+      return;
+    }
+
     setError('');
     setLoading(true);
     try {
-      const response = await api.post<{ token: string; user: any }>('/auth/login', {
-        email,
+      const response = await api.post<AuthResponse>('/auth/login', {
+        email: cleanEmail,
         password,
+        turnstile_token: turnstileToken,
       });
-      await authStorage.setToken(response.token);
-      await authStorage.setUser(response.user);
-      setUser(response.user);
-      setAuthenticated(true);
-      router.replace('/(guest)');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión. Intenta de nuevo.');
+      await startSession(response);
+      router.replace('/');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Error al iniciar sesión. Intenta de nuevo.'));
+      // Turnstile tokens are single-use; request a fresh one for the next attempt.
+      turnstileRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -41,7 +57,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <Text style={styles.title}>Bienvenido de vuelta</Text>
             <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
@@ -52,22 +68,27 @@ export default function LoginScreen() {
               label="Correo electrónico"
               placeholder="tu@correo.com"
               autoCapitalize="none"
+              autoCorrect={false}
               keyboardType="email-address"
+              textContentType="emailAddress"
+              autoComplete="email"
               value={email}
               onChangeText={setEmail}
-              error={error.includes('correo') ? error : undefined}
             />
             <Input
               label="Contraseña"
               placeholder="••••••••"
               secureTextEntry
+              textContentType="password"
+              autoComplete="current-password"
               value={password}
               onChangeText={setPassword}
-              error={error.includes('contraseña') ? error : undefined}
             />
           </View>
 
-          {error && (
+          <TurnstileWebView ref={turnstileRef} onToken={setTurnstileToken} />
+
+          {!!error && (
             <View style={styles.errorBanner}>
               <Text style={styles.errorText}>{error}</Text>
             </View>
@@ -79,7 +100,7 @@ export default function LoginScreen() {
             loading={loading}
             fullWidth
             onPress={handleLogin}
-            disabled={loading}
+            disabled={!canSubmit}
           >
             Iniciar sesión
           </Button>
@@ -137,7 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.errorSoft,
     borderRadius: 8,
     padding: spacing.md,
-    marginBottom: spacing.md,
+    marginVertical: spacing.md,
   },
   errorText: {
     fontSize: typography.sizes.caption,

@@ -53,7 +53,7 @@
     "welcomeBack": "Bem-vindo de volta",
     "signIn": "Faça login para continuar",
     "createAccount": "Criar conta",
-    "join": "Junte-se à Waná e comece a explorar",
+    "join": "Junte-se à Elevari e comece a explorar",
     "emailLabel": "E-mail",
     "emailPlaceholder": "seu@email.com",
     "passwordLabel": "Senha",
@@ -110,7 +110,7 @@
     "earnings": "Ganhos",
     "settings": "Configurações",
     "newProperty": "Nova propriedade",
-    "createListing": "Crie seu anúncio na Waná",
+    "createListing": "Crie seu anúncio na Elevari",
     "title": "Título",
     "titlePlaceholder": "Cabanha aconchegante na floresta",
     "location": "Localização",
@@ -127,7 +127,7 @@
     "bathroomsPlaceholder": "1",
     "publish": "Publicar propriedade",
     "hostProfile": "Perfil do Anfitrião",
-    "hostMember": "Anfitrião Waná",
+    "hostMember": "Anfitrião Elevari",
     "manageProperties": "Gerencie suas propriedades"
   },
   "currency": {
@@ -149,7 +149,7 @@
     "contactTitle": "Informações de Contato",
     "deleteAccountWarning": "Esta ação é irreversível. Todos os seus dados serão excluídos permanentemente.",
     "deleteAccountConfirm": "Sim, excluir minha conta",
-    "contactEmail": "legal@waná.co",
-    "contactSupport": "suporte@waná.co"
+    "contactEmail": "reserve@elevari.live",
+    "contactSupport": "reserve@elevari.live"
   }
 }

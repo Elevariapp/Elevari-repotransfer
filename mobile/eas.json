@@ -18,7 +18,7 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "com.wana.app",
+        "appleId": "com.elevari.app",
         "ascAppId": "0000000000",
         "appleTeamId": "TEAM_ID"
       },

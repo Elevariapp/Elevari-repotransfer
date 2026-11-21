@@ -1,85 +1,109 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { Button } from '@/components/Button';
+import { EmptyView, ErrorView, LoadingView } from '@/components/StateViews';
 import { colors, spacing, typography, radius, shadows } from '@/lib/design-tokens';
 import { api } from '@/lib/api';
-import { Booking } from '@/types';
+import { getErrorMessage } from '@/lib/errors';
+import { bookingStatusLabel, formatCop, formatDateRange } from '@/lib/format';
+import type { MyBooking, MyBookingsResponse } from '@/types';
 
 export default function MyBookingsScreen() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const router = useRouter();
+  const [bookings, setBookings] = useState<MyBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    api.get<Booking[]>('/bookings')
-      .then(setBookings)
-      .catch(() => setBookings([]))
-      .finally(() => setLoading(false));
+  const load = useCallback(async (mode: 'initial' | 'refresh') => {
+    if (mode === 'initial') setLoading(true);
+    else setRefreshing(true);
+    try {
+      const response = await api.get<MyBookingsResponse>('/bookings/me');
+      setBookings(response.data);
+      setError('');
+    } catch (err) {
+      setError(getErrorMessage(err, 'No pudimos cargar tus reservas.'));
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={colors.forest} style={styles.loading} />
-      </SafeAreaView>
-    );
-  }
+  // Reload whenever the screen regains focus (e.g. after paying).
+  useFocusEffect(
+    useCallback(() => {
+      load('initial');
+    }, [load])
+  );
 
-  if (bookings.length === 0) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No tienes reservas</Text>
-          <Text style={styles.emptySubtitle}>Empieza a explorar propiedades</Text>
-          <Button variant="primary" size="md" onPress={() => {}}>Explorar</Button>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  if (loading) return <LoadingView />;
+  if (error && bookings.length === 0) return <ErrorView message={error} onRetry={() => load('initial')} />;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Mis reservas</Text>
-      </View>
-
-      <FlatList
-        data={bookings}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => {}}>
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>{item.property.title}</Text>
-              <Text style={styles.cardSubtitle}>{item.checkIn} → {item.checkOut}</Text>
-              <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>{item.status}</Text>
-              </View>
-              <Text style={styles.cardTotal}>
-                {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(item.total)}
+    <FlatList
+      style={styles.container}
+      data={bookings}
+      keyExtractor={(item) => item.id}
+      refreshing={refreshing}
+      onRefresh={() => load('refresh')}
+      ListEmptyComponent={
+        <EmptyView
+          title="No tienes reservas"
+          subtitle="Empieza a explorar propiedades"
+          actionLabel="Explorar"
+          onAction={() => router.replace('/')}
+        />
+      }
+      renderItem={({ item }) => (
+        <View style={styles.card}>
+          <TouchableOpacity
+            onPress={() => router.push(`/property/${encodeURIComponent(item.property_slug)}`)}
+            accessibilityRole="button"
+          >
+            <Text style={styles.cardTitle}>{item.property_title}</Text>
+          </TouchableOpacity>
+          {!!item.property_city && <Text style={styles.cardSubtitle}>📍 {item.property_city}</Text>}
+          <Text style={styles.cardSubtitle}>{formatDateRange(item.check_in, item.check_out)}</Text>
+          <View style={styles.cardFooter}>
+            <View style={[styles.statusBadge, item.status === 'cancelled' && styles.statusBadgeMuted]}>
+              <Text style={[styles.statusText, item.status === 'cancelled' && styles.statusTextMuted]}>
+                {bookingStatusLabel(item.status)}
               </Text>
             </View>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.listContent}
-      />
-    </SafeAreaView>
+            {item.total != null && <Text style={styles.cardTotal}>{formatCop(item.total)}</Text>}
+          </View>
+          {item.status === 'pending_payment' && (
+            <View style={styles.payButton}>
+              <Button
+                variant="primary"
+                size="sm"
+                fullWidth
+                onPress={() => router.push(`/checkout/${item.id}`)}
+              >
+                Pagar ahora
+              </Button>
+            </View>
+          )}
+        </View>
+      )}
+      contentContainerStyle={styles.listContent}
+    />
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.ivory },
-  header: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: spacing.lg },
-  title: { fontSize: typography.sizes.heading, fontWeight: typography.weights.bold, color: colors.ink },
-  listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+  listContent: { padding: spacing.lg, flexGrow: 1 },
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, marginBottom: spacing.lg, ...shadows.card, padding: spacing.md },
-  cardContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   cardTitle: { fontSize: typography.sizes.body, fontWeight: typography.weights.semibold, color: colors.ink, marginBottom: spacing.xs },
-  cardSubtitle: { fontSize: typography.sizes.caption, color: colors.muted, marginBottom: spacing.md },
+  cardSubtitle: { fontSize: typography.sizes.caption, color: colors.muted, marginBottom: spacing.xs },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.sm },
   statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radius.full, backgroundColor: colors.freshSoft },
+  statusBadgeMuted: { backgroundColor: colors.sand },
   statusText: { fontSize: typography.sizes.caption, fontWeight: typography.weights.medium, color: colors.forest },
+  statusTextMuted: { color: colors.muted },
   cardTotal: { fontSize: typography.sizes.body, fontWeight: typography.weights.bold, color: colors.forest },
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.lg },
-  emptyTitle: { fontSize: typography.sizes.heading, fontWeight: typography.weights.bold, color: colors.ink, marginBottom: spacing.sm },
-  emptySubtitle: { fontSize: typography.sizes.body, color: colors.muted, marginBottom: spacing.lg },
+  payButton: { marginTop: spacing.md },
 });

@@ -41,14 +41,13 @@ export default function AccountDeletionScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Cómo solicitar la eliminación</Text>
           <Text style={styles.body}>
-            Si estás seguro, presiona el botón de abajo para confirmar la eliminación de tu cuenta.
-            También puedes escribirnos a privacidad@eleveri.app para solicitarla por correo
-            electrónico.
+            La eliminación se gestiona por correo electrónico. Escríbenos a reserve@elevari.live
+            desde el correo de tu cuenta y atenderemos tu solicitud.
           </Text>
         </View>
 
         <TouchableOpacity style={styles.dangerButton} onPress={() => router.push('/(guest)/legal/account-deletion/confirm')}>
-          <Text style={styles.dangerText}>Eliminar mi cuenta permanentemente</Text>
+          <Text style={styles.dangerText}>Solicitar eliminación de mi cuenta</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -99,7 +98,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   dangerText: {
-    color: colors.white,
+    color: colors.surface,
     fontWeight: typography.weights.semibold,
     fontSize: typography.sizes.body,
   },

@@ -22,7 +22,7 @@ export default function ContentModerationScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Propósito</Text>
           <Text style={styles.body}>
-            Eleveri revisa el contenido publicado en la plataforma (descripciones, fotos, reseñas y
+            Elevari revisa el contenido publicado en la plataforma (descripciones, fotos, reseñas y
             mensajes) para garantizar que cumpla con nuestros estándares de calidad, seguridad y
             legalidad.
           </Text>
@@ -50,7 +50,7 @@ export default function ContentModerationScreen() {
           <Text style={styles.sectionTitle}>4. Apelaciones</Text>
           <Text style={styles.body}>
             Si consideras que tu contenido fue moderado por error, puedes apelar la decisión
-            escribiendo a moderacion@eleveri.app. Responderemos en un plazo de 5 días hábiles.
+            escribiendo a reserve@elevari.live. Responderemos en un plazo de 5 días hábiles.
           </Text>
         </View>
       </ScrollView>

@@ -22,7 +22,7 @@ export function PriceBreakdown({ basePrice, serviceFee, total, currency = 'COP',
         <Text style={styles.label}>Precio base</Text>
         <Text style={styles.value}>{formatPrice(basePrice)}</Text>
       </View>
-      {nights && (
+      {nights !== undefined && (
         <View style={styles.row}>
           <Text style={styles.label}>Tarifa de servicio Elevari</Text>
           <Text style={styles.value}>{formatPrice(serviceFee)}</Text>

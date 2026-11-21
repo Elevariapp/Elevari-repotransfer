@@ -1,39 +1,65 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { TurnstileWebView, TurnstileWebViewHandle } from '@/components/TurnstileWebView';
 import { colors, spacing, typography, radius } from '@/lib/design-tokens';
 import { api } from '@/lib/api';
-import { authStorage } from '@/lib/auth';
-import { useAppStore } from '@/lib/store';
+import { getErrorMessage } from '@/lib/errors';
+import { startSession } from '@/lib/session';
+import type { AuthResponse } from '@/types';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { setUser, setAuthenticated } = useAppStore();
+  const turnstileRef = useRef<TurnstileWebViewHandle>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<'guest' | 'host'>('guest');
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const canSubmit =
+    !loading && !!turnstileToken && !!name.trim() && !!email.trim() && !!password && !!confirmPassword;
+
+  const validate = (): string | null => {
+    if (!name.trim()) return 'Ingresa tu nombre.';
+    if (!EMAIL_RE.test(email.trim())) return 'Ingresa un correo electrónico válido.';
+    if (password.length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
+    if (password !== confirmPassword) return 'Las contraseñas no coinciden.';
+    if (!turnstileToken) return 'Completa la verificación de seguridad para continuar.';
+    return null;
+  };
+
   const handleRegister = async () => {
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setError('');
     setLoading(true);
     try {
-      const response = await api.post<{ token: string; user: any }>('/auth/register', {
-        name, email, password, role,
+      const response = await api.post<AuthResponse>('/auth/register', {
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        role,
+        turnstile_token: turnstileToken,
       });
-      await authStorage.setToken(response.token);
-      await authStorage.setUser(response.user);
-      setUser(response.user);
-      setAuthenticated(true);
-      router.replace('/(guest)');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al crear la cuenta.');
+      await startSession(response);
+      router.replace('/');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Error al crear la cuenta.'));
+      // Turnstile tokens are single-use; request a fresh one for the next attempt.
+      turnstileRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -42,17 +68,17 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <Text style={styles.title}>Crear cuenta</Text>
-            <Text style={styles.subtitle}>Únete a Waná y empieza a explorar</Text>
+            <Text style={styles.subtitle}>Únete a Elevari y empieza a explorar</Text>
           </View>
 
           <View style={styles.form}>
-            <Input label="Nombre completo" placeholder="Juan Pérez" value={name} onChangeText={setName} />
-            <Input label="Correo electrónico" placeholder="tu@correo.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
-            <Input label="Contraseña" placeholder="••••••••" secureTextEntry value={password} onChangeText={setPassword} />
-            <Input label="Confirmar contraseña" placeholder="••••••••" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
+            <Input label="Nombre completo" placeholder="Juan Pérez" value={name} onChangeText={setName} autoComplete="name" />
+            <Input label="Correo electrónico" placeholder="tu@correo.com" autoCapitalize="none" autoCorrect={false} keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail} />
+            <Input label="Contraseña" placeholder="••••••••" hint="Mínimo 8 caracteres" secureTextEntry autoComplete="new-password" value={password} onChangeText={setPassword} />
+            <Input label="Confirmar contraseña" placeholder="••••••••" secureTextEntry autoComplete="new-password" value={confirmPassword} onChangeText={setConfirmPassword} />
             <View style={styles.roleSelector}>
               <Text style={styles.roleLabel}>Me registro como</Text>
               <View style={styles.roleOptions}>
@@ -66,13 +92,15 @@ export default function RegisterScreen() {
             </View>
           </View>
 
-          {error && (
+          <TurnstileWebView ref={turnstileRef} onToken={setTurnstileToken} />
+
+          {!!error && (
             <View style={styles.errorBanner}>
               <Text style={styles.errorText}>{error}</Text>
             </View>
           )}
 
-          <Button variant="primary" size="lg" loading={loading} fullWidth onPress={handleRegister} disabled={loading}>
+          <Button variant="primary" size="lg" loading={loading} fullWidth onPress={handleRegister} disabled={!canSubmit}>
             Crear cuenta
           </Button>
 
@@ -104,7 +132,7 @@ const styles = StyleSheet.create({
   roleOptionActive: { borderColor: colors.forest, backgroundColor: colors.freshSoft },
   roleOptionText: { fontSize: typography.sizes.caption, color: colors.muted, fontWeight: typography.weights.medium },
   roleOptionActiveText: { color: colors.forest },
-  errorBanner: { backgroundColor: colors.errorSoft, borderRadius: 8, padding: spacing.md, marginBottom: spacing.md },
+  errorBanner: { backgroundColor: colors.errorSoft, borderRadius: 8, padding: spacing.md, marginVertical: spacing.md },
   errorText: { fontSize: typography.sizes.caption, color: colors.error },
   divider: { flexDirection: 'row', alignItems: 'center', marginVertical: spacing.lg },
   dividerText: { fontSize: typography.sizes.caption, color: colors.muted, marginHorizontal: spacing.sm },

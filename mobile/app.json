@@ -1,37 +1,25 @@
 {
   "expo": {
-    "name": "Waná",
-    "slug": "wana",
+    "name": "Elevari",
+    "slug": "elevari",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#2F6B4F"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "elevari.androidapp",
-      "infoPlist": {
-        "NSUserNotificationUsageDescription": "Waná necesita enviar notificaciones push para confirmaciones de reserva y actualizaciones de anfitrión.",
-        "NSLocationWhenInUseUsageDescription": "Waná usa tu ubicación para mostrar propiedades cercanas.",
-        "NSCameraUsageDescription": "Waná necesita acceso a la cámara para subir fotos de tu propiedad.",
-        "NSPhotoLibraryUsageDescription": "Waná necesita acceso a tu galería para subir fotos de tu propiedad."
-      },
-      "associatedDomains": [
-        "applinks:app.wana.co"
-      ]
-    },
+    "userInterfaceStyle": "light",
     "android": {
       "package": "elevari.androidapp",
       "adaptiveIcon": {
-        "backgroundColor": "#2F6B4F",
+        "backgroundColor": "#1E4835",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
       "predictiveBackGestureEnabled": true,
       "intentFilters": [
         {
@@ -40,7 +28,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "app.eleveri.app",
+              "host": "elevari.live",
               "pathPrefix": "/"
             }
           ],
@@ -49,17 +37,30 @@
             "DEFAULT"
           ]
         }
-      ]
+      ],
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "@react-native-firebase/app",
+      "./plugins/withAndroidReleaseBuild",
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#1E4835"
+        }
+      ],
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
+          "icon": "./assets/notification-icon.png",
           "color": "#2F6B4F",
           "permissions": [
             "NOTIFICATIONS"
@@ -68,34 +69,16 @@
       ],
       "expo-secure-store",
       "expo-image-picker",
-      "expo-file-system",
-      "react-native-svg",
-      "react-native-reanimated",
-      "react-native-gesture-handler",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "googleServicesFile": "./google-services.json",
-            "gradleVersion": "8.1.1",
-            "compileSdkVersion": 34,
-            "targetSdkVersion": 34
-          }
-        }
-      ]
+      "expo-file-system"
     ],
     "scheme": "elevari",
     "extra": {
-      "eas": {
-        "projectId": "wana-mobile"
-      },
-      "API_BASE_URL": "https://api.wana.co",
-      "WOMPI_PUBLIC_KEY": "pub_test_...",
-      "PRIVACY_URL": "https://www.eleveri.app/legal/privacy",
-      "TERMS_URL": "https://www.eleveri.app/legal/terms",
-      "REFUND_URL": "https://www.eleveri.app/legal/refund",
-      "ACCOUNT_DELETION_URL": "https://www.eleveri.app/legal/account-deletion",
-      "CONTACT_URL": "https://www.eleveri.app/legal/contact",
+      "API_BASE_URL": "https://elevari.live",
+      "PRIVACY_URL": "https://elevari.live/legal/privacy",
+      "TERMS_URL": "https://elevari.live/legal/terms",
+      "REFUND_URL": "https://elevari.live/legal/refund",
+      "ACCOUNT_DELETION_URL": "https://elevari.live/legal/account-deletion",
+      "CONTACT_URL": "https://elevari.live/legal/contact",
       "COMPLIANCE": {
         "dataProtectionLaw": "Ley 1581 de 2012 (Colombia)",
         "platformFeePercent": 15,

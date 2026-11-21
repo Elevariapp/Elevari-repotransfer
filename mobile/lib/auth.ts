@@ -1,16 +1,10 @@
 import * as SecureStore from 'expo-secure-store';
+import type { User } from '@/types';
+
+export type { User };
 
 const TOKEN_KEY = 'jwt_token';
 const USER_KEY = 'user';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'guest' | 'host';
-  avatarUrl?: string;
-  phone?: string;
-}
 
 export const authStorage = {
   async getToken(): Promise<string | null> {
@@ -28,7 +22,11 @@ export const authStorage = {
   async getUser(): Promise<User | null> {
     const userJson = await SecureStore.getItemAsync(USER_KEY);
     if (!userJson) return null;
-    return JSON.parse(userJson) as User;
+    try {
+      return JSON.parse(userJson) as User;
+    } catch {
+      return null;
+    }
   },
 
   async setUser(user: User): Promise<void> {

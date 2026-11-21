@@ -1,11 +1,21 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { Alert, Linking, StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from '@/components/Button';
 import { colors, spacing, typography } from '@/lib/design-tokens';
+import { CONTACT_EMAIL } from '@/lib/config';
 
 export default function AccountDeletionConfirmScreen() {
   const router = useRouter();
+
+  const handleRequest = async () => {
+    const subject = encodeURIComponent('Solicitud de eliminación de cuenta');
+    const body = encodeURIComponent('Solicito la eliminación de mi cuenta de Elevari.');
+    try {
+      await Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`);
+    } catch {
+      Alert.alert('No se pudo abrir el correo', `Escríbenos a ${CONTACT_EMAIL} para solicitar la eliminación.`);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -13,7 +23,7 @@ export default function AccountDeletionConfirmScreen() {
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Confirmar eliminación</Text>
+        <Text style={styles.title}>Solicitar eliminación</Text>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
@@ -31,14 +41,15 @@ export default function AccountDeletionConfirmScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Confirmar</Text>
+          <Text style={styles.sectionTitle}>Enviar solicitud</Text>
           <Text style={styles.body}>
-            Si estás seguro de que deseas eliminar tu cuenta, presiona el botón de abajo.
+            Si estás seguro, abriremos tu aplicación de correo con la solicitud lista para enviar a
+            reserve@elevari.live. Tu cuenta no se elimina hasta que nuestro equipo la procese.
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.dangerButton} onPress={() => router.replace('/(auth)/login')}>
-          <Text style={styles.dangerText}>Sí, eliminar mi cuenta</Text>
+        <TouchableOpacity style={styles.dangerButton} onPress={handleRequest}>
+          <Text style={styles.dangerText}>Enviar solicitud por correo</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
@@ -93,7 +104,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   dangerText: {
-    color: colors.white,
+    color: colors.surface,
     fontWeight: typography.weights.semibold,
     fontSize: typography.sizes.body,
   },

@@ -32,7 +32,7 @@ export default function RefundScreen() {
           <Text style={styles.sectionTitle}>2. Reembolsos por cancelación del anfitrión</Text>
           <Text style={styles.body}>
             Si el anfitrión cancela tu reserva, recibirás un reembolso completo del monto pagado,
-            incluida la tarifa de servicio de Eleveri.
+            incluida la tarifa de servicio de Elevari.
           </Text>
         </View>
 
@@ -55,7 +55,7 @@ export default function RefundScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>5. Solicitar un reembolso</Text>
           <Text style={styles.body}>
-            Para solicitar un reembolso, contacta a soporte@eleveri.app con los detalles de tu
+            Para solicitar un reembolso, contacta a reserve@elevari.live con los detalles de tu
             reserva y el motivo de la solicitud.
           </Text>
         </View>

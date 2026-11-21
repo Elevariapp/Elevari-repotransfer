@@ -22,7 +22,7 @@ export default function AccessibilityScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Compromiso</Text>
           <Text style={styles.body}>
-            Eleveri se compromete a hacer que su plataforma sea accesible para todos los usuarios,
+            Elevari se compromete a hacer que su plataforma sea accesible para todos los usuarios,
             incluidas personas con discapacidad, siguiendo los principios de accesibilidad web y
             móvil.
           </Text>
@@ -48,7 +48,7 @@ export default function AccessibilityScreen() {
           <Text style={styles.sectionTitle}>4. Contacto</Text>
           <Text style={styles.body}>
             Si encuentras barreras de accesibilidad o necesitas asistencia, escríbenos a
-            accesibilidad@eleveri.app. Responderemos en un plazo de 5 días hábiles.
+            reserve@elevari.live. Responderemos en un plazo de 5 días hábiles.
           </Text>
         </View>
       </ScrollView>
