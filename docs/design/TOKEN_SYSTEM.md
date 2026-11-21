@@ -10,7 +10,7 @@
 1. Todo valor visual existe **una sola vez** como token.
 2. Los componentes consumen utilidades Tailwind generadas desde `@theme` o `var(--elevari-*)`.
 3. Prohibido hex/rgba directos en componentes (excepción: SVG de marca documentados).
-4. Los tokens `wana-*` son alias legacy con los mismos valores que `elevari-*`; se eliminarán al cerrar la migración.
+4. Los tokens `elevari-*` son alias legacy con los mismos valores que `elevari-*`; se eliminarán al cerrar la migración.
 
 ---
 
@@ -49,7 +49,7 @@ Uso: `style={{ background: 'var(--elevari-forest)' }}` o clases arbitrarias `bg-
 
 ### Alias legacy
 
-`--color-wana-forest`, `--wana-gold`, `--wana-champagne*`, `--wana-charcoal`, `--wana-cream`, `--wana-sand`, `--wana-border`, `--wana-muted`, `--wana-black*`, `--wana-gray*` → mismos valores que su equivalente Elevari.
+`--color-elevari-forest`, `--elevari-gold`, `--elevari-champagne*`, `--elevari-charcoal`, `--elevari-cream`, `--elevari-sand`, `--elevari-border`, `--elevari-muted`, `--elevari-black*`, `--elevari-gray*` → mismos valores que su equivalente Elevari.
 
 ---
 
@@ -65,7 +65,7 @@ Uso: `style={{ background: 'var(--elevari-forest)' }}` o clases arbitrarias `bg-
 | `--text-caption` | `0.8125rem` (line-height 1.5) | `text-caption` |
 | `--text-button` | `0.875rem` | `text-button` |
 
-Clases compuestas: `.wana-display-hero`, `.wana-display-section`, `.wana-display-page`, `.wana-section-title` (aplican familia display, tracking y balance).
+Clases compuestas: `.elevari-display-hero`, `.elevari-display-section`, `.elevari-display-page`, `.elevari-section-title` (aplican familia display, tracking y balance).
 
 Pesos: 500 medium · 600 semibold · 700 bold. No usar 300/800.
 
@@ -108,7 +108,7 @@ Variables espejo: `--elevari-radius-*` (usadas como `rounded-[var(--elevari-radi
 | `--shadow-card` | Tarjetas | `shadow-card` |
 | `--shadow-floating` | Dropdowns, barras fijas | `shadow-floating` |
 | `--shadow-modal` | Modales y lightbox | `shadow-modal` |
-| `--shadow-wana` / `--shadow-wana-lg` | Alias legacy | `shadow-wana`, `shadow-wana-lg` |
+| `--shadow-elevari` / `--shadow-elevari-lg` | Alias legacy | `shadow-elevari`, `shadow-elevari-lg` |
 
 Variables espejo: `--elevari-shadow-*`.
 

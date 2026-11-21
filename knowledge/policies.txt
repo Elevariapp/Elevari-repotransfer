@@ -1,9 +1,9 @@
-# Waná Guest Policies (template — replace with your operational policy)
+# Elevari Guest Policies (template — replace with your operational policy)
 
 ## Compensation — minor cleaning issues
 - Acknowledge the issue promptly and apologize for the inconvenience.
 - For verified minor cleaning issues (e.g., missed surface wipe, linens not refreshed): offer a one-time credit of 10–15% of the affected night(s), capped at one night’s rate.
-- Credits apply to a future Waná stay or are processed as a partial refund within 5–7 business days if no rebooking is planned.
+- Credits apply to a future Elevari stay or are processed as a partial refund within 5–7 business days if no rebooking is planned.
 - Escalate to operations if the guest reports health/safety concerns, pests, or repeated issues on the same property.
 
 ## Cancellation (moderate policy — default)

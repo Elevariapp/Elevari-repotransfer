@@ -37,7 +37,7 @@
 | D1 | `middleware/rate-limit.ts` | Sin importaciones (solo mencionado en su propio docblock) | Eliminar o cablear en `proxy` |
 | D2 | `components/ui/{Modal,Input,Badge,Toast}.tsx` | Sin consumidores aún | Mantener (API del sistema) o adoptar en admin/auth |
 | D3 | Proveedores Bold/Stripe | Código presente, deshabilitado por flags | Documentado; retirar en Fase 6F |
-| D4 | 163 referencias a clases `wana-*` | Alias legacy con valores nuevos | Migración planificada (`UI_MIGRATION_PLAN.md`) |
+| D4 | 163 referencias a clases `elevari-*` | Alias legacy con valores nuevos | Migración planificada (`UI_MIGRATION_PLAN.md`) |
 | D5 | `lib/alegra.ts` legacy + `api` invoicing | Ambos presentes | Consolidar en Fase 6B |
 
 ---

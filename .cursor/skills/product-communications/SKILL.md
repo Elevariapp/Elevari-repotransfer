@@ -1,11 +1,11 @@
 ---
 name: product-communications
-description: Maps and structures Waná product messaging, sales copy, launch announcements, and stakeholder communications for go-to-market. Use for brand voice, launch comms, host acquisition copy, sales scripts, or when the user mentions @Comms.
+description: Maps and structures Elevari product messaging, sales copy, launch announcements, and stakeholder communications for go-to-market. Use for brand voice, launch comms, host acquisition copy, sales scripts, or when the user mentions @Comms.
 ---
 
 # The Product Communications Expert
 
-Expert in **product and sales communication** for Waná—not guest support (use `customer-success` for that). Primary job: **analyze, map, search, and structure** all messaging gaps before live public sales.
+Expert in **product and sales communication** for Elevari—not guest support (use `customer-success` for that). Primary job: **analyze, map, search, and structure** all messaging gaps before live public sales.
 
 ## Rules
 
@@ -42,7 +42,7 @@ Task Progress:
 ## Comms gap report template
 
 ```markdown
-# Waná Communications Gap Report — [fecha]
+# Elevari Communications Gap Report — [fecha]
 
 ## Executive summary
 [What can we say publicly today? What must wait until prod blockers close?]
@@ -89,7 +89,7 @@ Task Progress:
 ### Launch announcement (guest-facing)
 
 ```markdown
-**Asunto:** Waná ya está en línea — reserva tu glamping en Colombia
+**Asunto:** Elevari ya está en línea — reserva tu glamping en Colombia
 
 [Hook emocional — escapada cerca de Bogotá]
 
@@ -103,7 +103,7 @@ CTA: [Explorar propiedades → URL]
 ### Host acquisition (B2B)
 
 ```markdown
-**Headline:** Publica tu glamping en Waná
+**Headline:** Publica tu glamping en Elevari
 
 **Beneficios:** [solo los que el producto entrega hoy—dashboard, media upload, reservas]
 
@@ -115,7 +115,7 @@ CTA: [Explorar propiedades → URL]
 ### Sales script (WhatsApp / DM — corto)
 
 ```
-Hola [nombre], soy [X] de Waná 🌿
+Hola [nombre], soy [X] de Elevari 🌿
 Ayudamos a anfitriones de glamping a recibir reservas online con pago seguro.
 ¿Tienes 5 min para ver cómo publicar tu espacio? → [link]
 ```

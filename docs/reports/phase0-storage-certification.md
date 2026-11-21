@@ -6,9 +6,9 @@
 
 | Elemento | Valor | Resultado |
 |----------|-------|-----------|
-| Bucket | `wana-media` | PASS |
+| Bucket | `elevari-media` | PASS |
 | Inicialización | `mc mb --ignore-existing` idempotente | PASS |
-| Política de acceso | `mc anonymous set download wana/wana-media` | **RIESGO** |
+| Política de acceso | `mc anonymous set download elevari/elevari-media` | **RIESGO** |
 | Credenciales | `MINIO_ROOT_USER/PASSWORD` (dev) / env (prod) | PASS |
 | URL pública | `MINIO_PUBLIC_URL` | PASS |
 | Tipos permitidos | imagen (→WebP + thumbnails con sharp) y video MP4/WebM | PASS |
@@ -29,7 +29,7 @@
 
 ## Recomendaciones (acción de infraestructura)
 
-1. Separar en `wana-media-public` (anónimo) y `wana-private` (solo API con credenciales).
+1. Separar en `elevari-media-public` (anónimo) y `elevari-private` (solo API con credenciales).
 2. Añadir `mc ilm` (lifecycle) para media no referenciada.
 3. Incluir `mc mirror` del bucket en el plan de backup.
 4. Escaneo opcional con ClamAV antes de aprobar media.

@@ -1,4 +1,4 @@
-# Auditoría de botones y secciones — Waná
+# Auditoría de botones y secciones — Elevari
 
 Última revisión: junio 2026. Clasificación: **API** (Fastify/JWT) vs **Legacy** (Supabase / Next API obsoleto).
 

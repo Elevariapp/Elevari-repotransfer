@@ -1,131 +1,90 @@
-# Waná — Production Deployment (Fase 6E)
+# Despliegue de producción
 
-Guía para desplegar el stack Docker en un VPS (Hetzner, DigitalOcean, etc.) con Nginx, PostgreSQL, Redis, MinIO, API Fastify y Next.js standalone.
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-**Checklist completo:** `deploy/GO_LIVE_CHECKLIST.md`
+Guía de referencia del stack de `docker-compose.prod.yml` en el servidor Hetzner (`/opt/elevari`). Solo producción; no hay staging. Procedimientos operativos (bootstrap del servidor, deploy, rollback, backups, rotación, DNS): [docs/RUNBOOK.md](../docs/RUNBOOK.md). Estado de lanzamiento: [GO_LIVE_CHECKLIST.md](../GO_LIVE_CHECKLIST.md).
 
 ## Arquitectura
 
 ```
-Internet → Cloudflare (SSL) → Nginx (:80) → web (:3000) | api (:4000)
-                                    ↓
-              postgres · redis · minio (red interna)
+Internet → Cloudflare → nginx (:80 redirige a HTTPS salvo /health · :443 Origin Certificate)
+   elevari.live        → web :3000 (/) · api :4000 (/api/*, /health)
+   www.elevari.live    → 301 a elevari.live
+   media.elevari.live  → minio :9000 (/elevari-media/*, GET/HEAD)
+red interna: postgres · redis · minio
 ```
 
-## Requisitos
+Un solo dominio, sin subdominio `api`. Detalle: [ARCHITECTURE.md](../ARCHITECTURE.md), [INFRASTRUCTURE.md](../INFRASTRUCTURE.md).
 
-- VPS: 2 vCPU, 4 GB RAM mínimo (8 GB recomendado con MinIO)
-- Docker 24+ y Docker Compose v2
-- Dominio apuntando al VPS (A record)
-- Cloudflare o Certbot para TLS (recomendado: Cloudflare proxy + SSL Full)
+## Archivos
 
-## 1. Preparar servidor
+| Archivo | Uso |
+|---------|-----|
+| `docker-compose.prod.yml` | Stack de producción |
+| `deploy/nginx/nginx.conf`, `deploy/nginx/cloudflare-ips.conf` | Proxy, TLS, IP real tras Cloudflare |
+| `deploy/.env.production.example` | Plantilla de variables (copiar a `.env.production`, nunca commitear) |
+| `/etc/ssl/elevari/origin.pem`, `origin.key` | Origin Certificate de Cloudflare, solo en el servidor |
+| `deploy/scripts/validate-env.sh` | Validación estricta del env de producción |
+| `deploy/scripts/deploy-prod.sh` | Validar, construir y levantar el stack |
+| `deploy/scripts/verify-health.sh` | Verificación posterior al despliegue |
+| `deploy/scripts/backup-db.sh`, `restore-db.sh` | Backup y restauración de PostgreSQL |
+
+## Variables críticas (solo nombres; valores en el servidor)
+
+| Variable | Notas |
+|----------|-------|
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Base de datos |
+| `JWT_SECRET` | ≥ 32 caracteres; lo usan la API y la web |
+| `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_API_URL` | `https://elevari.live` (sin `/api/v1`); build-time; el build de `web` falla si faltan |
+| `PUBLIC_SITE_URL`, `CORS_ORIGIN` | `https://elevari.live` |
+| `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET`, `MINIO_PUBLIC_URL` | Bucket `elevari-media`; URL pública `https://media.elevari.live/elevari-media` |
+| `PAYMENTS_MODE=live`, `PAYMENTS_WOMPI_ENABLED=true` | `mock` está prohibido en producción (salvo `ALLOW_MOCK_PAYMENTS=true` para humo interno) |
+| `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET`, `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` | Llaves `pub_prod_` / `prv_prod_` |
+| `ALEGRA_EMAIL`, `ALEGRA_API_TOKEN` | Facturación |
+| `RESEND_API_KEY`, `RESEND_FROM` | `Elevari <reserve@elevari.live>` |
+| `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Obligatorios; la API no arranca sin el secret |
+| `DISABLE_DEMO_ACCOUNTS=true` | Exigido por `validate-env.sh` |
+| `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_META_PIXEL_ID` | Analítica (build-time) |
+| `ANDROID_SHA256_CERT_FINGERPRINTS`, `ANDROID_PACKAGE_NAME` | Sirven `/.well-known/assetlinks.json` |
+
+`validate-env.sh` falla si faltan llaves de Wompi `prod_`, Alegra, Resend o Turnstile.
+
+## Build y arranque
 
 ```bash
-sudo apt update && sudo apt install -y docker.io docker-compose-plugin git
-sudo usermod -aG docker $USER
-```
-
-## 2. Clonar y configurar
-
-```bash
-git clone <repo-url> wana && cd wana
-cp deploy/.env.production.example .env.production
-# Editar .env.production — contraseñas, JWT, keys Bold/Stripe, Alegra
-```
-
-Variables críticas:
-| Variable | Uso |
-|----------|-----|
-| `POSTGRES_PASSWORD` | Base de datos |
-| `JWT_SECRET` | Auth (min 32 caracteres) |
-| `NEXT_PUBLIC_API_URL` | `https://tu-dominio` (sin `/api/v1`) |
-| `BOLD_*` / `STRIPE_*` | Pagos live |
-| `ALEGRA_EMAIL` + `ALEGRA_API_TOKEN` | Facturación Colombia |
-
-## 3. Build y arranque
-
-```bash
+cd /opt/elevari
+./deploy/scripts/validate-env.sh
 docker compose -f docker-compose.prod.yml --env-file .env.production build
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d
 ```
 
-La API ejecuta `prisma migrate deploy` al iniciar. Seed inicial (opcional):
+La API ejecuta `prisma migrate deploy` al iniciar y aborta en producción sin `JWT_SECRET` ≥ 32 caracteres, sin `TURNSTILE_SECRET_KEY` o con `PAYMENTS_MODE=mock`.
+
+Datos iniciales (una vez): `npm run create-admin` y `npm run seed:property` dentro del contenedor `api` (ver RUNBOOK §1). El seed demo (`db:seed`) nunca se usa en producción.
+
+## Verificación
 
 ```bash
-docker compose -f docker-compose.prod.yml exec api npx prisma db seed
+docker compose -f docker-compose.prod.yml --env-file .env.production ps
+curl -s http://localhost/health
+curl -sI https://elevari.live/health
 ```
 
-## 4. Verificar
+## Webhook de pagos
 
-```bash
-curl http://localhost/health          # API health vía nginx
-curl -I http://localhost/properties   # Next.js
-docker compose -f docker-compose.prod.yml ps
-```
+Wompi → `https://elevari.live/api/v1/webhooks/wompi` (se configura en el panel de Wompi con el secret de eventos).
 
-## 5. SSL con Cloudflare
+## Facturación (Alegra)
 
-1. Añade el dominio en Cloudflare
-2. Proxy naranja activado en DNS
-3. SSL/TLS → Full (strict) si usas origin cert, o Full
-4. Webhooks Bold/Stripe → `https://tu-dominio/api/v1/webhooks/bold` y `/stripe`
+Al confirmarse un pago en COP la API emite la factura en Alegra; si falla, queda en `pending_invoices` y un admin puede reintentar con `POST /api/v1/admin/invoices/{id}/retry` (listar: `GET /api/v1/admin/invoices/pending`), siempre con el token de un usuario admin.
 
-## 6. Backups PostgreSQL
+## Problemas frecuentes
 
-```bash
-chmod +x deploy/scripts/backup-db.sh
-./deploy/scripts/backup-db.sh
-```
-
-Programar con cron (diario 3am):
-
-```cron
-0 3 * * * cd /opt/wana && ./deploy/scripts/backup-db.sh
-```
-
-## 7. Actualizar release
-
-```bash
-git pull
-docker compose -f docker-compose.prod.yml --env-file .env.production build
-docker compose -f docker-compose.prod.yml --env-file .env.production up -d
-```
-
-## 8. Monitoreo básico
-
-- Uptime: ping `https://tu-dominio/health`
-- Logs: `docker compose -f docker-compose.prod.yml logs -f api web nginx`
-- Sentry: opcional vía `SENTRY_DSN`
-
-## 9. Facturación Alegra (Fase 6B)
-
-Al confirmar un pago COP/Bold, la API:
-1. Emite factura en Alegra si hay credenciales
-2. Si falla → `pending_invoices` para reintento manual
-
-Reintentar factura fallida (admin):
-
-```bash
-# Login admin → obtener JWT
-curl -X POST https://tu-dominio/api/v1/admin/invoices/{id}/retry \
-  -H "Authorization: Bearer <admin_token>"
-```
-
-Listar pendientes:
-
-```bash
-curl https://tu-dominio/api/v1/admin/invoices/pending \
-  -H "Authorization: Bearer <admin_token>"
-```
-
-## Troubleshooting
-
-| Problema | Solución |
-|----------|----------|
-| API no conecta a DB | Verificar `DATABASE_URL` y health de postgres |
-| Webhooks 404 | Nginx debe proxy `/api/` a api:4000 |
-| Imágenes no cargan | `MINIO_PUBLIC_URL` + bucket público |
-| Facturas no emiten | Verificar Alegra keys; revisar `pending_invoices` |
-
-Ver también: `INFRASTRUCTURE.md`, `ROADMAP.md`
+| Problema | Qué revisar |
+|----------|-------------|
+| API no arranca | Logs de `api`: `JWT_SECRET`, `TURNSTILE_SECRET_KEY`, `PAYMENTS_MODE` |
+| `/health` con `degraded` | Postgres: `docker compose ... logs postgres`, `DATABASE_URL` |
+| Build de `web` falla | `NEXT_PUBLIC_API_URL` / `NEXT_PUBLIC_SITE_URL` definidos; errores de TypeScript |
+| Webhook 401 | `WOMPI_EVENTS_SECRET` incorrecto |
+| Imágenes no cargan | `MINIO_PUBLIC_URL`, bucket público, host `media` en nginx |
+| 525/526 en Cloudflare | Origin Certificate en `/etc/ssl/elevari/` y modo SSL de Cloudflare |

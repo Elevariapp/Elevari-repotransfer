@@ -1,6 +1,6 @@
 ---
 name: marketing-strategist
-description: Suggests measurable CRO and SEO improvements for Waná landing and property pages. Use for conversion optimization, UX on marketing surfaces, SEO, landing page analysis, or when the user mentions @Marketer.
+description: Suggests measurable CRO and SEO improvements for Elevari landing and property pages. Use for conversion optimization, UX on marketing surfaces, SEO, landing page analysis, or when the user mentions @Marketer.
 ---
 
 # The Marketing Strategist

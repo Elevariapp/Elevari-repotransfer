@@ -1,67 +1,74 @@
-# Waná Agent Commands
+# COMMANDS — Comandos y quality gate
 
-Quick triggers for Cursor chat. Mention the persona or paste the command.
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-## Booking Engine Expert
+## Quality gate (antes de CUALQUIER push)
 
-```
-@BookingExpert: Audit payment-actions.ts and reserve-property.ts for potential race conditions.
-```
-
-```
-@BookingExpert: Trace the booking lifecycle and list valid status transitions.
-```
-
-```
-@BookingExpert: Verify idempotency coverage in the payment flow.
+```bash
+npx tsc --noEmit                                   # web (raíz)
+cd api && npx tsc --noEmit && cd ..                # API
+cd mobile && npx tsc --noEmit && cd ..             # móvil
+npx next build                                     # con NEXT_PUBLIC_API_URL apuntando a una URL inalcanzable debe compilar igual
+docker compose -f docker-compose.prod.yml --env-file <env> build
+npm run docs:lint                                  # documentación canónica
 ```
 
-## Marketing Strategist
-
-```
-@Marketer: Analyze our landing-page components and suggest 3 high-conversion UX improvements.
-```
-
-```
-@Marketer: Review app/properties/ and suggest SEO improvements with measurable impact.
+```powershell
+# Android (Windows), desde mobile/android
+$env:JAVA_HOME = "<ruta de Android Studio>\jbr"
+.\gradlew.bat bundleRelease --no-daemon --max-workers=1
 ```
 
-## Customer Success
+`<env>` es un archivo de entorno de producción (`/opt/elevari/.env.production` en el servidor, o una copia local con valores de prueba que no se commitea). Ver [mobile/RELEASE.md](mobile/RELEASE.md) para los requisitos de firma.
 
-```
-@CustomerSuccess: Draft a response to a guest who had a minor cleaning issue; use our standard compensation policy documentation.
+## Desarrollo local
+
+| Acción | Comando |
+|--------|---------|
+| Infra local (postgres, redis, minio) | `npm run docker:infra` |
+| Migraciones | `npm run api:migrate` |
+| Seed demo (solo desarrollo local; se niega con `NODE_ENV=production`) | `cd api && npm run db:seed` |
+| API en watch | `npm run api:dev` |
+| Web | `npm run dev` |
+| Móvil (dev client) | `cd mobile && npx expo start` / `npx expo run:android` |
+| Lint de docs | `npm run docs:lint` |
+| Auditorías de certificación | `npm run test:cert`, `npm run test:domain` |
+| E2E | `npm run test:e2e` |
+
+## Producción (en el servidor, `/opt/elevari`)
+
+| Acción | Comando |
+|--------|---------|
+| Build | `docker compose -f docker-compose.prod.yml --env-file .env.production build` |
+| Arrancar / actualizar | `docker compose -f docker-compose.prod.yml --env-file .env.production up -d` |
+| Estado | `docker compose -f docker-compose.prod.yml ps` |
+| Logs | `docker compose -f docker-compose.prod.yml logs -f --tail=100 api web nginx` |
+| Health | `curl -s http://localhost/health` (el puerto 80 solo sirve `/health`; lo demás redirige a HTTPS) |
+| Backup manual | `./deploy/scripts/backup-db.sh` |
+| Restaurar | `./deploy/scripts/restore-db.sh backups/<archivo>.sql.gz --yes` |
+| Validar env de producción | `./deploy/scripts/validate-env.sh` (estricto, solo producción) |
+| Bootstrap: primer admin | `docker compose -f docker-compose.prod.yml --env-file .env.production exec -e ADMIN_EMAIL=reserve@elevari.live -e ADMIN_PASSWORD='<≥12 caracteres>' api npm run create-admin` (`RESET_PASSWORD=true` para resetear) |
+| Bootstrap: publicar «Glamping Waná» (sin usuarios demo ni reseñas) | `docker compose -f docker-compose.prod.yml --env-file .env.production exec -e HOST_EMAIL=reserve@elevari.live api npm run seed:property` |
+
+Nunca ejecutar `npm run db:seed` en producción (solo corre con `ALLOW_DEMO_SEED=true`).
+
+Atajos npm: `npm run docker:prod:build`, `docker:prod:up`, `docker:prod:down`, `go-live:validate`, `go-live:deploy`, `go-live:verify`, `db:backup`, `db:restore`.
+
+Procedimientos completos (rollback, rotación, incidentes): [docs/RUNBOOK.md](docs/RUNBOOK.md).
+
+## CI
+
+`.github/workflows/ci.yml` automatiza parte del gate: build de API y web, typecheck móvil, gate de `verification-log.md` y un job `npm run docs:lint`. El gate local sigue siendo obligatorio antes de cada push (CI no construye las imágenes Docker de producción ni el AAB).
+
+## Acceso al servidor
+
+```bash
+ssh deploy@<SERVER_IP>      # llave SSH ed25519 del propietario; valores reales en docs/HANDOVER.private.md (local, no versionado)
 ```
 
-```
-@CustomerSuccess: Draft a reply about cancellation policy using knowledge/policies.txt.
-```
+## Cadena de herramientas Android (Windows)
 
-## UI/UX Expert
-
-```
-@Design: Audita botones y links en Header, Footer y checkout; lista lo roto vs API nueva.
-```
-
-```
-@Design: Mejora responsive del Header (menú móvil) siguiendo el design system Waná.
-```
-
-```
-Usa ui-ux-expert: revisar docs/PLATFORM_STATUS_CHECKLIST.md y cerrar ítems P0.
-```
-
-## Architect
-
-```
-@Architect: Refactor the current auth flow to ensure it adheres to the Fastify/JWT auth best practices.
-```
-
-```
-@Architect: Propose a modular structure for actions/ and lib/ with testability in mind.
-```
-
-## Cross-persona
-
-```
-Lead as Booking Expert: audit availability locking, then as Architect: propose the minimal safe refactor.
-```
+- JDK: el `jbr` de Android Studio (`JAVA_HOME`).
+- CMake 3.31.6 instalado con `sdkmanager`; `LongPathsEnabled=1` en Windows.
+- Propiedades de firma en `~/.gradle/gradle.properties`: `ELEVARI_UPLOAD_STORE_FILE`, `ELEVARI_UPLOAD_STORE_PASSWORD`, `ELEVARI_UPLOAD_KEY_ALIAS`, `ELEVARI_UPLOAD_KEY_PASSWORD`.
+- Salida: `mobile/android/app/build/outputs/bundle/release/app-release.aab`.

@@ -90,7 +90,7 @@ Lo que impide certificar producción no es el código: es la ausencia de credenc
 | R8 | A11y | Sin prueba con lector de pantalla real | Media | No |
 | R9 | Observabilidad | `correlationId` de pago no enlazado a `req.id` | Media | No |
 | R10 | Datos | `webhook_raw` completo en `payment.metadata` (retención/PII) | Media | No |
-| R11 | Deuda | 163 clases `wana-*`, `Modal/Input/Badge/Toast` sin uso, `middleware/rate-limit.ts` muerto | Baja | No |
+| R11 | Deuda | 163 clases `elevari-*`, `Modal/Input/Badge/Toast` sin uso, `middleware/rate-limit.ts` muerto | Baja | No |
 | R12 | Config | `NEXT_IGNORE_TYPE_ERRORS` puede desactivar el chequeo de tipos | Media | No |
 
 ---
@@ -128,7 +128,7 @@ Riesgos que **solo pueden cerrarse con acción humana/externa**:
 10. Validar logo Horizon con usuarios.
 
 ### Low
-11. Migrar clases legacy `wana-*` → `elevari-*`.
+11. Migrar clases legacy `elevari-*` → `elevari-*`.
 12. Adoptar `Modal/Input/Badge/Toast` en admin y auth.
 13. Exportar favicon `.ico`.
 14. Eliminar `middleware/rate-limit.ts` o cablearlo.

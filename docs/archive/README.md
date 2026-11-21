@@ -9,6 +9,8 @@ Archived during the **Elevari Foundation Reboot** because they reference platfor
 - Vercel
 - Firebase
 
-Official architecture (see `INFRASTRUCTURE.md`): AWS EC2 · PostgreSQL · S3-compatible storage · Cloudflare · Wompi (+ Fly.io / Hugging Face as extensions).
+Official architecture (see `INFRASTRUCTURE.md` and `ARCHITECTURE.md` at the repo root): Hetzner (Docker Compose) · PostgreSQL · MinIO · Cloudflare · Wompi · Resend. Production only, web + Android.
+
+Also archived here: superseded plans, audits, checklists and phase reports (Phase 2/3 close-outs, Phase 4 waves in `phase4/`, `AUDIT_STATUS.md`, `CERTIFICATION_MATRIX.md`, `GO_LIVE_PRODUCTION_MAP.md`, `PLAN_MAESTRO_*`, `architecture-cleanup.md`). Canonical docs: `README.md`, `docs/HANDOVER.md`, `docs/RUNBOOK.md`.
 
 Do not use these documents to make architecture decisions.

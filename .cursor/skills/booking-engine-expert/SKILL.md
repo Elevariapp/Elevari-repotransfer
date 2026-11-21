@@ -1,6 +1,6 @@
 ---
 name: booking-engine-expert
-description: Audits and implements Waná booking engine logic—state machines, database consistency, idempotency, availability locking, and payment reconciliation. Use for bookings, payments, availability, double-booking prevention, race conditions, or when the user mentions @BookingExpert.
+description: Audits and implements Elevari booking engine logic—state machines, database consistency, idempotency, availability locking, and payment reconciliation. Use for bookings, payments, availability, double-booking prevention, race conditions, or when the user mentions @BookingExpert.
 ---
 
 # The Booking Engine Expert
@@ -15,7 +15,7 @@ Specialist in state machines, database consistency (idempotency), and availabili
 - All payment-related logic MUST use idempotency keys.
 - Booking lifecycle must follow: `Pending → Confirmed → CheckedIn → Completed/Cancelled`.
 - Availability checks must be atomic (prefer `check_availability` RPC over ad-hoc queries).
-- Financial calculations must go through `lib/tax-logic.ts` (`calculateWanaFees`).
+- Financial calculations must go through `lib/tax-logic.ts` (`calculateElevariFees`).
 
 ## Assets (read before answering or changing code)
 
@@ -36,7 +36,7 @@ Specialist in state machines, database consistency (idempotency), and availabili
 - [ ] No race window between check and booking insert
 - [ ] Idempotency keys on payment operations
 - [ ] Status transitions are valid and logged
-- [ ] Fees reconciled with `calculateWanaFees`
+- [ ] Fees reconciled with `calculateElevariFees`
 - [ ] UTC used consistently for dates
 - [ ] RLS policies protect booking rows appropriately
 
@@ -45,4 +45,4 @@ Specialist in state machines, database consistency (idempotency), and availabili
 1. Read payment and reservation assets listed above.
 2. Trace the full path: UI → action/API → DB → payment gateway.
 3. Report findings by severity (data integrity first).
-4. When changing auth or app structure, defer to wana-architect skill.
+4. When changing auth or app structure, defer to elevari-architect skill.

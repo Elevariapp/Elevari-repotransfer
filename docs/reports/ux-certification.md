@@ -9,7 +9,7 @@
 
 | Área | Estado | Evidencia |
 |------|--------|-----------|
-| Paleta nueva aplicada | PASS | 0 clases `wana-gold/champagne/charcoal/cream/sand` en `app/` y `components/` |
+| Paleta nueva aplicada | PASS | 0 clases `elevari-gold/champagne/charcoal/cream/sand` en `app/` y `components/` |
 | Tipografía | PASS | Plus Jakarta Sans (display) + Inter (UI); 0 referencias a Cormorant |
 | Design tokens | PASS | `@theme` + `:root` + `lib/design-tokens.ts`; utilidades verificadas en CSS compilado |
 | Componentes | PASS | 8 primitivas en `components/ui/` |
@@ -39,7 +39,7 @@
 | Pantalla | Verificación | Estado |
 |----------|--------------|--------|
 | Home | Propuesta de valor + 3 señales de confianza + precio transparente | PASS |
-| Detalle | "Anfitrión Eleveri verificado", amenidades, reseñas, desglose | PASS (código) |
+| Detalle | "Anfitrión Elevari verificado", amenidades, reseñas, desglose | PASS (código) |
 | Checkout | Desglose base × noches + Tarifa de Servicio Elevari = Total | PASS |
 | Confirmación | Estado real (`confirmado` / `en proceso`) y próximos pasos | PASS |
 | FAQ | Corregido: Wompi (antes Bold/Stripe) y "precio final" | PASS |

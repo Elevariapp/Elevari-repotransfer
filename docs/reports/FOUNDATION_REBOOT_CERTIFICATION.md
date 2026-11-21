@@ -24,7 +24,7 @@ Se ejecutó la limpieza de arquitectura, la erradicación del sistema visual her
 |------|--------|
 | Arquitectura | Eliminados Netlify, Stripe y Bold; documentación Supabase archivada |
 | Pagos | Dominio Wompi-only con abstracción de proveedor conservada |
-| Diseño | `wana-*` = 0; negros puros = 0; superficies tokenizadas |
+| Diseño | `elevari-*` = 0; negros puros = 0; superficies tokenizadas |
 | Temas | Light · Dark · High contrast con persistencia y sin flash |
 | Autenticación | Copy, campos y estados según el estándar premium |
 | Hardening | Cabeceras OWASP, rate limit, redacción de logs, opt-in de webhooks |
@@ -49,7 +49,7 @@ Detalle de eliminaciones con justificación e impacto: `docs/architecture-cleanu
 | Lógica de dominio | estados, config, webhooks, refunds, FX, disclosure | **50/50** |
 | Analítica | 8 eventos + no-op | **9/9** |
 | Pricing | base + fee + redondeo | **5/5** |
-| Erradicación | `wana-*` en CSS y TSX | **0 / 0** |
+| Erradicación | `elevari-*` en CSS y TSX | **0 / 0** |
 | Negros legacy | `black/*` en TSX | **0** |
 | Stripe/Bold en `api/src` | grep | **0** |
 
@@ -66,7 +66,7 @@ Evidencias binarias: `docs/reports/assets/visual/` (63), `theme-*.jpg`, `lightho
 | F3 | Alta | Webhooks sin firma aceptados en modo mock | Inferencia por `PAYMENTS_MODE` | `ALLOW_UNSIGNED_WEBHOOKS` explícito | **Cerrado** |
 | F4 | Alta | `quality={72}` sin `qualities` → HTTP 400 | Config incompleta | `images.qualities` | **Cerrado** |
 | F5 | Alta | Sin cabeceras de seguridad | Config ausente | OWASP en Next + nginx | **Cerrado** |
-| F6 | Alta | `wana-*` y negros heredados | Migración incompleta | Erradicación + tokens | **Cerrado** |
+| F6 | Alta | `elevari-*` y negros heredados | Migración incompleta | Erradicación + tokens | **Cerrado** |
 | F7 | Alta | Dark mode inexistente | No implementado | Tokens + toggle + auditoría | **Cerrado** |
 | F8 | Media | Superficies blancas fijas | Estilos legacy | `bg-elevari-surface` | **Cerrado** |
 | F9 | Media | Texto claro sobre ámbar en dark | Token `slate` reutilizado | `forest-deep` sobre ámbar | **Cerrado** |
@@ -87,7 +87,7 @@ Evidencias binarias: `docs/reports/assets/visual/` (63), `theme-*.jpg`, `lightho
 |-----------|-------|-----------|
 | Infraestructura | **62** | Configuración sólida, headers y backups mejorados; sin ejecución ni restore verificado |
 | Producto | **84** | Auth premium, estados y pricing verificados; E2E de reserva/pago bloqueado |
-| Experiencia | **93** | `wana-*`=0, negros=0, 3 temas, axe 0, Lighthouse 90–100; primitivas 62% |
+| Experiencia | **93** | `elevari-*`=0, negros=0, 3 temas, axe 0, Lighthouse 90–100; primitivas 62% |
 | Seguridad | **87** | Headers, rate limit, firmas, redacción, 0 secretos; falta CSP y storage privado |
 | Operaciones | **55** | Runbooks y scripts listos; sin monitoreo, on-call ni alertas |
 | Escalabilidad | **45** | Modelo de capacidad; sin pruebas de carga |
@@ -153,7 +153,7 @@ La capa web (proceso único) sostiene ~2.200 rps y empieza a devolver resets por
 |-----------|-------|--------|-----------|
 | Infraestructura | **68** | +6 | Hardening de storage codificado; ejecución pendiente |
 | Producto | **84** | = | Auth, estados, pricing y webhooks verificados; E2E bloqueado |
-| Experiencia | **93** | = | `wana-*`=0, 3 temas, axe 0, Lighthouse 89–100 |
+| Experiencia | **93** | = | `elevari-*`=0, 3 temas, axe 0, Lighthouse 89–100 |
 | Seguridad | **92** | +5 | CSP certificado en enforce + headers + firmas |
 | Operaciones | **62** | +7 | Pipeline de observabilidad verificado; sin proveedor/alertas |
 | Escalabilidad | **58** | +13 | Baseline de carga medido; falta API/DB y escalado horizontal |

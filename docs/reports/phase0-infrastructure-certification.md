@@ -14,9 +14,9 @@ Internet → Cloudflare → nginx:80 → web:3000 (Next standalone)
 
 | Servicio | Imagen | Puerto (dev) | Puerto (prod) | Healthcheck | Persistencia |
 |----------|--------|--------------|---------------|-------------|--------------|
-| postgres | postgres:16-alpine | 5432 | interno | `pg_isready` | volumen `wana_pg_data` |
-| redis | redis:7-alpine | 6379 | interno | `redis-cli ping` | volumen `wana_redis_data` |
-| minio | minio/minio | 9000/9001 | interno | `mc ready local` | volumen `wana_minio_data` |
+| postgres | postgres:16-alpine | 5432 | interno | `pg_isready` | volumen `elevari_pg_data` |
+| redis | redis:7-alpine | 6379 | interno | `redis-cli ping` | volumen `elevari_redis_data` |
+| minio | minio/minio | 9000/9001 | interno | `mc ready local` | volumen `elevari_minio_data` |
 | api | build ./api | 4000 | interno | `/health` (nginx) | — |
 | web | build raíz | 3000 | interno | — | — |
 | nginx | nginx:1.27-alpine | — | 80/443 | — | config ro |

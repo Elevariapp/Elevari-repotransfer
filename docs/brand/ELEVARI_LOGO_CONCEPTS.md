@@ -21,7 +21,7 @@ Paleta de marca: forest `#2F6B4F`, forest deep `#1E4835`, fresh `#5FA76A`, amber
 
 Un arco continuo (elevación) con dos líneas horizontales (horizonte y luz) y un punto ámbar desplazado (el destino).
 
-- Ya está implementado como isotipo oficial en `components/brand/EleveriMark.tsx`, `app/icon.svg` y `public/brand/eleveri-mark.svg`.
+- Ya está implementado como isotipo oficial en `components/brand/ElevariMark.tsx`, `app/icon.svg` y `public/brand/elevari-mark.svg`.
 - Fortalezas: abstracto, legible a 16 px, no depende de color, no usa clichés.
 - Riesgo: el arco puede leerse como letra "A" o "Λ"; aceptable porque no compite con el wordmark.
 
@@ -75,7 +75,7 @@ Curva superior sólida + curva inferior atenuada (contención) con núcleo ámba
 
 ## Wordmark
 
-- `eleveri` en minúsculas, Plus Jakarta Sans SemiBold, tracking −0.03em.
+- `elevari` en minúsculas, Plus Jakarta Sans SemiBold, tracking −0.03em.
 - Descriptor secundario opcional: `ESCAPES NATURALES` en mayúsculas 10 px, tracking 0.22em.
 - Sobre fondo oscuro: wordmark blanco + descriptor amber soft.
 - Sobre fondo claro: wordmark ink + descriptor muted.

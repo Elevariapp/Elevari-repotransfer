@@ -1,4 +1,4 @@
-# Waná Knowledge Base ("The Brain")
+# Elevari Knowledge Base ("The Brain")
 
 Place operational and policy documents here so Customer Success, Marketing, and Booking agents can ground answers in your real rules—not guesses.
 

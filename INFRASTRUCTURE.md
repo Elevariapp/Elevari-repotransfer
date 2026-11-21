@@ -1,173 +1,105 @@
-# Waná Infrastructure
+# INFRASTRUCTURE — Infraestructura de producción
 
-Use this file as the entry point for deployment and environment-specific work.
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-## Official architecture (Elevari Foundation Reboot)
+Solo existe producción. No hay staging.
 
-| Layer | Official |
-|-------|----------|
-| Compute | **AWS EC2** |
-| Database | **PostgreSQL** |
-| Object storage | **S3-compatible** (MinIO local) |
-| Edge / DNS / TLS | **Cloudflare** |
-| Payments | **Wompi** (only provider) |
-| Extensions | Fly.io · Hugging Face |
+> Este repositorio es **público**. Los valores reales (IP, ids de Hetzner/Cloudflare/Resend, etc.) están en `docs/HANDOVER.private.md` (archivo local, NO versionado; guardado en el gestor de contraseñas «Elevari»). Aquí se usan placeholders: `<SERVER_IP>`, `<CF_ACCOUNT_ID>`, `<CF_ZONE_ID>`, `<HETZNER_SERVER_ID>`.
 
-**Out of scope (removed):** Vercel · Supabase · Firebase · Netlify.
-Stripe and Bold implementations were removed; only the provider abstraction remains.
+## Servidor
 
-## Design system & brand (Phase 3)
+| Ítem | Valor |
+|------|-------|
+| Proveedor | Hetzner Cloud (el proyecto puede contener otros servidores ajenos a Elevari: **no se tocan**; operar solo por id/alias del servidor de Elevari) |
+| Servidor | `ubuntu-8gb-hel1-2` (id `<HETZNER_SERVER_ID>`), Helsinki `hel1` |
+| Tipo | cpx32 — 4 vCPU / 8 GB RAM / 160 GB disco |
+| SO | Ubuntu 26.04 |
+| IPv4 | `<SERVER_IP>` |
+| Runtime | Docker 29 + Compose v2 |
+| Directorio de la app | `/opt/elevari` (propietario: usuario `deploy`) |
+| Env de producción | `/opt/elevari/.env.production` (chmod 600, nunca en git; plantilla `deploy/.env.production.example`) |
 
-| Topic | Reference |
-|-------|-----------|
-| Brand guide, colors, voice, contrast rules | `docs/brand/ELEVARI_BRAND_GUIDE.md` |
-| Logo concepts + app icon | `docs/brand/ELEVARI_LOGO_CONCEPTS.md` |
-| Design tokens (CSS + TS, light/dark/high-contrast) | `docs/design/TOKEN_SYSTEM.md`, `app/globals.css`, `lib/design-tokens.ts` |
-| Components | `docs/design/DESIGN_SYSTEM.md`, `components/ui/` |
-| Migration status | `docs/design/UI_MIGRATION_PLAN.md` |
-| Conversion analytics events | `docs/design/CONVERSION_GUIDELINES.md` |
-| Phase closeout | `docs/PHASE3_CLOSEOUT.md` |
+## Stack (`docker-compose.prod.yml`)
 
-Rule: no hardcoded visual values in components — consume `elevari-*` tokens only.
+| Servicio | Imagen / build | Notas |
+|----------|----------------|-------|
+| `postgres` | `postgres:16-alpine` | volumen `elevari_pg_data`, healthcheck `pg_isready` |
+| `redis` | `redis:7-alpine` | AOF activado, volumen `elevari_redis_data` |
+| `minio` | `minio/minio:latest` | volumen `elevari_minio_data`; consola :9001 solo interna |
+| `minio-init` | `minio/mc:latest` | crea el bucket `MINIO_BUCKET` y lo marca lectura anónima |
+| `api` | `./api/Dockerfile` | ejecuta `prisma migrate deploy` al arrancar; puerto 4000 interno |
+| `web` | `./Dockerfile` | Next standalone, puerto 3000 interno; `NEXT_PUBLIC_*` como build args |
+| `nginx` | `nginx:1.27-alpine` | publica 80 y 443; `deploy/nginx/nginx.conf` + `deploy/nginx/cloudflare-ips.conf`; certificado montado desde `/etc/ssl/elevari/` (`origin.pem`, `origin.key`) |
 
-## Phase 0 stack (current — non-serverless foundation)
+Todos con `restart: unless-stopped` en la red interna `elevari_internal`.
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| PostgreSQL | 5432 | Primary database (official) |
-| Redis | 6379 | Queues, rate limits (future workers) |
-| MinIO | 9000 / 9001 | Object storage for images/video |
-| Waná API | 4000 | Fastify REST API (`api/`) |
-| Next.js web | 3000 | Frontend SSR (`output: standalone`) |
+## Hardening del servidor
 
-### Quick start (local)
+- SSH solo con llave (login por contraseña y root con contraseña deshabilitados; drop-in `/etc/ssh/sshd_config.d/00-elevari-hardening.conf`).
+- Usuario `deploy` (sudo, grupo docker). Acceso: `ssh deploy@<SERVER_IP>` con la llave SSH ed25519 del propietario (el alias local `elevari-hetzner` entra como root y se usa solo para administración).
+- `ufw`: 22/80/443 abiertos; 80/443 se restringen luego a rangos IP de Cloudflare.
+- `fail2ban` (sshd): 5 intentos/10 min, ban de 1 h.
+- `unattended-upgrades` activo.
+- Swap de 2 GB.
+- Rotación de logs de Docker: 10 MB × 3 archivos.
 
-```bash
-# 1. Infrastructure
-npm run docker:infra
+## Backups
 
-# 2. API setup (first time)
-cd api && cp .env.example .env && npm install
-npm run db:migrate && npm run db:seed
+| Qué | Cómo |
+|-----|------|
+| PostgreSQL | cron diario 03:00 → `deploy/scripts/backup-db.sh` → `/opt/elevari/backups` (`elevari_*.sql.gz` + `.sha256`, retención 14 días) |
+| Servidor completo | Hetzner Backups automáticos activados |
+| Restauración | `deploy/scripts/restore-db.sh <archivo> --yes` (ver [docs/RUNBOOK.md](docs/RUNBOOK.md)) |
 
-# 3. Run services
-npm run api:dev          # API on :4000
-npm run dev              # Web on :3000
-```
+Los volúmenes de MinIO (media) están cubiertos solo por los Backups de Hetzner.
 
-Or all-in-docker: `npm run docker:up`
+## Edge — Cloudflare (plan Free)
 
-### API endpoints (v1)
+| Ítem | Valor |
+|------|-------|
+| Account id | `<CF_ACCOUNT_ID>` |
+| Zona `elevari.live` | `<CF_ZONE_ID>` |
+| Nameservers | `fish.ns.cloudflare.com`, `patryk.ns.cloudflare.com` |
+| Registrador | GoDaddy (también aloja el buzón `reserve@elevari.live`; MX/SPF/DMARC de GoDaddy no se tocan; nunca añadir MX de recepción de Resend) |
 
-- `GET /health`
-- `GET /api/v1/properties`
-- `GET /api/v1/properties/:slug`
-- `GET /api/v1/properties/:id/availability`
-- `POST /api/v1/bookings/quote`
-- `POST /api/v1/bookings`
-- `GET /api/v1/bookings/:id`
-- `POST /api/v1/payments/intent` — Wompi (único proveedor activo)
-- `GET /api/v1/payments/:id`
-- `GET /api/v1/payments/:id/timeline` — eventos del pago (observabilidad)
-- `POST /api/v1/payments/:id/sync` — polling post-redirect
-- `POST /api/v1/payments/:id/refund` — admin, full/partial en COP
-- `POST /api/v1/payments/:id/mock-complete` — solo `PAYMENTS_MODE=mock`
-- `POST /api/v1/payments/:id/mock-fail` — solo `PAYMENTS_MODE=mock`
-- `POST /api/v1/webhooks/wompi` — activo
-- `POST /api/v1/webhooks/bold` — legacy, deshabilitado
-- `POST /api/v1/webhooks/stripe` — legacy, deshabilitado
-- `POST /api/v1/auth/register` · `POST /api/v1/auth/login` · `GET /api/v1/auth/me`
+Configuración aplicada:
 
-### Auth (JWT)
+- Always HTTPS, TLS mínimo 1.2, TLS 1.3, HTTP/3.
+- HSTS 6 meses (pasar a 1 año + `includeSubDomains` tras verificar el lanzamiento; sin preload hasta entonces).
+- Bot Fight Mode y Cloudflare Managed Free Ruleset.
+- Regla WAF custom que bloquea rutas de escáneres: `/.env`, `/.git`, `/wp-admin`, `/wp-login`, `/xmlrpc.php`, `/phpmyadmin`, `/vendor/phpunit`, `/.aws`, `/cgi-bin`.
+- Rate limit en `/api/v1/auth/*`: 20 req / 10 s por IP+colo.
+- Cache bypass para `/api/*` y `/health`.
+- DNSSEC: DS publicado en GoDaddy; el estado en Cloudflare queda *pending* hasta que propague.
+- Turnstile: widget «Elevari Web», sitekey `0x4AAAAAAGL6Nkc1KmMspy5d` (pública); el secret vive solo en `TURNSTILE_SECRET_KEY` del servidor.
+- Web Analytics (sin cookies).
 
-- Header: `Authorization: Bearer <token>`
-- Cookie web: `wana_token` (middleware protege `/host`, `/account`, `/admin`)
-- Demo: `guest@wana.local`, `host@wana.local`, `admin@wana.local` / `wana12345`
+SSL/TLS: modo `full` hoy → `full (strict)` en el cutover. nginx ya termina TLS en 443 con un **Origin Certificate** de Cloudflare (15 años; hosts `elevari.live` y `*.elevari.live`) montado desde `/etc/ssl/elevari/` (`origin.pem`, `origin.key`; la llave nunca sale del servidor, `chmod 600`). Hosts de nginx: `elevari.live` (web + API), `www` → 301 al apex, `media` → bucket MinIO `elevari-media` (solo GET/HEAD). El puerto 80 redirige a HTTPS salvo `/health`.
 
-### Pagos (Fase 2 — Wompi-first)
+## DNS
 
-| Proveedor | Estado | Env vars |
-|-----------|--------|----------|
-| **Wompi** | **Activo** (COP, Colombia + internacional) | `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` (4 vars; entorno derivado del prefijo de la llave) — ver `.env.wompi.example` |
-| **Bold** | En repo, oculto y deshabilitado | `PAYMENTS_BOLD_ENABLED=false` |
-| **Stripe** | En repo, oculto y deshabilitado | `PAYMENTS_STRIPE_ENABLED=false` |
-| **Mock** | Local/staging sin keys | `PAYMENTS_MODE=mock` en `api/.env` |
+| Registro | Destino | Estado |
+|----------|---------|--------|
+| A `elevari.live` | `<SERVER_IP>` (proxied) | cutover pendiente (paso gated) |
+| A `www` | `<SERVER_IP>` (proxied) | cutover pendiente |
+| A `media` | `<SERVER_IP>` (proxied) | cutover pendiente |
+| MX / SPF / DMARC | GoDaddy (correo `reserve@elevari.live`) | intactos |
+| DKIM `resend._domainkey`, return-path `send` / `rsend` | Resend | verificados |
 
-- Startup validation: si Wompi está habilitado y falta cualquier `WOMPI_*`, la API no arranca (error claro).
-- Cobro siempre en **COP**; clientes internacionales ven USD de referencia (quote congelado, `fx_quotes`).
-- Disclosure obligatorio para checkout internacional (texto ES/EN, hash, timestamp) — `api/src/lib/payments/disclosure.ts`.
-- Gate legal: `FX_INTL_CHECKOUT_ENABLED=true` requiere `LEGAL_SIGNOFF_REF` — ver `legal-review-pack.md`.
-- Webhooks Wompi: firma verificada (`signature:integrity` / checksum de eventos), dedupe, validación de monto, idempotencia.
-- Refunds: full/partial en COP, sin re-tasar FX; registro en `payment_refunds`.
+Procedimiento de cutover y rollback: [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
-Webhook en producción: apuntar Wompi a `https://tu-dominio/api/v1/webhooks/wompi`.
-Ciclo de vida completo documentado en `docs/PAYMENTS.md`.
+## Correo
 
-### Media (Fase 3 — MinIO)
+Envío transaccional con Resend (dominio `elevari.live` verificado, región `sa-east-1`). Remitente: `Elevari <reserve@elevari.live>` (`RESEND_FROM`). Guía: [docs/RESEND_SETUP.md](docs/RESEND_SETUP.md).
 
-| Endpoint | Uso |
+## Otros servicios
+
+| Servicio | Uso |
 |----------|-----|
-| `POST /api/v1/media/upload` | Multipart: `property_id`, `file` + header `X-Host-Id` |
-| `GET /api/v1/media/property/:id` | Lista media de propiedad |
-| `DELETE /api/v1/media/:id` | Eliminar (host) |
-| `GET /api/v1/host/:hostId/properties` | Dashboard anfitrión |
+| Wompi | Único proveedor de pagos activo |
+| Alegra | Facturación electrónica Colombia |
+| Google (Firebase, GTM, GA4, Search Console, Play Console) | Analítica, push y distribución Android |
+| Expo / EAS | Push y, opcionalmente, builds |
+| GitHub (`Elevariapp/Elevari-repotransfer`) | Código y CI |
 
-Requiere MinIO (`npm run docker:infra`). Imágenes → WebP + thumbnails (sharp). Videos → MP4/WebM directo.
-
-### Marketing (Fase 4)
-
-| Componente | Ubicación |
-|------------|-----------|
-| GA4 + Meta Pixel + GTM | `components/analytics/MarketingScripts.tsx` |
-| Eventos cliente | `lib/analytics.ts` — view_item, begin_checkout, purchase |
-| SEO | `app/sitemap.ts`, `app/robots.ts`, `PropertyJsonLd` |
-| Email confirmación | API `marketing.ts` — Resend o log en dev |
-| Meta CAPI (server) | API al confirmar pago — `META_PIXEL_ID`, `META_ACCESS_TOKEN` |
-
-Web env: `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_SITE_URL`
-
-### Facturación Alegra (Fase 6B)
-
-| Endpoint | Uso |
-|----------|-----|
-| Auto post-pago | `invoicing.ts` — emite factura COP al confirmar pago |
-| `GET /api/v1/admin/invoices/pending` | Lista facturas pendientes/fallidas (admin JWT) |
-| `POST /api/v1/admin/invoices/:id/retry` | Reintento manual |
-
-Env: `ALEGRA_EMAIL`, `ALEGRA_API_TOKEN`. Sin credenciales → `pending_invoices` para procesamiento posterior. Pagos USD (Stripe internacional) no facturan en Alegra.
-
-### Database
-
-- Schema: `api/prisma/schema.prisma`
-- Migrations: `api/prisma/migrations/`
-- Unified model: `properties` (replaces legacy `domos` + `properties` split)
-
-## Legacy stack (removed Jul 2026)
-
-- Supabase client, server actions, Next `/api/*` stubs — **eliminados**; usar solo Fastify `/api/v1`
-- **Netlify:** eliminado (fuera de arquitectura); producción usa Docker en EC2
-- **Pagos mock:** checkout vía `wanaApi` + API Fastify
-
-## Environment
-
-- Web: copy `.env.example` → `.env.local`
-- API: copy `api/.env.example` → `api/.env`
-- `NEXT_PUBLIC_API_URL=http://localhost:4000`
-
-## Deployment (production)
-
-- **Guía principal:** `deploy/DEPLOYMENT_PRODUCTION.md`
-- Stack: `docker compose -f docker-compose.prod.yml --env-file .env.production up -d`
-- Template env: `deploy/.env.production.example`
-- Backups: `deploy/scripts/backup-db.sh`
-- Cloudflare CDN in front of Nginx + MinIO
-- Roadmap: `ROADMAP.md`
-
-## Health checks
-
-- API: `curl http://localhost:4000/health`
-- Web: `app/health/`, `app/heartbeat/`
-
-## Agent rule
-
-For deployment tasks, start here. For booking/payment work, use the new API + Prisma schema first.
+Inventario de cuentas y ubicación de secretos: [docs/HANDOVER.md](docs/HANDOVER.md).

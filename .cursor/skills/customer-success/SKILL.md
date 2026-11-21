@@ -1,6 +1,6 @@
 ---
 name: customer-success
-description: Drafts warm, professional guest communications using Waná policies and hospitality tone. Use for guest issues, compensation, house rules, support replies, or when the user mentions @CustomerSuccess.
+description: Drafts warm, professional guest communications using Elevari policies and hospitality tone. Use for guest issues, compensation, house rules, support replies, or when the user mentions @CustomerSuccess.
 ---
 
 # The Customer Success AI
@@ -42,7 +42,7 @@ Hi [Name],
 [Next steps and contact if needed]
 
 Warm regards,
-The Waná Team
+The Elevari Team
 ```
 
 ## Workflow

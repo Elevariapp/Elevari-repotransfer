@@ -1,374 +1,74 @@
-# TECHNICAL_DECISIONS.md — Architecture Decision Records
+# TECHNICAL_DECISIONS — Decisiones técnicas (ADR)
 
-**Repository:** `wana-2026` (Elevari hospitality platform)
-**Status:** Phase 0 — Canonical Governance Foundation
-**Last validated:** Commit `550190a`
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-## Overview
+Formato: contexto → decisión → consecuencias. Las decisiones de 2026-11 reflejan el estado de producción.
 
-This document records all significant technical decisions made for the Elevari platform. Each decision includes context, options considered, decision, rationale, and consequences.
+## ADR-001 — Hetzner en lugar de AWS (2026-11)
 
-**Owner:** Engineering Team
-**Phase:** 3E (Complete)
+- **Contexto:** un solo servicio con tráfico inicial moderado; se necesita costo predecible y operación simple.
+- **Decisión:** un servidor Hetzner Cloud cpx32 (4 vCPU / 8 GB) en Helsinki con Docker Compose. AWS EC2 descartado: más costo y complejidad (IAM, VPC, RDS) sin beneficio a esta escala.
+- **Consecuencias:** punto único de fallo; se mitiga con Backups de Hetzner + `pg_dump` diario. Escalar = subir de tipo de servidor o separar la base de datos.
 
-## ADR-001: Next.js 16 + React 19 + TypeScript 6
+## ADR-002 — Cloudflare como edge (2026-11)
 
-**Status:** Accepted
-**Date:** 2026-01-15
+- **Decisión:** Cloudflare Free delante del origen: TLS, WAF gestionado + regla custom, Bot Fight Mode, rate limit en auth, DNSSEC, Turnstile, Web Analytics. Origen restringido a rangos Cloudflare tras el cutover y `full (strict)` con Origin Certificate.
+- **Consecuencias:** el origen no es accesible directo; la IP real llega vía cabeceras de Cloudflare. Los cambios de DNS pasan por la zona de Cloudflare (registrador GoDaddy solo delega nameservers).
 
-### Context
+## ADR-003 — Wompi como único proveedor de pagos (2026-11)
 
-The Elevari platform needed a modern web framework for server-side rendering, static generation, and API routes. The team evaluated Next.js, Remix, and SvelteKit.
+- **Contexto:** mercado colombiano, cobro en COP.
+- **Decisión:** Wompi es el único proveedor live (`PAYMENTS_WOMPI_ENABLED=true`). El código de Bold y Stripe se conserva como legacy deshabilitado (`PAYMENTS_BOLD_ENABLED=false`, `PAYMENTS_STRIPE_ENABLED=false`); descartado como camino de producción.
+- **Consecuencias:** una sola integración que mantener y certificar; checkout alojado (alcance PCI SAQ A); webhook `https://elevari.live/api/v1/webhooks/wompi` con verificación de checksum obligatoria.
 
-### Options Considered
+## ADR-004 — GTM + GA4 (2026-11)
 
-| Option | Pros | Cons |
-|--------|------|------|
-| Next.js 16 | App Router, SSR/SSG, API routes, large ecosystem, Vercel deployment | Complexity, vendor lock-in concerns |
-| Remix | Nested routing, progressive enhancement, web standards | Smaller ecosystem, less hiring pool |
-| SvelteKit | Simple, performant, less boilerplate | Smaller ecosystem, TypeScript support maturing |
+- **Decisión:** `NEXT_PUBLIC_GTM_ID` (GTM-PXVGFFMK) contiene el tag de Google para GA4 (G-W4QC0NYBVJ). Con GTM activo la web no carga gtag directo y publica eventos en `dataLayer`. Meta Pixel opcional.
+- **Consecuencias:** cambios de etiquetas sin redeploy; las variables `NEXT_PUBLIC_*` son build-time y requieren reconstruir la imagen `web`.
 
-### Decision
+## ADR-005 — Resend para correo transaccional (2026-11)
 
-Use Next.js 16 with App Router, React 19, and TypeScript 6.
+- **Decisión:** Resend con dominio `elevari.live` verificado solo para envío (región `sa-east-1`). Remitente `Elevari <reserve@elevari.live>`. La recepción sigue en GoDaddy (buzón `reserve@elevari.live`); no se añade MX de Resend.
+- **Consecuencias:** SPF/DKIM de Resend conviven con el correo de GoDaddy; no tocar MX/SPF/DMARC de GoDaddy.
 
-### Rationale
+## ADR-006 — Un solo dominio, sin subdominio `api` (2026-11)
 
-- App Router provides SSR/SSG for SEO-critical property pages
-- Large talent pool and ecosystem
-- Strong TypeScript support
+- **Decisión:** web en `/`, API en `/api/v1/*`, health en `/health` bajo `https://elevari.live`; media en `https://media.elevari.live/elevari-media/*`. `www` redirige al apex.
+- **Consecuencias:** sin CORS entre web y API en el navegador; reglas de Cloudflare por ruta (`/api/*` sin caché); `NEXT_PUBLIC_API_URL=https://elevari.live`.
 
-## ADR-002: Fastify 5 for Backend API
+## ADR-007 — Alcance Android-only (2026-11)
 
-**Status:** Accepted
-**Date:** 2026-01-15
+- **Decisión:** producción = web + Android (`elevari.androidapp`). iOS fuera de alcance: se eliminó la ruta `apple-app-site-association` y las variables `APPLE_TEAM_ID` / `IOS_BUNDLE_ID` ya no existen.
+- **Consecuencias:** solo se sirve Digital Asset Links (`assetlinks.json`); no se publica ni prueba nada para iOS.
 
-### Context
+## ADR-008 — Expo Push + Firebase en móvil (2026-11)
 
-The platform needed a high-performance Node.js backend for payment processing, webhooks, and admin APIs separate from Next.js API routes.
+- **Decisión:** analítica con `@react-native-firebase` (proyecto `elevari`; `google-services.json` no se versiona) y push con `expo-notifications` (Expo Push). Push **deshabilitado** hasta que exista un `projectId` real de EAS y un endpoint de la API para registrar tokens.
+- **Consecuencias:** `projectId` de EAS = UUID real (pendiente de login del propietario); endpoint de registro de tokens pendiente en el roadmap. La app autentica con Turnstile mediante un widget en WebView.
 
-### Options Considered
+## ADR-009 — Play App Signing con llave de subida (2026-11)
 
-| Option | Pros | Cons |
-|--------|------|------|
-| Fastify 5 | Fast, schema-based validation, TypeScript support, plugin ecosystem | Smaller community than Express |
-| Express | Largest ecosystem, familiar | Slower, less structured |
-| NestJS | Opinionated, Angular-like, TypeScript-first | Heavy, steep learning curve |
+- **Decisión:** el AAB se firma con una **llave de subida** (keystore fuera del repo). Google conserva la llave de firma de la app; su SHA-256 va en `ANDROID_SHA256_CERT_FINGERPRINTS` y se sirve en `/.well-known/assetlinks.json`.
+- **Consecuencias:** si se pierde la llave de subida, se solicita reseteo a Google Play; el keystore y sus claves viven en el gestor de contraseñas del propietario.
 
-### Decision
+## ADR-010 — Solo producción (sin staging) (2026-11)
 
-Use Fastify 5 for the backend API service.
+- **Decisión:** no se mantiene entorno staging (se eliminaron `docker-compose.staging.yml`, plantilla de env y nginx de staging y sus scripts de despliegue). Las pruebas previas se hacen en local con el quality gate; el despliegue es directo a producción con rollback por git (ver [docs/RUNBOOK.md](docs/RUNBOOK.md)). `validate-env.sh` es solo de producción y estricto.
+- **Consecuencias:** disciplina de gate antes de cada push; cuentas demo (`@elevari.local`) bloqueadas en producción; el seed demo se niega a correr con `NODE_ENV=production` (salvo `ALLOW_DEMO_SEED=true`, nunca usar). Datos iniciales de producción: `npm run create-admin` y `npm run seed:property` en el contenedor `api` (sin usuarios demo ni reseñas).
 
-### Rationale
+## ADR-011 — nginx termina TLS en el origen (2026-11)
 
-- High performance for payment webhooks and high-traffic endpoints
-- JSON Schema validation built-in
-- Strong TypeScript support
-- Plugin architecture for extensibility
-- Lightweight compared to NestJS
+- **Decisión:** nginx sirve 443 con el Cloudflare Origin Certificate montado desde `/etc/ssl/elevari/`; 80 redirige a HTTPS salvo `/health`; `cloudflare-ips.conf` restaura la IP real; hosts: apex (web + API), `www` → 301, `media` → MinIO (GET/HEAD).
+- **Consecuencias:** habilita `full (strict)` y restringir 80/443 a Cloudflare en el cutover; el certificado y su llave solo existen en el servidor.
 
-### Consequences
+## ADR-012 — Postgres 16 + Prisma + MinIO autoalojados (2026-11)
 
-- Two Node.js services (Next.js + Fastify)
-- Need to manage service communication
-- Fastify-specific patterns and plugins
+- **Decisión:** base de datos y almacenamiento S3-compatible en el mismo servidor (contenedores), con `pg_dump` diario y Backups de Hetzner.
+- **Consecuencias:** sin réplica ni failover; RPO ≈ 24 h (dump) / snapshot de Hetzner.
 
-## ADR-003: Prisma 6 + PostgreSQL
+## Decisiones previas vigentes
 
-**Status:** Accepted
-**Date:** 2026-01-15
-
-### Context
-
-The platform needed an ORM and relational database for property, booking, user, and payment data.
-
-### Options Considered
-
-| Option | Pros | Cons |
-|--------|------|------|
-| Prisma 6 | Type-safe, excellent DX, migration system, PostgreSQL support | Runtime overhead, Java-based engine |
-| Drizzle ORM | Lightweight, SQL-like, TypeScript-first | Newer, smaller ecosystem |
-| TypeORM | Mature, decorator-based, active record | Heavy, complex, performance issues |
-| Raw SQL (pg) | Maximum performance, no abstraction | Boilerplate, no type safety |
-
-### Decision
-
-Use Prisma 6 with PostgreSQL as the primary database.
-
-### Rationale
-
-- Type-safe database access
-- Excellent developer experience
-- Built-in migration system
-- Strong PostgreSQL support
-- Large community and documentation
-
-## ADR-006: Cloudflare for DNS, CDN, and Security
-
-**Status:** Accepted
-**Date:** 2026-01-22
-
-### Context
-
-The platform needed DNS management, CDN, DDoS protection, and SSL/TLS termination.
-
-### Options Considered
-
-| Option | Pros | Cons |
-|--------|------|------|
-| Cloudflare | DNS, CDN, DDoS, WAF, SSL, edge functions | Single provider dependency |
-| AWS CloudFront + Route53 | AWS integration, global edge | More complex setup, higher cost |
-| Fastly | High performance, edge compute | Expensive, complex |
-| Akamai | Enterprise-grade, global | Very expensive, overkill |
-
-### Decision
-
-Use Cloudflare for DNS, CDN, DDoS protection, WAF, and SSL/TLS.
-
-### Rationale
-
-- All-in-one solution (DNS, CDN, security, SSL)
-- Free tier for basic needs, scalable paid tiers
-- Easy setup and management
-- Global edge network
-- WAF and DDoS protection included
-
-### Consequences
-
-- Cloudflare as single point of failure for DNS/CDN
-- All traffic routed through Cloudflare
-- Provider lock-in for edge services
-
-## ADR-007: Tailwind CSS + shadcn/ui
-
-**Status:** Accepted
-**Date:** 2026-01-25
-
-### Context
-
-The platform needed a CSS framework and component library for consistent UI development.
-
-### Options Considered
-
-| Option | Pros | Cons |
-|--------|------|------|
-| Tailwind CSS + shadcn/ui | Utility-first, copy-paste components, no runtime, TypeScript | Learning curve, large HTML classes |
-| Material UI | Comprehensive, Google design system | Heavy, opinionated, bundle size |
-| Chakra UI | Accessible, easy to use | Runtime CSS-in-JS, bundle size |
-| Headless UI + Tailwind | Unstyled components, flexible | More custom work required |
-
-### Decision
-
-Use Tailwind CSS with shadcn/ui component library.
-
-### Rationale
-
-- Zero runtime CSS (all at build time)
-- shadcn/ui components are copy-paste, fully customizable
-- Excellent TypeScript support
-- Accessible components (Radix UI primitives)
-- Small bundle size
-- Design system alignment
-
-### Consequences
-
-- Utility class HTML can be verbose
-- Component customization required for brand alignment
-- Tailwind learning curve for new developers |
-
-## ADR-008: Zod for Schema Validation
-
-**Status:** Accepted
-**Date:** 2026-01-25
-
-### Context
-
-The platform needed runtime type validation for API requests, form data, and environment variables.
-
-### Options Considered
-
-| Option | Pros | Cons |
-|--------|------|------|
-| Zod | TypeScript-first, excellent DX, inference, Fastify integration | Bundle size, learning curve |
-| Yup | Popular, form-focused | Larger bundle, less TypeScript integration |
-| Joi | Mature, powerful | No TypeScript inference, verbose |
-| Superstruct | Simple, TypeScript-first | Smaller ecosystem |
-
-### Decision
-
-Use Zod for schema validation across the platform.
-
-### Rationale
-
-- TypeScript type inference from schemas
-- Excellent developer experience
-- Fastify plugin support (@fastify/type-provider-zod)
-- React Hook Form integration for form validation
-- Environment variable validation
-
-### Consequences
-
-- Additional dependency
-- Schema maintenance alongside TypeScript types |
-
-## ADR-009: React Hook Form + Zod Resolver
-
-**Status:** Accepted
-**Date:** 2026-01-25
-
-### Context
-
-The platform needed form management with validation for booking, checkout, and user forms.
-
-### Options Considered
-
-| Option | Pros | Cons |
-|--------|------|------|
-| React Hook Form + Zod | Performant, uncontrolled components, Zod integration | Learning curve |
-| Formik | Popular, React community standard | Heavier, re-renders on every change |
-| React Final Form | Immutable, performant | Smaller community |
-| TanStack Form | Headless, framework-agnostic | Newer, smaller ecosystem |
-
-### Decision
-
-Use React Hook Form with Zod resolver for form management.
-
-### Rationale
-
-- Uncontrolled components (better performance)
-- Zod integration for schema validation
-- Small bundle size
-- Excellent TypeScript support
-- Wide adoption and community
-
-### Consequences
-
-- Uncontrolled component pattern (different from controlled)
-- Zod schema maintenance |
-
-## ADR-010: Sonner for Toast Notifications
-
-**Status:** Accepted
-**Date:** 2026-01-25
-
-### Context
-
-The platform needed a toast notification system for user feedback.
-
-### Options Considered
-
-| Option | Pros | Cons |
-|--------|------|------|
-| Sonner | Simple, accessible, customizable, lightweight | Single purpose |
-| React Hot Toast | Popular, easy to use | Larger bundle |
-| Notistack | Material UI integrated | MUI dependency |
-| Sonner (shadcn/ui) | Part of shadcn/ui ecosystem | Same as Sonner |
-
-### Decision
-
-Use Sonner for toast notifications.
-
-### Rationale
-
-- Lightweight and accessible
-- Easy to use and customize
-- Part of shadcn/ui ecosystem
-- No heavy dependencies
-
-### Consequences
-
-- Single-purpose library
-- Limited to toast notifications |
-
-## Related Documents
-
-- `ARCHITECTURE.md` — System architecture & tech stack
-- `DEPENDENCY_MATRIX.md` — Dependency relationships
-- `SSOT_REGISTRY.md` — Single source of truth registry
-- `EXS_GUIDE.md` — Experience System (tokens, components, a11y)
-- `DESIGN_SYSTEM.md` — Design tokens, color, typography, spacing
-
-### Consequences
-
-- Prisma Client runtime overhead
-- Migration management required
-- Database hosted on AWS RDS PostgreSQL |
-
-## ADR-004: Wompi as Sole Payment Provider
-
-**Status:** Accepted
-**Date:** 2026-01-20
-
-### Context
-
-The platform needed a payment processor for Colombian market (COP currency). Bold and Stripe were previously evaluated but removed.
-
-### Options Considered
-
-| Option | Pros | Cons |
-|--------|------|------|
-| Wompi | Colombian-focused, COP support, Bancolombia integration, local compliance | Single provider, no fallback |
-| Bold | Latin American focus, multiple currencies | Removed — deprecated API |
-| Stripe | Global, excellent API, documentation | Limited COP support, higher fees for LATAM |
-
-### Decision
-
-Use Wompi as the sole payment provider for COP transactions.
-
-### Rationale
-
-- Native COP currency support
-- Colombian market focus (Bancolombia, Nequi, Daviplata)
-- Local regulatory compliance
-- Lower fees for Colombian transactions
-- Direct bank integrations
-
-### Consequences
-
-- Single point of failure for payments
-- No multi-currency support (COP only)
-- Provider lock-in for Colombian market |
-
-## ADR-005: AWS EC2 + MinIO for Infrastructure
-
-**Status:** Accepted
-**Date:** 2026-01-22
-
-### Context
-
-The platform needed hosting for the application, file storage, and infrastructure services.
-
-### Options Considered
-
-| Option | Pros | Cons |
-|--------|------|------|
-| AWS EC2 + MinIO | Full control, cost-effective, S3-compatible storage | Self-managed, operational overhead |
-| AWS ECS/EKS | Managed containers, scaling | Complex, higher cost |
-| Vercel + AWS S3 | Managed, simple | Vendor lock-in, higher cost at scale |
-| DigitalOcean Droplets | Simple, cheap | Fewer enterprise features |
-
-### Decision
-
-Use AWS EC2 for application hosting and MinIO for S3-compatible object storage.
-
-### Rationale
-
-- Full control over infrastructure
-- Cost-effective for current scale
-- MinIO provides S3-compatible API for file storage
-- AWS ecosystem familiarity
-- Self-hosted reduces vendor lock-in
-
-### Consequences
-
-- Self-managed infrastructure (patching, monitoring, scaling)
-- Operational overhead for EC2 and MinIO
-- Need for backup and disaster recovery procedures |
-- API routes for backend integration
-- Vercel deployment alignment
-
-### Consequences
-
-- Next.js-specific patterns (Server Components, Client Components)
-- Need to manage Server/Client component boundaries
-- Vercel as primary deployment target |
+- API Fastify separada de Next.js (equipos y despliegues independientes del renderizado).
+- Montos en COP con unidades menores (centavos) y fee de plataforma configurable (`PLATFORM_FEE_PERCENT`, 15 % por defecto).
+- Disponibilidad con restricción de no-solape en base de datos (migración `availability_no_overlap`).
+- Sincronización iCal con OTAs mediante job periódico.

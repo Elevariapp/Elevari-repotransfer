@@ -1,4 +1,4 @@
-# Waná Go-Live — Shared Audit Reference
+# Elevari Go-Live — Shared Audit Reference
 
 Use this when **production-expert**, **product-communications**, or **product-sales-marketing** run a coordinated gap analysis before live public sales.
 
@@ -6,8 +6,8 @@ Use this when **production-expert**, **product-communications**, or **product-sa
 
 | Document | Production | Comms | Sales/Marketing |
 |----------|:----------:|:-----:|:---------------:|
-| `deploy/GO_LIVE_CHECKLIST.md` | ✅ primary | skim | skim |
-| `docs/PLATFORM_STATUS_CHECKLIST.md` | ✅ primary | ✅ primary | ✅ primary |
+| `GO_LIVE_CHECKLIST.md` | ✅ primary | skim | skim |
+| `DOMAIN_STATUS.md` | ✅ primary | ✅ primary | ✅ primary |
 | `INFRASTRUCTURE.md` | ✅ primary | — | skim (Fase 4) |
 | `ROADMAP.md` | ✅ | ✅ | ✅ |
 | `deploy/DEPLOYMENT_PRODUCTION.md` | ✅ | — | — |
@@ -16,10 +16,10 @@ Use this when **production-expert**, **product-communications**, or **product-sa
 
 ## Current known gaps (update after each audit)
 
-Source: `docs/PLATFORM_STATUS_CHECKLIST.md` — post staging `164.92.241.30`
+Source: `DOMAIN_STATUS.md` — post staging `164.92.241.30`
 
 ### Production (P0 blockers)
-- HTTPS / dominio `wana.co` — not live
+- HTTPS / dominio `elevari.live` — not live
 - Pagos live — `PAYMENTS_MODE=mock`
 - Alegra — no credentials (validate-env now **requires** keys when `PAYMENTS_MODE=live`)
 - Backups — script exists, cron not confirmed
@@ -51,7 +51,7 @@ When user asks for full go-live readiness:
 Merge into single executive summary:
 
 ```markdown
-# Waná Launch Readiness — Executive Summary
+# Elevari Launch Readiness — Executive Summary
 
 **Verdict:** [Not ready / Soft launch ready / Public launch ready]
 
@@ -70,7 +70,7 @@ Merge into single executive summary:
 ## Commands (all agents)
 
 ```bash
-npm run go-live:validate:staging
+npm run go-live:validate
 ./deploy/scripts/validate-env.sh
-BASE_URL=http://164.92.241.30 ./deploy/scripts/verify-health.sh
+BASE_URL=https://elevari.live ./deploy/scripts/verify-health.sh
 ```

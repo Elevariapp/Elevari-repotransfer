@@ -1,76 +1,52 @@
-# Resend — configuración para Waná
+# Resend — correo transaccional de Elevari
 
-## Qué necesito de ti (para pegar en `.env.staging` en el servidor)
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-| Variable | Dónde obtenerla | Ejemplo |
-|----------|-----------------|---------|
-| `RESEND_API_KEY` | [Resend → API Keys](https://resend.com/api-keys) → Create API Key | `re_xxxxxxxxxxxx` |
-| `RESEND_FROM` | Dominio verificado en Resend → Emails → Domains | `Waná <reservas@tudominio.com>` |
+## Estado
 
-También confirma que en `.env.staging` del Droplet estén:
+| Ítem | Valor |
+|------|-------|
+| Dominio | `elevari.live` verificado en Resend **solo para envío** (región `sa-east-1`) |
+| Registros DNS | DKIM `resend._domainkey` y return-path `send` / `rsend` (en Cloudflare) |
+| Remitente | `Elevari <reserve@elevari.live>` |
+| Buzón de recepción | `reserve@elevari.live` en GoDaddy |
 
-```bash
-PUBLIC_SITE_URL=http://164.92.241.30
-NEXT_PUBLIC_SITE_URL=http://164.92.241.30
-NEXT_PUBLIC_API_URL=http://164.92.241.30
-```
+## Variables (solo nombres)
 
-(El enlace de reset de contraseña usa `PUBLIC_SITE_URL`.)
+| Variable | Dónde | Notas |
+|----------|-------|-------|
+| `RESEND_API_KEY` | entorno de producción del servidor | llave con permiso de envío; valor en el gestor «Elevari» |
+| `RESEND_FROM` | entorno de producción del servidor | `"Elevari <reserve@elevari.live>"` |
+| `PUBLIC_SITE_URL` | entorno de producción del servidor | `https://elevari.live`; se usa en los enlaces de los correos |
 
----
+## Reglas de DNS
 
-## Pasos en Resend (primera vez)
+- **No** añadir registros MX de recepción de Resend: la recepción es de GoDaddy.
+- No modificar MX, SPF ni DMARC del correo de GoDaddy. Los registros de Resend (DKIM y return-path) conviven con ellos.
 
-1. **Cuenta** en [resend.com](https://resend.com)
-2. **API Key** con permiso *Sending access* (Full access también sirve)
-3. **Dominio verificado** (recomendado para producción):
-   - Resend → Domains → Add domain (ej. `glampingwana.com`)
-   - Agrega los registros DNS (SPF, DKIM) que te indique Resend
-   - Espera estado **Verified**
-4. **`RESEND_FROM`** debe usar un email de ese dominio, ej. `Waná <noreply@glampingwana.com>`
+## Correos que envía la plataforma
 
-### Staging solo con IP (sin dominio aún)
+| Evento | Plantilla (`api/src/lib/email-templates/`) |
+|--------|------------------------------------------|
+| Bienvenida | `welcome` |
+| Restablecer contraseña (enlace válido 1 h) | `password-reset` |
+| Contraseña cambiada | `password-changed` |
+| Confirmación de reserva | `booking-confirmation` |
+| Cancelación | `booking-cancellation` |
+| Recordatorio de check-in | `check-in-reminder` |
+| Recibo de factura | `invoice-receipt` |
 
-Resend **no** permite enviar desde `@wana.co` sin verificar el dominio.
-
-Opciones:
-
-- **A)** Verificar un dominio real (ideal) — aunque el sitio sea `http://164.92.241.30`, el *from* puede ser `@tudominio.com`
-- **B)** Modo prueba Resend: solo puedes enviar **al email de tu cuenta Resend** usando `onboarding@resend.dev` como remitente (limitado)
-
----
-
-## Qué emails envía Waná hoy
-
-| Evento | Cuándo |
-|--------|--------|
-| Reset contraseña | `POST /auth/forgot-password` → link 1h |
-| Confirmación reserva | Tras pago confirmado (`onBookingConfirmed`) |
-
----
-
-## Cómo lo configuramos juntos
-
-1. Tú me pasas (en el chat, o lo pegas tú en `.env.staging` local):
-   - `RESEND_API_KEY=re_...`
-   - `RESEND_FROM="Waná <email@dominio-verificado.com>"`
-2. Yo actualizo `.env.staging`, despliego con `npm run go-live:remote`
-3. Probamos: `/auth/forgot-password` con un email registrado (ej. `guest@wana.local` solo si ese inbox existe; mejor usa tu email real registrado en la app)
-
-**No compartas la API key en repos públicos** — solo en `.env.staging` (gitignored).
-
----
-
-## Verificación rápida post-deploy
+## Verificación
 
 ```bash
-# En el servidor
-curl -s http://164.92.241.30/health
-
-# Forgot password (desde tu máquina)
-curl -X POST http://164.92.241.30/api/v1/auth/forgot-password \
+curl -s https://elevari.live/health
+curl -X POST https://elevari.live/api/v1/auth/forgot-password \
   -H 'Content-Type: application/json' \
-  -d '{"email":"TU_EMAIL_REGISTRADO"}'
+  -d '{"email":"<correo-registrado>"}'
 ```
 
-Respuesta esperada: `{"success":true,"message":"Si el correo está registrado..."}` y correo en bandeja (revisa spam).
+Respuesta esperada: `success: true` y correo en la bandeja (revisar spam). Si no llega: logs de `api` (`docker compose ... logs api`) y el panel de Resend (Emails / Logs).
+
+## Rotación
+
+Crear una llave nueva en Resend, actualizar `RESEND_API_KEY` en el servidor, `docker compose ... up -d api web`, y revocar la anterior (ver [RUNBOOK.md](RUNBOOK.md) §6). La llave usada durante el montaje debe rotarse tras el go-live ([HANDOVER.md](HANDOVER.md)).

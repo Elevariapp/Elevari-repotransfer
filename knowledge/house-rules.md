@@ -1,6 +1,6 @@
 # House Rules (template — replace with property-specific rules)
 
-## All Waná properties
+## All Elevari properties
 - No smoking inside domos unless explicitly marked as smoking-allowed.
 - Quiet hours: 10:00 PM – 7:00 AM local time.
 - Maximum occupancy per property as listed on the booking page.

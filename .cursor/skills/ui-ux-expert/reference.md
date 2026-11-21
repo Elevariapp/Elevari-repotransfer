@@ -1,4 +1,4 @@
-# Waná UI — referencia rápida
+# Elevari UI — referencia rápida
 
 ## Jerarquía tipográfica
 
@@ -6,24 +6,24 @@
 |----------|----------------|
 | Hero H1 | `font-display text-4xl sm:text-5xl lg:text-6xl` |
 | Page title | `font-display text-3xl sm:text-4xl` |
-| Section | `wana-section-title` |
+| Section | `elevari-section-title` |
 | Body | `text-sm text-slate-600` |
 | Label | `text-xs font-bold uppercase tracking-wider text-slate-500` |
 
 ## Espaciado
 
 - Secciones: `py-10 lg:py-14`
-- Container: siempre `wana-container`
+- Container: siempre `elevari-container`
 - Cards grid: `gap-x-6 gap-y-10`
 
 ## Estados de botón
 
 ```tsx
 // Primario
-className="wana-btn-primary"
+className="elevari-btn-primary"
 
 // Secundario
-className="wana-btn-ghost"
+className="elevari-btn-ghost"
 
 // Disabled
 disabled:opacity-50 disabled:cursor-not-allowed
@@ -39,4 +39,4 @@ disabled:opacity-50 disabled:cursor-not-allowed
 
 - `alt` en todas las imágenes de producto
 - `type="button"` en botones no-submit
-- Focus visible en links (`focus-visible:ring-2 focus-visible:ring-wana-forest`)
+- Focus visible en links (`focus-visible:ring-2 focus-visible:ring-elevari-forest`)

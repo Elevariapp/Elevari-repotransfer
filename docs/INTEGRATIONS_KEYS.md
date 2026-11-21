@@ -1,64 +1,42 @@
-# Mapa de credenciales — Waná
+# Mapa de credenciales — Elevari
 
-Referencia de qué servicio usa cada variable (sin valores secretos).
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-| Servicio | Variables en `.env.staging` | Estado en código |
-|----------|----------------------------|------------------|
-| **Cloudflare Turnstile** | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | ✅ Widget login/registro + validación API |
-| **Resend** | `RESEND_API_KEY`, `RESEND_FROM` | ✅ Emails reset + confirmación reserva |
-| **Google OAuth** | `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | ✅ Google Identity Services + `POST /auth/google` |
-| **Meta / Facebook** | `META_APP_ID`, `META_APP_SECRET`, `NEXT_PUBLIC_META_PIXEL_ID`, `META_PIXEL_ID` | ✅ Pixel en web; CAPI necesita `META_ACCESS_TOKEN` |
-| **Sentry** | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` | 📋 Variables listas; instalar `@sentry/nextjs` en próximo deploy |
-| **Alegra** | `ALEGRA_EMAIL`, `ALEGRA_API_TOKEN`, `ALEGRA_TEST_SET_ID` | ⚠️ Falta `ALEGRA_EMAIL` (login Alegra) |
+Qué servicio usa cada variable. **Sin valores secretos**: los valores viven en el gestor de contraseñas «Elevari» y en el entorno de producción del servidor ([RUNBOOK.md](RUNBOOK.md)). Cualquier credencial expuesta durante el montaje se rota tras el go-live ([HANDOVER.md](HANDOVER.md)).
+
+| Servicio | Variables | Estado |
+|----------|-----------|--------|
+| Wompi (único proveedor live) | `PAYMENTS_MODE`, `PAYMENTS_WOMPI_ENABLED`, `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET`, `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` | Llaves live pendientes en servidor |
+| Alegra | `ALEGRA_EMAIL`, `ALEGRA_API_TOKEN` | Pendiente |
+| Resend | `RESEND_API_KEY`, `RESEND_FROM` | Dominio verificado; ver [RESEND_SETUP.md](RESEND_SETUP.md) |
+| Cloudflare Turnstile | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (pública), `TURNSTILE_SECRET_KEY` | Activo; obligatorio en producción |
+| Google Tag Manager / GA4 | `NEXT_PUBLIC_GTM_ID` (`GTM-PXVGFFMK`), `NEXT_PUBLIC_GA_MEASUREMENT_ID` (`G-W4QC0NYBVJ`) | Activo; build-time |
+| Meta Pixel (opcional) | `NEXT_PUBLIC_META_PIXEL_ID`, `META_PIXEL_ID`, `META_ACCESS_TOKEN` (CAPI) | Opcional |
+| Google Sign-In (opcional) | `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_ID` | Opcional |
+| Sentry (opcional) | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` | No instalado |
+| Android / Digital Asset Links | `ANDROID_SHA256_CERT_FINGERPRINTS`, `ANDROID_PACKAGE_NAME` | Falta la huella de Play App Signing |
+| Firma Android | `ELEVARI_UPLOAD_STORE_FILE`, `ELEVARI_UPLOAD_STORE_PASSWORD`, `ELEVARI_UPLOAD_KEY_ALIAS`, `ELEVARI_UPLOAD_KEY_PASSWORD` (propiedades de Gradle en el PC del propietario) | Configuradas |
+| Núcleo | `JWT_SECRET`, `POSTGRES_*`, `MINIO_*`, `CORS_ORIGIN`, `DISABLE_DEMO_ACCOUNTS` | Ver [deploy/DEPLOYMENT_PRODUCTION.md](../deploy/DEPLOYMENT_PRODUCTION.md) |
+| Bootstrap | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `RESET_PASSWORD`, `HOST_EMAIL` | Solo al ejecutar `create-admin` / `seed:property` |
+| Agentes / operación | `CLOUDFLARE_API_TOKEN`, `HETZNER_API_TOKEN`, `RESEND_API_KEY` | Se leen del entorno de quien opera; nunca de archivos del repo |
+| Legacy (deshabilitado) | `PAYMENTS_BOLD_ENABLED`, `PAYMENTS_STRIPE_ENABLED`, `BOLD_*`, `STRIPE_*` | Código legacy; no usar |
+
+Plantillas de nombres: `deploy/.env.production.example`, `.env.example`, `api/.env.example`, `mobile/.env.example`.
 
 ## Cloudflare Turnstile
 
-- **Site key** (pública): `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — widget en login/registro.
-- **Secret key** (privada): `TURNSTILE_SECRET_KEY` — validación en API.
-- Dashboard: [Cloudflare → Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile)
+Widget «Elevari Web». La sitekey es pública (viaja en el HTML) y está en `NEXT_PUBLIC_TURNSTILE_SITE_KEY`: `0x4AAAAAAGL6Nkc1KmMspy5d`. El secret solo existe en `TURNSTILE_SECRET_KEY` del servidor. Hostnames del widget: `elevari.live` (y `localhost` para desarrollo). La app Android obtiene el token con un widget dentro de un WebView. Rotación: [RUNBOOK.md](RUNBOOK.md) §6.
 
-**Hostnames obligatorios en el widget:**
+## Google
 
-| Hostname |
-|----------|
-| `eleveri.app` |
-| `www.eleveri.app` |
-| `localhost` (desarrollo) |
-
-Tras crear keys nuevas, actualiza `.env.staging` y redeploy (`npm run go-live:remote`).
-
-Bypass temporal (solo debug): `TURNSTILE_DISABLED=1` y `NEXT_PUBLIC_TURNSTILE_DISABLED=1` en `.env.staging`.
-
-## Resend
-
-- **API key** `re_…`: envío de correos.
-- **`RESEND_FROM`**: debe ser dominio verificado en Resend; en staging usamos `onboarding@resend.dev` (solo pruebas).
-
-## Google Cloud Console
-
-- **Client ID** + **Client secret**: login con Google (Identity Services, credential JWT).
-- En Google Console → Credentials → OAuth client, autorizar **JavaScript origins**:
-  - `https://eleveri.app`
-  - `https://www.eleveri.app`
-  - `http://localhost:3000` (local)
-- No hace falta redirect URI para el flujo actual (One Tap / botón GIS).
-
-## Facebook
-
-- **App ID** + **App secret**: app Meta Developers.
-- **Pixel** (web): `NEXT_PUBLIC_META_PIXEL_ID` ya configurado con el App ID si coincide con tu pixel.
-- **CAPI** (server): necesitas un **Access Token** de larga duración → `META_ACCESS_TOKEN` (distinto del app secret).
-
-## Sentry
-
-- **DSN**: URL de ingest del proyecto Sentry.
+- **GTM** `GTM-PXVGFFMK` contiene el tag de Google para GA4 `G-W4QC0NYBVJ`. Con GTM activo la web no carga gtag directo.
+- **Google Sign-In** (opcional): autorizar `https://elevari.live` en los JavaScript origins del cliente OAuth.
+- **Firebase** (proyecto `elevari`): app `elevari.androidapp` con las huellas SHA-1/SHA-256 de la llave de subida y de Play App Signing; `google-services.json` no se versiona.
 
 ## Alegra
 
-- **API token** (`clave`): autenticación API.
-- **Email** (`ALEGRA_EMAIL`): email de tu cuenta Alegra (obligatorio para API).
-- **TestSetId**: set de pruebas facturación electrónica Colombia.
+`ALEGRA_EMAIL` (correo de la cuenta Alegra) y `ALEGRA_API_TOKEN`. Si falla la emisión, la factura queda en `pending_invoices` (reintento por un admin).
 
 ## Seguridad
 
-Si compartiste claves en chat, **rota** las que puedas en cada panel (Resend, Cloudflare, Google, Meta, Alegra) después del deploy.
+Si una credencial se comparte en un chat o se commitea, se considera comprometida: rotarla ([RUNBOOK.md](RUNBOOK.md) §6 y §10).

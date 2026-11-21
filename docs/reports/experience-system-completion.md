@@ -9,24 +9,24 @@
 
 | Área | Criterio | Resultado | Evidencia |
 |------|----------|-----------|-----------|
-| Brand Integrity | Logo, isotipo, favicon, nomenclatura | **PASS** | `components/brand/EleveriMark.tsx`, `app/icon.svg`, `app/apple-icon.png`, iconos 16→1024 |
+| Brand Integrity | Logo, isotipo, favicon, nomenclatura | **PASS** | `components/brand/ElevariMark.tsx`, `app/icon.svg`, `app/apple-icon.png`, iconos 16→1024 |
 | Design Tokens | Solo tokens oficiales | **PASS** | 0 `background: white` fijos; superficies con `--elevari-surface` |
-| Wana Eradication | `wana-*` = 0 | **PASS** | 0 en CSS y 0 en `app/`, `components/`, `lib/` (257 → 0) |
+| Elevari Eradication | `elevari-*` = 0 | **PASS** | 0 en CSS y 0 en `app/`, `components/`, `lib/` (257 → 0) |
 | Component Authority | Todo consume `components/ui` | **PARCIAL (62%)** | 13 archivos importan primitivas; 43 usos de clases del sistema; 66 `<button>` nativos (iconos/steppers pendientes) |
 
 ---
 
-## EX-3.5.1 — Migración wana-* → elevari-*
+## EX-3.5.1 — Migración elevari-* → elevari-*
 
 | Métrica | Antes | Después |
 |---------|-------|---------|
-| Clases/vars `wana-*` en TSX | 257 | **0** |
-| Clases/vars `wana-*` en CSS | 201 | **0** |
+| Clases/vars `elevari-*` en TSX | 257 | **0** |
+| Clases/vars `elevari-*` en CSS | 201 | **0** |
 | Bloques alias legacy | 2 | **0** |
 
-Migración reproducible: `scripts/migrations/eradicate-wana.mjs` (idempotente).
+Migración reproducible: `scripts/migrations/eradicate-elevari.mjs` (idempotente).
 
-Identificadores no visuales conservados a propósito (requieren migración de datos/infra): `wanaApi` (cliente web), cookie `wana_token`, bucket `wana-media`, schema `wana`. Documentados en `docs/architecture-cleanup.md`.
+Identificadores no visuales conservados a propósito (requieren migración de datos/infra): `elevariApi` (cliente web), cookie `elevari_token`, bucket `elevari-media`, schema `elevari`. Documentados en `docs/architecture-cleanup.md`.
 
 ---
 
@@ -36,7 +36,7 @@ Identificadores no visuales conservados a propósito (requieren migración de da
 |--------|-------|---------|
 | `black/55`, `black/80`, `black/90`, `black/40`, `ring-black` | 10 | **0** |
 | Overlays de foto | negro puro | `elevari-ink/xx` (token) |
-| Dorado legacy (`wana-gold`, champagne) | presente | **0** |
+| Dorado legacy (`elevari-gold`, champagne) | presente | **0** |
 
 ---
 
@@ -104,5 +104,5 @@ Identificadores no visuales conservados a propósito (requieren migración de da
 
 ## Veredicto EXS
 
-**PASS** en marca, tokens, erradicación (`wana-*` = 0), negros legacy (0), hovers, dark/high-contrast y autenticación.
+**PASS** en marca, tokens, erradicación (`elevari-*` = 0), negros legacy (0), hovers, dark/high-contrast y autenticación.
 **PARCIAL** en adopción literal de primitivas (62%): 100% de controles consumen tokens del sistema, pero no todos usan `components/ui`.

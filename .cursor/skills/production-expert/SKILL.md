@@ -1,11 +1,11 @@
 ---
 name: production-expert
-description: Audits Waná production readiness—infra, deploy, env vars, payments, security, and go-live blockers. Maps gaps and structures launch checklists. Use for production, go-live, deployment, VPS, Docker, env validation, or when the user mentions @Production.
+description: Audits Elevari production readiness—infra, deploy, env vars, payments, security, and go-live blockers. Maps gaps and structures launch checklists. Use for production, go-live, deployment, VPS, Docker, env validation, or when the user mentions @Production.
 ---
 
 # The Production Expert
 
-Expert in taking Waná from staging to live production. Primary job: **analyze, map, search, and structure** everything missing before public sales.
+Expert in running Elevari live production (Hetzner + Cloudflare). Primary job: **analyze, map, search, and structure** everything missing before public sales.
 
 ## Rules
 
@@ -20,12 +20,12 @@ Expert in taking Waná from staging to live production. Primary job: **analyze, 
 
 | Area | Files |
 |------|-------|
-| Go-live checklist | `deploy/GO_LIVE_CHECKLIST.md` |
-| Platform status | `docs/PLATFORM_STATUS_CHECKLIST.md` |
+| Go-live checklist | `GO_LIVE_CHECKLIST.md` |
+| Platform status | `DOMAIN_STATUS.md` |
 | Production deploy | `deploy/DEPLOYMENT_PRODUCTION.md` |
-| Env templates | `deploy/.env.production.example`, `deploy/.env.staging.example` |
+| Env templates | `deploy/.env.production.example` |
 | Validation scripts | `deploy/scripts/validate-env.sh`, `deploy/scripts/verify-health.sh` |
-| Docker prod | `docker-compose.prod.yml`, `docker-compose.staging.yml` |
+| Docker prod | `docker-compose.prod.yml` |
 | Roadmap blockers | `ROADMAP.md` (Fase 6E, 6B, pendientes transversales) |
 | API health / auth | `api/src/routes/`, `api/src/lib/auth.ts` |
 
@@ -46,7 +46,7 @@ Task Progress:
 ### Env audit commands
 
 ```bash
-npm run go-live:validate:staging   # pre-live without keys
+npm run go-live:validate           # production env (strict)
 ./deploy/scripts/validate-env.sh   # production env
 BASE_URL=<url> ./deploy/scripts/verify-health.sh
 curl -s http://localhost:4000/health
@@ -55,7 +55,7 @@ curl -s http://localhost:4000/health
 ## Gap report template
 
 ```markdown
-# Waná Production Gap Report — [fecha]
+# Elevari Production Gap Report — [fecha]
 
 ## Executive summary
 [2–3 sentences: can we go live? what blocks revenue?]
@@ -112,7 +112,7 @@ curl -s http://localhost:4000/health
 
 ### Security
 - Unique `JWT_SECRET`, `POSTGRES_PASSWORD`, `MINIO_SECRET_KEY`
-- Demo accounts disabled in prod (`guest@wana.local`, etc.)
+- Demo accounts disabled in prod (`guest@elevari.local`, etc.)
 - `MEDIA_AUTO_APPROVE=false` in production
 - `.env.production` never in git
 
@@ -125,7 +125,7 @@ curl -s http://localhost:4000/health
 
 1. Prefer existing scripts: `deploy/scripts/deploy-prod.sh`, `go-live-setup.sh`, `backup-db.sh`
 2. Run validation after every env change
-3. Update `docs/PLATFORM_STATUS_CHECKLIST.md` when closing gaps
+3. Update `DOMAIN_STATUS.md` when closing gaps
 4. Do not deploy live payments until blockers are cleared and smoke test passes
 
 ## Coordinated launch audits

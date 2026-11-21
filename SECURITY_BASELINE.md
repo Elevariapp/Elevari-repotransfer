@@ -1,127 +1,88 @@
-# SECURITY_BASELINE.md — Security Baseline Requirements
+# SECURITY_BASELINE — Línea base de seguridad
 
-**Repository:** `wana-2026` (Elevari hospitality platform)
-**Status:** Phase 0 — Canonical Governance Foundation
-**Last validated:** Commit `550190a`
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-## Overview
+Estado: **Hecho** = implementado y verificado; **Pendiente** = falta acción. Contacto de seguridad y privacidad: reserve@elevari.live.
 
-This document defines the security baseline requirements for the Elevari platform. All requirements must be implemented and verified before production launch.
+## Red y borde (Cloudflare + servidor)
 
-**Owner:** Security Team
-**Phase:** 3E (Complete)
+| Control | Estado | Detalle |
+|---------|--------|---------|
+| Always HTTPS, TLS ≥ 1.2, TLS 1.3, HTTP/3 | Hecho | Cloudflare |
+| HSTS | Hecho (6 meses) | A 1 año + `includeSubDomains` tras verificar el lanzamiento; sin preload hasta entonces |
+| WAF gestionado (Free) + regla custom de rutas sensibles | Hecho | `/.env /.git /wp-admin /wp-login /xmlrpc.php /phpmyadmin /vendor/phpunit /.aws /cgi-bin` |
+| Bot Fight Mode | Hecho | — |
+| Rate limit auth | Hecho | `/api/v1/auth/*`: 20 req / 10 s por IP+colo |
+| DNSSEC | Pendiente | DS publicado en GoDaddy; Cloudflare *pending* hasta propagar |
+| SSL `full (strict)` en Cloudflare | Pendiente | nginx ya sirve el Origin Certificate; falta cambiar el modo en el cutover |
+| 80/443 restringidos a rangos Cloudflare | Pendiente | Tras el cutover |
+| Firewall `ufw` (22/80/443) | Hecho | — |
 
-## Network Security
+## Servidor
 
-| Requirement | Status | Owner | Implementation | Notes |
-|-------------|--------|-------|----------------|-------|
-| Cloudflare WAF enabled | Pending | Security | Cloudflare WAF rules | OWASP Top 10 protection |
-| DDoS protection | Pending | DevOps | Cloudflare DDoS | Layer 3, 4, 7 protection |
-| TLS 1.3 enforced | Pending | DevOps | Cloudflare SSL/TLS | Minimum TLS 1.2, prefer 1.3 |
-| HSTS header | Pending | Engineering | Next.js headers | Strict-Transport-Security |
-| CORS policy | Pending | Engineering | Next.js middleware | Restricted origins only |
-| IP allowlisting (admin) | Pending | DevOps | Cloudflare Access | Admin dashboard access |
-| Geographic restrictions | Pending | DevOps | Cloudflare rules | CO-focused, block high-risk regions |
+| Control | Estado | Detalle |
+|---------|--------|---------|
+| SSH solo con llave | Hecho | contraseña y root con contraseña deshabilitados (`00-elevari-hardening.conf`) |
+| Usuario `deploy` | Hecho | sudo + grupo docker |
+| `fail2ban` sshd | Hecho | 5 intentos/10 min, ban 1 h |
+| Parches automáticos | Hecho | `unattended-upgrades` |
+| Rotación de logs Docker | Hecho | 10 MB × 3 |
+| Copia de backups fuera del servidor | Parcial | Hetzner Backups cubre el servidor; los dumps locales viven en `/opt/elevari/backups` |
+| Puertos internos (Postgres, Redis, MinIO) no publicados | Hecho | solo red `elevari_internal`; nginx publica 80/443 |
+| TLS en origen (nginx 443 con Origin Certificate) | Hecho | host desconocido → `444`; IP real vía `cloudflare-ips.conf` |
 
-## Application Security
+## Aplicación
 
-| Requirement | Status | Owner | Implementation | Notes |
-|-------------|--------|-------|----------------|-------|
-| Authentication middleware | Pending | Engineering | Next.js middleware | Protected routes require auth |
-| Authorization (RBAC) | Pending | Engineering | Role-based access | Customer, Admin, SuperAdmin |
-| Session management | Pending | Engineering | Secure cookies | HttpOnly, Secure, SameSite |
-| Password policy | Pending | Engineering | Zod validation | Min 12 chars, complexity |
-| MFA for admin accounts | Pending | Engineering | TOTP or email | Admin and SuperAdmin roles |
-| Rate limiting | Pending | Engineering | Fastify rate-limit | API and auth endpoints |
-| Input validation | Pending | Engineering | Zod schemas | All API endpoints |
-| Output encoding | Pending | Engineering | React auto-escaping | XSS prevention |
-| CSRF protection | Pending | Engineering | SameSite cookies | State-changing operations |
-| Security headers | Pending | Engineering | Next.js headers | X-Frame-Options, X-Content-Type-Options |
+| Control | Estado | Detalle |
+|---------|--------|---------|
+| Cabeceras de seguridad y CSP enforce | Hecho | `next.config.ts` y nginx |
+| Rate limit de API | Hecho | 120/min por IP (`@fastify/rate-limit`) + `limit_req` en nginx (`/api/` 20 r/s, `/api/v1/auth/` 5 r/s) |
+| CORS restringido | Hecho | `CORS_ORIGIN` + apex/www |
+| Validación de entrada | Hecho | Zod en rutas |
+| Arranque fail-fast en producción | Hecho | la API no inicia sin `JWT_SECRET` ≥ 32 caracteres, sin `TURNSTILE_SECRET_KEY` (ni con Turnstile deshabilitado) y con `PAYMENTS_MODE=mock` salvo `ALLOW_MOCK_PAYMENTS=true` (solo pruebas internas). La web también requiere `JWT_SECRET` |
+| Contraseñas con hash | Hecho | `bcryptjs` |
+| Turnstile en login/registro | Hecho | web y app Android (widget en WebView); secret solo en `TURNSTILE_SECRET_KEY` del servidor |
+| Cuentas demo bloqueadas en producción | Hecho | `@elevari.local` y `DISABLE_DEMO_ACCOUNTS=true`; `validate-env.sh` lo exige |
+| Seed demo | Hecho | `npm run db:seed` se niega con `NODE_ENV=production` salvo `ALLOW_DEMO_SEED=true`; no usar nunca en producción |
+| Datos iniciales | Hecho | `npm run create-admin` (`ADMIN_EMAIL`, `ADMIN_PASSWORD` ≥ 12 caracteres; `RESET_PASSWORD=true` para resetear) y `npm run seed:property` (`HOST_EMAIL`; sin usuarios demo ni reseñas) |
+| Validación de entorno | Hecho | `deploy/scripts/validate-env.sh` (solo producción, estricto: llaves `pub_prod_`/`prv_prod_` de Wompi, Alegra, Resend, Turnstile) |
+| Logs sin secretos | Hecho | redacción de `authorization`, `cookie` y firma de Wompi |
+| Moderación de media | Hecho | `MEDIA_AUTO_APPROVE=false` en producción |
+| MFA para admin | Pendiente | no implementado |
 
-## Data Security
+## Pagos
 
-| Requirement | Status | Owner | Implementation | Notes |
-|-------------|--------|-------|----------------|-------|
-| Encryption at rest | Pending | DevOps | RDS encryption | AES-256 |
-| Encryption in transit | Pending | DevOps | TLS 1.3 | All internal/external |
-| PII field encryption | Pending | Engineering | Application-level | Email, phone, address |
-| Database backup encryption | Pending | DevOps | RDS encrypted backups | Automated daily |
-| Secret management | Pending | DevOps | AWS Secrets Manager | No secrets in code |
-| Environment variable validation | Pending | Engineering | Zod schema | All required vars validated |
-| No hardcoded credentials | Pending | Engineering | Secret scanning | CI/CD secret scan |
-| Data retention policy | Pending | Engineering | Automated cleanup | GDPR-compliant |
+| Control | Estado | Detalle |
+|---------|--------|---------|
+| Wompi único proveedor live | Hecho | Bold y Stripe deshabilitados |
+| Sin datos de tarjeta en Elevari | Hecho | checkout alojado (alcance PCI SAQ A) |
+| Firma de integridad en el intent | Hecho | `WOMPI_INTEGRITY_SECRET` |
+| Verificación de checksum del webhook | Hecho | `WOMPI_EVENTS_SECRET`; firma inválida → 401 |
+| `PAYMENTS_MODE=mock` prohibido en producción | Hecho | la API aborta al arrancar |
+| Llaves live en servidor | Pendiente | ver [GO_LIVE_CHECKLIST.md](GO_LIVE_CHECKLIST.md) |
 
-## Payment Security
+## Secretos
 
-| Requirement | Status | Owner | Implementation | Notes |
-|-------------|--------|-------|----------------|-------|
-| Wompi as sole provider | Complete | Engineering | Wompi SDK | COP currency only |
-| No card data stored | Complete | Engineering | Wompi handles cards | PCI DSS scope reduction |
-| Webhook signature verification | Pending | Engineering | Wompi signature | Verify webhook authenticity |
-| Payment API rate limiting | Pending | Engineering | Fastify rate-limit | Payment endpoints |
-| Payment audit logging | Pending | Engineering | Structured logs | All payment events |
-| PCI DSS SAQ A scope | Pending | Security | Self-assessment | Wompi redirect provider |
+- Valores solo en `/opt/elevari/.env.production` (chmod 600), gestor de contraseñas «Elevari» del propietario y `~/.gradle/gradle.properties` (Android). Nunca en git, issues, chats ni logs.
+- El keystore de subida nunca entra al repo (`*.jks` ignorado); su ruta local y claves están en el gestor de contraseñas «Elevari».
+- `google-services.json` no se versiona.
+- **Rotación pendiente** de credenciales expuestas durante el montaje: ver [docs/HANDOVER.md](docs/HANDOVER.md). Procedimiento: [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
-## Infrastructure Security
+## Privacidad y cumplimiento
 
-| Requirement | Status | Owner | Implementation | Notes |
-|-------------|--------|-------|----------------|-------|
-| EC2 security groups | Pending | DevOps | Least privilege | Required ports only |
-| MinIO access control | Pending | DevOps | IAM policies | Bucket-level permissions |
-| Database security groups | Pending | DevOps | Least privilege | App servers only |
-| SSH key management | Pending | DevOps | AWS Systems Manager | No password auth |
-| Patch management | Pending | DevOps | Automated updates | OS and container patches |
-| Vulnerability scanning | Pending | DevOps | Container image scan | CI/CD pipeline |
-| Backup encryption | Pending | DevOps | RDS encrypted snapshots | Automated daily |
-| Cross-region replication | Pending | DevOps | MinIO replication | Disaster recovery |
+- Ley 1581 de 2012 (Habeas Data): política en `/legal/privacy`; eliminación de cuenta en `/legal/account-deletion`.
+- Incidente con datos personales: notificar a la SIC y a los titulares afectados dentro de los plazos legales; canal reserve@elevari.live.
+- Facturación electrónica con Alegra.
 
-## Monitoring & Detection
+## Monitoreo y respuesta
 
-| Requirement | Status | Owner | Implementation | Notes |
-|-------------|--------|-------|----------------|-------|
-| Error tracking (Sentry) | Pending | Engineering | Sentry DSN | Frontend + backend |
-| Log aggregation | Pending | DevOps | Centralized logs | All services |
-| Security event alerting | Pending | DevOps | PagerDuty/Slack | Failed logins, anomalies |
-| Uptime monitoring | Pending | DevOps | Status page | Synthetic checks |
-| Health check endpoints | Pending | Engineering | /health, /ready | Liveness and readiness |
-| Audit logging | Pending | Engineering | Structured logs | Auth, admin, payment events |
-| SIEM integration | Pending | DevOps | Log forwarding | Future: Splunk/Elastic |
+| Control | Estado |
+|---------|--------|
+| Health `/health` | Hecho |
+| Uptime externo y alertas | Pendiente |
+| Captura de errores (`SENTRY_DSN`) | Pendiente (opcional) |
+| Checklist de incidentes | Hecho — [docs/RUNBOOK.md](docs/RUNBOOK.md) |
 
-## Vulnerability Management
+## Documentos relacionados
 
-| Requirement | Status | Owner | Implementation | Notes |
-|-------------|--------|-------|----------------|-------|
-| Dependency scanning (npm audit) | Pending | DevOps | CI/CD pipeline | Weekly scans |
-| SAST scanning | Pending | DevOps | CI/CD pipeline | Static analysis |
-| Secret scanning | Pending | DevOps | CI/CD pipeline | GitLeaks/truffleHog |
-| Container image scanning | Pending | DevOps | CI/CD pipeline | Docker images |
-| Penetration testing | Pending | Security | Third-party | Annual, before launch |
-| Responsible disclosure | Pending | Security | security@elevari.com | Contact email |
-
-## Incident Response
-
-| Requirement | Status | Owner | Implementation | Notes |
-|-------------|--------|-------|----------------|-------|
-| Incident response plan | Pending | Security | Documented | Severity levels, escalation |
-| On-call rotation | Pending | DevOps | PagerDuty | 24/7 coverage |
-| Incident communication | Pending | Engineering | Status page | Customer notifications |
-| Post-incident review | Pending | Engineering | Blameless postmortem | Lessons learned |
-| Data breach notification (72h) | Pending | Legal | Habeas Data | Colombian regulation |
-
-## Sign-Off
-
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| Security Lead | | | |
-| Engineering Lead | | | |
-| DevOps Lead | | | |
-| Product Owner | | | |
-
-## Related Documents
-
-- `AUDIT_STATUS.md` — Security and compliance audit status
-- `CERTIFICATION_MATRIX.md` — Certification requirements matrix
-- `PRODUCTION_READINESS.md` — Production readiness criteria
-- `PRE_PRODUCTION_CHECKLIST.md` — Pre-production validation steps
-- `GO_LIVE_CHECKLIST.md` — Go-live execution checklist
-- `ARCHITECTURE.md` — System architecture & tech stack
+[INFRASTRUCTURE.md](INFRASTRUCTURE.md) · [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md) · [GO_LIVE_CHECKLIST.md](GO_LIVE_CHECKLIST.md)

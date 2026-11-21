@@ -19,7 +19,7 @@
 | Icono 256 | `public/brand/icons/icon-256.png` | PNG | 256×256 · 5.1 KB | PASS (nuevo) |
 | Icono 512 | `public/brand/icons/icon-512.png` | PNG | 512×512 · 11.4 KB | PASS (nuevo) |
 | Icono 1024 | `public/brand/icons/icon-1024.png` | PNG | 1024×1024 · 26.5 KB | PASS (nuevo) |
-| Isotipo | `public/brand/eleveri-mark.svg` | SVG | 40×40 | PASS |
+| Isotipo | `public/brand/elevari-mark.svg` | SVG | 40×40 | PASS |
 | Concepto Horizon | `public/brand/logo-concept-1-horizon.svg` | SVG | 512×512 | PASS |
 | Concepto Path | `public/brand/logo-concept-2-path.svg` | SVG | 512×512 | PASS |
 | Concepto Nest | `public/brand/logo-concept-3-nest.svg` | SVG | 512×512 | PASS |

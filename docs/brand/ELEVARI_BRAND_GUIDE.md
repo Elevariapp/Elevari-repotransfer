@@ -87,7 +87,7 @@ Nunca corporativa, nunca fría, nunca agresiva.
 Sin fuentes decorativas. Sin serif.
 
 Escala: `--text-hero`, `--text-heading`, `--text-body`, `--text-caption`, `--text-button`.
-Las clases `.wana-display-hero`, `.wana-display-section`, `.wana-display-page` y `.wana-section-title` consumen la familia display.
+Las clases `.elevari-display-hero`, `.elevari-display-section`, `.elevari-display-page` y `.elevari-section-title` consumen la familia display.
 
 ---
 
@@ -132,5 +132,5 @@ Ver `docs/brand/ELEVARI_MOODBOARD.md`.
 
 1. Todo valor visual nuevo entra primero como token en `app/globals.css`.
 2. Ningún componente usa hex directo (excepto SVG de marca documentados).
-3. Los tokens `wana-*` son **legacy**: se mantienen como alias hasta completar la migración (`docs/design/UI_MIGRATION_PLAN.md`).
+3. Los tokens `elevari-*` son **legacy**: se mantienen como alias hasta completar la migración (`docs/design/UI_MIGRATION_PLAN.md`).
 4. Cambios de paleta requieren pasar la tabla de contraste de este documento.

@@ -1,8 +1,7 @@
 # UX_PATTERNS.md — UX Patterns & Interaction Guidelines
 
-**Repository:** `wana-2026` (Elevari hospitality platform)
-**Status:** Phase 0 — Canonical Governance Foundation
-**Last validated:** Commit `550190a`
+**Repository:** `elevari-2026` (Elevari hospitality platform)
+Última validación: 2026-11-21 · rama chore/elevari-production
 
 ## Overview
 
@@ -219,7 +218,7 @@ This document defines Elevari's UX patterns: user flows, interaction guidelines,
 ### Auth Flow
 
 1. **Login** — User enters email/password, submits to `/api/v1/auth/login`
-2. **JWT Issued** — API returns JWT, stored in `wana_token` cookie
+2. **JWT Issued** — API returns JWT, stored in `elevari_token` cookie
 3. **Protected Route** — Middleware checks cookie on `/host`, `/account`, `/admin`
 4. **API Call** — Frontend sends JWT in `Authorization: Bearer <token>` header
 5. **Logout** — Cookie cleared, session invalidated

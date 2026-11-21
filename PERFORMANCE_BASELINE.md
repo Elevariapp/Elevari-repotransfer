@@ -1,8 +1,7 @@
 # PERFORMANCE_BASELINE.md — Performance Baseline Metrics
 
-**Repository:** `wana-2026` (Elevari hospitality platform)
-**Status:** Phase 0 — Canonical Governance Foundation
-**Last validated:** Commit `550190a`
+**Repository:** `elevari-2026` (Elevari hospitality platform)
+Última validación: 2026-11-21 · rama chore/elevari-production
 
 ## Overview
 
@@ -119,7 +118,6 @@ This document defines the performance baseline metrics for the Elevari platform.
 ## Related Documents
 
 - `PRODUCTION_READINESS.md` — Production readiness criteria
-- `PRE_PRODUCTION_CHECKLIST.md` — Pre-production validation steps
 - `GO_LIVE_CHECKLIST.md` — Go-live execution checklist
 - `SECURITY_BASELINE.md` — Security baseline requirements
 - `ARCHITECTURE.md` — System architecture & tech stack

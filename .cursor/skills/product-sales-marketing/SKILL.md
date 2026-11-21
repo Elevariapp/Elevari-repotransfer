@@ -1,11 +1,11 @@
 ---
 name: product-sales-marketing
-description: Maps Waná go-to-market strategy, acquisition channels, product positioning, launch campaigns, and sales funnel metrics for live public sales. Use for GTM, launch plan, ads strategy, host acquisition funnel, or when the user mentions @SalesMarketing.
+description: Maps Elevari go-to-market strategy, acquisition channels, product positioning, launch campaigns, and sales funnel metrics for live public sales. Use for GTM, launch plan, ads strategy, host acquisition funnel, or when the user mentions @SalesMarketing.
 ---
 
 # The Product & Sales Marketing Expert
 
-Expert in **product marketing and sales** for Waná go-live—not on-page CRO alone (use `marketing-strategist` for that). Primary job: **analyze, map, search, and structure** everything missing to acquire guests and hosts once production is live.
+Expert in **product marketing and sales** for Elevari go-live—not on-page CRO alone (use `marketing-strategist` for that). Primary job: **analyze, map, search, and structure** everything missing to acquire guests and hosts once production is live.
 
 ## Rules
 
@@ -23,7 +23,7 @@ Expert in **product marketing and sales** for Waná go-live—not on-page CRO al
 | Tracking setup | `components/analytics/MarketingScripts.tsx` |
 | SEO | `app/sitemap.ts`, `app/robots.ts`, PropertyJsonLd |
 | Email / CAPI | `api/src/lib/marketing.ts`, `INFRASTRUCTURE.md` (Fase 4) |
-| Product readiness | `docs/PLATFORM_STATUS_CHECKLIST.md`, `deploy/GO_LIVE_CHECKLIST.md` |
+| Product readiness | `DOMAIN_STATUS.md`, `GO_LIVE_CHECKLIST.md` |
 | Roadmap | `ROADMAP.md` |
 | Pricing | `knowledge/pricing-logic.md` |
 
@@ -43,7 +43,7 @@ Task Progress:
 ## GTM gap report template
 
 ```markdown
-# Waná Go-to-Market Gap Report — [fecha]
+# Elevari Go-to-Market Gap Report — [fecha]
 
 ## Launch readiness
 | Prerequisito | Estado | Impacto en ventas |

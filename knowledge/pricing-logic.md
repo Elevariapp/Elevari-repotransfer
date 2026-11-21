@@ -1,7 +1,7 @@
 # Pricing Logic
 
 ## Source of truth in code
-- Fee calculation (API): `api/src/lib/fees.ts` (`calculateWanaFees`)
+- Fee calculation (API): `api/src/lib/fees.ts` (`calculateElevariFees`)
 - Fee calculation (web mirror): `lib/tax-logic.ts`
 - Reservation + payment: `api/src/routes/bookings.ts`, `api/src/routes/payments.ts`
 
@@ -37,7 +37,7 @@ authoritative; the foreign amount is reference only (frozen FX quote in
 
 ## Operational notes
 - `PLATFORM_FEE_PERCENT` env var changes the fee without a code change (validated 0–100).
-- All monetary calculations must use `calculateWanaFees`; do not duplicate pricing logic.
+- All monetary calculations must use `calculateElevariFees`; do not duplicate pricing logic.
 - Payment amounts cross provider boundaries in integer minor units only.
 
 ## For agents

@@ -1,6 +1,8 @@
-# Pagos — Fase 2 (Wompi-first)
+# Pagos — Wompi
 
-Estado: implementado y validado en mock/staging. Wompi es el **único proveedor activo**.
+Última validación: 2026-11-21 · rama chore/elevari-production
+
+Estado: Wompi es el **único proveedor activo** en producción (`PAYMENTS_MODE=live`); el modo mock es solo para desarrollo local y pruebas internas (`ALLOW_MOCK_PAYMENTS=true`, prohibido con tráfico público).
 Bold y Stripe permanecen en el repositorio, ocultos y deshabilitados.
 
 ## Pricing (MVP — sin motor de impuestos)
@@ -111,7 +113,7 @@ Código: `api/src/lib/payments/config.ts`.
 `verification-log.md` rastrea hechos VERIFIED/UNVERIFIED/CONTRADICTED.
 CI falla si queda algún CONTRADICTED (`deploy/scripts/check-verification-log.sh`).
 
-## Modo mock (staging/local)
+## Modo mock (solo local / pruebas internas)
 
 `PAYMENTS_MODE=mock` → checkout simulado, `POST /payments/:id/mock-complete` y
 `/mock-fail` disponibles. Smoke: `./deploy/scripts/mock-booking-smoke.sh`.

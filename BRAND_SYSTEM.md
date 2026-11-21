@@ -1,8 +1,7 @@
 # BRAND_SYSTEM.md — Brand Identity System
 
-**Repository:** `wana-2026` (Elevari hospitality platform)
-**Status:** Phase 0 — Canonical Governance Foundation
-**Last validated:** Commit `550190a`
+**Repository:** `elevari-2026` (Elevari hospitality platform)
+Última validación: 2026-11-21 · rama chore/elevari-production
 
 ## Overview
 

@@ -1,130 +1,120 @@
-# GO_LIVE_CHECKLIST.md — Go-Live Execution Checklist
+# GO_LIVE_CHECKLIST — Lanzamiento a producción
 
-**Repository:** `wana-2026` (Elevari hospitality platform)
-**Status:** Phase 0 — Canonical Governance Foundation
-**Last validated:** Commit `550190a`
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-## Overview
+Fuente única del estado de lanzamiento (web + Android, solo producción). `[x]` = hecho y verificado; `[ ]` = pendiente. Procedimientos: [docs/RUNBOOK.md](docs/RUNBOOK.md). Inventario de cuentas: [docs/HANDOVER.md](docs/HANDOVER.md).
 
-This document defines the go-live execution checklist for the Elevari platform. It covers the step-by-step process for promoting code to production, including pre-go-live validation, go-live execution, and post-go-live verification.
+## 1. Código y quality gate
 
-**Owner:** Release Engineering Team
-**Phase:** 3E (Complete)
+CI (`.github/workflows/ci.yml`) corre builds, typecheck móvil y `npm run docs:lint`; no sustituye el gate local.
 
-## Go-Live Timeline
+- [x] Monorepo web + API + móvil con arquitectura documentada ([ARCHITECTURE.md](ARCHITECTURE.md))
+- [ ] Quality gate completo sobre el commit exacto que se despliega ([COMMANDS.md](COMMANDS.md)):
+  - [ ] `npx tsc --noEmit` (raíz), `cd api && npx tsc --noEmit`, `cd mobile && npx tsc --noEmit`
+  - [ ] `npx next build` compila aunque `NEXT_PUBLIC_API_URL` apunte a una URL inalcanzable
+  - [ ] `docker compose -f docker-compose.prod.yml --env-file <env> build`
+  - [ ] `cd mobile/android && .\gradlew.bat bundleRelease --no-daemon --max-workers=1`
+  - [ ] `npm run docs:lint`
 
-| Phase | Timing | Owner | Description |
-|-------|--------|-------|-------------|
-| T-7 days | 1 week before | Release Eng | Final pre-go-live review |
-| T-3 days | 3 days before | QA | Final regression testing |
-| T-1 day | 1 day before | DevOps | Infrastructure readiness check |
-| T-0 hours | Go-live day | Release Eng | Execute go-live procedure |
-| T+1 hour | Post-go-live | Engineering | Smoke testing |
-| T+24 hours | Day after | DevOps | Stability review |
+## 2. Servidor Hetzner (`ubuntu-8gb-hel1-2`, `<SERVER_IP>`)
 
-## Pre-Go-Live Validation (T-7 to T-1)
+- [x] Ubuntu 26.04, Docker 29 + Compose v2, directorio `/opt/elevari` (usuario `deploy`)
+- [x] SSH solo con llave; usuario `deploy` (sudo, docker)
+- [x] `ufw` 22/80/443, `fail2ban` sshd, `unattended-upgrades`, swap 2 GB, rotación de logs Docker
+- [x] `/opt/elevari/.env.production` (chmod 600) fuera de git
+- [x] Backup diario `pg_dump` 03:00 (14 días) + Hetzner Backups
+- [x] Stack prod: postgres 16, redis 7, minio, api, web, nginx
+- [ ] Probar una restauración de backup de extremo a extremo (`restore-db.sh`)
 
-| Item | Status | Owner | Due | Notes |
-|------|--------|-------|-----|-------|
-| All PRE_PRODUCTION_CHECKLIST items complete | Pending | Release Eng | T-7 | See PRE_PRODUCTION_CHECKLIST.md |
-| All PRODUCTION_READINESS items complete | Pending | DevOps | T-7 | See PRODUCTION_READINESS.md |
-| Staging mirror of production verified | Pending | DevOps | T-3 | Same instance types, config |
-| Load test completed (1000 concurrent users) | Pending | Engineering | T-3 | k6 or similar |
-| Database migration tested on staging | Pending | Engineering | T-3 | Up and down migrations |
-| Rollback procedure reviewed | Pending | DevOps | T-2 | Documented and tested |
-| On-call rotation confirmed | Pending | DevOps | T-2 | PagerDuty schedule |
-| Communication plan approved | Pending | Product | T-1 | Stakeholder notification |
-| Support team briefed | Pending | Support | T-1 | Incident response procedures |
+## 3. Cloudflare y DNS
 
-## Go-Live Execution (T-0)
+- [x] Zona `elevari.live` activa; nameservers `fish` y `patryk`
+- [x] Always HTTPS, TLS ≥ 1.2, TLS 1.3, HTTP/3, HSTS 6 meses
+- [x] Bot Fight Mode, Managed Free Ruleset, regla WAF custom, rate limit `/api/v1/auth/*`, cache bypass `/api/*` y `/health`
+- [x] Turnstile «Elevari Web» y Web Analytics
+- [x] DNSSEC: DS publicado en GoDaddy
+- [ ] DNSSEC en estado *active* en Cloudflare (esperar propagación)
+- [ ] **Cutover DNS:** registros A `elevari.live`, `www`, `media` → `<SERVER_IP>` (proxied)
+- [x] nginx termina TLS en 443 con el Origin Certificate (`/etc/ssl/elevari/`), 80 redirige a HTTPS salvo `/health`, `www` → apex, `media` → MinIO
+- [ ] Verificar el Origin Certificate en el servidor tras el cutover (`curl -vI --resolve elevari.live:443:<SERVER_IP> https://elevari.live/health`)
+- [ ] Cambiar SSL a `full (strict)`
+- [ ] Restringir 80/443 en `ufw` a rangos IP de Cloudflare (mantener sincronizado `deploy/nginx/cloudflare-ips.conf`)
+- [ ] Verificar que `media.elevari.live/elevari-media/*` sirve el bucket público
+- [ ] HSTS a 1 año + `includeSubDomains` (sin preload hasta verificar)
 
-| Step | Action | Owner | Status | Notes |
-|------|--------|-------|--------|-------|
-| 1 | Freeze code deployments | Release Eng | Pending | No merges to main |
-| 2 | Verify staging health | DevOps | Pending | /health, /ready endpoints |
-| 3 | Take application maintenance mode | DevOps | Pending | Brief downtime window |
-| 4 | Run database migrations | Engineering | Pending | Prisma migrate deploy |
-| 5 | Deploy application to production | DevOps | Pending | Blue-green or rolling |
-| 6 | Verify production health | DevOps | Pending | /health, /ready responding |
-| 7 | Disable maintenance mode | DevOps | Pending | Application live |
-| 8 | Smoke test critical paths | QA | Pending | Search, booking, payment |
-| 9 | Verify Wompi webhook endpoints | Engineering | Pending | Webhook signatures valid |
-| 10 | Confirm monitoring alerts active | DevOps | Pending | PagerDuty, Slack |
+## 4. Correo
 
-## Post-Go-Live Verification (T+1 to T+24)
+- [x] Resend: dominio `elevari.live` verificado (DKIM, return-path), región `sa-east-1`
+- [x] Buzón `reserve@elevari.live` en GoDaddy (MX/SPF/DMARC intactos)
+- [ ] Prueba real: recuperación de contraseña y confirmación de reserva llegan a bandeja (no spam)
+- [ ] Ajustar `RESEND_FROM="Elevari <reserve@elevari.live>"` en `/opt/elevari/.env.production` si difiere
 
-| Item | Status | Owner | Due | Notes |
-|------|--------|-------|-----|-------|
-| Smoke test passed | Pending | QA | T+1 | Critical user journeys |
-| Error rate < 0.1% | Pending | Engineering | T+1 | Sentry, application logs |
-| API response time < 200ms (p95) | Pending | Engineering | T+1 | Under production load |
-| Database connections stable | Pending | DevOps | T+1 | Connection pool healthy |
-| Wompi payment test transaction | Pending | QA | T+1 | Sandbox or production COP |
-| Email notifications delivered | Pending | QA | T+1 | Booking confirmations |
-| Log aggregation working | Pending | DevOps | T+1 | Centralized logs flowing |
-| Alerting rules triggered correctly | Pending | DevOps | T+1 | Test alert |
-| 24-hour stability review | Pending | DevOps | T+24 | No regressions |
+## 5. Pagos y facturación
 
-## Rollback Plan
+- [x] Wompi es el único proveedor (`PAYMENTS_WOMPI_ENABLED=true`; Bold y Stripe deshabilitados)
+- [ ] Llaves live de Wompi en el servidor (`WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET`, `NEXT_PUBLIC_WOMPI_PUBLIC_KEY`) y rebuild de `web`
+- [ ] Webhook en el panel de Wompi: `https://elevari.live/api/v1/webhooks/wompi`
+- [ ] Pago real de bajo monto: reserva `confirmed`, correo recibido, webhook 200
+- [ ] Alegra: `ALEGRA_EMAIL` y `ALEGRA_API_TOKEN` en el servidor; factura emitida (o en `pending_invoices` con reintento admin)
+- [ ] Confirmar los hechos UNVERIFIED de `verification-log.md` con el primer pago real
 
-### Rollback Triggers
+## 6. Cuentas y acceso
 
-| Trigger | Threshold | Action |
-|---------|-----------|--------|
-| Error rate > 1% | 5 minutes | Initiate rollback |
-| API response time > 2s (p95) | 10 minutes | Initiate rollback |
-| Payment failures > 5% | Immediate | Initiate rollback |
-| Database connection exhaustion | Immediate | Initiate rollback |
-| Critical security vulnerability | Immediate | Initiate rollback + incident |
+- [x] Cuentas demo (`@elevari.local`) bloqueadas en producción; el seed demo se niega a correr (`ALLOW_DEMO_SEED` no se usa nunca)
+- [ ] `deploy/scripts/validate-env.sh` pasa sobre `/opt/elevari/.env.production` (incluye `DISABLE_DEMO_ACCOUNTS=true`, `JWT_SECRET` ≥ 32, Turnstile, Resend)
+- [ ] Primer admin: `npm run create-admin` en el contenedor `api` (`ADMIN_EMAIL`=reserve@elevari.live, `ADMIN_PASSWORD` ≥ 12 caracteres)
+- [ ] Publicar «Glamping Waná»: `npm run seed:property` (`HOST_EMAIL`; sin usuarios demo ni reseñas)
+- [ ] `MEDIA_AUTO_APPROVE=false` confirmado en el servidor
+- [ ] Flujo anfitrión: subir imagen → aprobación admin → visible en galería
 
-### Rollback Procedure
+## 7. Analítica
 
-| Step | Action | Owner | Estimated Time |
-|------|--------|-------|----------------|
-| 1 | Enable maintenance mode | DevOps | 2 minutes |
-| 2 | Revert application to previous version | DevOps | 5 minutes |
-| 3 | Revert database migration (if applicable) | Engineering | 10 minutes |
-| 4 | Verify previous version health | DevOps | 5 minutes |
-| 5 | Disable maintenance mode | DevOps | 2 minutes |
-| 6 | Notify stakeholders | Release Eng | 5 minutes |
+- [x] GTM-PXVGFFMK con Google tag GA4 `G-W4QC0NYBVJ` (build-time)
+- [ ] Verificar eventos en GA4 DebugView tras el cutover
+- [ ] (Opcional) Meta Pixel: `NEXT_PUBLIC_META_PIXEL_ID` y rebuild
 
-### Rollback Decision Matrix
+## 8. Android
 
-| Scenario | Rollback? | Notes |
-|----------|-----------|-------|
-| Minor UI bug | No | Hotfix in next deploy |
-| Non-critical API error | No | Monitor, fix in next deploy |
-| Payment processing broken | Yes | Immediate rollback |
-| Data corruption | Yes | Immediate rollback + incident |
-| Security vulnerability | Yes | Immediate rollback + incident |
+- [x] Paquete `elevari.androidapp`; AAB de release firmado con llave de subida
+- [x] Firebase: app con SHA-1/SHA-256 de la llave de subida y de Play App Signing
+- [ ] Play Console (organización): Internal testing con el AAB
+- [ ] SHA-256 de Play App Signing en `ANDROID_SHA256_CERT_FINGERPRINTS` y rebuild/restart; verificar `https://elevari.live/.well-known/assetlinks.json`
+- [ ] Verificar deep links `https://elevari.live` (autoVerify) en un dispositivo
+- [ ] `projectId` real de EAS (login del propietario) y endpoint de API para registrar tokens → habilitar push (hoy deshabilitado)
+- [ ] Verificar login/registro en la app (widget Turnstile en WebView) contra `https://elevari.live/api/v1`
+- [ ] APK de prueba vía Firebase App Distribution
+- [ ] Play Console: promover a **Producción**
 
-## Communication Plan
+## 9. SEO y descubrimiento
 
-### Stakeholder Notifications
+- [ ] Google Search Console: verificar `elevari.live` y enviar `sitemap.xml`
+- [ ] Google Safe Browsing: confirmar sin alertas
+- [ ] Bing Webmaster Tools
+- [ ] Google Business Profile
 
-| Audience | Channel | Timing | Owner |
-|----------|---------|--------|-------|
-| Engineering team | Slack #engineering | T-1, T+0, T+24 | Release Eng |
-| Product team | Slack #product | T-1, T+0 | Product Owner |
-| Support team | Slack #support | T-1, T+0 | Support Lead |
-| Executive team | Email | T-1, T+0 | Engineering Lead |
-| Customers | In-app banner | T+0 (if downtime) | Product |
+## 10. Verificación post-cutover
 
-### Go-Live Announcement Template
-
-```
-Subject: Elevari Platform Go-Live — [Date]
-
-The Elevari platform will go live on [date] at [time] UTC.
-Expected downtime: [X] minutes.
-Contact: [on-call engineer] via [PagerDuty/Slack].
+```bash
+curl -s https://elevari.live/health
+curl -sI https://elevari.live/properties
+curl -sI https://elevari.live/sitemap.xml
+curl -sI https://www.elevari.live          # redirige al apex
 ```
 
-## Related Documents
+- [ ] `/health` → `status: ok`, `database: connected`
+- [ ] `/properties` y `/sitemap.xml` → 200
+- [ ] Registro/login con Turnstile funcionando
+- [ ] Reserva completa de punta a punta (sección 5)
+- [ ] Rutas bloqueadas por WAF (`/.env`, `/wp-login`) devuelven bloqueo de Cloudflare
+- [ ] Lighthouse y a11y sin regresiones ([PERFORMANCE_BASELINE.md](PERFORMANCE_BASELINE.md), [ACCESSIBILITY_GUIDE.md](ACCESSIBILITY_GUIDE.md))
 
-- `PRE_PRODUCTION_CHECKLIST.md` — Pre-production validation steps
-- `PRODUCTION_READINESS.md` — Production readiness criteria
-- `AUDIT_STATUS.md` — Security and compliance audit status
-- `SECURITY_BASELINE.md` — Security baseline requirements
-- `PERFORMANCE_BASELINE.md` — Performance baseline metrics
-- `ARCHITECTURE.md` — System architecture & tech stack
+## 11. Seguridad final
+
+- [ ] **Rotación de credenciales expuestas** (ver «Rotación pendiente» en [docs/HANDOVER.md](docs/HANDOVER.md)): token de API de Cloudflare, llaves S3 de R2, token de API de Hetzner, llave de Resend
+- [ ] `.env.production` no está en git (`git check-ignore .env.production`)
+- [ ] `JWT_SECRET`, `POSTGRES_PASSWORD`, `MINIO_SECRET_KEY` únicos y guardados en el gestor de contraseñas
+- [ ] Monitoreo externo de `/health` con alerta
+
+## Rollback
+
+Rollback de aplicación, de DNS y restauración de base de datos: [docs/RUNBOOK.md](docs/RUNBOOK.md).

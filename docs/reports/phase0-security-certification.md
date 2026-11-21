@@ -18,7 +18,7 @@
 | App | `Referrer-Policy: strict-origin-when-cross-origin` | PASS |
 | App | `Permissions-Policy` (camera/mic/geo bloqueados) | PASS |
 | API | Rate limit global 120/min | PASS |
-| API | CORS allowlist (localhost, eleveri.app, www) | PASS |
+| API | CORS allowlist (localhost, elevari.live, www) | PASS |
 | API | Redacción de headers sensibles en logs | **PASS (nuevo)** |
 | API | Autorización en servidor por rol | PASS (código) |
 | API | Firma de webhook obligatoria | **PASS (endurecido)** |

@@ -9,7 +9,7 @@
 ## 1. Arquitectura
 
 ```
-app/globals.css        → @theme (utilidades Tailwind) + :root (CSS vars) + clases .wana-* heredadas
+app/globals.css        → @theme (utilidades Tailwind) + :root (CSS vars) + clases .elevari-* heredadas
 lib/design-tokens.ts   → espejo tipado de los tokens para JS (emails, gráficos, tests)
 lib/cx.ts              → helper de clases condicionales (sin dependencias externas)
 components/ui/*        → primitivas del sistema
@@ -40,7 +40,7 @@ Import: `import { Button, Card, Badge } from '@/components/ui';`
 
 Estas clases siguen existiendo y ya apuntan a la nueva paleta. Se mantienen para no romper pantallas existentes y se irán sustituyendo por primitivas.
 
-`.wana-container` · `.wana-page-bg` · `.wana-card` · `.wana-card-elevated` · `.wana-card-premium` · `.wana-btn-primary` · `.wana-btn-ghost` · `.wana-btn-accent` · `.wana-btn-select` · `.wana-chip` · `.wana-input` · `.wana-label` · `.wana-header*` · `.wana-footer*` · `.wana-eyebrow` · `.wana-display-*` · `.wana-section-title` · `.wana-search-*` · `.wana-calendar` · `.wana-glass` · `.wana-skip-link`
+`.elevari-container` · `.elevari-page-bg` · `.elevari-card` · `.elevari-card-elevated` · `.elevari-card-premium` · `.elevari-btn-primary` · `.elevari-btn-ghost` · `.elevari-btn-accent` · `.elevari-btn-select` · `.elevari-chip` · `.elevari-input` · `.elevari-label` · `.elevari-header*` · `.elevari-footer*` · `.elevari-eyebrow` · `.elevari-display-*` · `.elevari-section-title` · `.elevari-search-*` · `.elevari-calendar` · `.elevari-glass` · `.elevari-skip-link`
 
 ---
 
@@ -54,7 +54,7 @@ Estas clases siguen existiendo y ya apuntan a la nueva paleta. Se mantienen para
 
 ### Tarjetas
 - Foto primero, texto después. Título 1 línea, ubicación 1 línea, precio destacado.
-- Hover: elevación (`shadow-wana-lg`) y escala de imagen 1.04, nunca cambio de layout.
+- Hover: elevación (`shadow-elevari-lg`) y escala de imagen 1.04, nunca cambio de layout.
 
 ### Formularios
 - Label siempre visible (nunca solo placeholder).
@@ -80,7 +80,7 @@ Estas clases siguen existiendo y ya apuntan a la nueva paleta. Se mantienen para
 ## 5. Layout y responsive
 
 - Mobile first: 1 columna hasta 640 px, 2 hasta 1024 px, 3–4 en desktop.
-- Contenedor: `.wana-container` (max 80rem, padding 1/1.5/2rem).
+- Contenedor: `.elevari-container` (max 80rem, padding 1/1.5/2rem).
 - Espaciado vertical de secciones: `py-14 lg:py-20` (token `--elevari-space-2xl` para hero).
 - Breakpoints estándar de Tailwind (`sm 640`, `md 768`, `lg 1024`, `xl 1280`).
 - Zonas táctiles ≥ 44 × 44 px; barras fijas móviles respetan `env(safe-area-inset-bottom)` cuando aplique.

@@ -1,31 +1,31 @@
 ---
 name: ui-ux-expert
 description: >-
-  Waná UI/UX design expert for Airbnb-style hospitality flows. Use when polishing
+  Elevari UI/UX design expert for Airbnb-style hospitality flows. Use when polishing
   layouts, improving responsiveness, auditing buttons/links, design system work,
   booking/checkout UX, host dashboards, or mentions @Design, UI/UX, or visual polish.
 ---
 
-# Waná UI/UX Expert
+# Elevari UI/UX Expert
 
-Diseña y refina la experiencia huésped/anfitrión con estándar **Airbnb + identidad Waná** (naturaleza, premium accesible, Colombia).
+Diseña y refina la experiencia huésped/anfitrión con estándar **Airbnb + identidad Elevari** (naturaleza, premium accesible, Colombia).
 
 ## Design system (obligatorio)
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `wana-forest` | `#1B4332` | CTAs primarios, links activos |
-| `wana-forest-light` | `#2D6A4F` | hover primario |
-| `wana-cream` | `#FDFBF7` | fondo página |
-| `wana-sand` | `#F4F1EA` | cards vacías, placeholders |
+| `elevari-forest` | `#1B4332` | CTAs primarios, links activos |
+| `elevari-forest-light` | `#2D6A4F` | hover primario |
+| `elevari-cream` | `#FDFBF7` | fondo página |
+| `elevari-sand` | `#F4F1EA` | cards vacías, placeholders |
 | Font display | DM Serif Display | títulos hero, H1–H2 |
 | Font body | Inter | UI, párrafos |
 
-**Clases de proyecto:** `wana-container`, `wana-card`, `wana-btn-primary`, `wana-btn-ghost`, `wana-section-title` — definidas en `app/globals.css`.
+**Clases de proyecto:** `elevari-container`, `elevari-card`, `elevari-btn-primary`, `elevari-btn-ghost`, `elevari-section-title` — definidas en `app/globals.css`.
 
 **Referencias:** `tailwind.config.ts`, `app/layout.tsx`, `components/PropertyCard.tsx`, `components/search/SearchHero.tsx`.
 
-## Principios UX (Waná)
+## Principios UX (Elevari)
 
 1. **Transparencia de precio** — total visible antes de pagar; desglose en checkout.
 2. **Mobile-first** — booking widget sticky en desktop; full-width en móvil.
@@ -61,10 +61,10 @@ Diseña y refina la experiencia huésped/anfitrión con estándar **Airbnb + ide
 Al revisar o implementar UI:
 
 1. **Rastrear** cada `<Link>`, `<button>`, `onClick` en la página tocada.
-2. **Clasificar:** API Fastify (`wanaApi`) vs código legacy eliminado.
+2. **Clasificar:** API Fastify (`elevariApi`) vs código legacy eliminado.
 3. **Legacy sin Supabase** → migrar a API o deshabilitar con mensaje claro (no 404 silencioso).
 4. **Verificar** `middleware.ts` para rutas protegidas (`/host`, `/account`, `/admin`).
-5. Documentar hallazgos en `docs/PLATFORM_STATUS_CHECKLIST.md`.
+5. Documentar hallazgos en `DOMAIN_STATUS.md`.
 
 ## Patrones Airbnb a replicar
 
@@ -76,7 +76,7 @@ Al revisar o implementar UI:
 
 ## Anti-patrones (evitar)
 
-- Mezclar estilos legacy (`bg-slate-50 rounded-[32px]`) con `wana-*` en la misma vista
+- Mezclar estilos legacy (`bg-slate-50 rounded-[32px]`) con `elevari-*` en la misma vista
 - Botones decorativos sin acción (fechas hero sin date picker)
 - `framer-motion` en listados masivos (peso bundle)
 
@@ -91,10 +91,10 @@ Al revisar o implementar UI:
 ## Coordinación con otros skills
 
 - Pagos/checkout → `booking-engine-expert`
-- Deploy/perf infra → `wana-architect` + `INFRASTRUCTURE.md`
+- Deploy/perf infra → `elevari-architect` + `INFRASTRUCTURE.md`
 - Marketing/SEO → `marketing-strategist`
 
 ## Assets
 
-- Checklist vivo: `docs/PLATFORM_STATUS_CHECKLIST.md`
-- Estado deploy: `deploy/GO_LIVE_CHECKLIST.md`, `ROADMAP.md`
+- Checklist vivo: `DOMAIN_STATUS.md`
+- Estado deploy: `GO_LIVE_CHECKLIST.md`, `ROADMAP.md`

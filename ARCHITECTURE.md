@@ -1,191 +1,99 @@
-# ARCHITECTURE.md — System Architecture & Tech Stack
+# ARCHITECTURE — Arquitectura del sistema
 
-**Repository:** `wana-2026` (Elevari hospitality platform)
-**Status:** Phase 0 — Canonical Governance Foundation
-**Last validated:** Commit `550190a`
+Última validación: 2026-11-21 · rama chore/elevari-production
 
-## Overview
+## Visión general
 
-Elevari is a hospitality platform with two deployable units:
+Monorepo con tres unidades:
 
-1. **Web (Next.js)** — Customer-facing website, host dashboard, admin UI, booking flow, checkout
-2. **API (Fastify)** — Backend services: auth, bookings, payments, properties, media, analytics, financial, health
+1. **Web** (raíz): Next.js 16, app router, `output: standalone`, puerto 3000. Sitio público, checkout, panel de anfitrión y admin.
+2. **API** (`api/`): Fastify 5 + Prisma 6 + PostgreSQL 16, puerto 4000. Auth, propiedades, reservas, pagos, media, analítica, facturación.
+3. **App Android** (`mobile/`): Expo SDK 58 / React Native 0.88, paquete `elevari.androidapp`. Consume la misma API. Firebase (Analytics y Messaging vía `@react-native-firebase`) y Expo Push.
 
-The two units communicate via HTTP/REST. The web app calls the API on port 4000. The API connects to PostgreSQL (port 5432) and MinIO (ports 9000/9001).
+Producción corre en **un único servidor Hetzner** con Docker Compose (`docker-compose.prod.yml`) detrás de Cloudflare. Detalle en [INFRASTRUCTURE.md](INFRASTRUCTURE.md). Solo producción: no hay staging.
 
-## Tech Stack
-
-### Web (Next.js App Router)
-
-| Layer | Technology | Version | Notes |
-|-------|-----------|---------|-------|
-| Framework | Next.js | 16.2.6 | App Router, standalone output |
-| React | React | 19.2.6 | Server Components + `"use client"` |
-| Language | TypeScript | 6.0.3 | Strict mode |
-| Styling | Tailwind CSS | 4.3.0 | Design tokens via CSS variables |
-| Forms | React Hook Form | — | Validation with Zod |
-| State | Zustand / React Query | — | Client state & server cache |
-| HTTP client | fetch (native) | — | API calls to Fastify backend |
-| Testing | Vitest / Playwright | — | Unit + E2E |
-
-### API (Fastify)
-
-| Layer | Technology | Version | Notes |
-|-------|-----------|---------|-------|
-| Framework | Fastify | 5.2.1 | High-performance Node.js HTTP |
-| Language | TypeScript | 6.0.3 | Strict mode |
-| ORM | Prisma | 6.3.1 | PostgreSQL client, migrations |
-| Database | PostgreSQL | — | Port 5432 |
-| Auth | JWT (jsonwebtoken) | — | Bearer token + `wana_token` cookie |
-| Payments | Wompi SDK / REST | — | Only active provider |
-| Email | Resend | — | Transactional emails |
-| Scheduling | node-cron | — | Background jobs |
-| Validation | Zod | — | Request schema validation |
-
-### Infrastructure
-
-| Component | Technology | Details |
-|-----------|-----------|---------|
-| Compute | AWS EC2 | Web + API hosts |
-| Database | PostgreSQL | Port 5432, managed on EC2 |
-| Object Storage | MinIO (S3-compatible) | Ports 9000 (API) / 9001 (Console) |
-| Edge / DNS / TLS | Cloudflare | DNS, SSL/TLS, CDN |
-| Container | Docker | Docker Compose for local dev |
-| CI/CD | GitHub Actions | Build, test, deploy |
-
-### Removed / Deprecated
-
-- Vercel — removed from infrastructure
-- Supabase — removed (PostgreSQL on EC2 instead)
-- Firebase — removed
-- Netlify — removed
-- Bold / Stripe — removed from payments (Wompi only)
-
-## Directory Layout
+## Topología
 
 ```
-wana-2026/
-├── app/                 # Next.js App Router (web)
-│   ├── account/         # Guest account pages
-│   ├── admin/           # Admin dashboard
-│   ├── auth/            # Login, register, password reset
-│   ├── become-host/     # Host onboarding
-│   ├── checkout/        # Booking checkout flow
-│   ├── guides/          # Host/guest guides
-│   ├── health/          # Health check endpoints
-│   ├── heartbeat/       # Heartbeat monitoring
-│   ├── host/            # Host dashboard (protected)
-│   ├── legal/           # Legal pages (terms, privacy)
-│   ├── properties/      # Property listing & detail
-│   ├── [slug]/          # Dynamic property routes
-│   ├── api/             # API route handlers (Next.js)
-│   ├── layout.tsx       # Root layout
-│   ├── page.tsx         # Home page
-│   ├── robots.ts        # Robots.txt
-│   └── sitemap.ts       # Sitemap generation
-├── components/          # React components (shared)
-│   ├── ui/              # Base UI components (buttons, inputs, etc.)
-│   ├── analytics/       # Analytics dashboard components
-│   ├── booking/         # Booking flow components
-│   ├── brand/           # Brand components (logo, colors)
-│   ├── catalog/         # Property catalog components
-│   ├── checkout/        # Checkout components
-│   ├── conversion/      # Conversion tracking components
-│   ├── home/            # Home page components
-│   ├── host/            # Host dashboard components
-│   ├── layout/          # Layout components (header, footer)
-│   ├── observability/   # Observability components
-│   ├── search/          # Search components
-│   ├── theme/           # Theme provider & toggle
-│   └── account/, admin/, auth/  # Feature-specific components
-├── lib/                 # Client-side shared libraries
-│   ├── analytics/       # Client-side analytics (compiled JS)
-│   ├── conversion/      # Conversion event tracking
-│   └── seo/             # SEO audit utilities
-├── content/             # Content files (SEO collections, MDX)
-├── tests/               # Test suites
-├── api/                 # Fastify backend
-│   ├── src/
-│   │   ├── lib/
-│   │   │   ├── analytics/     # attribution, occupancy, revenue, property-performance
-│   │   │   ├── payments/      # Wompi provider, config, disclosure, fx, money
-│   │   │   ├── email-templates/  # Resend email templates
-│   │   │   ├── ical/          # iCalendar generation
-│   │   │   ├── prisma.ts      # Prisma client singleton
-│   │   │   └── fees.ts        # Fee calculation logic
-│   │   ├── routes/
-│   │   │   ├── auth.ts        # Authentication routes
-│   │   │   ├── bookings.ts    # Booking CRUD
-│   │   │   ├── payments.ts    # Payment processing
-│   │   │   ├── properties.ts  # Property management
-│   │   │   ├── media.ts       # Media upload (MinIO)
-│   │   │   ├── admin.ts       # Admin routes
-│   │   │   ├── analytics.ts   # Analytics endpoints
-│   │   │   ├── financial.ts   # Financial reporting
-│   │   │   ├── health.ts      # Health checks
-│   │   │   └── host.ts        # Host-specific routes
-│   │   ├── plugins/           # Fastify plugins
-│   │   ├── jobs/              # Background jobs (cron)
-│   │   └── index.ts           # App entry point
-│   ├── prisma/
-│   │   ├── schema.prisma      # Database schema
-│   │   └── migrations/        # Prisma migrations
-│   ├── dist/                  # Compiled output
-│   ├── package.json
-│   └── tsconfig.json
-├── docs/                # Existing domain docs (brand, design, reports)
-├── deploy/              # Docker Compose, env templates, deploy scripts
-├── scripts/             # Automation scripts
-├── e2e/                 # Playwright E2E tests
-├── knowledge/           # Knowledge base
-├── types/               # Shared TypeScript types
-├── wana-monolith/       # Legacy monolith (deprecated, do not use)
-├── package.json         # Root (web) package.json
-└── tsconfig.json
+Usuario / App Android
+        │ HTTPS
+   Cloudflare (WAF, rate limit, TLS, caché)
+        │ 80/443 (solo rangos Cloudflare tras el cutover)
+   nginx :80 (redirige a HTTPS salvo /health) · :443 (Cloudflare Origin Certificate)
+     ├── elevari.live        /          → web  :3000
+     │                       /api/*     → api  :4000
+     │                       /health    → api  :4000
+     ├── www.elevari.live    → 301 a elevari.live
+     └── media.elevari.live  /elevari-media/* → minio :9000 (solo GET/HEAD)
+   red interna Docker: postgres :5432 · redis :6379 · minio :9000/:9001
 ```
 
-## Data Flow
+Postgres, Redis y MinIO no publican puertos al host: solo son alcanzables desde la red `elevari_internal`. nginx publica 80 y 443; el certificado se monta desde `/etc/ssl/elevari/{origin.pem,origin.key}` (creado en el servidor, nunca en git) y `deploy/nginx/cloudflare-ips.conf` restaura la IP real del cliente detrás de Cloudflare. Cualquier host que no sea de Elevari recibe `444` (escaneos por IP directa).
 
-### Booking Flow
+## Layout de URLs (un solo dominio, sin subdominio `api`)
 
-1. Guest browses properties → `GET /api/v1/properties` (API)
-2. Guest selects property & dates → `GET /api/v1/properties/:id` (API)
-3. Guest initiates checkout → `POST /api/v1/bookings` (API) → creates booking in `pending` status
-4. Payment intent created → `POST /api/v1/payments/intent` → Wompi checkout URL
-5. Guest pays on Wompi hosted checkout → Wompi webhook → `POST /api/v1/webhooks/wompi`
-6. Webhook verifies signature → updates booking to `confirmed` → payment to `succeeded`
-7. Confirmation email sent via Resend
+| URL | Destino |
+|-----|---------|
+| `https://elevari.live/` | Web |
+| `https://elevari.live/api/v1/*` | API REST |
+| `https://elevari.live/health` | Health de la API (`status`, `database`, `turnstile_required`) |
+| `https://media.elevari.live/elevari-media/*` | Media pública (bucket MinIO `elevari-media`) |
+| `https://www.elevari.live` | Redirige al apex |
+| `https://elevari.live/.well-known/assetlinks.json` | Digital Asset Links de Android (`app/.well-known/assetlinks.json/route.ts`) |
 
-### Authentication Flow
+`NEXT_PUBLIC_API_URL` es el origen sin `/api/v1` (`https://elevari.live`).
 
-1. Guest/host logs in → `POST /api/v1/auth/login` → returns JWT
-2. JWT stored in `wana_token` cookie (httpOnly, secure)
-3. Middleware checks cookie on protected routes (`/host`, `/account`, `/admin`)
-4. API validates JWT on `Authorization: Bearer <token>` header
+## Estructura del repositorio
 
-### Payment Flow (Wompi)
+```
+app/            Next.js app router (account, admin, auth, become-host, checkout, guides,
+                health, heartbeat, host, legal, properties, [slug], api, .well-known)
+components/     UI compartida (ui, booking, checkout, catalog, host, admin, analytics, …)
+lib/            Utilidades web (analytics, conversion, seo, verify-jwt)
+proxy.ts        Proxy de Next 16 (antes middleware): protege /host, /account, /admin con JWT
+api/            Fastify
+  src/routes/   auth, bookings, payments (+webhooks), properties, media, host, admin,
+                financial, analytics, health
+  src/lib/      payments (Wompi), email (Resend), alegra, minio, turnstile, ical, fees, …
+  src/jobs/     expiración de reservas pendientes, recordatorios de check-in, sync iCal (OTA)
+  prisma/       schema.prisma, migraciones, seed (solo desarrollo)
+mobile/         App Expo (app/ rutas Expo Router, lib/, components/, plugins/)
+deploy/         nginx, plantillas de env, scripts (backup, restore, deploy, verify)
+scripts/        docs-lint, auditorías de certificación
+e2e/ tests/     Playwright y pruebas
+docs/           Documentación de soporte; docs/archive y docs/reports son históricos
+```
 
-1. `getPaymentsConfig()` reads env vars, validates Wompi keys
-2. `createWompiIntent()` builds checkout URL with integrity signature (SHA-256)
-3. Guest redirected to `https://checkout.wompi.co/p/?...`
-4. Wompi posts webhook → `verifyWompiWebhook()` validates signature
-5. `syncWompiPayment()` fetches transaction status from Wompi API
-6. Booking/payment records updated in PostgreSQL
+## Flujos clave
 
-## Security Boundaries
+**Reserva y pago (Wompi, único proveedor activo)**
+1. Catálogo y disponibilidad: `GET /api/v1/properties…`.
+2. `POST /api/v1/bookings` crea la reserva en `pending` (un job la expira según `BOOKING_PENDING_TTL_MINUTES`).
+3. Intent de pago → checkout alojado de Wompi con firma de integridad (`WOMPI_INTEGRITY_SECRET`).
+4. Wompi llama `POST https://elevari.live/api/v1/webhooks/wompi`; la API valida el checksum con `WOMPI_EVENTS_SECRET`, deduplica y confirma reserva y pago.
+5. Correo de confirmación (Resend) y factura electrónica (Alegra); si Alegra falla queda en `pending_invoices` para reintento admin.
 
-- **API port 4000** — Not exposed directly to internet; accessed via Cloudflare
-- **Web port 3000** — Exposed via Cloudflare TLS
-- **PostgreSQL port 5432** — Internal only, not exposed
-- **MinIO ports 9000/9001** — Internal only
-- **JWT** — Short-lived access tokens, refresh via cookie rotation
-- **Wompi webhooks** — Signature verification mandatory (no unsigned webhooks in staging/prod)
-- **Environment variables** — Never committed; `.env.wompi.example` template provided
+**Autenticación**: JWT (`JWT_SECRET`, obligatorio también en la web). La web lo guarda en la cookie `elevari_token` y `proxy.ts` valida el rol (`admin`, `host`). Las cuentas `@elevari.local` están bloqueadas en producción. Turnstile protege login y registro (`TURNSTILE_SECRET_KEY` solo en el servidor). La app Android usa `https://elevari.live/api/v1`, guarda el token con `expo-secure-store` y obtiene el token de Turnstile con un widget en un WebView dentro de la app.
 
-## Related Documents
+**Arranque de la API en producción (fail-fast)**: la API no inicia sin un `JWT_SECRET` de ≥ 32 caracteres, sin `TURNSTILE_SECRET_KEY` (ni con Turnstile deshabilitado), ni con `PAYMENTS_MODE=mock` salvo `ALLOW_MOCK_PAYMENTS=true` (solo pruebas internas de humo). Ejecuta `prisma migrate deploy` antes de arrancar.
 
-- `INFRASTRUCTURE.md` — Deployment & infrastructure details
-- `DOMAIN_STATUS.md` — Per-domain implementation status
-- `DEPENDENCY_MATRIX.md` — Module & service dependencies
-- `TECHNICAL_DECISIONS.md` — Architecture Decision Records
-- `SECURITY_BASELINE.md` — Security controls & baseline
+**Datos iniciales en producción**: `npm run create-admin` y `npm run seed:property` dentro del contenedor `api` (ver [docs/RUNBOOK.md](docs/RUNBOOK.md)). El seed demo (`npm run db:seed`) se niega a correr con `NODE_ENV=production` salvo `ALLOW_DEMO_SEED=true`, y no se usa nunca en producción.
+
+**Media**: subida multipart a la API → procesamiento con `sharp` → MinIO; lectura pública desde `media.elevari.live`.
+
+**Analítica**: `NEXT_PUBLIC_GTM_ID` (GTM-PXVGFFMK) carga GTM; el tag de Google dentro del contenedor mide GA4 (`G-W4QC0NYBVJ`). Con GTM activo la web no carga gtag directo y emite eventos al `dataLayer`. Meta Pixel es opcional. Cloudflare Web Analytics no usa cookies.
+
+**Push móvil**: deshabilitado hasta que exista un `projectId` real de EAS y un endpoint de la API para registrar tokens (pendiente; ver [ROADMAP.md](ROADMAP.md)).
+
+## Seguridad en capas
+
+- Cloudflare: Always HTTPS, TLS ≥ 1.2, WAF gestionado + regla custom de rutas sensibles, Bot Fight Mode, rate limit en `/api/v1/auth/*`.
+- nginx: TLS 1.2/1.3 con Origin Certificate, cabeceras base, `limit_req` (`/api/` 20 r/s, `/api/v1/auth/` 5 r/s por IP real), host desconocido → `444`, media solo GET/HEAD.
+- Next.js: CSP en modo enforce y cabeceras de seguridad (`next.config.ts`).
+- API: `@fastify/rate-limit` (120/min por IP), CORS restringido, logs con redacción de `authorization` y `cookie`.
+
+Ver [SECURITY_BASELINE.md](SECURITY_BASELINE.md).
+
+## Documentos relacionados
+
+[INFRASTRUCTURE.md](INFRASTRUCTURE.md) · [DEPENDENCY_MATRIX.md](DEPENDENCY_MATRIX.md) · [DOMAIN_STATUS.md](DOMAIN_STATUS.md) · [TECHNICAL_DECISIONS.md](TECHNICAL_DECISIONS.md) · [SSOT_REGISTRY.md](SSOT_REGISTRY.md)
