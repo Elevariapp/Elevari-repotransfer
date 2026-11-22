@@ -49,8 +49,8 @@ export default async function OpengraphImage({
           height: '100%',
           display: 'flex',
           position: 'relative',
-          background: 'linear-gradient(135deg, #1E4835 0%, #2F6B4F 55%, #0F2A20 100%)',
-          color: '#F7F4EC',
+          background: 'linear-gradient(135deg, #064E3B 0%, #D97706 55%, #0F172A 100%)',
+          color: '#FEF3C7',
           fontFamily: 'system-ui, sans-serif',
         }}
       >
@@ -86,25 +86,25 @@ export default async function OpengraphImage({
                 width: 52,
                 height: 52,
                 borderRadius: 16,
-                background: '#0F2A20',
+                background: '#0F172A',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '2px solid #5FA76A',
+                border: '2px solid #064E3B',
                 fontSize: 26,
-                color: '#5FA76A',
+                color: '#064E3B',
               }}
             >
               ◠
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1 }}>eleveri</span>
-              <span style={{ fontSize: 15, letterSpacing: 4, color: '#F6E3B8' }}>ESCAPES NATURALES</span>
+              <span style={{ fontSize: 15, letterSpacing: 4, color: '#FEF3C7' }}>ESCAPES NATURALES</span>
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ width: 88, height: 6, background: '#E9A820', borderRadius: 3, marginBottom: 26 }} />
+            <div style={{ width: 88, height: 6, background: '#D97706', borderRadius: 3, marginBottom: 26 }} />
             <span style={{ fontSize: 62, fontWeight: 700, lineHeight: 1.08, letterSpacing: -1.5, maxWidth: 900 }}>
               {title.length > 72 ? `${title.slice(0, 71)}…` : title}
             </span>
@@ -112,7 +112,7 @@ export default async function OpengraphImage({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 26, color: '#F6E3B8' }}>
+            <span style={{ fontSize: 26, color: '#FEF3C7' }}>
               {price ? `Desde ${price} / noche` : 'Precio total antes de pagar'}
             </span>
             <span
@@ -120,8 +120,8 @@ export default async function OpengraphImage({
                 fontSize: 22,
                 padding: '10px 22px',
                 borderRadius: 999,
-                border: '1px solid rgba(246,227,184,0.45)',
-                color: '#F7F4EC',
+                border: '1px solid rgba(234,243,199,0.45)',
+                color: '#FEF3C7',
               }}
             >
               elevari.live

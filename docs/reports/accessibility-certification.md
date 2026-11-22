@@ -19,7 +19,7 @@
 
 | Regla | Detalle | Fix |
 |-------|---------|-----|
-| `color-contrast` | Subtítulo del chip activo: `#5C6B65` sobre `#2F6B4F` = 1.12 | Texto blanco en estado activo (6.29:1) |
+| `color-contrast` | Subtítulo del chip activo: `#64748B` sobre `#D97706` = 1.12 | Texto blanco en estado activo (6.29:1) |
 | `label-content-name-mismatch` | Logo con `aria-label` que no contenía el texto visible | Nombre accesible desde el contenido + `sr-only` |
 | `skip-link` (Lighthouse) | `/auth/login` no tenía `#contenido` porque `AuthShell` está en `components/` | `id="contenido"` añadido |
 
@@ -29,7 +29,7 @@
 
 | Prueba | Resultado | Evidencia |
 |--------|-----------|-----------|
-| Skip link con primer Tab | **PASS** — visible en `top: 16px`, outline `2px solid rgb(47,107,79)` | `focus-skip-link.jpg` |
+| Skip link con primer Tab | **PASS** — visible en `top: 16px`, outline `2px solid rgb(217,119,6)` | `focus-skip-link.jpg` |
 | Orden de tabulación | **PASS** — 12 elementos, todos con `outline` visible | `a11y-results.json → tabOrder` |
 | Menú móvil | **PASS** — `aria-expanded=true`, panel visible, **Escape cierra** y devuelve foco | `mobile-menu-open.jpg` |
 | Movimiento reducido | **PASS** — `animation-duration: 1e-05s`, `scroll-behavior: auto` | JSON |

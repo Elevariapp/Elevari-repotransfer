@@ -13,7 +13,7 @@ export function passwordChanged({ guestName }: { guestName: string }): string {
       Your password has been successfully changed.
     </p>
 
-    <p style="color:#EF4444; font-size:14px;">
+    <p style="color:#B3261E; font-size:14px;">
       Si no realizaste este cambio, contáctanos inmediatamente.<br/>
       If you did not make this change, contact us immediately.
     </p>

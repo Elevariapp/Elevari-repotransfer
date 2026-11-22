@@ -15,17 +15,17 @@ export function WelcomeEmail({ data }: { data: WelcomeData }) {
       <title>Bienvenido a Elevari</title>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #F7F4EC; color: #22313F; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #FEF3C7; color: #0F172A; }
         .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
         .card { background: #FFFFFF; border-radius: 1.25rem; overflow: hidden; box-shadow: 0 12px 32px rgba(22, 34, 44, 0.1); }
-        .header { background: #2F6B4F; color: #FFFFFF; padding: 32px 24px; text-align: center; }
+        .header { background: #D97706; color: #FFFFFF; padding: 32px 24px; text-align: center; }
         .header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; }
         .body { padding: 32px 24px; }
-        .body h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.25rem; color: #22313F; margin-top: 0; }
+        .body h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.25rem; color: #0F172A; margin-top: 0; }
         .cta { text-align: center; margin: 24px 0; }
-        .cta-button { display: inline-block; background: #E9A820; color: #7A4A00; padding: 14px 32px; border-radius: 0.875rem; text-decoration: none; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .footer { padding: 24px; background: #F7F4EC; color: #5C6B65; font-size: 0.8125rem; text-align: center; border-top: 1px solid #E2DCCC; }
-        .footer a { color: #2F6B4F; text-decoration: none; }
+        .cta-button { display: inline-block; background: #D97706; color: #FFFFFF; padding: 14px 32px; border-radius: 0.875rem; text-decoration: none; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .footer { padding: 24px; background: #0F172A; color: #FEF3C7; font-size: 0.8125rem; text-align: center; border-top: 1px solid #E2E8F0; }
+        .footer a { color: #D97706; text-decoration: none; }
       </style>
     </head>
     <body>

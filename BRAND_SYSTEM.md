@@ -61,14 +61,14 @@ A blended combination of Concepts 1-3:
 
 ## Email Brand Colors
 
-- Primary: `#F59E0B` (Amber)
-- Secondary: `#0F172A` (Slate 900)
-- Accent: `#FCD34D` (Amber Light)
-- Button background: `#F59E0B`
+- Primary: `#D97706` (Forest)
+- Secondary: `#0F172A` (Slate)
+- Accent: `#D97706` (Amber)
+- Button background: `#D97706`
 - Button text: `#FFFFFF`
-- Link color: `#F59E0B`
+- Link color: `#D97706`
 - Footer background: `#0F172A`
-- Footer text: `#F1F5F9`
+- Footer text: `#FEF3C7` (Ivory)
 
 ## WhatsApp Business Brand
 

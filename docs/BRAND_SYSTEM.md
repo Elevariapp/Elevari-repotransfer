@@ -14,15 +14,15 @@
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--elevari-forest-deep` | `#1E4835` | Placa de fondo, fondos oscuros, header/footer |
-| `--elevari-forest` | `#2F6B4F` | Acciones primarias, enlaces |
-| `--elevari-fresh` | `#5FA76A` | Trazos del símbolo de marca |
-| `--elevari-amber` | `#E9A820` | Punto de acento, botones secundarios, detalles |
-| `--elevari-amber-soft` | `#F6E3B8` | Líneas suaves, fondos de acento |
-| `--elevari-ivory` | `#F7F4EC` | Fondo claro, superficies |
+| `--elevari-forest-deep` | `#B45309` | Placa de fondo, fondos oscuros, header/footer |
+| `--elevari-forest` | `#D97706` | Acciones primarias, enlaces |
+| `--elevari-fresh` | `#064E3B` | Trazos del símbolo de marca |
+| `--elevari-amber` | `#D97706` | Punto de acento, botones secundarios, detalles |
+| `--elevari-amber-soft` | `#FEF3C7` | Líneas suaves, fondos de acento |
+| `--elevari-ivory` | `#FEF3C7` | Fondo claro, superficies |
 | `--elevari-sand` | `#E8E3D5` | Bordes, fondos sutiles |
-| `--elevari-slate` | `#22313F` | Texto principal |
-| `--elevari-ink` | `#16222C` | Texto denso |
+| `--elevari-slate` | `#0F172A` | Texto principal |
+| `--elevari-ink` | `#0F172A` | Texto denso |
 
 ## Símbolo de marca (ElevariMark)
 

@@ -5,14 +5,14 @@
 ### Brand Colors
 | Element | Color | Hex |
 |---------|-------|-----|
-| Primary | Amber | `#F59E0B` |
-| Secondary | Slate 900 | `#0F172A` |
-| Accent | Amber Light | `#FCD34D` |
-| Button Background | Amber | `#F59E0B` |
+| Primary | Forest | `#D97706` |
+| Secondary | Slate | `#0F172A` |
+| Accent | Amber | `#D97706` |
+| Button Background | Forest | `#D97706` |
 | Button Text | White | `#FFFFFF` |
-| Link Color | Amber | `#F59E0B` |
-| Footer Background | Slate 900 | `#0F172A` |
-| Footer Text | Slate 100 | `#F1F5F9` |
+| Link Color | Forest | `#D97706` |
+| Footer Background | Slate | `#0F172A` |
+| Footer Text | Ivory | `#FEF3C7` |
 
 ### Logo
 - **URL:** `https://raw.githubusercontent.com/Elevariapp/Elevari-repotransfer/b-main/public/brand/logo-concept-4-blend.svg`

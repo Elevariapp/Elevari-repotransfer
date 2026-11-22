@@ -22,17 +22,17 @@ Resultado: cambio de marca global con un diff acotado y sin tocar lógica de neg
 
 | Legacy | Nuevo | Hex nuevo |
 |--------|-------|-----------|
-| `wana-black` (fondos) | `elevari-forest-deep` | `#1E4835` |
-| `wana-forest` | `elevari-forest` | `#2F6B4F` |
-| `wana-charcoal` (texto) | `elevari-slate` | `#22313F` |
-| `wana-black` (texto) | `elevari-ink` | `#16222C` |
-| `wana-champagne` / `wana-gold` | `elevari-amber` | `#E9A820` |
-| `wana-champagne-light` / `wana-gold-light` | `elevari-amber-soft` | `#F6E3B8` |
-| `wana-champagne-dark` (texto) | `elevari-forest` / `elevari-amber-ink` | `#2F6B4F` / `#7A4A00` |
-| `wana-cream` | `elevari-ivory` | `#F7F4EC` |
+| `wana-black` (fondos) | `elevari-forest-deep` | `#B45309` |
+| `wana-forest` | `elevari-forest` | `#D97706` |
+| `wana-charcoal` (texto) | `elevari-slate` | `#0F172A` |
+| `wana-black` (texto) | `elevari-ink` | `#0F172A` |
+| `wana-champagne` / `wana-gold` | `elevari-amber` | `#D97706` |
+| `wana-champagne-light` / `wana-gold-light` | `elevari-amber-soft` | `#FEF3C7` |
+| `wana-champagne-dark` (texto) | `elevari-forest` / `elevari-amber-ink` | `#D97706` / `#92400E` |
+| `wana-cream` | `elevari-ivory` | `#FEF3C7` |
 | `wana-sand` | `elevari-sand` | `#E8E3D5` |
-| `wana-muted` | `elevari-muted` | `#5C6B65` |
-| `wana-border` | `elevari-border` | `#E2DCCC` |
+| `wana-muted` | `elevari-muted` | `#64748B` |
+| `wana-border` | `elevari-border` | `#E2E8F0` |
 | Cormorant Garamond (display) | Plus Jakarta Sans | — |
 
 ---

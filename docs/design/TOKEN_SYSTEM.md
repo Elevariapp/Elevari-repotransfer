@@ -20,23 +20,23 @@
 
 | Token | Utilidad | Hex |
 |-------|----------|-----|
-| `--color-elevari-forest` | `bg-elevari-forest` | `#2F6B4F` |
-| `--color-elevari-forest-deep` | `bg-elevari-forest-deep` | `#1E4835` |
-| `--color-elevari-forest-light` | `bg-elevari-forest-light` | `#3D8163` |
-| `--color-elevari-fresh` | `bg-elevari-fresh` | `#5FA76A` |
-| `--color-elevari-fresh-soft` | `bg-elevari-fresh-soft` | `#DFF0E3` |
-| `--color-elevari-amber` | `bg-elevari-amber` | `#E9A820` |
-| `--color-elevari-amber-ink` | `text-elevari-amber-ink` | `#7A4A00` |
-| `--color-elevari-amber-soft` | `bg-elevari-amber-soft` | `#F6E3B8` |
-| `--color-elevari-ivory` | `bg-elevari-ivory` | `#F7F4EC` |
+| `--color-elevari-forest` | `bg-elevari-forest` | `#D97706` |
+| `--color-elevari-forest-deep` | `bg-elevari-forest-deep` | `#B45309` |
+| `--color-elevari-forest-light` | `bg-elevari-forest-light` | `#EA9A2E` |
+| `--color-elevari-fresh` | `bg-elevari-fresh` | `#064E3B` |
+| `--color-elevari-fresh-soft` | `bg-elevari-fresh-soft` | `#FEF3C7` |
+| `--color-elevari-amber` | `bg-elevari-amber` | `#D97706` |
+| `--color-elevari-amber-ink` | `text-elevari-amber-ink` | `#92400E` |
+| `--color-elevari-amber-soft` | `bg-elevari-amber-soft` | `#FEF3C7` |
+| `--color-elevari-ivory` | `bg-elevari-ivory` | `#FEF3C7` |
 | `--color-elevari-surface` | `bg-elevari-surface` | `#FFFFFF` |
 | `--color-elevari-sand` | `bg-elevari-sand` | `#E8E3D5` |
-| `--color-elevari-slate` | `text-elevari-slate` | `#22313F` |
-| `--color-elevari-ink` | `text-elevari-ink` | `#16222C` |
-| `--color-elevari-muted` | `text-elevari-muted` | `#5C6B65` |
-| `--color-elevari-border` | `border-elevari-border` | `#E2DCCC` |
-| `--color-elevari-success` / `-soft` | `text-elevari-success` | `#2F6B4F` / `#DFF0E3` |
-| `--color-elevari-warning` / `-soft` | `text-elevari-warning` | `#7A4A00` / `#FBF0D6` |
+| `--color-elevari-slate` | `text-elevari-slate` | `#0F172A` |
+| `--color-elevari-ink` | `text-elevari-ink` | `#0F172A` |
+| `--color-elevari-muted` | `text-elevari-muted` | `#64748B` |
+| `--color-elevari-border` | `border-elevari-border` | `#E2E8F0` |
+| `--color-elevari-success` / `-soft` | `text-elevari-success` | `#064E3B` / `#FEF3C7` |
+| `--color-elevari-warning` / `-soft` | `text-elevari-warning` | `#92400E` / `#FEF3C7` |
 | `--color-elevari-error` / `-soft` | `text-elevari-error` | `#B3261E` / `#FDECEB` |
 
 Las variantes con opacidad (`bg-elevari-forest/10`) funcionan porque Tailwind v4 deriva del token.
@@ -132,7 +132,7 @@ Regla: toda animación se anula con `prefers-reduced-motion: reduce`.
 ```ts
 import { colors, spacing, radius, shadows, typography } from '@/lib/design-tokens';
 
-colors.forest;        // '#2F6B4F'
+colors.forest;        // '#D97706'
 spacing.lg;           // '1.5rem'
 radius.full;          // '9999px'
 shadows.card;         // '0 2px 8px …'

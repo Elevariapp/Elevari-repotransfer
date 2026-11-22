@@ -6,13 +6,13 @@
       "styles": {
         "dataTheme": "light",
         "dataContrast": null,
-        "bodyBg": "rgb(247, 244, 236)",
-        "bodyColor": "rgb(34, 49, 63)",
+        "bodyBg": "rgb(254, 243, 199)",
+        "bodyColor": "rgb(15, 23, 42)",
         "h1Color": "rgb(255, 255, 255)",
         "linkColor": "rgba(255, 255, 255, 0.72)",
-        "tokenIvory": "#f7f4ec",
-        "tokenSlate": "#22313f",
-        "tokenMuted": "#5c6b65"
+        "tokenIvory": "#fef3c7",
+        "tokenSlate": "#0f172a",
+        "tokenMuted": "#64748b"
       },
       "axe": [],
       "bodyContrast": "12.10"
@@ -38,12 +38,12 @@
       "styles": {
         "dataTheme": "light",
         "dataContrast": "high",
-        "bodyBg": "rgb(247, 244, 236)",
-        "bodyColor": "rgb(34, 49, 63)",
+        "bodyBg": "rgb(254, 243, 199)",
+        "bodyColor": "rgb(15, 23, 42)",
         "h1Color": "rgb(255, 255, 255)",
         "linkColor": "rgba(255, 255, 255, 0.72)",
-        "tokenIvory": "#f7f4ec",
-        "tokenSlate": "#22313f",
+        "tokenIvory": "#fef3c7",
+        "tokenSlate": "#0f172a",
         "tokenMuted": "#2f403a"
       },
       "axe": [],

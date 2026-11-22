@@ -30,16 +30,16 @@ Remaining items are explicitly listed as non-blocking follow-ups.
 ## BRAND SYSTEM (final)
 
 ```
-Primary   Forest      #2F6B4F
-Deep      Forest Deep #1E4835
-Secondary Fresh       #5FA76A
-Accent    Amber       #E9A820
-Accent ink Amber ink  #7A4A00
-Background Ivory      #F7F4EC
+Primary   Forest      #D97706
+Deep      Forest Deep #B45309
+Secondary Fresh       #064E3B
+Accent    Amber       #D97706
+Accent ink Amber ink  #92400E
+Background Ivory      #FEF3C7
 Surface   White       #FFFFFF
-Text      Slate       #22313F
-Muted     #5C6B65
-Border    #E2DCCC
+Text      Slate       #0F172A
+Muted     #64748B
+Border    #E2E8F0
 ```
 
 Typography: **Plus Jakarta Sans** (display/logo) + **Inter** (interface). No serif, no decorative fonts.

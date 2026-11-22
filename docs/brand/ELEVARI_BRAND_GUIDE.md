@@ -45,20 +45,20 @@ Nunca corporativa, nunca fría, nunca agresiva.
 
 | Rol | Token | Hex | Uso |
 |-----|-------|-----|-----|
-| Primario | `--elevari-forest` | `#2F6B4F` | CTA principal, header, marca |
-| Primario profundo | `--elevari-forest-deep` | `#1E4835` | Header, footer, hover de CTA |
-| Secundario | `--elevari-fresh` | `#5FA76A` | Isotipo, acentos naturales, éxito suave |
-| Acento | `--elevari-amber` | `#E9A820` | Estrellas, badges, destacados |
-| Acento texto | `--elevari-amber-ink` | `#7A4A00` | Texto sobre fondos ámbar suaves |
-| Fondo | `--elevari-ivory` | `#F7F4EC` | Fondo general |
+| Primario | `--elevari-forest` | `#D97706` | CTA principal, header, marca |
+| Primario profundo | `--elevari-forest-deep` | `#B45309` | Header, footer, hover de CTA |
+| Secundario | `--elevari-fresh` | `#064E3B` | Isotipo, acentos naturales, éxito suave |
+| Acento | `--elevari-amber` | `#D97706` | Estrellas, badges, destacados |
+| Acento texto | `--elevari-amber-ink` | `#92400E` | Texto sobre fondos ámbar suaves |
+| Fondo | `--elevari-ivory` | `#FEF3C7` | Fondo general |
 | Superficie | `--elevari-surface` | `#FFFFFF` | Tarjetas y formularios |
 | Arena | `--elevari-sand` | `#E8E3D5` | Separadores, estados inactivos |
-| Texto | `--elevari-slate` | `#22313F` | Texto principal |
-| Texto tinta | `--elevari-ink` | `#16222C` | Títulos de máximo contraste |
-| Texto secundario | `--elevari-muted` | `#5C6B65` | Texto de apoyo |
-| Borde | `--elevari-border` | `#E2DCCC` | Bordes y divisores |
+| Texto | `--elevari-slate` | `#0F172A` | Texto principal |
+| Texto tinta | `--elevari-ink` | `#0F172A` | Títulos de máximo contraste |
+| Texto secundario | `--elevari-muted` | `#64748B` | Texto de apoyo |
+| Borde | `--elevari-border` | `#E2E8F0` | Bordes y divisores |
 
-**Feedback:** success `#2F6B4F` · warning `#7A4A00` · error `#B3261E` (cada uno con su variante `-soft`).
+**Feedback:** success `#064E3B` · warning `#92400E` · error `#B3261E` (cada uno con su variante `-soft`).
 
 ### Reglas de contraste (WCAG 2.2 AA)
 
@@ -72,7 +72,7 @@ Nunca corporativa, nunca fría, nunca agresiva.
 | Muted sobre Ivory | 5.10 | ✅ Texto secundario |
 | Amber sobre Ivory | 1.89 | ❌ Nunca para texto |
 
-> Regla dura: el ámbar `#E9A820` es **decorativo** (estrellas, iconos, fondos). Para texto sobre claro usar `amber-ink` o `slate`.
+> Regla dura: el ámbar `#D97706` es **decorativo** (estrellas, iconos, fondos). Para texto sobre claro usar `amber-ink` o `slate`.
 
 ---
 

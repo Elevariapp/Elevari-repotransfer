@@ -58,7 +58,7 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 
 > **CLOSED** — ver `docs/PHASE3_CLOSEOUT.md`. Brand, Design System, UX, accesibilidad y analítica de conversión implementados.
 
-- **Marca:** forest `#2F6B4F`, fresh `#5FA76A`, amber `#E9A820`, ivory `#F7F4EC`, slate `#22313F`.
+- **Marca:** forest-deep `#B45309`, forest `#D97706`, fresh `#064E3B`, amber `#D97706`, ivory `#FEF3C7`, slate `#0F172A`.
 - **Tipografía:** Plus Jakarta Sans (display/logo) + Inter (interfaz). Sin serif.
 - **Tokens:** `app/globals.css` (`@theme` + `:root`), espejo tipado `lib/design-tokens.ts`.
 - **Componentes:** `components/ui/` — Button, ButtonLink, Card, Input, Badge, Modal, PriceBreakdown, Toast.
