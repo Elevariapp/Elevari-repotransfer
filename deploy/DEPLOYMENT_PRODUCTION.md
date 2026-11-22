@@ -4,6 +4,18 @@ Guía para desplegar el stack Docker en un VPS (Hetzner, DigitalOcean, etc.) con
 
 **Checklist completo:** `deploy/GO_LIVE_CHECKLIST.md`
 
+> **Despliegue automático (GitHub Actions):** Cada push a la rama `b-main` activa el pipeline de CI/CD que despliega automáticamente en Hetzner. También puedes desplegar manualmente desde la pestaña **Actions** → **Deploy to Hetzner Production** → **Run workflow**.
+>
+> **Secrets requeridos en GitHub** (Settings → Secrets and variables → Actions):
+> - `HETZNER_IP` — IP del servidor (ej. `2.29.165.225`)
+> - `HETZNER_USER` — usuario SSH (ej. `root`)
+> - `HETZNER_SSH_KEY` — contenido completo de tu clave privada SSH (`~/.ssh/id_ed25519_elevari_hetzner`)
+>
+> **`.env.production` NO se sube a GitHub.** Debes copiarlo manualmente al servidor:
+> ```bash
+> scp .env.production root@2.29.165.225:/opt/elevari/.env.production
+> ```
+
 ## Arquitectura
 
 ```
@@ -31,7 +43,7 @@ sudo usermod -aG docker $USER
 ```bash
 git clone <repo-url> elevari && cd elevari
 cp deploy/.env.production.example .env.production
-# Editar .env.production — contraseñas, JWT, keys Bold/Stripe, Alegra
+# Editar .env.production — contraseñas, JWT, keys Wompi, Alegra
 ```
 
 Variables críticas:
@@ -40,7 +52,7 @@ Variables críticas:
 | `POSTGRES_PASSWORD` | Base de datos |
 | `JWT_SECRET` | Auth (min 32 caracteres) |
 | `NEXT_PUBLIC_API_URL` | `https://tu-dominio` (sin `/api/v1`) |
-| `BOLD_*` / `STRIPE_*` | Pagos live |
+| `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` | Pagos Wompi (COP) |
 | `ALEGRA_EMAIL` + `ALEGRA_API_TOKEN` | Facturación Colombia |
 
 ## 3. Build y arranque
@@ -69,7 +81,7 @@ docker compose -f docker-compose.prod.yml ps
 1. Añade el dominio en Cloudflare
 2. Proxy naranja activado en DNS
 3. SSL/TLS → Full (strict) si usas origin cert, o Full
-4. Webhooks Bold/Stripe → `https://tu-dominio/api/v1/webhooks/bold` y `/stripe`
+4. Webhook Wompi → `https://tu-dominio/api/v1/webhooks/wompi`
 
 ## 6. Backups PostgreSQL
 
@@ -100,7 +112,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.production up -d
 
 ## 9. Facturación Alegra (Fase 6B)
 
-Al confirmar un pago COP/Bold, la API:
+Al confirmar un pago COP/Wompi, la API:
 1. Emite factura en Alegra si hay credenciales
 2. Si falla → `pending_invoices` para reintento manual
 

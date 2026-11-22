@@ -1,9 +1,6 @@
 -- Phase 2 (Wompi-first payments): extend enums, add refunds, events, FX quotes
 
 -- AlterEnum
-ALTER TYPE "PaymentProvider" ADD VALUE 'wompi';
-
--- AlterEnum
 ALTER TYPE "PaymentStatus" ADD VALUE 'cancelled';
 ALTER TYPE "PaymentStatus" ADD VALUE 'partially_refunded';
 

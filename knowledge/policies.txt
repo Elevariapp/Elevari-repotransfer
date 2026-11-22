@@ -13,7 +13,7 @@
 - **Confirmed — 2 to 4 days before check-in:** 50% refund.
 - **Confirmed — less than 48 h before check-in:** no refund.
 - **Checked in / completed:** contact support; cancellations handled case-by-case per `policies.txt` compensation rules.
-- Refunds: Stripe automated when configured; Bold may require manual processing in dashboard (API marks `pending_manual`).
+- Refunds: Wompi full/partial via API; any non-Wompi provider must be refunded manually (API marks `pending_manual`).
 
 ## Communication standards
 - Respond within 24 hours during a stay; within 48 hours for post-stay issues.

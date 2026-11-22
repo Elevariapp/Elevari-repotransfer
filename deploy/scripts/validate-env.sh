@@ -104,9 +104,6 @@ if [[ "${PAYMENTS_MODE:-}" == "live" ]]; then
       echo "${RED}✗ WOMPI_PUBLIC_KEY y NEXT_PUBLIC_WOMPI_PUBLIC_KEY deben coincidir${NC}"
       errors=$((errors + 1))
     fi
-  elif [[ "${PAYMENTS_BOLD_ENABLED:-false}" == "true" || "${PAYMENTS_STRIPE_ENABLED:-false}" == "true" ]]; then
-    echo "${YELLOW}○ Proveedor legacy habilitado (Bold/Stripe) — valida sus keys manualmente${NC}"
-    warnings=$((warnings + 1))
   else
     echo "${RED}✗ PAYMENTS_MODE=live sin proveedor habilitado (PAYMENTS_WOMPI_ENABLED=true requerido)${NC}"
     errors=$((errors + 1))

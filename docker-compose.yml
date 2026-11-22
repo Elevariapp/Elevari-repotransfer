@@ -92,6 +92,7 @@ services:
       MINIO_PUBLIC_URL: http://localhost:9000/wana-media
       MEDIA_AUTO_APPROVE: "true"
       JWT_SECRET: wana_dev_jwt_secret_change_in_production
+      # ⚠️ SOLO para desarrollo local. Nunca reutilizar en producción.
       CORS_ORIGIN: http://localhost:3000
     ports:
       - "4000:4000"

@@ -14,7 +14,7 @@ CREATE TYPE "MediaStatus" AS ENUM ('pending', 'approved', 'rejected');
 CREATE TYPE "BookingStatus" AS ENUM ('draft', 'pending_payment', 'confirmed', 'checked_in', 'completed', 'cancelled');
 
 -- CreateEnum
-CREATE TYPE "PaymentProvider" AS ENUM ('bold', 'stripe');
+CREATE TYPE "PaymentProvider" AS ENUM ('wompi');
 
 -- CreateEnum
 CREATE TYPE "PaymentStatus" AS ENUM ('pending', 'processing', 'succeeded', 'failed', 'refunded');

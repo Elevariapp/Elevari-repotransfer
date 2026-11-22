@@ -74,8 +74,6 @@ Or all-in-docker: `npm run docker:up`
 - `POST /api/v1/payments/:id/mock-complete` — solo `PAYMENTS_MODE=mock`
 - `POST /api/v1/payments/:id/mock-fail` — solo `PAYMENTS_MODE=mock`
 - `POST /api/v1/webhooks/wompi` — activo
-- `POST /api/v1/webhooks/bold` — legacy, deshabilitado
-- `POST /api/v1/webhooks/stripe` — legacy, deshabilitado
 - `POST /api/v1/auth/register` · `POST /api/v1/auth/login` · `GET /api/v1/auth/me`
 
 ### Auth (JWT)
@@ -89,8 +87,6 @@ Or all-in-docker: `npm run docker:up`
 | Proveedor | Estado | Env vars |
 |-----------|--------|----------|
 | **Wompi** | **Activo** (COP, Colombia + internacional) | `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` (4 vars; entorno derivado del prefijo de la llave) — ver `.env.wompi.example` |
-| **Bold** | En repo, oculto y deshabilitado | `PAYMENTS_BOLD_ENABLED=false` |
-| **Stripe** | En repo, oculto y deshabilitado | `PAYMENTS_STRIPE_ENABLED=false` |
 | **Mock** | Local/staging sin keys | `PAYMENTS_MODE=mock` en `api/.env` |
 
 - Startup validation: si Wompi está habilitado y falta cualquier `WOMPI_*`, la API no arranca (error claro).
@@ -134,7 +130,7 @@ Web env: `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUB
 | `GET /api/v1/admin/invoices/pending` | Lista facturas pendientes/fallidas (admin JWT) |
 | `POST /api/v1/admin/invoices/:id/retry` | Reintento manual |
 
-Env: `ALEGRA_EMAIL`, `ALEGRA_API_TOKEN`. Sin credenciales → `pending_invoices` para procesamiento posterior. Pagos USD (Stripe internacional) no facturan en Alegra.
+Env: `ALEGRA_EMAIL`, `ALEGRA_API_TOKEN`. Sin credenciales → `pending_invoices` para procesamiento posterior.
 
 ### Database
 

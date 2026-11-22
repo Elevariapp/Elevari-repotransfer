@@ -2,7 +2,7 @@
 
 **Última actualización:** Jul 2026  
 **Estado actual:** `https://elevari.live` · `PAYMENTS_MODE=mock` · pre-live operativo  
-**Objetivo:** lanzar cobro real sin sorpresas (Bold/Stripe es el último candado, no el primero)
+**Objetivo:** lanzar cobro real sin sorpresas (Wompi es el único proveedor de pagos)
 
 Leyenda: `[ ]` pendiente · `[x]` hecho · `⏸` bloqueado por dependencia externa
 
@@ -14,7 +14,7 @@ Leyenda: `[ ]` pendiente · `[x]` hecho · `⏸` bloqueado por dependencia exter
 |------|-------------------|------------------|
 | Sprint 1 — Confianza | No | Resend, backups, secrets |
 | Sprint 2 — Negocio | No | OTA iCal, legal, contenido |
-| Sprint 3 — Cobro live | **Sí** | Bold, Stripe, Alegra |
+| Sprint 3 — Cobro live | **Sí** | Wompi, Alegra |
 
 ---
 
@@ -99,22 +99,15 @@ Referencia: `docs/RESEND_SETUP.md`
 
 ---
 
-## Sprint 3 — Cobro live ⏸ (requiere Bold + Stripe)
+## Sprint 3 — Cobro live ⏸ (requiere Wompi)
 
-### Pagos Colombia (Bold)
+### Pagos Colombia (Wompi)
 
-- [ ] Cuenta Bold aprobada + API key producción
-- [ ] Webhook secret Bold
-- [ ] URL webhook: `https://elevari.live/api/v1/webhooks/bold`
+- [ ] Cuenta Wompi aprobada + API keys producción
+- [ ] `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET`
+- [ ] `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` en build web
+- [ ] URL webhook: `https://elevari.live/api/v1/webhooks/wompi`
 - [ ] Probar 1 pago COP real de bajo monto
-
-### Pagos internacional (Stripe)
-
-- [ ] Cuenta Stripe live
-- [ ] `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
-- [ ] `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` en build web
-- [ ] Webhook: `https://elevari.live/api/v1/webhooks/stripe`
-- [ ] Probar 1 pago USD/COP según flujo checkout
 
 ### Facturación (Alegra / DIAN)
 
@@ -129,7 +122,12 @@ Referencia: `docs/RESEND_SETUP.md`
 - [ ] URLs: `NEXT_PUBLIC_SITE_URL=https://elevari.live` (sin `/api/v1`)
 - [ ] `PAYMENTS_MODE=live`
 - [ ] `npm run go-live:validate` (sin errores)
-- [ ] Deploy: `npm run go-live:deploy` (o migrar staging → prod formal)
+- [ ] Subir `.env.production` al servidor: `scp .env.production root@2.29.165.225:/opt/elevari/.env.production`
+- [ ] Añadir secrets en GitHub (Settings → Secrets and variables → Actions):
+  - `HETZNER_IP` = `2.29.165.225`
+  - `HETZNER_USER` = `root`
+  - `HETZNER_SSH_KEY` = contenido completo de `~/.ssh/id_ed25519_elevari_hetzner`
+- [ ] Push a `b-main` (despliegue automático vía GitHub Actions) o clic en **Actions → Deploy to Hetzner Production → Run workflow**
 - [ ] Desactivar / no usar cuentas `@elevari.live` (auto-bloqueadas en live)
 - [ ] Smoke manual: registro → reserva → pago → email → factura
 
@@ -157,7 +155,7 @@ Referencia: `docs/RESEND_SETUP.md`
 | `NEXT_PUBLIC_TURNSTILE_*`, `TURNSTILE_SECRET_KEY` | 1 | Sí (auth) |
 | `ICAL_*` | 2 | Recomendado (1 propiedad multi-OTA) |
 | `MEDIA_AUTO_APPROVE=false` | 2 | Sí |
-| `BOLD_*`, `STRIPE_*` | 3 | Sí (cobro) |
+| `WOMPI_*` | 3 | Sí (cobro) |
 | `ALEGRA_*` | 3 | Sí (COP + factura) |
 | `PAYMENTS_MODE=live` | 3 | Sí |
 
@@ -191,7 +189,7 @@ npm run go-live:smoke:mock
 - [x] Infra VPS + Docker + nginx + HTTPS `elevari.live`
 - [x] API Fastify + JWT + Turnstile (fixes recientes)
 - [x] Booking engine + anti double-booking DB
-- [x] Checkout mock Bold/Stripe
+- [x] Checkout mock Wompi
 - [x] 7 emails HTML transaccionales (código)
 - [x] UX errores fechas en español
 - [x] Código sync iCal Fase 1 (pendiente URLs OTA)
@@ -205,7 +203,7 @@ npm run go-live:smoke:mock
 2. Cron backup DB  
 3. Anotar URLs iCal cuando tengas acceso Airbnb/Booking  
 
-Bold/Stripe pueden esperar; **emails + backups + OTA** no deberían.
+Wompi puede esperar; **emails + backups + OTA** no deberían.
 
 ---
 

@@ -27,7 +27,7 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 **Objetivo:** ciclo completo Property → Booking → Quote → Checkout → Pago → Webhook → Booking Confirmado → Confirmación al usuario. Un pago exitoso confirma la reserva; un pago fallido nunca la confirma; booking y pago siempre sincronizados.
 
 ### Estrategia de proveedor
-- **Wompi es el único proveedor activo.** Bold y Stripe permanecen en el repo, ocultos y deshabilitados (`PAYMENTS_BOLD_ENABLED=false`, `PAYMENTS_STRIPE_ENABLED=false`). Sin selección de proveedor en UI.
+- **Wompi es el único proveedor activo.** No hay selección de proveedor en UI.
 - Producción: `PAYMENTS_WOMPI_ENABLED=true`, `PAYMENTS_MODE=live`. Staging: `PAYMENTS_MODE=mock`.
 - Config: 4 variables únicamente — `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` (ver `.env.wompi.example`). El entorno se deriva del prefijo de la llave (`pub_prod_`/`pub_test_`); llaves de ambientes mezclados abortan el arranque.
 
@@ -110,7 +110,7 @@ META_ACCESS_TOKEN=
 ### Alcance MVP
 1. **Expo (React Native)** — monorepo `apps/mobile` o carpeta `mobile/`
 2. **Auth** — JWT igual que web (`/auth/login`, token en SecureStore)
-3. **Flujos huésped:** explorar propiedades, detalle, reserva, checkout (Stripe SDK / Bold deep link)
+3. **Flujos huésped:** explorar propiedades, detalle, reserva, checkout (Wompi redirect)
 4. **Flujos host (v2):** subir fotos, ver reservas
 5. **Push notifications** — Expo Notifications + API endpoint para tokens
 6. **Deep links** — `elevari://checkout/{id}`, universal links
@@ -118,7 +118,7 @@ META_ACCESS_TOKEN=
 ### Dependencias previas (ya cubiertas)
 - API REST estable ✅
 - Auth JWT ✅
-- Pagos con redirect / Stripe client secret ✅
+- Pagos con redirect / Wompi checkout ✅
 
 ### Esfuerzo estimado
 - MVP huésped (browse + book): **3–4 semanas**
@@ -185,7 +185,7 @@ META_ACCESS_TOKEN=
 | Go-live web Colombia | No crítico | **Crítico** (6E, 6B) |
 | Marketing / adquisición | Complementa web | SEO/analytics ya en Fase 4 |
 | Inversión en apps | Alto | — |
-| Keys Bold/Stripe live | Necesario en ambos | Necesario en ambos |
+| Keys Wompi live | Necesario en ambos | Necesario en ambos |
 
 **Recomendación:** Paralelizar **6E + 6B** (producción + facturación) mientras se valida tráfico web. Iniciar **Fase 5** cuando haya reservas recurrentes en web o requisito explícito de app store.
 

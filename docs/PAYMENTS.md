@@ -1,7 +1,7 @@
 # Pagos — Fase 2 (Wompi-first)
 
 Estado: implementado y validado en mock/staging. Wompi es el **único proveedor activo**.
-Bold y Stripe permanecen en el repositorio, ocultos y deshabilitados.
+Bold y Stripe han sido eliminados del código y la configuración.
 
 ## Pricing (MVP — sin motor de impuestos)
 

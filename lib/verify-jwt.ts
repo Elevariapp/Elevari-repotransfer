@@ -10,7 +10,10 @@ export type WebJwtPayload = {
 };
 
 function getSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET ?? 'wana_dev_jwt_secret_change_in_production';
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET no está definido. Define JWT_SECRET (mínimo 32 caracteres) antes de iniciar la web.');
+  }
   return new TextEncoder().encode(secret);
 }
 

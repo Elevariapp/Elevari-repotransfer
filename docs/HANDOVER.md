@@ -130,6 +130,40 @@ Confirmed: Only intentional placeholders exist:
 
 No removal candidates found.
 
-## Contact
+## Production Deployment (Hetzner)
+
+### Despliegue automático (GitHub Actions)
+
+Cada push a la rama `b-main` activa el pipeline de CI/CD que despliega automáticamente en Hetzner. También puedes desplegar manualmente desde la pestaña **Actions → Deploy to Hetzner Production → Run workflow**.
+
+### Secrets requeridos en GitHub
+
+Vaya a **Settings → Secrets and variables → Actions → New repository secret** y añada:
+
+| Secret | Valor ejemplo |
+|--------|--------------|
+| `HETZNER_IP` | `2.29.165.225` |
+| `HETZNER_USER` | `root` |
+| `HETZNER_SSH_KEY` | Contenido completo de `~/.ssh/id_ed25519_elevari_hetzner` |
+
+### `.env.production` (no commitear)
+
+Este archivo es gitignorado y nunca se sube a GitHub. Copialo manualmente al servidor:
+
+```bash
+scp .env.production root@2.29.165.225:/opt/elevari/.env.production
+```
+
+### Flujo de deploy
+
+1. Push a `b-main` (o clic en "Run workflow" en Actions)
+2. CI corre: build API, build web, validar env staging, typecheck mobile
+3. Si todo pasa, SSH a Hetzner y ejecuta:
+   - `git pull origin b-main`
+   - `npm run go-live:validate`
+   - `npm run go-live:deploy` (build + docker compose up -d)
+   - Health check: `curl http://localhost/health`
+
+### Contact
 - **Support:** reserve@elevari.live
 - **WhatsApp:** +57 3232688534

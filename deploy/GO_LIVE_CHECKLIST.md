@@ -8,7 +8,7 @@ Usa este documento como lista de verificación antes y después del despliegue a
 
 ## Fase 0 — Pre-live sin keys (AHORA)
 
-Sin Bold/Stripe/Alegra. Valida el stack completo con pagos mock.
+Sin Alegra. Valida el stack completo con pagos mock.
 
 ### Archivos
 
@@ -52,7 +52,7 @@ BASE_URL=http://TU_IP ./deploy/scripts/verify-health.sh
 1. Rellena `.env.production` (PAYMENTS_MODE=live + keys)
 2. `npm run go-live:validate`
 3. `npm run go-live:deploy`
-4. Configura webhooks Bold/Stripe
+4. Configura webhook Wompi (`https://elevari.live/api/v1/webhooks/wompi`)
 5. Fase D del checklist
 
 ---
@@ -101,12 +101,11 @@ Archivo: **`.env.production`** (raíz del proyecto, no commitear)
 | Variable | Estado | Dónde obtener |
 |----------|--------|---------------|
 | `PAYMENTS_MODE` | `live` | Ya configurado |
-| `BOLD_API_KEY` | ⬜ pendiente | [dashboard.bold.co](https://dashboard.bold.co) |
-| `BOLD_WEBHOOK_SECRET` | ⬜ pendiente | Bold → Webhooks |
-| `STRIPE_SECRET_KEY` | ⬜ pendiente | [dashboard.stripe.com](https://dashboard.stripe.com/apikeys) |
-| `STRIPE_PUBLISHABLE_KEY` | ⬜ pendiente | Stripe API keys |
-| `STRIPE_WEBHOOK_SECRET` | ⬜ pendiente | Stripe → Webhooks |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | ⬜ pendiente | Mismo pk que Stripe publishable |
+| `WOMPI_PUBLIC_KEY` | ⬜ pendiente | Dashboard Wompi → Claves API |
+| `WOMPI_PRIVATE_KEY` | ⬜ pendiente | Dashboard Wompi → Claves API |
+| `WOMPI_EVENTS_SECRET` | ⬜ pendiente | Dashboard Wompi → Webhooks |
+| `WOMPI_INTEGRITY_SECRET` | ⬜ pendiente | Dashboard Wompi → Webhooks |
+| `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` | ⬜ pendiente | Mismo pk que Wompi public |
 
 ### B3. Facturación Colombia (obligatorio legal)
 
@@ -150,12 +149,25 @@ Archivo: **`.env.production`** (raíz del proyecto, no commitear)
 
 ### C3. Desplegar en VPS
 
+**Opción A — Despliegue automático vía GitHub Actions (recomendado):**
+
+1. Sube `.env.production` al servidor (una sola vez, nunca por git):
+   ```bash
+   scp .env.production root@2.29.165.225:/opt/elevari/.env.production
+   ```
+2. Añade los 3 secrets en GitHub (Settings → Secrets and variables → Actions):
+   - `HETZNER_IP` = `2.29.165.225`
+   - `HETZNER_USER` = `root`
+   - `HETZNER_SSH_KEY` = contenido completo de `~/.ssh/id_ed25519_elevari_hetzner`
+3. Haz push a `b-main` — el despliegue se ejecuta automáticamente.
+   O despliega manualmente desde **Actions → Deploy to Hetzner Production → Run workflow**.
+
+**Opción B — Despliegue manual en el servidor:**
+
 ```bash
 # En el servidor
-git clone <repo-url> /opt/wana && cd /opt/wana
-# Copiar .env.production (scp o paste) — NUNCA por git
-scp .env.production user@vps:/opt/wana/.env.production
-
+git clone <repo-url> /opt/elevari && cd /opt/elevari
+scp .env.production user@vps:/opt/elevari/.env.production
 ./deploy/scripts/deploy-prod.sh
 ```
 
@@ -173,11 +185,10 @@ Configurar en dashboards de proveedores:
 
 | Proveedor | URL |
 |-----------|-----|
-| Bold | `https://elevari.live/api/v1/webhooks/bold` |
-| Stripe | `https://elevari.live/api/v1/webhooks/stripe` |
+| Wompi | `https://elevari.live/api/v1/webhooks/wompi` |
 
-- [ ] Bold webhook creado y secret copiado a `BOLD_WEBHOOK_SECRET`
-- [ ] Stripe webhook creado (eventos: `payment_intent.succeeded`, etc.)
+- [ ] Webhook Wompi creado en dashboard (eventos: transaction status change)
+- [ ] Secret de integridad copiado a `WOMPI_EVENTS_SECRET`
 - [ ] Re-deploy si añadiste secrets nuevos: `npm run docker:prod:build && npm run docker:prod:up`
 
 ---
@@ -200,15 +211,10 @@ curl -sI https://elevari.live/sitemap.xml
 
 - [ ] Registro / login usuario nuevo
 - [ ] Ver propiedad → seleccionar fechas → crear reserva
-- [ ] Checkout Bold (COP) — pago de prueba mínimo
+- [ ] Checkout Wompi (COP) — pago de prueba mínimo
 - [ ] Redirect success → estado `confirmed`
 - [ ] Email confirmación recibido (si Resend configurado)
 - [ ] Factura en Alegra o en `pending_invoices` (admin retry)
-
-### D3. Stripe internacional (opcional)
-
-- [ ] Checkout Stripe USD con tarjeta de prueba → confirmed
-- [ ] Sin factura Alegra (esperado para USD)
 
 ### D4. Host / media
 

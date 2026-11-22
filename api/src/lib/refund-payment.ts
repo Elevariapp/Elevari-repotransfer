@@ -125,7 +125,7 @@ export async function issuePaymentRefund(
     );
   }
 
-  // Stripe / Bold are not implemented. Any non-Wompi provider must be refunded manually.
+  // Only Wompi is implemented. Any non-Wompi provider must be refunded manually.
   return finalize(
     'pending_manual',
     undefined,
