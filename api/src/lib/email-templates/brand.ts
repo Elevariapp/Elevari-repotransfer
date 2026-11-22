@@ -11,7 +11,7 @@ export const EMAIL_BRAND = {
   linkColor: '#D97706',
   footerBackground: '#0F172A',
   footerText: '#FEF3C7',
-  supportEmail: 'soporte@elevari.com',
+  supportEmail: 'reserve@elevari.live',
   whatsappPhone: '+57 3232688534',
 } as const;
 

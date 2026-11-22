@@ -55,7 +55,7 @@ export default function RefundScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>5. Solicitar un reembolso</Text>
           <Text style={styles.body}>
-            Para solicitar un reembolso, contacta a soporte@elevari.live con los detalles de tu
+            Para solicitar un reembolso, contacta a reserve@elevari.live con los detalles de tu
             reserva y el motivo de la solicitud.
           </Text>
         </View>

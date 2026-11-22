@@ -28,7 +28,7 @@ Leyenda: `[ ]` pendiente · `[x]` hecho · `⏸` bloqueado por dependencia exter
 - [ ] En VPS `.env.staging` (o `.env.production`):
   ```bash
   RESEND_API_KEY=re_...
-  RESEND_FROM="Eleveri <reservas@elevari.live>"
+  RESEND_FROM="Elevari <reserve@elevari.live>"
   ```
 - [ ] Redeploy: `npm run go-live:remote`
 - [ ] Probar correos con email real (no `@elevari.live`):

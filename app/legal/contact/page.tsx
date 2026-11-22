@@ -32,7 +32,7 @@ export default function ContactPage() {
             <tbody>
               <tr className="border-b border-elevari-muted/30">
                 <td className="py-2">Soporte general y reservas</td>
-                <td className="py-2">soporte@elevari.live</td>
+                <td className="py-2">reserve@elevari.live</td>
                 <td className="py-2">1-2 días hábiles</td>
               </tr>
               <tr className="border-b border-elevari-muted/30">
@@ -67,8 +67,11 @@ export default function ContactPage() {
           </p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-elevari-slate">
             <li>Nombre comercial: Elevari</li>
-            <li>Correo legal: legal@elevari.live</li>
-            <li>Sede: Colombia</li>
+            <li>Razón social: Elevari S.A.S</li>
+            <li>NIT: 902088849</li>
+            <li>Dirección: CR 5 NO. 16 14 OF 711 ED EL GLOBO, BOGOTÁ, D.C, código postal 111711</li>
+            <li>Correo oficial (políticas, términos, reembolsos y contacto): reserve@elevari.live</li>
+            <li>Sede: Bogotá, Colombia</li>
           </ul>
         </section>
 

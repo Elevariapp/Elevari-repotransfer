@@ -45,7 +45,7 @@ export default function FAQScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>4. ¿Cómo contacto con soporte?</Text>
           <Text style={styles.body}>
-            Escríbenos a soporte@elevari.live. También puedes usar la sección Contacto en la app.
+            Escríbenos a reserve@elevari.live. También puedes usar la sección Contacto en la app.
           </Text>
         </View>
 

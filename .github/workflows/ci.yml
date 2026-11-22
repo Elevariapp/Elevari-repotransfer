@@ -103,3 +103,28 @@ jobs:
         run: eas login --non-interactive --token ${{ secrets.EXPO_TOKEN }}
       - name: Build Android (production)
         run: eas build --platform android --profile production --non-interactive
+
+  deploy-production:
+    name: Deploy to Hetzner Production
+    runs-on: ubuntu-latest
+    needs: [api, web, validate-staging-env, verification-log, mobile-typecheck]
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/b-main') && github.event_name == 'push'
+    steps:
+      - name: Deploy to Hetzner via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HETZNER_IP }}
+          username: ${{ secrets.HETZNER_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd /opt/elevari
+            echo "→ Pulling latest code from main..."
+            git pull origin main
+            echo "→ Validating production environment..."
+            npm run go-live:validate
+            echo "→ Building and deploying Docker stack..."
+            npm run go-live:deploy
+            echo "→ Running health check..."
+            curl -sf http://localhost/health && echo "✓ Health check passed" || (echo "✗ Health check failed" && exit 1)
+            echo "✓ Deploy to elevari.live completed successfully"

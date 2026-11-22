@@ -96,7 +96,7 @@ NEXT_PUBLIC_GTM_ID=GTM-XXXX   # opcional; si está, GA4 directo se omite
 ```bash
 PUBLIC_SITE_URL=https://elevari.live
 RESEND_API_KEY=
-RESEND_FROM=Elevari <reservas@elevari.live>
+RESEND_FROM=Elevari <reserve@elevari.live>
 META_PIXEL_ID=
 META_ACCESS_TOKEN=
 ```

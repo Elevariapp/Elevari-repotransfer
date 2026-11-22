@@ -22,7 +22,7 @@ export default function ContactScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Canales de contacto</Text>
           <Text style={styles.body}>
-            Soporte general y reservas: soporte@elevari.live (1-2 días hábiles). Privacidad y
+            Soporte general y reservas: reserve@elevari.live (1-2 días hábiles). Privacidad y
             protección de datos: privacidad@elevari.live (5 días hábiles). Moderación de contenido y
             apelaciones: moderacion@elevari.live (5 días hábiles). Anfitriones y listados:
             anfitriones@elevari.live (1-2 días hábiles). Accesibilidad: accesibilidad@elevari.live (5
@@ -33,8 +33,9 @@ export default function ContactScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>2. Datos del responsable</Text>
           <Text style={styles.body}>
-            Eleveri opera la plataforma de reservas de experiencias de glamping y refugios en
-            Colombia. Correo legal: legal@elevari.live. Sede: Colombia.
+            Elevari S.A.S opera la plataforma de reservas de experiencias de glamping y refugios en
+            Colombia. NIT: 902088849. Dirección: CR 5 NO. 16 14 OF 711 ED EL GLOBO, BOGOTÁ, D.C,
+            código postal 111711. Correo oficial: reserve@elevari.live. Sede: Bogotá, Colombia.
           </Text>
         </View>
 

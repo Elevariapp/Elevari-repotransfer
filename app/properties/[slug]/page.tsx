@@ -274,6 +274,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 country={property.country}
                 latitude={property.latitude}
                 longitude={property.longitude}
+                address={property.address ?? property.title}
               />
               <SimilarProperties current={currentSummary} candidates={similar} />
             </div>

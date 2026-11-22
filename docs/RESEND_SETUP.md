@@ -22,7 +22,7 @@
 - **Company:** Elevari S.A.S
 - **NIT:** 902088849
 - **Address:** CR 5 NO. 16 14 OF 711 ED EL GLOBO, BOGOTÁ, D.C, código postal 111711
-- **Support Email:** soporte@elevari.com
+- **Support Email:** reserve@elevari.live
 - **WhatsApp:** +57 3232688534
 
 ## Email Templates
@@ -46,13 +46,13 @@ All templates are located in `api/src/lib/email-templates/`:
 
 See `api/src/lib/email.ts` for sender name/email configuration.
 
-**Sender:** Elevari S.A.S <noreply@elevari.com>
+**Sender:** Elevari S.A.S <reserve@elevari.live>
 
 ## Environment Variables
 
 ```bash
 RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=noreply@elevari.com
+RESEND_FROM_EMAIL=reserve@elevari.live
 RESEND_FROM_NAME=Elevari S.A.S
 ```
 

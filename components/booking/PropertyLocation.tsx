@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import GoogleMap from '@/components/brand/GoogleMap';
 import { formatPropertyLocation, propertyMapsUrl } from '@/lib/property-location';
 
 type Props = {
@@ -6,11 +7,13 @@ type Props = {
   country?: string;
   latitude?: number | null;
   longitude?: number | null;
+  address?: string;
 };
 
-export default function PropertyLocation({ city, country, latitude, longitude }: Props) {
+export default function PropertyLocation({ city, country, latitude, longitude, address }: Props) {
   const label = formatPropertyLocation(city, country);
   const mapsUrl = propertyMapsUrl(latitude, longitude);
+  const hasCoords = latitude != null && longitude != null;
 
   return (
     <section className="border-t border-elevari-border pt-8">
@@ -21,6 +24,19 @@ export default function PropertyLocation({ city, country, latitude, longitude }:
         <strong className="text-elevari-slate">Cucunubá</strong>, en Cundinamarca — paisaje de
         sabana, silencio y cielo abierto, a poca distancia de Bogotá.
       </p>
+
+      {hasCoords && (
+        <div className="mt-6">
+          <GoogleMap
+            latitude={latitude!}
+            longitude={longitude!}
+            address={address || label}
+            height={320}
+            className="w-full"
+          />
+        </div>
+      )}
+
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-2 rounded-full border border-elevari-border bg-elevari-ivory px-4 py-2 text-sm text-elevari-slate">
           <span className="text-elevari-amber" aria-hidden>◎</span>
