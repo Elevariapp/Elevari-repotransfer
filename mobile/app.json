@@ -1,0 +1,107 @@
+{
+  "expo": {
+    "name": "Waná",
+    "slug": "wana",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2F6B4F"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "elevari.androidapp",
+      "infoPlist": {
+        "NSUserNotificationUsageDescription": "Waná necesita enviar notificaciones push para confirmaciones de reserva y actualizaciones de anfitrión.",
+        "NSLocationWhenInUseUsageDescription": "Waná usa tu ubicación para mostrar propiedades cercanas.",
+        "NSCameraUsageDescription": "Waná necesita acceso a la cámara para subir fotos de tu propiedad.",
+        "NSPhotoLibraryUsageDescription": "Waná necesita acceso a tu galería para subir fotos de tu propiedad."
+      },
+      "associatedDomains": [
+        "applinks:app.wana.co"
+      ]
+    },
+    "android": {
+      "package": "elevari.androidapp",
+      "adaptiveIcon": {
+        "backgroundColor": "#2F6B4F",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "app.eleveri.app",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#2F6B4F",
+          "permissions": [
+            "NOTIFICATIONS"
+          ]
+        }
+      ],
+      "expo-secure-store",
+      "expo-image-picker",
+      "expo-file-system",
+      "react-native-svg",
+      "react-native-reanimated",
+      "react-native-gesture-handler",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "googleServicesFile": "./google-services.json",
+            "gradleVersion": "8.1.1",
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34
+          }
+        }
+      ]
+    ],
+    "scheme": "elevari",
+    "extra": {
+      "eas": {
+        "projectId": "wana-mobile"
+      },
+      "API_BASE_URL": "https://api.wana.co",
+      "WOMPI_PUBLIC_KEY": "pub_test_...",
+      "PRIVACY_URL": "https://www.eleveri.app/legal/privacy",
+      "TERMS_URL": "https://www.eleveri.app/legal/terms",
+      "REFUND_URL": "https://www.eleveri.app/legal/refund",
+      "ACCOUNT_DELETION_URL": "https://www.eleveri.app/legal/account-deletion",
+      "CONTACT_URL": "https://www.eleveri.app/legal/contact",
+      "COMPLIANCE": {
+        "dataProtectionLaw": "Ley 1581 de 2012 (Colombia)",
+        "platformFeePercent": 15,
+        "currency": "COP",
+        "taxEngine": false
+      }
+    }
+  }
+}

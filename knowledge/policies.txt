@@ -1,0 +1,20 @@
+# Waná Guest Policies (template — replace with your operational policy)
+
+## Compensation — minor cleaning issues
+- Acknowledge the issue promptly and apologize for the inconvenience.
+- For verified minor cleaning issues (e.g., missed surface wipe, linens not refreshed): offer a one-time credit of 10–15% of the affected night(s), capped at one night’s rate.
+- Credits apply to a future Waná stay or are processed as a partial refund within 5–7 business days if no rebooking is planned.
+- Escalate to operations if the guest reports health/safety concerns, pests, or repeated issues on the same property.
+
+## Cancellation (moderate policy — default)
+
+- **Pending payment:** cancel anytime in Mi cuenta — no charge.
+- **Confirmed — 5+ days before check-in:** 100% refund to original payment method.
+- **Confirmed — 2 to 4 days before check-in:** 50% refund.
+- **Confirmed — less than 48 h before check-in:** no refund.
+- **Checked in / completed:** contact support; cancellations handled case-by-case per `policies.txt` compensation rules.
+- Refunds: Stripe automated when configured; Bold may require manual processing in dashboard (API marks `pending_manual`).
+
+## Communication standards
+- Respond within 24 hours during a stay; within 48 hours for post-stay issues.
+- Never blame the guest; focus on resolution and next steps.

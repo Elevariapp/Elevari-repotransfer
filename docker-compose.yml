@@ -1,0 +1,106 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wana-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wana
+      POSTGRES_PASSWORD: wana_dev_password
+      POSTGRES_DB: wana
+    ports:
+      - "5432:5432"
+    volumes:
+      - wana_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wana -d wana"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: wana-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - wana_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: wana-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: wana_minio
+      MINIO_ROOT_PASSWORD: wana_minio_password
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - wana_minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: wana-minio-init
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      mc alias set wana http://minio:9000 wana_minio wana_minio_password;
+      mc mb wana/wana-media --ignore-existing;
+      mc anonymous set download wana/wana-media;
+      exit 0;
+      "
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: wana-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DATABASE_URL: postgresql://wana:wana_dev_password@postgres:5432/wana?schema=public
+      REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: wana_minio
+      MINIO_SECRET_KEY: wana_minio_password
+      MINIO_BUCKET: wana-media
+      MINIO_USE_SSL: "false"
+      MINIO_PUBLIC_URL: http://localhost:9000/wana-media
+      MEDIA_AUTO_APPROVE: "true"
+      JWT_SECRET: wana_dev_jwt_secret_change_in_production
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "4000:4000"
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+
+volumes:
+  wana_pg_data:
+  wana_redis_data:
+  wana_minio_data:

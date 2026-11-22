@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none" role="img" aria-label="Elevari app icon">
+  <!-- App icon master — abstract loop, no text, no tourism clichés -->
+  <rect width="1024" height="1024" rx="224" fill="#1E4835"/>
+  <path d="M336 688C336 464 424 304 512 304C600 304 688 464 688 688" stroke="#5FA76A" stroke-width="72" stroke-linecap="round"/>
+  <path d="M380 552H644" stroke="#5FA76A" stroke-width="72" stroke-linecap="round"/>
+  <path d="M404 416H620" stroke="#F6E3B8" stroke-width="60" stroke-linecap="round" opacity="0.9"/>
+  <circle cx="728" cy="336" r="44" fill="#E9A820"/>
+</svg>

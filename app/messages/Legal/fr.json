@@ -1,0 +1,64 @@
+{
+  "title": "Conditions Générales d'Utilisation",
+  "lastUpdated": "Dernière mise à jour : 19 novembre 2026",
+  "intro": "Bienvenue sur Waná. Ces conditions régissent l'utilisation de notre plateforme de location de propriétés de vacances. En accédant ou en utilisant Waná, vous acceptez ces conditions.",
+  "sections": {
+    "acceptance": {
+      "title": "1. Acceptation des Conditions",
+      "content": "En créant un compte ou en utilisant la plateforme, vous acceptez d'être lié par ces Conditions Générales, notre Politique de Confidentialité et notre Politique de Remboursement."
+    },
+    "eligibility": {
+      "title": "2. Éligibilité",
+      "content": "Vous devez avoir au moins 18 ans pour créer un compte et utiliser Waná. Les mineurs de moins de 18 ans ne peuvent utiliser la plateforme que sous la supervision d'un parent ou tuteur."
+    },
+    "accounts": {
+      "title": "3. Comptes Utilisateur",
+      "content": "Vous êtes responsable de maintenir la confidentialité de votre mot de passe et de toutes les activités qui se produisent sous votre compte. Vous devez fournir des informations exactes et à jour."
+    },
+    "bookings": {
+      "title": "4. Réservations et Paiements",
+      "content": "Toutes les réservations sont soumises à disponibilité. Les paiements sont traités via notre plateforme sécurisée. Des frais de service de 15 % s'appliquent sur le montant de base de chaque réservation."
+    },
+    "cancellation": {
+      "title": "5. Annulations et Remboursements",
+      "content": "Les annulations sont régies par notre Politique de Remboursement. Les hôtes peuvent définir leurs propres politiques d'annulation, qui seront affichées avant de confirmer la réservation."
+    },
+    "conduct": {
+      "title": "6. Conduite Utilisateur",
+      "content": "Vous vous engagez à utiliser la plateforme de manière légale et respectueuse. Le harcèlement, la fraude, la publication de contenu faux ou toute activité illégale sont interdits."
+    },
+    "content": {
+      "title": "7. Contenu Généré par l'Utilisateur",
+      "content": "Vous conservez la propriété de votre contenu, mais vous nous accordez une licence non exclusive pour l'utiliser, l'afficher et le distribuer en relation avec l'exploitation de Waná."
+    },
+    "moderation": {
+      "title": "8. Modération du Contenu",
+      "content": "Nous nous réservons le droit de réviser, modifier ou supprimer tout contenu qui viole nos conditions. Consultez notre Politique de Modération du Contenu pour plus de détails."
+    },
+    "liability": {
+      "title": "9. Limitation de Responsabilité",
+      "content": "Waná n'est pas responsable des dommages indirects, accessoires ou consécutifs découlant de l'utilisation de la plateforme. Notre responsabilité totale est limitée au montant payé pour la réservation en question."
+    },
+    "termination": {
+      "title": "10. Résiliation",
+      "content": "Nous pouvons suspendre ou résilier votre compte à tout moment en cas de violation de ces conditions, sans préavis."
+    },
+    "governingLaw": {
+      "title": "11. Loi Applicable",
+      "content": "Ces conditions sont régies par les lois de la République de Colombie. Tout litige sera résolu devant les tribunaux compétents de Medellín, Antioquia."
+    },
+    "changes": {
+      "title": "12. Modifications des Conditions",
+      "content": "Nous pouvons mettre à jour ces conditions périodiquement. Nous vous notifierons par e-mail en cas de changements significatifs. L'utilisation continue de la plateforme implique l'acceptation des nouvelles conditions."
+    },
+    "contact": {
+      "title": "13. Contact",
+      "content": "Si vous avez des questions sur ces conditions, contactez-nous via notre page d'Informations de Contact ou envoyez un e-mail à legal@waná.co."
+    }
+  },
+  "buttons": {
+    "accept": "J'accepte les conditions",
+    "decline": "Je n'accepte pas",
+    "backToHome": "Retour à l'accueil"
+  }
+}

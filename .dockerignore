@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.env.production
+.env.staging
+.env.local
+*.md
+backups
+api
