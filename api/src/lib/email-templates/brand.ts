@@ -1,18 +1,19 @@
 import { publicSiteUrl } from '../email.js';
 
 export const EMAIL_BRAND = {
-  name: 'Eleveri',
+  name: 'Elevari',
   tagline: 'Glamping en Colombia',
-  supportEmail: 'reservas@eleveri.app',
+  supportEmail: 'reserve@elevari.live',
+  logoUrl: `${publicSiteUrl().replace(/\/$/, '')}/brand/logo-concept-4-blend.svg`,
   colors: {
-    black: '#0A0A0A',
-    cream: '#FAF9F7',
-    sand: '#ECEAE6',
-    champagne: '#D4AF7A',
-    champagneLight: '#E8D5B5',
-    charcoal: '#1A1A1A',
-    muted: '#737373',
-    border: '#E5E3DF',
+    black: '#1E4835',
+    cream: '#F7F4EC',
+    sand: '#E8E3D5',
+    champagne: '#E9A820',
+    champagneLight: '#F6E3B8',
+    charcoal: '#16222C',
+    muted: '#22313F',
+    border: '#E8E3D5',
     white: '#FFFFFF',
   },
 } as const;
