@@ -38,7 +38,7 @@ export default function FAQScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>3. ¿Cómo elimino mi cuenta?</Text>
           <Text style={styles.body}>
-            Ve a Perfil > Eliminar mi cuenta. La acción es permanente y no se puede deshacer.
+            Ve a Perfil &gt; Eliminar mi cuenta. La acción es permanente y no se puede deshacer.
           </Text>
         </View>
 

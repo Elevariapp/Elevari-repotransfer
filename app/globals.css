@@ -7,30 +7,30 @@
  */
 @theme {
   /* Brand core */
-  --color-elevari-forest: #2f6b4f;
-  --color-elevari-forest-deep: #1e4835;
-  --color-elevari-forest-light: #3d8163;
+  --color-elevari-forest: #d97706;
+  --color-elevari-forest-deep: #b45309;
+  --color-elevari-forest-light: #ea9a2e;
   /* Action tokens stay dark in both themes: white text on them remains AA. */
-  --color-elevari-action: #2f6b4f;
-  --color-elevari-action-hover: #1e4835;
-  --color-elevari-fresh: #5fa76a;
-  --color-elevari-fresh-soft: #dff0e3;
-  --color-elevari-amber: #e9a820;
-  --color-elevari-amber-ink: #7a4a00;
-  --color-elevari-amber-soft: #f6e3b8;
-  --color-elevari-ivory: #f7f4ec;
+  --color-elevari-action: #d97706;
+  --color-elevari-action-hover: #b45309;
+  --color-elevari-fresh: #064e3b;
+  --color-elevari-fresh-soft: #fef3c7;
+  --color-elevari-amber: #d97706;
+  --color-elevari-amber-ink: #92400e;
+  --color-elevari-amber-soft: #fef3c7;
+  --color-elevari-ivory: #fef3c7;
   --color-elevari-surface: #ffffff;
   --color-elevari-sand: #e8e3d5;
-  --color-elevari-slate: #22313f;
-  --color-elevari-ink: #16222c;
-  --color-elevari-muted: #5c6b65;
-  --color-elevari-border: #e2dccc;
+  --color-elevari-slate: #0f172a;
+  --color-elevari-ink: #0f172a;
+  --color-elevari-muted: #64748b;
+  --color-elevari-border: #e2e8f0;
 
   /* Feedback */
-  --color-elevari-success: #2f6b4f;
-  --color-elevari-success-soft: #dff0e3;
-  --color-elevari-warning: #7a4a00;
-  --color-elevari-warning-soft: #fbf0d6;
+  --color-elevari-success: #064e3b;
+  --color-elevari-success-soft: #fef3c7;
+  --color-elevari-warning: #d97706;
+  --color-elevari-warning-soft: #fef3c7;
   --color-elevari-error: #b3261e;
   --color-elevari-error-soft: #fdeceb;
 
@@ -79,30 +79,30 @@
   color-scheme: light;
 
   /* Brand */
-  --elevari-forest: #2f6b4f;
-  --elevari-forest-deep: #1e4835;
-  --elevari-forest-light: #3d8163;
-  --elevari-action: #2f6b4f;
-  --elevari-action-hover: #1e4835;
-  --elevari-fresh: #5fa76a;
-  --elevari-fresh-soft: #dff0e3;
-  --elevari-amber: #e9a820;
-  --elevari-amber-ink: #7a4a00;
-  --elevari-amber-soft: #f6e3b8;
-  --elevari-ivory: #f7f4ec;
+  --elevari-forest: #d97706;
+  --elevari-forest-deep: #b45309;
+  --elevari-forest-light: #ea9a2e;
+  --elevari-action: #d97706;
+  --elevari-action-hover: #b45309;
+  --elevari-fresh: #064e3b;
+  --elevari-fresh-soft: #fef3c7;
+  --elevari-amber: #d97706;
+  --elevari-amber-ink: #92400e;
+  --elevari-amber-soft: #fef3c7;
+  --elevari-ivory: #fef3c7;
   --elevari-surface: #ffffff;
   --elevari-sand: #e8e3d5;
-  --elevari-slate: #22313f;
-  --elevari-ink: #16222c;
-  --elevari-muted: #5c6b65;
-  --elevari-border: #e2dccc;
-  --elevari-success: #2f6b4f;
-  --elevari-success-soft: #dff0e3;
-  --elevari-warning: #7a4a00;
-  --elevari-warning-soft: #fbf0d6;
+  --elevari-slate: #0f172a;
+  --elevari-ink: #0f172a;
+  --elevari-muted: #64748b;
+  --elevari-border: #e2e8f0;
+  --elevari-success: #064e3b;
+  --elevari-success-soft: #fef3c7;
+  --elevari-warning: #d97706;
+  --elevari-warning-soft: #fef3c7;
   --elevari-error: #b3261e;
   --elevari-error-soft: #fdeceb;
-  --elevari-focus: #2f6b4f;
+  --elevari-focus: #d97706;
 
   /* Spacing / radius / elevation */
   --elevari-space-xs: 0.25rem;
@@ -142,24 +142,24 @@
   --color-elevari-ink: #f5f9f7;
   --color-elevari-muted: #a9bab3;
 
-  /* Brand: lighter greens for text/links; actions stay dark for white labels */
-  --color-elevari-forest: #7ed0a6;
-  --color-elevari-forest-light: #9adfbb;
-  --color-elevari-forest-deep: #0f2a20;
-  --color-elevari-fresh: #7ed0a6;
-  --color-elevari-fresh-soft: #17342a;
+  /* Brand: lighter ambers for text/links; actions stay dark for white labels */
+  --color-elevari-forest: #ea9a2e;
+  --color-elevari-forest-light: #ea9a2e;
+  --color-elevari-forest-deep: #b45309;
+  --color-elevari-fresh: #064e3b;
+  --color-elevari-fresh-soft: #fef3c7;
 
   /* Accents */
-  --color-elevari-amber: #f2b84b;
+  --color-elevari-amber: #d97706;
   /* amber-ink is used as text on the light amber-soft chip, so it stays dark */
-  --color-elevari-amber-ink: #7a4a00;
-  --color-elevari-amber-soft: #f6e3b8;
+  --color-elevari-amber-ink: #92400e;
+  --color-elevari-amber-soft: #fef3c7;
 
   /* Feedback */
-  --color-elevari-success: #7ed0a6;
-  --color-elevari-success-soft: #17342a;
-  --color-elevari-warning: #f2b84b;
-  --color-elevari-warning-soft: #3a2e14;
+  --color-elevari-success: #064e3b;
+  --color-elevari-success-soft: #fef3c7;
+  --color-elevari-warning: #d97706;
+  --color-elevari-warning-soft: #fef3c7;
   --color-elevari-error: #ff9b93;
   --color-elevari-error-soft: #3b1b19;
 
@@ -171,21 +171,21 @@
   --elevari-slate: #e7efea;
   --elevari-ink: #f5f9f7;
   --elevari-muted: #a9bab3;
-  --elevari-forest: #7ed0a6;
-  --elevari-forest-light: #9adfbb;
-  --elevari-forest-deep: #0f2a20;
-  --elevari-fresh: #7ed0a6;
-  --elevari-fresh-soft: #17342a;
-  --elevari-amber: #f2b84b;
-  --elevari-amber-ink: #7a4a00;
-  --elevari-amber-soft: #f6e3b8;
-  --elevari-success: #7ed0a6;
-  --elevari-success-soft: #17342a;
-  --elevari-warning: #f2b84b;
-  --elevari-warning-soft: #3a2e14;
+  --elevari-forest: #ea9a2e;
+  --elevari-forest-light: #ea9a2e;
+  --elevari-forest-deep: #b45309;
+  --elevari-fresh: #064e3b;
+  --elevari-fresh-soft: #fef3c7;
+  --elevari-amber: #d97706;
+  --elevari-amber-ink: #92400e;
+  --elevari-amber-soft: #fef3c7;
+  --elevari-success: #064e3b;
+  --elevari-success-soft: #fef3c7;
+  --elevari-warning: #d97706;
+  --elevari-warning-soft: #fef3c7;
   --elevari-error: #ff9b93;
   --elevari-error-soft: #3b1b19;
-  --elevari-focus: #9adfbb;
+  --elevari-focus: #ea9a2e;
 
   /* Softer, darker elevation */
   --elevari-shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.35);
@@ -220,8 +220,8 @@
 [data-theme='dark'] .elevari-page-bg {
   background-color: var(--elevari-ivory);
   background-image:
-    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(126, 208, 166, 0.12), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 100% 20%, rgba(242, 184, 75, 0.08), transparent 50%),
+    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(234, 154, 46, 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 20%, rgba(217, 119, 6, 0.08), transparent 50%),
     radial-gradient(ellipse 40% 30% at 0% 80%, rgba(30, 47, 41, 0.9), transparent 45%);
 }
 
@@ -252,7 +252,7 @@
   }
 
   ::selection {
-    background: rgba(47, 107, 79, 0.18);
+    background: rgba(217, 119, 6, 0.18);
     color: var(--elevari-ink);
   }
 
@@ -286,8 +286,8 @@
   .elevari-page-bg {
     background-color: var(--elevari-ivory);
     background-image:
-      radial-gradient(ellipse 90% 60% at 50% -15%, rgba(95, 167, 106, 0.1), transparent 55%),
-      radial-gradient(ellipse 50% 40% at 100% 20%, rgba(233, 168, 32, 0.07), transparent 50%),
+      radial-gradient(ellipse 90% 60% at 50% -15%, rgba(217, 119, 6, 0.1), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 100% 20%, rgba(217, 119, 6, 0.07), transparent 50%),
       radial-gradient(ellipse 40% 30% at 0% 80%, rgba(232, 227, 213, 0.85), transparent 45%);
   }
 
@@ -443,7 +443,7 @@
     letter-spacing: 0.01em;
     color: #ffffff;
     -webkit-text-fill-color: #ffffff;
-    box-shadow: 0 6px 18px rgba(47, 107, 79, 0.26);
+    box-shadow: 0 6px 18px rgba(217, 119, 6, 0.26);
     transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
   }
 
@@ -460,7 +460,7 @@
 
   .elevari-btn-primary:hover {
     background: var(--elevari-forest-deep);
-    box-shadow: 0 8px 24px rgba(47, 107, 79, 0.32);
+    box-shadow: 0 8px 24px rgba(217, 119, 6, 0.32);
   }
 
   .elevari-btn-primary:active {
@@ -483,7 +483,7 @@
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--elevari-slate);
-    box-shadow: 0 6px 18px rgba(233, 168, 32, 0.28);
+    box-shadow: 0 6px 18px rgba(217, 119, 6, 0.28);
     transition: background-color 0.15s ease, box-shadow 0.15s ease;
   }
 
@@ -541,7 +541,7 @@
 
   .elevari-calendar .rdp-root {
     --rdp-accent-color: var(--elevari-forest);
-    --rdp-accent-background-color: rgba(47, 107, 79, 0.1);
+    --rdp-accent-background-color: rgba(217, 119, 6, 0.1);
     --rdp-day-height: 40px;
     --rdp-day-width: 40px;
     font-size: 0.875rem;
@@ -572,19 +572,19 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--elevari-champagne-light);
-    border: 1px solid rgba(233, 168, 32, 0.55);
+    border: 1px solid rgba(217, 119, 6, 0.55);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   }
 
   .elevari-glass {
     border: 1px solid var(--elevari-border);
-    background: rgba(250, 247, 242, 0.92);
+    background: rgba(254, 243, 199, 0.92);
     backdrop-filter: blur(16px);
   }
 
   .elevari-header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: linear-gradient(180deg, rgba(30, 72, 53, 0.98) 0%, rgba(47, 107, 79, 0.97) 100%);
+    background: linear-gradient(180deg, rgba(6, 78, 59, 0.98) 0%, rgba(217, 119, 6, 0.97) 100%);
     backdrop-filter: blur(18px);
     box-shadow: 0 8px 32px rgba(22, 34, 44, 0.24);
   }
@@ -614,7 +614,7 @@
   .elevari-header-nav-link-active {
     color: var(--elevari-forest-deep);
     background: var(--elevari-amber-soft);
-    box-shadow: inset 0 0 0 1px rgba(233, 168, 32, 0.55);
+    box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.55);
   }
 
   .elevari-header .elevari-btn-ghost {
@@ -634,7 +634,7 @@
     background: var(--elevari-amber);
     color: var(--elevari-forest-deep);
     -webkit-text-fill-color: var(--elevari-forest-deep);
-    box-shadow: 0 4px 20px rgba(233, 168, 32, 0.35);
+    box-shadow: 0 4px 20px rgba(217, 119, 6, 0.35);
   }
 
   .elevari-header .elevari-btn-primary:hover {
@@ -704,7 +704,7 @@
     inset: 0;
     background:
       linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%),
-      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(233, 168, 32, 0.18), transparent 55%);
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.18), transparent 55%);
   }
 
   .elevari-auth-form-card {
@@ -952,11 +952,203 @@
     }
   }
 
+  /* ============================================================================
+   * CINEMATIC HERO BACKGROUND — booking / properties hero section
+   * Layered, animated nature imagery with day→night transition.
+   * ========================================================================== */
+
+  .elevari-hero-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    will-change: transform;
+  }
+
+  .elevari-hero-layer--mountains {
+    background-image: url('/properties/glamping-wana/01-cover.jpeg');
+    opacity: 0.92;
+  }
+
+  .elevari-hero-layer--rivers {
+    background-image: url('/properties/glamping-wana/02.webp');
+    opacity: 0.85;
+  }
+
+  .elevari-hero-layer--people {
+    background-image: url('/properties/glamping-wana/03.webp');
+    opacity: 0.8;
+  }
+
+  /* Slow ken-burns zoom across the whole background. */
+  .elevari-hero-kenburns {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    background-size: cover;
+    background-position: center;
+    animation: heroKenburns 20s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  /* Amber gradient overlay blended with brand colors (premium amber #D97706). */
+  .elevari-hero-amber-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      linear-gradient(135deg, rgba(217, 119, 6, 0.35) 0%, rgba(217, 119, 6, 0.15) 60%, transparent 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.25), transparent 55%);
+    pointer-events: none;
+  }
+
+  /* Dark readability overlay so hero text stays legible. */
+  .elevari-hero-dark-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.55) 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.12), transparent 55%);
+    pointer-events: none;
+  }
+
+  /* Time-of-day overlay variations. */
+  [data-time='day'] .elevari-hero-dark-overlay {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.45) 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.1), transparent 55%);
+  }
+
+  [data-time='afternoon'] .elevari-hero-dark-overlay {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.2), transparent 55%);
+  }
+
+  [data-time='night'] .elevari-hero-dark-overlay {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.75) 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.08), transparent 55%);
+  }
+
+  /* CSS particle overlay — floating motes (no canvas). */
+  .elevari-hero-particles {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .elevari-hero-particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat linear infinite;
+    will-change: transform, opacity;
+  }
+
+  @keyframes particleFloat {
+    0% {
+      transform: translateY(100vh) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.6;
+    }
+    90% {
+      opacity: 0.6;
+    }
+    100% {
+      transform: translateY(-10vh) translateX(20px);
+      opacity: 0;
+    }
+  }
+
+  /* Night-only: animated stars. */
+  .elevari-hero-stars {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .elevari-hero-star {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0;
+    animation: starTwinkle ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  @keyframes starTwinkle {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  /* Night-only: subtle moon glow. */
+  .elevari-hero-moon {
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(40px);
+    animation: moonPulse 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes moonPulse {
+    from {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  /* Respect reduced motion — disable all cinematic animations. */
+  @media (prefers-reduced-motion: reduce) {
+    .elevari-hero-kenburns,
+    .elevari-hero-particle,
+    .elevari-hero-star,
+    .elevari-hero-moon {
+      animation: none !important;
+    }
+    .elevari-hero-layer {
+      transition: none !important;
+    }
+  }
+
   /* —— Footer —— */
   .elevari-footer {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(180deg, var(--elevari-forest-deep) 0%, #163a2b 100%);
+    background: linear-gradient(180deg, var(--elevari-forest-deep) 0%, #064e3b 100%);
     color: #ffffff;
   }
 
@@ -965,7 +1157,7 @@
     inset: 0;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(233, 168, 32, 0.14), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(217, 119, 6, 0.14), transparent 55%),
       radial-gradient(ellipse 50% 35% at 90% 100%, rgba(255, 255, 255, 0.04), transparent 50%);
   }
 
@@ -1009,7 +1201,7 @@
 
   .elevari-input:focus {
     border-color: var(--elevari-champagne);
-    box-shadow: 0 0 0 3px rgba(47, 107, 79, 0.24);
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.24);
   }
 
   .elevari-input::placeholder {
@@ -1036,7 +1228,7 @@
 
   .elevari-chip-active {
     border-color: var(--elevari-forest);
-    background: rgba(233, 168, 32, 0.16);
+    background: rgba(217, 119, 6, 0.16);
     color: var(--elevari-black);
   }
 
@@ -1060,7 +1252,7 @@
 
   .elevari-btn-select-active {
     border: 2px solid var(--elevari-forest);
-    background: rgba(47, 107, 79, 0.06);
+    background: rgba(217, 119, 6, 0.06);
   }
 
   .elevari-btn-danger {
@@ -1266,7 +1458,7 @@
   }
 
   .elevari-dropdown-option-active {
-    background: rgba(47, 107, 79, 0.06);
+    background: rgba(217, 119, 6, 0.06);
     box-shadow: inset 0 0 0 1px var(--elevari-forest);
   }
 
@@ -1295,7 +1487,7 @@
     border-color: var(--elevari-action);
     background: var(--elevari-action);
     color: #ffffff;
-    box-shadow: 0 4px 16px rgba(47, 107, 79, 0.28);
+    box-shadow: 0 4px 16px rgba(217, 119, 6, 0.28);
   }
 
   .elevari-stepper-btn {

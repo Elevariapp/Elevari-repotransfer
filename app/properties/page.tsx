@@ -7,6 +7,7 @@ import CatalogPagination from '@/components/catalog/CatalogPagination';
 import CatalogViewTracker from '@/components/catalog/CatalogViewTracker';
 import RecentlyViewed from '@/components/conversion/RecentlyViewed';
 import IntentRecoveryBanner from '@/components/conversion/IntentRecoveryBanner';
+import CinematicHeroBackground from '@/components/brand/CinematicHeroBackground';
 import { wanaApi } from '@/lib/api-client';
 import { humanizeApiError } from '@/lib/api-errors';
 import { activeFilterCount, parseCatalogParams } from '@/lib/catalog-params';
@@ -71,21 +72,20 @@ export default async function PropertiesPage({
         sort={params.sort}
       />
       <main id="contenido" className="pb-16">
-        <IntentRecoveryBanner />
-        <RecentlyViewed />
-        <div className="border-b border-elevari-border/60 bg-elevari-sand/25">
-          <div className="wana-container py-10 lg:py-14">
-            <header className="max-w-2xl">
-              <p className="wana-eyebrow">Colección</p>
-              <h1 className="wana-display-page mt-3 text-elevari-slate">
+        {/* Cinematic hero background for the booking area — mountains, rivers, people overlays */}
+        <CinematicHeroBackground className="pt-20 pb-16">
+          <div className="elevari-container relative z-10">
+            <header className="max-w-2xl mx-auto text-center">
+              <p className="elevari-eyebrow-lux">Colección</p>
+              <h1 className="elevari-display-hero elevari-display-hero--light mt-3 mb-6">
                 Espacios únicos en Colombia
               </h1>
-              <div className="wana-divider-gold mt-5" />
-              <p className="mt-5 text-elevari-muted leading-relaxed">
+              <div className="elevari-divider-gold mx-auto mt-5 mb-8" />
+              <p className="text-lg text-elevari-sand/90 leading-relaxed max-w-2xl mx-auto">
                 Selecciona fechas en cada propiedad para ver el precio total antes de reservar.
               </p>
               {fromApi && (
-                <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-elevari-amber/30 bg-elevari-surface px-4 py-1.5 text-xs font-medium text-elevari-forest">
+                <span className="mt-8 inline-flex items-center gap-2 rounded-full border border-elevari-amber/30 bg-elevari-surface/95 px-4 py-1.5 text-xs font-medium text-elevari-forest backdrop-blur-sm">
                   <span className="h-1.5 w-1.5 rounded-full bg-elevari-amber" aria-hidden />
                   Disponibilidad en tiempo real
                 </span>
@@ -95,7 +95,7 @@ export default async function PropertiesPage({
             <CatalogFilters params={params} />
 
             {hasFilters && (
-              <p className="mt-4 text-sm text-elevari-muted">
+              <p className="mt-4 text-sm text-elevari-sand/80">
                 {params.city && <span className="font-medium text-elevari-slate">{params.city}</span>}
                 {params.guests && <span className="ml-2">· {params.guests} huéspedes</span>}
                 {params.checkIn && params.checkOut && (
@@ -109,9 +109,12 @@ export default async function PropertiesPage({
               </p>
             )}
           </div>
-        </div>
+        </CinematicHeroBackground>
 
-        <div className="wana-container py-10 lg:py-12">
+        <IntentRecoveryBanner />
+        <RecentlyViewed />
+
+        <div className="elevari-container py-10 lg:py-12">
           {error ? (
             <div
               role="alert"
@@ -120,7 +123,7 @@ export default async function PropertiesPage({
               <p className="font-semibold">No pudimos cargar la colección</p>
               <p className="mt-2 text-sm leading-relaxed">{humanizeApiError(error)}</p>
               {hasFilters && (
-                <Link href="/properties" className="wana-link mt-4 inline-block text-sm font-medium">
+                <Link href="/properties" className="elevari-link mt-4 inline-block text-sm font-medium">
                   Ver todas las propiedades
                 </Link>
               )}
