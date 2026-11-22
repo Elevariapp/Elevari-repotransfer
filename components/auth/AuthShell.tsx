@@ -1,37 +1,21 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
+import CinematicAuthBackground from './CinematicAuthBackground';
 
 type AuthShellProps = {
   children: React.ReactNode;
-  image?: string;
-  imageAlt?: string;
   /** Link superior derecho (ej. login ↔ registro) */
   topLink?: { href: string; label: string };
 };
 
-/** Imagen hero full-bleed — misma estética en login y registro */
-export const AUTH_BACKGROUND_IMAGE = '/properties/glamping-wana/01-cover.jpeg';
-
 export default function AuthShell({
   children,
-  image = AUTH_BACKGROUND_IMAGE,
-  imageAlt = 'Eleveri — experiencia en naturaleza',
   topLink,
 }: AuthShellProps) {
   return (
     <div className="elevari-auth-immersive relative min-h-[100svh]">
-      <div className="elevari-auth-immersive-bg" aria-hidden>
-        <Image
-          src={image}
-          alt={imageAlt}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="elevari-auth-immersive-overlay" />
-      </div>
+      <CinematicAuthBackground />
+      <div className="elevari-auth-immersive-overlay" />
 
       <div className="relative z-10 flex min-h-[100svh] flex-col">
         <header className="elevari-container flex h-16 shrink-0 items-center justify-between">

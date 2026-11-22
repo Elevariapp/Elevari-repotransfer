@@ -749,6 +749,209 @@
     letter-spacing: normal;
   }
 
+  /* ============================================================================
+   * CINEMATIC AUTH BACKGROUND — register / login hero
+   * Replaces the static hero image with layered, animated nature imagery.
+   * ========================================================================== */
+
+  .elevari-auth-cinematic-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    /* Prevent the background from capturing pointer events so the form stays interactive */
+  }
+
+  /* Each layer is a full-bleed image with its own parallax speed. */
+  .elevari-auth-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    will-change: transform;
+  }
+
+  .elevari-auth-layer--mountains {
+    background-image: url('/properties/glamping-wana/01-cover.jpeg');
+    opacity: 0.92;
+  }
+
+  .elevari-auth-layer--rivers {
+    background-image: url('/properties/glamping-wana/02.webp');
+    opacity: 0.85;
+  }
+
+  .elevari-auth-layer--people {
+    background-image: url('/properties/glamping-wana/03.webp');
+    opacity: 0.8;
+  }
+
+  /* Slow ken-burns zoom across the whole background. */
+  .elevari-auth-kenburns {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    background-size: cover;
+    background-position: center;
+    animation: heroKenburns 20s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  /* Amber gradient overlay blended with brand colors (premium amber #D97706). */
+  .elevari-auth-amber-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      linear-gradient(135deg, rgba(217, 119, 6, 0.35) 0%, rgba(217, 119, 6, 0.15) 60%, transparent 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.25), transparent 55%);
+    pointer-events: none;
+  }
+
+  /* Dark readability overlay so the white auth form stays legible. */
+  .elevari-auth-dark-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.55) 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.12), transparent 55%);
+    pointer-events: none;
+  }
+
+  /* Time-of-day overlay variations. */
+  [data-time='day'] .elevari-auth-dark-overlay {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.45) 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.1), transparent 55%);
+  }
+
+  [data-time='afternoon'] .elevari-auth-dark-overlay {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.2), transparent 55%);
+  }
+
+  [data-time='night'] .elevari-auth-dark-overlay {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.75) 100%),
+      radial-gradient(ellipse 70% 50% at 80% 15%, rgba(217, 119, 6, 0.08), transparent 55%);
+  }
+
+  /* CSS particle overlay — floating motes (no canvas). */
+  .elevari-auth-particles {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .elevari-auth-particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat linear infinite;
+    will-change: transform, opacity;
+  }
+
+  @keyframes particleFloat {
+    0% {
+      transform: translateY(100vh) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.6;
+    }
+    90% {
+      opacity: 0.6;
+    }
+    100% {
+      transform: translateY(-10vh) translateX(20px);
+      opacity: 0;
+    }
+  }
+
+  /* Night-only: animated stars. */
+  .elevari-auth-stars {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .elevari-auth-star {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0;
+    animation: starTwinkle ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  @keyframes starTwinkle {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  /* Night-only: subtle moon glow. */
+  .elevari-auth-moon {
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(40px);
+    animation: moonPulse 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes moonPulse {
+    from {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  /* Respect reduced motion — disable all cinematic animations. */
+  @media (prefers-reduced-motion: reduce) {
+    .elevari-auth-kenburns,
+    .elevari-auth-particle,
+    .elevari-auth-star,
+    .elevari-auth-moon {
+      animation: none !important;
+    }
+    .elevari-auth-layer {
+      transition: none !important;
+    }
+  }
+
   /* —— Footer —— */
   .elevari-footer {
     position: relative;
