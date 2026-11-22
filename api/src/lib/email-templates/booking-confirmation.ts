@@ -1,5 +1,5 @@
-import { EMAIL_BRAND } from './brand';
-import { emailLayout } from './layout';
+import { EMAIL_BRAND } from './brand.js';
+import { emailLayout } from './layout.js';
 
 export function bookingConfirmation({ bookingId, propertyName, checkIn, checkOut, total, guestName }: { bookingId: string; propertyName: string; checkIn: string; checkOut: string; total: string; guestName: string }): string {
   const content = `

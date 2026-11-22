@@ -1,5 +1,5 @@
-import { EMAIL_BRAND } from './brand';
-import { emailLayout } from './layout';
+import { EMAIL_BRAND } from './brand.js';
+import { emailLayout } from './layout.js';
 
 export function checkInReminder({ bookingId, propertyName, checkIn, guestName }: { bookingId: string; propertyName: string; checkIn: string; guestName: string }): string {
   const content = `

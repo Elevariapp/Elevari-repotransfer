@@ -85,7 +85,7 @@ export async function authRoutes(app: FastifyInstance) {
 
     const token = await signToken({ id: user.id, email: user.email, role: user.role });
 
-    sendWelcomeEmail({ email: user.email, name: user.name, role: user.role }).then((result) => {
+    sendWelcomeEmail({ email: user.email, name: user.name ?? '', role: String(user.role) }).then((result) => {
       if (!result.sent) {
         request.log.warn({ reason: result.reason, email: user.email }, 'Welcome email not sent');
       }
@@ -169,7 +169,7 @@ export async function authRoutes(app: FastifyInstance) {
     const token = await signToken({ id: user.id, email: user.email, role: user.role });
 
     if (isNewUser) {
-      sendWelcomeEmail({ email: user.email, name: user.name, role: user.role }).then((result) => {
+      sendWelcomeEmail({ email: user.email, name: user.name ?? '', role: String(user.role) }).then((result) => {
         if (!result.sent) {
           request.log.warn({ reason: result.reason, email: user.email }, 'Welcome email not sent');
         }
@@ -212,7 +212,7 @@ export async function authRoutes(app: FastifyInstance) {
       select: { email: true, name: true },
     });
     if (user) {
-      sendPasswordChangedEmail({ email: user.email, name: user.name }).then((result) => {
+      sendPasswordChangedEmail({ email: user.email, name: user.name ?? '' }).then((result) => {
         if (!result.sent) {
           request.log.warn({ reason: result.reason }, 'Password changed email not sent');
         }
@@ -247,7 +247,7 @@ export async function authRoutes(app: FastifyInstance) {
 
     const result = await sendPasswordResetEmail({
       email: user.email,
-      name: user.name,
+      name: user.name ?? '',
       resetUrl,
     });
     if (!result.sent) {
@@ -278,7 +278,7 @@ export async function authRoutes(app: FastifyInstance) {
       select: { email: true, name: true },
     });
 
-    sendPasswordChangedEmail({ email: user.email, name: user.name }).then((result) => {
+    sendPasswordChangedEmail({ email: user.email, name: user.name ?? '' }).then((result) => {
       if (!result.sent) {
         request.log.warn({ reason: result.reason }, 'Password changed email not sent');
       }

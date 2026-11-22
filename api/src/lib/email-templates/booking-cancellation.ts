@@ -1,5 +1,5 @@
-import { EMAIL_BRAND } from './brand';
-import { emailLayout } from './layout';
+import { EMAIL_BRAND } from './brand.js';
+import { emailLayout } from './layout.js';
 
 export function bookingCancellation({ bookingId, propertyName, guestName }: { bookingId: string; propertyName: string; guestName: string }): string {
   const content = `

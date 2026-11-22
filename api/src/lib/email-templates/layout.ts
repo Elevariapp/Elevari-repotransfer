@@ -1,4 +1,4 @@
-import { EMAIL_BRAND } from './brand';
+import { EMAIL_BRAND } from './brand.js';
 
 export function emailLayout({ content, previewText }: { content: string; previewText: string }): string {
   return `

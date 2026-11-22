@@ -1,5 +1,5 @@
-import { EMAIL_BRAND } from './brand';
-import { emailLayout } from './layout';
+import { EMAIL_BRAND } from './brand.js';
+import { emailLayout } from './layout.js';
 
 export function invoiceReceipt({ invoiceId, bookingId, propertyName, total, guestName }: { invoiceId: string; bookingId: string; propertyName: string; total: string; guestName: string }): string {
   const content = `

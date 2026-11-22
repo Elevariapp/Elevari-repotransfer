@@ -1,5 +1,5 @@
-import { EMAIL_BRAND } from './brand';
-import { emailLayout } from './layout';
+import { EMAIL_BRAND } from './brand.js';
+import { emailLayout } from './layout.js';
 
 export function passwordChanged({ guestName }: { guestName: string }): string {
   const content = `
