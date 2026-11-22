@@ -1,7 +1,9 @@
 export const metadata = {
-  title: 'Información de contacto | Eleveri',
-  description: 'Formas de contactar con Eleveri: soporte, privacidad, moderación y consultas generales.',
+  title: 'Información de contacto | Elevari',
+  description: 'Formas de contactar con Elevari: soporte, privacidad, moderación y consultas generales.',
 };
+
+import WhatsAppButton from '@/components/brand/WhatsAppButton';
 
 export default function ContactPage() {
   return (
@@ -16,7 +18,7 @@ export default function ContactPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">1. Canales de contacto</h2>
           <p className="mt-2">
-            Puedes contactar con Eleveri a través de los siguientes canales según el motivo de tu
+            Puedes contactar con Elevari a través de los siguientes canales según el motivo de tu
             consulta:
           </p>
           <table className="mt-2 w-full text-left border-collapse text-elevari-slate">
@@ -60,11 +62,11 @@ export default function ContactPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">2. Datos del responsable</h2>
           <p className="mt-2">
-            Eleveri opera la plataforma de reservas de experiencias de glamping y refugios en
+            Elevari opera la plataforma de reservas de experiencias de glamping y refugios en
             Colombia. Para consultas legales o administrativas, puedes dirigirte a:
           </p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-elevari-slate">
-            <li>Nombre comercial: Eleveri</li>
+            <li>Nombre comercial: Elevari</li>
             <li>Correo legal: legal@elevari.live</li>
             <li>Sede: Colombia</li>
           </ul>
@@ -115,6 +117,7 @@ export default function ContactPage() {
           </ul>
         </section>
       </div>
+      <WhatsAppButton />
     </article>
   );
 }

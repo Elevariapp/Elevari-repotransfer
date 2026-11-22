@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Eliminar mi cuenta | Eleveri',
-  description: 'Procedimiento para eliminar tu cuenta de Eleveri y solicitar la eliminación de tus datos personales.',
+  title: 'Eliminar mi cuenta | Elevari',
+  description: 'Procedimiento para eliminar tu cuenta de Elevari y solicitar la eliminación de tus datos personales.',
 };
 
 export default function AccountDeletionPage() {
@@ -51,7 +51,7 @@ export default function AccountDeletionPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">4. Cómo solicitar la eliminación</h2>
           <ol className="mt-2 list-decimal space-y-1 pl-5 text-elevari-slate">
-            <li>Inicia sesión en tu cuenta en la plataforma Eleveri.</li>
+            <li>Inicia sesión en tu cuenta en la plataforma Elevari.</li>
             <li>Ve a Mi cuenta → Configuración → Eliminar mi cuenta.</li>
             <li>Confirma que entiendes que la acción es irreversible.</li>
             <li>Envía la solicitud de eliminación.</li>
@@ -74,7 +74,7 @@ export default function AccountDeletionPage() {
           <h2 className="font-semibold text-elevari-slate">6. Irreversibilidad</h2>
           <p className="mt-2">
             La eliminación de la cuenta es irreversible. Una vez eliminada, no podrás recuperar tu
-            historial, reservas ni contenido asociado. Si deseas usar Eleveri nuevamente, deberás
+            historial, reservas ni contenido asociado. Si deseas usar Elevari nuevamente, deberás
             crear una nueva cuenta.
           </p>
         </section>

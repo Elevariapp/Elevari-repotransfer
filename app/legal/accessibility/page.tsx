@@ -1,12 +1,12 @@
 export const metadata = {
   title: 'Accesibilidad',
-  description: 'Compromiso de accesibilidad de Eleveri: objetivo WCAG 2.2 AA en web.',
+  description: 'Compromiso de accesibilidad de Elevari: objetivo WCAG 2.2 AA en web.',
 };
 
 const sections = [
   {
     title: 'Nuestro compromiso',
-    body: 'Trabajamos para que Eleveri sea usable por la mayor cantidad de personas posible, incluidas quienes navegan con teclado, lectores de pantalla, ampliación o contraste reducido. Nuestro objetivo es WCAG 2.2 nivel AA en la web.',
+    body: 'Trabajamos para que Elevari sea usable por la mayor cantidad de personas posible, incluidas quienes navegan con teclado, lectores de pantalla, ampliación o contraste reducido. Nuestro objetivo es WCAG 2.2 nivel AA en la web.',
   },
   {
     title: 'Qué implementamos',
@@ -33,7 +33,7 @@ export default function AccessibilityPage() {
       <h1 className="mt-2 font-display text-3xl text-elevari-ink">Accesibilidad</h1>
       <p className="mt-2 text-elevari-muted">
         Última actualización: 2026. Este documento describe el estado de accesibilidad de la
-        plataforma web de Eleveri.
+        plataforma web de Elevari.
       </p>
       <div className="mt-8 space-y-8">
         {sections.map((section) => (

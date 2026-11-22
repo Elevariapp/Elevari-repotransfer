@@ -9,7 +9,7 @@ export default function BecomeHostPage() {
         <div className="mx-auto max-w-lg text-center">
           <p className="elevari-eyebrow">Anfitriones</p>
           <h1 className="mt-3 font-display text-3xl text-elevari-slate sm:text-4xl">
-            Publica tu glamping en Eleveri
+            Publica tu glamping en Elevari
           </h1>
           <p className="mt-4 text-elevari-muted leading-relaxed">
             Tu cuenta actual es de huésped. Para acceder al panel de anfitrión, regístrate como anfitrión o crea una

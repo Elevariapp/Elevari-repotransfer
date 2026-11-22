@@ -9,7 +9,8 @@ import FavoriteButton from '@/components/conversion/FavoriteButton';
 import TrustSignals from '@/components/conversion/TrustSignals';
 import SimilarProperties from '@/components/conversion/SimilarProperties';
 import PropertyLocation from '@/components/booking/PropertyLocation';
-import EleveriMark from '@/components/brand/EleveriMark';
+import ElevariMark from '@/components/brand/ElevariMark';
+import WhatsAppButton from '@/components/brand/WhatsAppButton';
 import { formatPropertyLocation } from '@/lib/property-location';
 import { formatCop } from '@/lib/format';
 import { buildPropertyShareMetadata } from '@/lib/share-metadata';
@@ -153,7 +154,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <section>
                 <div className="flex items-center gap-4 rounded-2xl border border-elevari-border bg-gradient-to-br from-white to-elevari-ivory p-5 shadow-sm ring-1 ring-elevari-amber/10">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-elevari-forest-deep p-2.5 shadow-sm ring-2 ring-elevari-amber/25">
-                    <EleveriMark className="h-full w-full" plain />
+                    <ElevariMark className="h-full w-full" plain />
                   </div>
                   <div>
                     <p className="font-semibold text-elevari-slate">Anfitrión Eleveri verificado</p>
@@ -288,6 +289,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
           </div>
         </div>
       </main>
+      <WhatsAppButton />
     </>
   );
 }

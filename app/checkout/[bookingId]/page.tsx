@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import CheckoutClient from '@/components/checkout/CheckoutClient';
+import WhatsAppButton from '@/components/brand/WhatsAppButton';
 import { wanaApi, ApiError } from '@/lib/api-client';
 import { getServerBooking } from '@/lib/api-server';
 import { notFound, redirect } from 'next/navigation';
@@ -66,6 +67,7 @@ export default async function CheckoutPage({
         </header>
         <CheckoutClient booking={booking as never} propertySlug={propertySlug} coverImage={coverImage} />
       </main>
+      <WhatsAppButton />
     </>
   );
 }
