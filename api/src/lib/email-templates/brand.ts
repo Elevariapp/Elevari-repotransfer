@@ -2,7 +2,7 @@ export const EMAIL_BRAND = {
   companyName: 'Elevari S.A.S',
   companyNIT: '902088849',
   companyAddress: 'CR 5 NO. 16 14 OF 711 ED EL GLOBO, BOGOTÁ, D.C, código postal 111711',
-  logoUrl: 'https://raw.githubusercontent.com/Elevariapp/Elevari-repotransfer/b-main/public/brand/logo-concept-4-blend.svg',
+  logoUrl: 'https://raw.githubusercontent.com/Elevariapp/Elevari-repotransfer/b-main/public/brand/logo-concept-1-horizon.svg',
   primaryColor: '#D97706',
   secondaryColor: '#0F172A',
   accentColor: '#D97706',
