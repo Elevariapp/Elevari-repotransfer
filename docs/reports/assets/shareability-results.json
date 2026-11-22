@@ -18,15 +18,15 @@
     {
       "id": "share.canonical",
       "status": "PASS",
-      "expected": "https://eleveri.app/properties/glamping-wana",
-      "actual": "https://eleveri.app/properties/glamping-wana",
+      "expected": "https://elevari.live/properties/glamping-wana",
+      "actual": "https://elevari.live/properties/glamping-wana",
       "error": null
     },
     {
       "id": "share.og_image_route",
       "status": "PASS",
-      "expected": "https://eleveri.app/properties/glamping-wana/opengraph-image",
-      "actual": "https://eleveri.app/properties/glamping-wana/opengraph-image",
+      "expected": "https://elevari.live/properties/glamping-wana/opengraph-image",
+      "actual": "https://elevari.live/properties/glamping-wana/opengraph-image",
       "error": null
     },
     {

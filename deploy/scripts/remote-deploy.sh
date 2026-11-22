@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Deploy Waná staging al Droplet vía SSH
+# Deploy Elevari staging al Droplet vía SSH
 set -euo pipefail
 
-DROPLET_IP="${DROPLET_IP:-164.92.241.30}"
+DROPLET_IP="${DROPLET_IP:-}"
 DROPLET_USER="${DROPLET_USER:-root}"
-REMOTE_DIR="/opt/wana"
+REMOTE_DIR="/opt/elevari"
 ROOT="$(cd "$(dirname "$0")/../../" && pwd)"
 
-echo "=== Waná — remote deploy → $DROPLET_USER@$DROPLET_IP ==="
+echo "=== Elevari — remote deploy → $DROPLET_USER@$DROPLET_IP ==="
 
 rsync -az --delete \
   --exclude node_modules --exclude .next --exclude api/node_modules --exclude .git \

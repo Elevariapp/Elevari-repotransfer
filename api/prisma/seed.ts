@@ -7,16 +7,16 @@ import {
 } from './glamping-wana.js';
 
 const prisma = new PrismaClient();
-const DEMO_PASSWORD = 'wana12345';
+const DEMO_PASSWORD = 'elevari12345';
 
 async function main() {
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
   const host = await prisma.user.upsert({
-    where: { email: 'host@wana.local' },
+    where: { email: 'host@elevari.live' },
     update: { passwordHash, role: 'host', name: 'Glamping Waná' },
     create: {
-      email: 'host@wana.local',
+      email: 'host@elevari.live',
       name: 'Glamping Waná',
       role: 'host',
       passwordHash,
@@ -24,10 +24,10 @@ async function main() {
   });
 
   const guest = await prisma.user.upsert({
-    where: { email: 'guest@wana.local' },
+    where: { email: 'guest@elevari.live' },
     update: { passwordHash, role: 'guest' },
     create: {
-      email: 'guest@wana.local',
+      email: 'guest@elevari.live',
       name: 'Demo Guest',
       role: 'guest',
       passwordHash,
@@ -35,10 +35,10 @@ async function main() {
   });
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@wana.local' },
+    where: { email: 'admin@elevari.live' },
     update: { passwordHash, role: 'admin' },
     create: {
-      email: 'admin@wana.local',
+      email: 'admin@elevari.live',
       name: 'Waná Admin',
       role: 'admin',
       passwordHash,
@@ -114,9 +114,9 @@ async function main() {
     location: 'Sutatausa, Cucunubá, Cundinamarca',
     demoPassword: DEMO_PASSWORD,
     accounts: {
-      guest: 'guest@wana.local',
-      host: 'host@wana.local',
-      admin: 'admin@wana.local',
+      guest: 'guest@elevari.live',
+      host: 'host@elevari.live',
+      admin: 'admin@elevari.live',
     },
     photos: 'Coloca JPG en public/properties/glamping-wana/ (ver scripts/import-glamping-photos.sh)',
   });

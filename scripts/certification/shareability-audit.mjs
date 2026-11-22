@@ -29,11 +29,11 @@ const property = {
   description: 'Un domo con vista a la montaña y cielo despejado para desconectar.',
 };
 
-const meta = buildPropertyShareMetadata(property, 'https://eleveri.app');
+const meta = buildPropertyShareMetadata(property, 'https://elevari.live');
 
 check('share.complete', () => checkShareability(meta), { ok: true, missing: [] });
-check('share.canonical', () => meta.canonical, 'https://eleveri.app/properties/glamping-wana');
-check('share.og_image_route', () => meta.openGraph.images[0]?.url, 'https://eleveri.app/properties/glamping-wana/opengraph-image');
+check('share.canonical', () => meta.canonical, 'https://elevari.live/properties/glamping-wana');
+check('share.og_image_route', () => meta.openGraph.images[0]?.url, 'https://elevari.live/properties/glamping-wana/opengraph-image');
 check('share.og_size', () => [meta.openGraph.images[0]?.width, meta.openGraph.images[0]?.height], [1200, 630]);
 check('share.twitter_card', () => meta.twitter.card, 'summary_large_image');
 check('share.title_has_location', () => meta.title, 'Domo entre montañas · Sutatausa, Colombia');
@@ -44,7 +44,7 @@ check('fallback_price_label', () => formatCopLabel(450000), '$450.000 COP');
 check('fallback_no_price', () => formatCopLabel(null), null);
 check('fallback_location_default', () => propertyLocation({ slug: 'x', title: 'X' }), '');
 
-const noDesc = buildPropertyShareMetadata({ ...property, description: null }, 'https://eleveri.app');
+const noDesc = buildPropertyShareMetadata({ ...property, description: null }, 'https://elevari.live');
 check('fallback_description_with_price', () => noDesc.description.includes('desde'), true);
 check('fallback_still_shareable', () => checkShareability(noDesc).ok, true);
 

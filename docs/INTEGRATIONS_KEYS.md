@@ -1,4 +1,4 @@
-# Mapa de credenciales — Waná
+# Mapa de credenciales — Elevari
 
 Referencia de qué servicio usa cada variable (sin valores secretos).
 
@@ -21,8 +21,8 @@ Referencia de qué servicio usa cada variable (sin valores secretos).
 
 | Hostname |
 |----------|
-| `eleveri.app` |
-| `www.eleveri.app` |
+| `elevari.live` |
+| `www.elevari.live` |
 | `localhost` (desarrollo) |
 
 Tras crear keys nuevas, actualiza `.env.staging` y redeploy (`npm run go-live:remote`).
@@ -38,8 +38,8 @@ Bypass temporal (solo debug): `TURNSTILE_DISABLED=1` y `NEXT_PUBLIC_TURNSTILE_DI
 
 - **Client ID** + **Client secret**: login con Google (Identity Services, credential JWT).
 - En Google Console → Credentials → OAuth client, autorizar **JavaScript origins**:
-  - `https://eleveri.app`
-  - `https://www.eleveri.app`
+  - `https://elevari.live`
+  - `https://www.elevari.live`
   - `http://localhost:3000` (local)
 - No hace falta redirect URI para el flujo actual (One Tap / botón GIS).
 

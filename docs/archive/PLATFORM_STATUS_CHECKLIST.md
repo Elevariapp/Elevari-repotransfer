@@ -1,6 +1,6 @@
-# Waná — Smart Checklist (estado de plataforma)
+# Elevari — Smart Checklist (estado de plataforma)
 
-**Última revisión:** post-deploy `https://eleveri.app`  
+**Última revisión:** post-deploy `https://elevari.live`  
 **Modo:** pre-live · pagos mock · dominio Eleveri activo  
 **Mapa go-live (checklist ejecutable):** [`docs/GO_LIVE_PRODUCTION_MAP.md`](GO_LIVE_PRODUCTION_MAP.md)
 
@@ -12,10 +12,10 @@ Leyenda: ✅ listo · ⚠️ parcial · ❌ no funcional / legacy · 📋 pendie
 
 | Item | Estado | Notas |
 |------|--------|-------|
-| Droplet DigitalOcean | ✅ | `164.92.241.30` |
+| Droplet DigitalOcean | ✅ | `elevari.live` (VPS) |
 | Docker stack (API+Web+DB+MinIO+Nginx) | ✅ | `docker-compose.staging.yml` |
 | Health `/health` + API | ✅ | DB connected |
-| HTTPS / dominio | ✅ | `https://eleveri.app` (Cloudflare) |
+| HTTPS / dominio | ✅ | `https://elevari.live` (Cloudflare) |
 | Redirect www → apex | ✅ | nginx staging |
 | Pagos live Bold/Stripe | ❌ | `PAYMENTS_MODE=mock` (pendiente keys) |
 | Alegra facturación | ❌ | Sin credenciales live |
@@ -41,7 +41,7 @@ Leyenda: ✅ listo · ⚠️ parcial · ❌ no funcional / legacy · 📋 pendie
 | Logout (Header) | ✅ | Limpia token |
 | Account `/account` | ✅ | Perfil básico |
 
-**Credenciales demo:** `guest@wana.local` / `wana12345`
+**Credenciales demo:** `guest@elevari.live` / `elevari12345`
 
 ---
 
@@ -158,7 +158,7 @@ Leyenda: ✅ listo · ⚠️ parcial · ❌ no funcional / legacy · 📋 pendie
 8. Stepper visual en checkout
 
 ### P2 — Diseño consistente
-9. Unificar páginas legacy (`rounded-[32px] bg-slate-50`) al design system Waná
+9. Unificar páginas legacy (`rounded-[32px] bg-slate-50`) al design system Elevari
 10. ~~Eliminar Supabase legacy~~ ✅ (Jul 2026 — API Fastify + JWT únicamente)
 11. Favicon + OG images por propiedad en prod
 
@@ -174,7 +174,7 @@ Leyenda: ✅ listo · ⚠️ parcial · ❌ no funcional / legacy · 📋 pendie
 
 ```bash
 # Verificar staging
-BASE_URL=http://164.92.241.30 ./deploy/scripts/verify-health.sh
+BASE_URL=https://elevari.live ./deploy/scripts/verify-health.sh
 
 # Re-deploy tras cambios UI
 npm run go-live:remote

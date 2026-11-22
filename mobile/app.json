@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Waná",
-    "slug": "wana",
+    "name": "Elevari",
+    "slug": "elevari",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,13 +15,13 @@
       "supportsTablet": true,
       "bundleIdentifier": "elevari.androidapp",
       "infoPlist": {
-        "NSUserNotificationUsageDescription": "Waná necesita enviar notificaciones push para confirmaciones de reserva y actualizaciones de anfitrión.",
-        "NSLocationWhenInUseUsageDescription": "Waná usa tu ubicación para mostrar propiedades cercanas.",
-        "NSCameraUsageDescription": "Waná necesita acceso a la cámara para subir fotos de tu propiedad.",
-        "NSPhotoLibraryUsageDescription": "Waná necesita acceso a tu galería para subir fotos de tu propiedad."
+        "NSUserNotificationUsageDescription": "Elevari necesita enviar notificaciones push para confirmaciones de reserva y actualizaciones de anfitrión.",
+        "NSLocationWhenInUseUsageDescription": "Elevari usa tu ubicación para mostrar propiedades cercanas.",
+        "NSCameraUsageDescription": "Elevari necesita acceso a la cámara para subir fotos de tu propiedad.",
+        "NSPhotoLibraryUsageDescription": "Elevari necesita acceso a tu galería para subir fotos de tu propiedad."
       },
       "associatedDomains": [
-        "applinks:app.wana.co"
+        "applinks:app.elevari.live"
       ]
     },
     "android": {
@@ -40,7 +40,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "app.eleveri.app",
+              "host": "app.elevari.live",
               "pathPrefix": "/"
             }
           ],
@@ -87,15 +87,15 @@
     "scheme": "elevari",
     "extra": {
       "eas": {
-        "projectId": "wana-mobile"
+        "projectId": "elevari-mobile"
       },
-      "API_BASE_URL": "https://api.wana.co",
+      "API_BASE_URL": "https://api.elevari.live",
       "WOMPI_PUBLIC_KEY": "pub_test_...",
-      "PRIVACY_URL": "https://www.eleveri.app/legal/privacy",
-      "TERMS_URL": "https://www.eleveri.app/legal/terms",
-      "REFUND_URL": "https://www.eleveri.app/legal/refund",
-      "ACCOUNT_DELETION_URL": "https://www.eleveri.app/legal/account-deletion",
-      "CONTACT_URL": "https://www.eleveri.app/legal/contact",
+      "PRIVACY_URL": "https://www.elevari.live/legal/privacy",
+      "TERMS_URL": "https://www.elevari.live/legal/terms",
+      "REFUND_URL": "https://www.elevari.live/legal/refund",
+      "ACCOUNT_DELETION_URL": "https://www.elevari.live/legal/account-deletion",
+      "CONTACT_URL": "https://www.elevari.live/legal/contact",
       "COMPLIANCE": {
         "dataProtectionLaw": "Ley 1581 de 2012 (Colombia)",
         "platformFeePercent": 15,

@@ -1,4 +1,4 @@
-# Waná Infrastructure
+# Elevari Infrastructure
 
 Use this file as the entry point for deployment and environment-specific work.
 
@@ -37,7 +37,7 @@ Rule: no hardcoded visual values in components — consume `elevari-*` tokens on
 | PostgreSQL | 5432 | Primary database (official) |
 | Redis | 6379 | Queues, rate limits (future workers) |
 | MinIO | 9000 / 9001 | Object storage for images/video |
-| Waná API | 4000 | Fastify REST API (`api/`) |
+| Elevari API | 4000 | Fastify REST API (`api/`) |
 | Next.js web | 3000 | Frontend SSR (`output: standalone`) |
 
 ### Quick start (local)
@@ -82,7 +82,7 @@ Or all-in-docker: `npm run docker:up`
 
 - Header: `Authorization: Bearer <token>`
 - Cookie web: `wana_token` (middleware protege `/host`, `/account`, `/admin`)
-- Demo: `guest@wana.local`, `host@wana.local`, `admin@wana.local` / `wana12345`
+- Demo: `guest@elevari.live`, `host@elevari.live`, `admin@elevari.live` / `elevari12345`
 
 ### Pagos (Fase 2 — Wompi-first)
 
@@ -146,7 +146,7 @@ Env: `ALEGRA_EMAIL`, `ALEGRA_API_TOKEN`. Sin credenciales → `pending_invoices`
 
 - Supabase client, server actions, Next `/api/*` stubs — **eliminados**; usar solo Fastify `/api/v1`
 - **Netlify:** eliminado (fuera de arquitectura); producción usa Docker en EC2
-- **Pagos mock:** checkout vía `wanaApi` + API Fastify
+- **Pagos mock:** checkout vía `elevariApi` + API Fastify
 
 ## Environment
 

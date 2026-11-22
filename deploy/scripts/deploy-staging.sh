@@ -8,7 +8,7 @@ cd "$ROOT"
 COMPOSE_FILE="docker-compose.staging.yml"
 ENV_FILE="${ENV_FILE:-.env.staging}"
 
-echo "=== Waná — Pre-live staging (sin keys) ==="
+echo "=== Elevari — Pre-live staging (sin keys) ==="
 
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "Error: falta $ENV_FILE"
@@ -104,7 +104,7 @@ BASE_URL="${BASE_URL:-http://localhost}" "$ROOT/deploy/scripts/verify-health.sh"
 echo ""
 echo "=== Pre-live staging listo ==="
 echo "Abre: http://localhost/properties"
-echo "Login demo: guest@wana.local / wana12345"
+echo "Login demo: guest@elevari.live / elevari12345"
 echo "Flujo: reserva → checkout → pago mock"
 echo ""
 echo "Cuando tengas keys: copia a .env.production y npm run go-live:deploy"

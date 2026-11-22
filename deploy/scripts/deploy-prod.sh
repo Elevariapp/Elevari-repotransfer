@@ -8,7 +8,7 @@ cd "$ROOT"
 COMPOSE_FILE="docker-compose.prod.yml"
 ENV_FILE="${ENV_FILE:-.env.production}"
 
-echo "=== Waná — deploy producción ==="
+echo "=== Elevari — deploy producción ==="
 
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "Error: falta $ENV_FILE"

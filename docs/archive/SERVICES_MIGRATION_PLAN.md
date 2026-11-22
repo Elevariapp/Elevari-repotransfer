@@ -1,4 +1,4 @@
-# Plan de migración de servicios — Waná
+# Plan de migración de servicios — Elevari
 
 Documento de referencia para pasar de Supabase legacy a la API propia (Fastify + Prisma + MinIO).
 
@@ -102,7 +102,7 @@ npm run go-live:remote   # o deploy-staging en el Droplet
 
 Verificar:
 
-- `host@wana.local` crea propiedad → sube media → admin publica
+- `host@elevari.live` crea propiedad → sube media → admin publica
 - `/legal/privacy` y `/legal/terms` sin error
 - Admin `/admin/moderation` aprueba media
 - Menú móvil en 375px width

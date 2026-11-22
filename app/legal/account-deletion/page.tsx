@@ -57,7 +57,7 @@ export default function AccountDeletionPage() {
             <li>Envía la solicitud de eliminación.</li>
           </ol>
           <p className="mt-2">
-            También puedes enviar un correo a privacidad@eleveri.app desde el correo asociado a tu
+            También puedes enviar un correo a privacidad@elevari.live desde el correo asociado a tu
             cuenta solicitando la eliminación.
           </p>
         </section>

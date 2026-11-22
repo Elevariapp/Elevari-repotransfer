@@ -44,8 +44,8 @@ export async function buildApp() {
         .filter(Boolean);
       const allowed = new Set(configured);
       // Apex + www (Cloudflare) — evita fallos CORS al iniciar sesión
-      allowed.add('https://eleveri.app');
-      allowed.add('https://www.eleveri.app');
+      allowed.add('https://elevari.live');
+      allowed.add('https://www.elevari.live');
 
       if (!origin || allowed.has(origin)) {
         callback(null, origin ?? true);

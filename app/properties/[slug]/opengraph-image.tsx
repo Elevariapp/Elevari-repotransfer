@@ -124,7 +124,7 @@ export default async function OpengraphImage({
                 color: '#F7F4EC',
               }}
             >
-              eleveri.app
+              elevari.live
             </span>
           </div>
         </div>

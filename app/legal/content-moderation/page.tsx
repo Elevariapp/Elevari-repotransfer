@@ -60,7 +60,7 @@ export default function ContentModerationPage() {
           <h2 className="font-semibold text-elevari-slate">4. Apelaciones</h2>
           <p className="mt-2">
             Si tu contenido es rechazado o eliminado, puedes apelar la decisión enviando un correo a
-            moderacion@eleveri.app explicando por qué consideras que la decisión es incorrecta.
+            moderacion@elevari.live explicando por qué consideras que la decisión es incorrecta.
             Revisaremos tu apelación en un plazo de 5 días hábiles.
           </p>
         </section>

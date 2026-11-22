@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'wana_token';
+const TOKEN_KEY = 'elevari_token';
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 
 export interface AuthUser {
@@ -11,15 +11,15 @@ export interface AuthUser {
 function cookieDomainAttribute(): string {
   if (typeof window === 'undefined') return '';
   const host = window.location.hostname;
-  if (host === 'eleveri.app' || host.endsWith('.eleveri.app')) {
-    return '; Domain=.eleveri.app';
+  if (host === 'elevari.live' || host.endsWith('.elevari.live')) {
+    return '; Domain=.elevari.live';
   }
   return '';
 }
 
 function readCookieToken(): string | null {
   if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|;\s*)wana_token=([^;]*)/);
+  const match = document.cookie.match(/(?:^|;\s*)elevari_token=([^;]*)/);
   if (!match?.[1]) return null;
   try {
     return decodeURIComponent(match[1]);
@@ -46,13 +46,13 @@ export function setSession(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
   const secure = window.location.protocol === 'https:' ? '; Secure' : '';
   const encoded = encodeURIComponent(token);
-  document.cookie = `wana_token=${encoded}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax${secure}${cookieDomainAttribute()}`;
+  document.cookie = `elevari_token=${encoded}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax${secure}${cookieDomainAttribute()}`;
 }
 
 export function clearSession() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(TOKEN_KEY);
-  document.cookie = `wana_token=; path=/; max-age=0${cookieDomainAttribute()}`;
+  document.cookie = `elevari_token=; path=/; max-age=0${cookieDomainAttribute()}`;
 }
 
 export function authHeaders(): Record<string, string> {

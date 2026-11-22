@@ -1,8 +1,8 @@
-# Waná — Checklist Go-Live
+# Elevari — Checklist Go-Live
 
 Usa este documento como lista de verificación antes y después del despliegue a producción.
 
-**Dominio objetivo:** `https://wana.co` (cambia en `.env.production` si usas otro)
+**Dominio objetivo:** `https://elevari.live` (cambia en `.env.production` si usas otro)
 
 ---
 
@@ -32,7 +32,7 @@ npm run go-live:verify
 
 # 4. Smoke test manual
 # → http://localhost/properties
-# → login guest@wana.local / wana12345
+# → login guest@elevari.live / elevari12345
 # → reserva → checkout → pago mock → confirmado
 ```
 
@@ -75,7 +75,7 @@ BASE_URL=http://TU_IP ./deploy/scripts/verify-health.sh
 
 - [ ] `npm run api:dev` → `curl http://localhost:4000/health` → `ok`
 - [ ] `npm run dev` → abrir `http://localhost:3000/properties`
-- [ ] Flujo mock: login `guest@wana.local` / `wana12345` → reserva → checkout mock
+- [ ] Flujo mock: login `guest@elevari.live` / `elevari12345` → reserva → checkout mock
 
 ---
 
@@ -143,9 +143,9 @@ Archivo: **`.env.production`** (raíz del proyecto, no commitear)
 
 ### C2. Dominio y DNS
 
-- [ ] Registro A: `wana.co` → IP del VPS
-- [ ] (Opcional) `www` CNAME → `wana.co`
-- [ ] (Opcional) `media.wana.co` → IP o CDN para MinIO
+- [ ] Registro A: `elevari.live` → IP del VPS
+- [ ] (Opcional) `www` CNAME → `elevari.live`
+- [ ] (Opcional) `media.elevari.live` → IP o CDN para MinIO
 - [ ] Cloudflare proxy activado (recomendado)
 
 ### C3. Desplegar en VPS
@@ -173,8 +173,8 @@ Configurar en dashboards de proveedores:
 
 | Proveedor | URL |
 |-----------|-----|
-| Bold | `https://wana.co/api/v1/webhooks/bold` |
-| Stripe | `https://wana.co/api/v1/webhooks/stripe` |
+| Bold | `https://elevari.live/api/v1/webhooks/bold` |
+| Stripe | `https://elevari.live/api/v1/webhooks/stripe` |
 
 - [ ] Bold webhook creado y secret copiado a `BOLD_WEBHOOK_SECRET`
 - [ ] Stripe webhook creado (eventos: `payment_intent.succeeded`, etc.)
@@ -187,9 +187,9 @@ Configurar en dashboards de proveedores:
 ### D1. Health checks
 
 ```bash
-curl -s https://wana.co/health
-curl -sI https://wana.co/properties
-curl -sI https://wana.co/sitemap.xml
+curl -s https://elevari.live/health
+curl -sI https://elevari.live/properties
+curl -sI https://elevari.live/sitemap.xml
 ```
 
 - [ ] `/health` responde OK
@@ -212,7 +212,7 @@ curl -sI https://wana.co/sitemap.xml
 
 ### D4. Host / media
 
-- [ ] Login `host@wana.local` (o host real) → `/host`
+- [ ] Login `host@elevari.live` (o host real) → `/host`
 - [ ] Subir imagen → visible en galería pública
 - [ ] `MEDIA_AUTO_APPROVE=false` → flujo aprobación admin (si implementado)
 
@@ -227,7 +227,7 @@ curl -sI https://wana.co/sitemap.xml
 ## Fase E — Seguridad final
 
 - [ ] `.env.production` **no** está en git
-- [ ] Contraseñas demo (`wana12345`) deshabilitadas o cuentas demo eliminadas en prod
+- [ ] Contraseñas demo (`elevari12345`) deshabilitadas o cuentas demo eliminadas en prod
 - [ ] `MEDIA_AUTO_APPROVE=false` en producción
 - [ ] `PAYMENTS_MODE=live` (no mock)
 - [ ] JWT_SECRET y POSTGRES_PASSWORD únicos y almacenados de forma segura
@@ -253,7 +253,7 @@ npm run docker:prod:up
 ./deploy/scripts/backup-db.sh
 
 # Reintentar factura fallida (admin JWT)
-curl -X POST https://wana.co/api/v1/admin/invoices/{id}/retry \
+curl -X POST https://elevari.live/api/v1/admin/invoices/{id}/retry \
   -H "Authorization: Bearer $ADMIN_TOKEN"
 ```
 
@@ -265,7 +265,7 @@ curl -X POST https://wana.co/api/v1/admin/invoices/{id}/retry \
 |--------|---------|
 | Ver logs | `docker compose -f docker-compose.prod.yml logs -f api web nginx` |
 | Parar stack | `npm run docker:prod:down` |
-| Restaurar DB | `gunzip -c backups/wana_*.sql.gz \| docker compose -f docker-compose.prod.yml exec -T postgres psql -U wana wana` |
+| Restaurar DB | `gunzip -c backups/elevari_*.sql.gz \| docker compose -f docker-compose.prod.yml exec -T postgres psql -U elevari elevari` |
 | Rollback release | `git checkout <tag-anterior>` + rebuild |
 
-**Última actualización:** Fase 6E + 6B — Waná 2026
+**Última actualización:** Fase 6E + 6B — Elevari 2026

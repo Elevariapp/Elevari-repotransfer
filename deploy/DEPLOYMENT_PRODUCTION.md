@@ -1,4 +1,4 @@
-# Waná — Production Deployment (Fase 6E)
+# Elevari — Production Deployment (Fase 6E)
 
 Guía para desplegar el stack Docker en un VPS (Hetzner, DigitalOcean, etc.) con Nginx, PostgreSQL, Redis, MinIO, API Fastify y Next.js standalone.
 
@@ -29,7 +29,7 @@ sudo usermod -aG docker $USER
 ## 2. Clonar y configurar
 
 ```bash
-git clone <repo-url> wana && cd wana
+git clone <repo-url> elevari && cd elevari
 cp deploy/.env.production.example .env.production
 # Editar .env.production — contraseñas, JWT, keys Bold/Stripe, Alegra
 ```
@@ -81,7 +81,7 @@ chmod +x deploy/scripts/backup-db.sh
 Programar con cron (diario 3am):
 
 ```cron
-0 3 * * * cd /opt/wana && ./deploy/scripts/backup-db.sh
+0 3 * * * cd /opt/elevari && ./deploy/scripts/backup-db.sh
 ```
 
 ## 7. Actualizar release

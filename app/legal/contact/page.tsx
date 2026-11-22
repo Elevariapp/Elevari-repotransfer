@@ -30,27 +30,27 @@ export default function ContactPage() {
             <tbody>
               <tr className="border-b border-elevari-muted/30">
                 <td className="py-2">Soporte general y reservas</td>
-                <td className="py-2">soporte@eleveri.app</td>
+                <td className="py-2">soporte@elevari.live</td>
                 <td className="py-2">1-2 días hábiles</td>
               </tr>
               <tr className="border-b border-elevari-muted/30">
                 <td className="py-2">Privacidad y protección de datos</td>
-                <td className="py-2">privacidad@eleveri.app</td>
+                <td className="py-2">privacidad@elevari.live</td>
                 <td className="py-2">5 días hábiles</td>
               </tr>
               <tr className="border-b border-elevari-muted/30">
                 <td className="py-2">Moderación de contenido y apelaciones</td>
-                <td className="py-2">moderacion@eleveri.app</td>
+                <td className="py-2">moderacion@elevari.live</td>
                 <td className="py-2">5 días hábiles</td>
               </tr>
               <tr className="border-b border-elevari-muted/30">
                 <td className="py-2">Anfitriones y listados</td>
-                <td className="py-2">anfitriones@eleveri.app</td>
+                <td className="py-2">anfitriones@elevari.live</td>
                 <td className="py-2">1-2 días hábiles</td>
               </tr>
               <tr className="border-b border-elevari-muted/30">
                 <td className="py-2">Accesibilidad</td>
-                <td className="py-2">accesibilidad@eleveri.app</td>
+                <td className="py-2">accesibilidad@elevari.live</td>
                 <td className="py-2">5 días hábiles</td>
               </tr>
             </tbody>
@@ -65,7 +65,7 @@ export default function ContactPage() {
           </p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-elevari-slate">
             <li>Nombre comercial: Eleveri</li>
-            <li>Correo legal: legal@eleveri.app</li>
+            <li>Correo legal: legal@elevari.live</li>
             <li>Sede: Colombia</li>
           </ul>
         </section>

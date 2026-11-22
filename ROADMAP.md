@@ -1,4 +1,4 @@
-# Waná — Roadmap de producto
+# Elevari — Roadmap de producto
 
 Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas aquí.
 
@@ -86,7 +86,7 @@ Estado a junio 2026. Fases 0–4 completadas en código; fases 5–6 definidas a
 
 **Web (`.env.local`):**
 ```bash
-NEXT_PUBLIC_SITE_URL=https://wana.co
+NEXT_PUBLIC_SITE_URL=https://elevari.live
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXX
 NEXT_PUBLIC_META_PIXEL_ID=XXXX
 NEXT_PUBLIC_GTM_ID=GTM-XXXX   # opcional; si está, GA4 directo se omite
@@ -94,9 +94,9 @@ NEXT_PUBLIC_GTM_ID=GTM-XXXX   # opcional; si está, GA4 directo se omite
 
 **API (`api/.env`):**
 ```bash
-PUBLIC_SITE_URL=https://wana.co
+PUBLIC_SITE_URL=https://elevari.live
 RESEND_API_KEY=
-RESEND_FROM=Waná <reservas@wana.co>
+RESEND_FROM=Elevari <reservas@elevari.live>
 META_PIXEL_ID=
 META_ACCESS_TOKEN=
 ```
@@ -113,7 +113,7 @@ META_ACCESS_TOKEN=
 3. **Flujos huésped:** explorar propiedades, detalle, reserva, checkout (Stripe SDK / Bold deep link)
 4. **Flujos host (v2):** subir fotos, ver reservas
 5. **Push notifications** — Expo Notifications + API endpoint para tokens
-6. **Deep links** — `wana://checkout/{id}`, universal links
+6. **Deep links** — `elevari://checkout/{id}`, universal links
 
 ### Dependencias previas (ya cubiertas)
 - API REST estable ✅
@@ -133,7 +133,7 @@ META_ACCESS_TOKEN=
 
 ## Fase 6 — Operaciones, facturación y producción
 
-**Objetivo:** Operar Waná en producción con equipos internos y cumplimiento Colombia.
+**Objetivo:** Operar Elevari en producción con equipos internos y cumplimiento Colombia.
 
 ### Bloques propuestos
 

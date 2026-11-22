@@ -138,7 +138,7 @@ export default function TurnstileWidget({
         <div className="space-y-2">
           <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-900">
             No se pudo cargar la verificación. En Cloudflare Turnstile añade{' '}
-            <strong>eleveri.app</strong> y <strong>www.eleveri.app</strong>.
+            <strong>elevari.live</strong> y <strong>www.elevari.live</strong>.
           </p>
           <button type="button" onClick={handleRetry} className="elevari-btn-ghost w-full min-h-[44px] text-xs">
             Reintentar verificación

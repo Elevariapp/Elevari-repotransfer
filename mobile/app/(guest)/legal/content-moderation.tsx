@@ -50,7 +50,7 @@ export default function ContentModerationScreen() {
           <Text style={styles.sectionTitle}>4. Apelaciones</Text>
           <Text style={styles.body}>
             Si consideras que tu contenido fue moderado por error, puedes apelar la decisión
-            escribiendo a moderacion@eleveri.app. Responderemos en un plazo de 5 días hábiles.
+            escribiendo a moderacion@elevari.live. Responderemos en un plazo de 5 días hábiles.
           </Text>
         </View>
       </ScrollView>

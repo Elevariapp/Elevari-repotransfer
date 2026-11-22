@@ -48,7 +48,7 @@ export default function AccessibilityScreen() {
           <Text style={styles.sectionTitle}>4. Contacto</Text>
           <Text style={styles.body}>
             Si encuentras barreras de accesibilidad o necesitas asistencia, escríbenos a
-            accesibilidad@eleveri.app. Responderemos en un plazo de 5 días hábiles.
+            accesibilidad@elevari.live. Responderemos en un plazo de 5 días hábiles.
           </Text>
         </View>
       </ScrollView>

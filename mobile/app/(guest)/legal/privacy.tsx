@@ -23,7 +23,7 @@ export default function PrivacyScreen() {
           <Text style={styles.sectionTitle}>1. Responsable</Text>
           <Text style={styles.body}>
             Eleveri opera la plataforma de reservas de experiencias de glamping y refugios en
-            Colombia. Para consultas sobre privacidad escríbenos a privacidad@eleveri.app.
+            Colombia. Para consultas sobre privacidad escríbenos a privacidad@elevari.live.
           </Text>
         </View>
 
@@ -63,7 +63,7 @@ export default function PrivacyScreen() {
           <Text style={styles.sectionTitle}>5. Tus derechos</Text>
           <Text style={styles.body}>
             Puedes solicitar acceso, corrección, supresión o portabilidad de tus datos
-            contactándonos a privacidad@eleveri.app. Responderemos conforme a la Ley 1581 de 2012 y
+            contactándonos a privacidad@elevari.live. Responderemos conforme a la Ley 1581 de 2012 y
             normas complementarias sobre protección de datos en Colombia. También puedes solicitar la
             eliminación completa de tu cuenta desde la sección Eliminar mi cuenta.
           </Text>

@@ -1,7 +1,7 @@
 # Eleveri — Mapa go-live producción
 
 **Última actualización:** Jul 2026  
-**Estado actual:** `https://eleveri.app` · `PAYMENTS_MODE=mock` · pre-live operativo  
+**Estado actual:** `https://elevari.live` · `PAYMENTS_MODE=mock` · pre-live operativo  
 **Objetivo:** lanzar cobro real sin sorpresas (Bold/Stripe es el último candado, no el primero)
 
 Leyenda: `[ ]` pendiente · `[x]` hecho · `⏸` bloqueado por dependencia externa
@@ -23,15 +23,15 @@ Leyenda: `[ ]` pendiente · `[x]` hecho · `⏸` bloqueado por dependencia exter
 ### Emails transaccionales (Resend)
 
 - [ ] Crear cuenta / proyecto en [Resend](https://resend.com)
-- [ ] Añadir dominio **`eleveri.app`** → copiar registros DNS (SPF, DKIM) en Cloudflare
+- [ ] Añadir dominio **`elevari.live`** → copiar registros DNS (SPF, DKIM) en Cloudflare
 - [ ] Esperar verificación verde en Resend
 - [ ] En VPS `.env.staging` (o `.env.production`):
   ```bash
   RESEND_API_KEY=re_...
-  RESEND_FROM="Eleveri <reservas@eleveri.app>"
+  RESEND_FROM="Eleveri <reservas@elevari.live>"
   ```
 - [ ] Redeploy: `npm run go-live:remote`
-- [ ] Probar correos con email real (no `@wana.local`):
+- [ ] Probar correos con email real (no `@elevari.live`):
   - [ ] Registro → bienvenida
   - [ ] Olvidé contraseña → reset
   - [ ] Cambio contraseña → confirmación seguridad
@@ -50,15 +50,15 @@ Referencia: `docs/RESEND_SETUP.md`
 - [ ] Activar backups DB en VPS (cron diario):
   ```bash
   # Ejemplo crontab en el Droplet
-  0 3 * * * /opt/wana/deploy/scripts/backup-db.sh
+  0 3 * * * /opt/elevari/deploy/scripts/backup-db.sh
   ```
 - [ ] Probar restore de un backup (descargar + verificar dump)
 
 ### Cloudflare / auth
 
-- [ ] Turnstile: hostnames `eleveri.app`, `www.eleveri.app` en el widget
+- [ ] Turnstile: hostnames `elevari.live`, `www.elevari.live` en el widget
 - [ ] SSL Cloudflare: **Flexible** o **Full** según nginx (actualmente OK)
-- [ ] Google OAuth (si aplica): URIs autorizadas con `https://eleveri.app`
+- [ ] Google OAuth (si aplica): URIs autorizadas con `https://elevari.live`
 
 ---
 
@@ -105,7 +105,7 @@ Referencia: `docs/RESEND_SETUP.md`
 
 - [ ] Cuenta Bold aprobada + API key producción
 - [ ] Webhook secret Bold
-- [ ] URL webhook: `https://eleveri.app/api/v1/webhooks/bold`
+- [ ] URL webhook: `https://elevari.live/api/v1/webhooks/bold`
 - [ ] Probar 1 pago COP real de bajo monto
 
 ### Pagos internacional (Stripe)
@@ -113,7 +113,7 @@ Referencia: `docs/RESEND_SETUP.md`
 - [ ] Cuenta Stripe live
 - [ ] `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
 - [ ] `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` en build web
-- [ ] Webhook: `https://eleveri.app/api/v1/webhooks/stripe`
+- [ ] Webhook: `https://elevari.live/api/v1/webhooks/stripe`
 - [ ] Probar 1 pago USD/COP según flujo checkout
 
 ### Facturación (Alegra / DIAN)
@@ -126,11 +126,11 @@ Referencia: `docs/RESEND_SETUP.md`
 ### Cutover a producción real
 
 - [ ] Crear `.env.production` desde `deploy/.env.production.example`
-- [ ] URLs: `NEXT_PUBLIC_SITE_URL=https://eleveri.app` (sin `/api/v1`)
+- [ ] URLs: `NEXT_PUBLIC_SITE_URL=https://elevari.live` (sin `/api/v1`)
 - [ ] `PAYMENTS_MODE=live`
 - [ ] `npm run go-live:validate` (sin errores)
 - [ ] Deploy: `npm run go-live:deploy` (o migrar staging → prod formal)
-- [ ] Desactivar / no usar cuentas `@wana.local` (auto-bloqueadas en live)
+- [ ] Desactivar / no usar cuentas `@elevari.live` (auto-bloqueadas en live)
 - [ ] Smoke manual: registro → reserva → pago → email → factura
 
 ---
@@ -178,7 +178,7 @@ npm run go-live:validate
 npm run go-live:remote
 
 # Health
-BASE_URL=https://eleveri.app ./deploy/scripts/verify-health.sh
+BASE_URL=https://elevari.live ./deploy/scripts/verify-health.sh
 
 # Smoke reserva mock (requiere SMOKE_AUTH_SECRET en API)
 npm run go-live:smoke:mock
@@ -188,7 +188,7 @@ npm run go-live:smoke:mock
 
 ## Qué ya está listo (no rehacer)
 
-- [x] Infra VPS + Docker + nginx + HTTPS `eleveri.app`
+- [x] Infra VPS + Docker + nginx + HTTPS `elevari.live`
 - [x] API Fastify + JWT + Turnstile (fixes recientes)
 - [x] Booking engine + anti double-booking DB
 - [x] Checkout mock Bold/Stripe

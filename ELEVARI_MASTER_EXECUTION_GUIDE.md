@@ -1,6 +1,6 @@
 # ELEVARI — Master Execution Guide
 
-**Repository:** `wana-2026` (Elevari hospitality platform)
+**Repository:** `elevari-2026` (Elevari hospitality platform)
 **Branch:** `b-main`
 **Latest commit:** `550190a` — Fix 4 regressions (analytics relocation, Wompi clientSecret, Prisma imports, `"use client"`)
 **Status:** Phase 0 — Canonical Governance Foundation (in progress)
@@ -152,7 +152,7 @@ These facts are extracted from the actual codebase and must be reflected in all 
 - `legal-review-pack.md` — Legal signoff requirements
 - `docs/brand/` — Brand guide, logo concepts
 - `docs/design/` — Design tokens, design system, migration plan
-- Demo: `guest@wana.local`, `host@wana.local`, `admin@wana.local` / `wana12345`
+- Demo: `guest@elevari.live`, `host@elevari.live`, `admin@elevari.live` / `elevari12345`
 
 ### Infrastructure
 

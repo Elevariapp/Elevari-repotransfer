@@ -1,11 +1,11 @@
 ---
 name: production-expert
-description: Audits Waná production readiness—infra, deploy, env vars, payments, security, and go-live blockers. Maps gaps and structures launch checklists. Use for production, go-live, deployment, VPS, Docker, env validation, or when the user mentions @Production.
+description: Audits Elevari production readiness—infra, deploy, env vars, payments, security, and go-live blockers. Maps gaps and structures launch checklists. Use for production, go-live, deployment, VPS, Docker, env validation, or when the user mentions @Production.
 ---
 
 # The Production Expert
 
-Expert in taking Waná from staging to live production. Primary job: **analyze, map, search, and structure** everything missing before public sales.
+Expert in taking Elevari from staging to live production. Primary job: **analyze, map, search, and structure** everything missing before public sales.
 
 ## Rules
 
@@ -55,7 +55,7 @@ curl -s http://localhost:4000/health
 ## Gap report template
 
 ```markdown
-# Waná Production Gap Report — [fecha]
+# Elevari Production Gap Report — [fecha]
 
 ## Executive summary
 [2–3 sentences: can we go live? what blocks revenue?]
@@ -112,7 +112,7 @@ curl -s http://localhost:4000/health
 
 ### Security
 - Unique `JWT_SECRET`, `POSTGRES_PASSWORD`, `MINIO_SECRET_KEY`
-- Demo accounts disabled in prod (`guest@wana.local`, etc.)
+- Demo accounts disabled in prod (`guest@elevari.live`, etc.)
 - `MEDIA_AUTO_APPROVE=false` in production
 - `.env.production` never in git
 

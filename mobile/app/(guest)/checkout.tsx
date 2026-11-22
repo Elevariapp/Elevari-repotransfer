@@ -25,7 +25,7 @@ export default function CheckoutScreen() {
 
       const { checkoutUrl } = response;
       if (checkoutUrl) {
-        const result = await WebBrowser.openAuthSessionAsync(checkoutUrl, 'wana://');
+        const result = await WebBrowser.openAuthSessionAsync(checkoutUrl, 'elevari://');
         if (result.type === 'success') {
           router.replace('/my-bookings');
         } else {

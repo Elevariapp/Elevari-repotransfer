@@ -85,7 +85,7 @@ export default function RefundPage() {
           <p className="mt-2">
             Para solicitar un reembolso o reportar un problema con tu reserva, contáctanos a través
             de nuestra página de Información de Contacto o envía un correo a
-            soporte@eleveri.app.
+            soporte@elevari.live.
           </p>
         </section>
       </div>

@@ -10,7 +10,7 @@ check() {
   local url="$2"
   local expect="${3:-}"
 
-  if response=$(curl -sf -o /tmp/wana_check_body -w "%{http_code}" "$url" 2>/dev/null); then
+  if response=$(curl -sf -o /tmp/elevari_check_body -w "%{http_code}" "$url" 2>/dev/null); then
     if [[ -n "$expect" && "$response" != "$expect" ]]; then
       echo "✗ $name — HTTP $response (esperado $expect)"
       FAIL=1
@@ -23,7 +23,7 @@ check() {
   fi
 }
 
-echo "=== Waná — verify health ($BASE_URL) ==="
+echo "=== Elevari — verify health ($BASE_URL) ==="
 echo ""
 
 check "API health" "$BASE_URL/health" "200"

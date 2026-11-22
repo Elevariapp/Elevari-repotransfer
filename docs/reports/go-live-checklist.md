@@ -5,7 +5,7 @@
 
 | # | Item | Estado | Evidencia / motivo | Owner |
 |---|------|--------|--------------------|-------|
-| 1 | Dominio | **FAIL** | `eleveri.app` referenciado en código; no verificable desde el repositorio (DNS/registrador) | Infraestructura |
+| 1 | Dominio | **FAIL** | `elevari.live` referenciado en código; no verificable desde el repositorio (DNS/registrador) | Infraestructura |
 | 2 | SSL | **FAIL** | Requiere acceso al servidor/Cloudflare | Infraestructura |
 | 3 | Entorno de producción | **FAIL** | No existe `.env.production`; `docker-compose.prod.yml` presente pero no ejecutado | Infraestructura |
 | 4 | Llaves Wompi | **FAIL** | Sin credenciales en el entorno; no se ejecutó transacción | Negocio + Infra |

@@ -42,7 +42,7 @@ export default function AccountDeletionScreen() {
           <Text style={styles.sectionTitle}>Cómo solicitar la eliminación</Text>
           <Text style={styles.body}>
             Si estás seguro, presiona el botón de abajo para confirmar la eliminación de tu cuenta.
-            También puedes escribirnos a privacidad@eleveri.app para solicitarla por correo
+            También puedes escribirnos a privacidad@elevari.live para solicitarla por correo
             electrónico.
           </Text>
         </View>

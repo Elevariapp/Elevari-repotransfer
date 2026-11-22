@@ -4,15 +4,14 @@
 #
 # Uso:
 #   BASE_URL=http://localhost:4000 ./deploy/scripts/mock-booking-smoke.sh
-#   BASE_URL=http://164.92.241.30 ./deploy/scripts/mock-booking-smoke.sh
 set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://localhost:4000}"
-EMAIL="${SMOKE_EMAIL:-guest@wana.local}"
-PASSWORD="${SMOKE_PASSWORD:-wana12345}"
+EMAIL="${SMOKE_EMAIL:-guest@elevari.live}"
+PASSWORD="${SMOKE_PASSWORD:-elevari12345}"
 SMOKE_AUTH_SECRET="${SMOKE_AUTH_SECRET:-}"
 
-echo "=== Waná mock booking smoke ($BASE_URL) ==="
+echo "=== Elevari mock booking smoke ($BASE_URL) ==="
 
 health=$(curl -sf "$BASE_URL/health" || true)
 if [[ -z "$health" ]]; then
