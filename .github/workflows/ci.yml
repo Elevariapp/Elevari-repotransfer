@@ -274,16 +274,50 @@ jobs:
             git fetch --prune origin b-main
             git reset --hard origin/b-main
             chmod +x deploy/scripts/*.sh
+            python3 - <<'PY'
+            import os
+            from pathlib import Path
+
+            path = Path(".env.production")
+            if not path.exists():
+                raise SystemExit(".env.production is missing on the production server")
+
+            resend = os.environ.get("RESEND_API_KEY", "").strip()
+            lines = path.read_text().splitlines()
+            quoted = []
+            found_resend = False
+
+            for line in lines:
+                if not line or line.lstrip().startswith("#") or "=" not in line:
+                    quoted.append(line)
+                    continue
+
+                key, value = line.split("=", 1)
+                if key == "RESEND_API_KEY" and resend:
+                    value = resend
+                    found_resend = True
+                elif key == "RESEND_API_KEY" and not value.strip():
+                    continue
+
+                value = value.strip()
+                if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+                    value = value[1:-1]
+                value = value.replace("\\", "\\\\").replace("'", "'\"'\"'")
+                quoted.append(f"{key}='{value}'")
+
+            if resend and not found_resend:
+                quoted.append(f"RESEND_API_KEY='{resend}'")
+
+            path.write_text("\n".join(quoted) + "\n")
+            path.chmod(0o600)
+            PY
             if [[ -n "${RESEND_API_KEY:-}" ]]; then
-              tmp=$(mktemp)
-              grep -v '^RESEND_API_KEY=' .env.production > "$tmp"
-              printf 'RESEND_API_KEY=%s\n' "$RESEND_API_KEY" >> "$tmp"
-              chmod 600 "$tmp"
-              mv "$tmp" .env.production
               echo "→ RESEND_API_KEY updated on the production server"
             else
               echo "→ RESEND_API_KEY was not supplied; keeping the server's existing value"
             fi
+            echo "→ Production env keys:"
+            awk -F= 'NF >= 2 {print $1}' .env.production | paste -sd, -
             echo "→ Validating production environment..."
             ./deploy/scripts/validate-env.sh
             echo "→ Building and deploying Docker stack (web, api, bot, nginx)..."
