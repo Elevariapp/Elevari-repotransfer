@@ -193,5 +193,6 @@ curl https://tu-dominio/api/v1/admin/invoices/pending \
 | Webhooks 404 | Nginx debe proxy `/api/` a api:4000 |
 | Imágenes no cargan | `MINIO_PUBLIC_URL` + bucket público |
 | Facturas no emiten | Verificar Alegra keys; revisar `pending_invoices` |
+| Build del web falla en `next/font` (`Cannot read properties of null (reading '1')`) | Google devolvió URLs de fuente sin extensión y Next 16.2 no lo soporta. Las fuentes ya se sirven desde `app/fonts` con `next/font/local` (sin red en el build) y CI bloquea `next/font/google`. |
 
 Ver también: `INFRASTRUCTURE.md`, `ROADMAP.md`

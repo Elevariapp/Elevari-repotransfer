@@ -50,6 +50,7 @@ ensure_deps mobile
 ensure_deps api
 
 step "scene outputs" npm run scene:check
+step "fonts are self-hosted (no next/font/google)" bash -c "! git grep -n 'next/font/google' -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.mjs'"
 step "web typecheck" npx tsc --noEmit --incremental false
 step "mobile typecheck" bash -c "cd mobile && npm run typecheck"
 step "api typecheck" bash -c "cd api && npx tsc --noEmit"
