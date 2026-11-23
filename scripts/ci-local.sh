@@ -49,6 +49,7 @@ ensure_deps .
 ensure_deps mobile
 ensure_deps api
 
+step "scene outputs" npm run scene:check
 step "web typecheck" npx tsc --noEmit --incremental false
 step "mobile typecheck" bash -c "cd mobile && npm run typecheck"
 step "api typecheck" bash -c "cd api && npx tsc --noEmit"
