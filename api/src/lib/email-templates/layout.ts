@@ -40,10 +40,10 @@ export function emailLayout({ content, previewText }: { content: string; preview
         <p style="margin:0 0 8px 0;">NIT: ${EMAIL_BRAND.companyNIT}</p>
         <p style="margin:0 0 8px 0;">${EMAIL_BRAND.companyAddress}</p>
         <p style="margin:0 0 16px 0;">
-          <a href="mailto:${EMAIL_BRAND.supportEmail}" style="color:#D97706; text-decoration:none; font-weight:600;">${EMAIL_BRAND.supportEmail}</a>
+          <a href="mailto:${EMAIL_BRAND.supportEmail}" style="color:#EA9A2E; text-decoration:none; font-weight:600;">${EMAIL_BRAND.supportEmail}</a>
         </p>
         <p style="margin:0;">
-          <a href="https://wa.me/${EMAIL_BRAND.whatsappPhone.replace('+', '')}" style="color:#D97706; text-decoration:none; font-weight:600;">WhatsApp: ${EMAIL_BRAND.whatsappPhone}</a>
+          <a href="https://wa.me/${EMAIL_BRAND.whatsappPhone.replace('+', '')}" style="color:#EA9A2E; text-decoration:none; font-weight:600;">WhatsApp: ${EMAIL_BRAND.whatsappPhone}</a>
         </p>
       </td>
     </tr>
