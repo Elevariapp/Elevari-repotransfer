@@ -233,6 +233,7 @@ jobs:
       HETZNER_IP: ${{ secrets.HETZNER_IP || vars.HETZNER_IP }}
       HETZNER_USER: ${{ secrets.HETZNER_USER || vars.HETZNER_USER }}
       HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
     steps:
       - name: Check deploy secrets
         id: secrets
@@ -254,6 +255,9 @@ jobs:
             echo "::error title=HETZNER_SSH_KEY invalid::The secret is not a valid private key. Paste the whole file, including the BEGIN/END lines."
             exit 1
           fi
+          if [ -z "$RESEND_API_KEY" ]; then
+            echo "::notice title=Resend secret not set::RESEND_API_KEY is not configured in repository Actions secrets."
+          fi
           rm -f /tmp/deploy_key /tmp/deploy_key.pub
       - name: Deploy to Hetzner via SSH
         uses: appleboy/ssh-action@v1.2.5
@@ -261,6 +265,7 @@ jobs:
           host: ${{ env.HETZNER_IP }}
           username: ${{ env.HETZNER_USER }}
           key: ${{ env.HETZNER_SSH_KEY }}
+          envs: RESEND_API_KEY
           command_timeout: 30m
           script: |
             set -euo pipefail
@@ -269,6 +274,16 @@ jobs:
             git fetch --prune origin b-main
             git reset --hard origin/b-main
             chmod +x deploy/scripts/*.sh
+            if [[ -n "${RESEND_API_KEY:-}" ]]; then
+              tmp=$(mktemp)
+              grep -v '^RESEND_API_KEY=' .env.production > "$tmp"
+              printf 'RESEND_API_KEY=%s\n' "$RESEND_API_KEY" >> "$tmp"
+              chmod 600 "$tmp"
+              mv "$tmp" .env.production
+              echo "→ RESEND_API_KEY updated on the production server"
+            else
+              echo "→ RESEND_API_KEY was not supplied; keeping the server's existing value"
+            fi
             echo "→ Validating production environment..."
             ./deploy/scripts/validate-env.sh
             echo "→ Building and deploying Docker stack (web, api, bot, nginx)..."

@@ -96,6 +96,11 @@ Variables críticas:
 | `NEXT_PUBLIC_API_URL` | `https://tu-dominio` (sin `/api/v1`) |
 | `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` | Pagos Wompi (COP) |
 | `ALEGRA_EMAIL` + `ALEGRA_API_TOKEN` | Facturación Colombia |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` | Turnstile en login/registro |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` | Inicio de sesión con Google |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Mapas de propiedades |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_GTM_ID` | Analítica web |
+| `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` | Llave pública Wompi incluida en el build web |
 
 ## 3. Build y arranque
 
