@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#D97706"
+      "backgroundColor": "#C2410C"
     },
     "ios": {
       "supportsTablet": true,
@@ -27,7 +27,7 @@
     "android": {
       "package": "elevari.androidapp",
       "adaptiveIcon": {
-        "backgroundColor": "#D97706",
+        "backgroundColor": "#C2410C",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -60,7 +60,7 @@
         "expo-notifications",
         {
           "icon": "./assets/icon.png",
-          "color": "#D97706",
+          "color": "#C2410C",
           "permissions": [
             "NOTIFICATIONS"
           ]
