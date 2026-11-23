@@ -17,6 +17,8 @@
     "docker:prod:down": "docker compose -f docker-compose.prod.yml --env-file .env.production down",
     "ci:local": "./scripts/ci-local.sh",
     "ci:local:full": "./scripts/ci-local.sh --full",
+    "scene:generate": "node scripts/scene/generate-scene.mjs",
+    "scene:check": "node scripts/scene/generate-scene.mjs --check",
     "hooks:install": "git config core.hooksPath .githooks",
     "go-live:setup": "./deploy/scripts/go-live-setup.sh",
     "go-live:validate": "./deploy/scripts/validate-env.sh",
