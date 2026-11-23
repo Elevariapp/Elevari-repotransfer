@@ -1,40 +1,36 @@
-import { Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { Redirect, Stack } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { BottomNav } from '@/components/BottomNav';
+import { LOGIN_HREF } from '@/lib/routes';
 import { useAppStore } from '@/lib/store';
-import { authStorage } from '@/lib/auth';
-import { mobileNotificationService } from '@/lib/notifications';
 
 export default function GuestLayout() {
-  const { isAuthenticated, logout } = useAppStore();
+  const isLoading = useAppStore((state) => state.isLoading);
+  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
+  const unread = useAppStore((state) => state.unreadNotifications);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      authStorage.logout();
-    }
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    mobileNotificationService.initialize();
-  }, []);
+  if (isLoading) return null;
+  if (!isAuthenticated) return <Redirect href={LOGIN_HREF} />;
 
   return (
-    <Stack>
-      <Stack.Screen options={{ headerShown: false }} name="index" />
-      <Stack.Screen options={{ headerShown: false }} name="property/[id]" />
-      <Stack.Screen options={{ headerShown: false }} name="quote" />
-      <Stack.Screen options={{ headerShown: false }} name="booking" />
-      <Stack.Screen options={{ headerShown: false }} name="checkout" />
-      <Stack.Screen options={{ headerShown: false }} name="my-bookings" />
-      <Stack.Screen options={{ headerShown: false }} name="profile" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/terms" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/privacy" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/refund" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/account-deletion" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/account-deletion/confirm" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/content-moderation" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/contact" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/accessibility" />
-      <Stack.Screen options={{ headerShown: false }} name="legal/faq" />
-    </Stack>
+    <View style={styles.root}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" options={{ animation: 'none' }} />
+        <Stack.Screen name="my-bookings" options={{ animation: 'none' }} />
+        <Stack.Screen name="profile" options={{ animation: 'none' }} />
+      </Stack>
+      <BottomNav
+        group="(guest)"
+        items={[
+          { key: 'index', label: 'Explorar', glyph: '🔎', href: '/(guest)' },
+          { key: 'my-bookings', label: 'Reservas', glyph: '🧳', href: '/(guest)/my-bookings' },
+          { key: 'profile', label: 'Perfil', glyph: '👤', href: '/(guest)/profile', badge: unread },
+        ]}
+      />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+});

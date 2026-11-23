@@ -89,7 +89,7 @@
       "eas": {
         "projectId": "elevari-mobile"
       },
-      "API_BASE_URL": "https://api.elevari.live",
+      "API_BASE_URL": "https://elevari.live/api/v1",
       "WOMPI_PUBLIC_KEY": "pub_test_...",
       "PRIVACY_URL": "https://www.elevari.live/legal/privacy",
       "TERMS_URL": "https://www.elevari.live/legal/terms",

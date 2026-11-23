@@ -1,38 +1,50 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInputInstance, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { Banner } from '@/components/States';
 import { SceneScreen } from '@/components/scene/SceneScreen';
+import { getApiErrorMessage } from '@/lib/api';
+import { normalizeEmail } from '@/lib/auth';
 import { colors, spacing, typography } from '@/lib/design-tokens';
-import { api } from '@/lib/api';
-import { authStorage } from '@/lib/auth';
+import { signIn } from '@/lib/session';
 import { useAppStore } from '@/lib/store';
-import * as SplashScreen from 'expo-splash-screen';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { setUser, setAuthenticated } = useAppStore();
+  const notice = useAppStore((state) => state.sessionNotice);
+  const passwordRef = useRef<TextInputInstance>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (loading) return;
+
+    const address = normalizeEmail(email);
+    const nextEmailError = !address
+      ? 'Ingresa tu correo electrónico.'
+      : !EMAIL_PATTERN.test(address)
+        ? 'Revisa el formato del correo (nombre@correo.com).'
+        : '';
+    const nextPasswordError = password ? '' : 'Ingresa tu contraseña.';
+    setEmailError(nextEmailError);
+    setPasswordError(nextPasswordError);
     setError('');
+    if (nextEmailError || nextPasswordError) return;
+
     setLoading(true);
     try {
-      const response = await api.post<{ token: string; user: any }>('/auth/login', {
-        email,
-        password,
-      });
-      await authStorage.setToken(response.token);
-      await authStorage.setUser(response.user);
-      setUser(response.user);
-      setAuthenticated(true);
-      router.replace('/(guest)');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión. Intenta de nuevo.');
+      // The group layouts send the signed-in user to the right home screen.
+      await signIn(address, password);
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'No pudimos iniciar sesión. Inténtalo de nuevo.'));
     } finally {
       setLoading(false);
     }
@@ -41,42 +53,57 @@ export default function LoginScreen() {
   return (
     <SceneScreen>
       <View style={styles.header}>
-        <Text style={styles.title}>Bienvenido de vuelta</Text>
+        <Text style={styles.title} accessibilityRole="header">
+          Bienvenido de vuelta
+        </Text>
         <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
       </View>
+
+      {notice ? <Banner tone="info">{notice}</Banner> : null}
 
       <Input
         label="Correo electrónico"
         placeholder="tu@correo.com"
         autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="email"
+        textContentType="emailAddress"
         keyboardType="email-address"
+        returnKeyType="next"
         value={email}
         onChangeText={setEmail}
-        error={error.includes('correo') ? error : undefined}
+        onSubmitEditing={() => passwordRef.current?.focus()}
+        error={emailError || undefined}
       />
       <Input
+        ref={passwordRef}
         label="Contraseña"
         placeholder="••••••••"
+        autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="current-password"
+        textContentType="password"
+        returnKeyType="go"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-        error={error.includes('contraseña') ? error : undefined}
+        onSubmitEditing={handleLogin}
+        error={passwordError || undefined}
       />
 
-      {error && (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
-
-      <Button
-        variant="primary"
-        size="lg"
-        loading={loading}
-        fullWidth
-        onPress={handleLogin}
-        disabled={loading}
+      <Pressable
+        onPress={() => router.push('/(auth)/forgot-password')}
+        accessibilityRole="link"
+        accessibilityLabel="¿Olvidaste tu contraseña?"
+        hitSlop={8}
+        style={styles.forgot}
       >
+        <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
+      </Pressable>
+
+      {error ? <Banner tone="error">{error}</Banner> : null}
+
+      <Button variant="primary" size="lg" loading={loading} fullWidth onPress={handleLogin}>
         Iniciar sesión
       </Button>
 
@@ -84,12 +111,7 @@ export default function LoginScreen() {
         <Text style={styles.dividerText}>o</Text>
       </View>
 
-      <Button
-        variant="ghost"
-        size="lg"
-        fullWidth
-        onPress={() => router.push('/(auth)/register')}
-      >
+      <Button variant="ghost" size="lg" fullWidth onPress={() => router.push('/(auth)/register')}>
         Crear cuenta
       </Button>
     </SceneScreen>
@@ -111,15 +133,16 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.body,
     color: colors.muted,
   },
-  errorBanner: {
-    backgroundColor: colors.errorSoft,
-    borderRadius: 8,
-    padding: spacing.md,
+  forgot: {
+    alignSelf: 'flex-end',
+    marginTop: -spacing.xs,
     marginBottom: spacing.md,
+    paddingVertical: spacing.xs,
   },
-  errorText: {
+  forgotText: {
     fontSize: typography.sizes.caption,
-    color: colors.error,
+    fontWeight: typography.weights.semibold,
+    color: colors.forest,
   },
   divider: {
     flexDirection: 'row',

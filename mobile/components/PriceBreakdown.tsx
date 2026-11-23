@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, spacing, typography } from '@/lib/design-tokens';
+import { formatMoney, pluralize } from '@/lib/format';
 
 interface PriceBreakdownProps {
   basePrice: number;
@@ -7,30 +8,35 @@ interface PriceBreakdownProps {
   total: number;
   currency?: string;
   nights?: number;
+  pricePerNight?: number;
 }
 
-export function PriceBreakdown({ basePrice, serviceFee, total, currency = 'COP', nights }: PriceBreakdownProps) {
-  const formatPrice = (amount: number) => new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-  }).format(amount);
+export function PriceBreakdown({
+  basePrice,
+  serviceFee,
+  total,
+  currency = 'COP',
+  nights,
+  pricePerNight,
+}: PriceBreakdownProps) {
+  const baseLabel =
+    nights && pricePerNight
+      ? `${formatMoney(pricePerNight, currency)} × ${pluralize(nights, 'noche', 'noches')}`
+      : 'Precio base';
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessible accessibilityLabel={`Total a pagar ${formatMoney(total, currency)}`}>
       <View style={styles.row}>
-        <Text style={styles.label}>Precio base</Text>
-        <Text style={styles.value}>{formatPrice(basePrice)}</Text>
+        <Text style={styles.label}>{baseLabel}</Text>
+        <Text style={styles.value}>{formatMoney(basePrice, currency)}</Text>
       </View>
-      {nights && (
-        <View style={styles.row}>
-          <Text style={styles.label}>Tarifa de servicio Elevari</Text>
-          <Text style={styles.value}>{formatPrice(serviceFee)}</Text>
-        </View>
-      )}
+      <View style={styles.row}>
+        <Text style={styles.label}>Tarifa de servicio Elevari</Text>
+        <Text style={styles.value}>{formatMoney(serviceFee, currency)}</Text>
+      </View>
       <View style={styles.totalRow}>
         <Text style={styles.totalLabel}>Total</Text>
-        <Text style={styles.totalValue}>{formatPrice(total)}</Text>
+        <Text style={styles.totalValue}>{formatMoney(total, currency)}</Text>
       </View>
     </View>
   );
