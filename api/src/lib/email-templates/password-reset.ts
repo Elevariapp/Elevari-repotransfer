@@ -1,30 +1,46 @@
 import { EMAIL_BRAND } from './brand.js';
-import { emailLayout } from './layout.js';
+import {
+  emailBilingual,
+  emailButton,
+  emailGreeting,
+  emailHeading,
+  emailHelpLine,
+  emailLayout,
+  esc,
+} from './layout.js';
 
-export function passwordReset({ resetUrl, guestName }: { resetUrl: string; guestName: string }): string {
+export function passwordReset({
+  resetUrl,
+  guestName,
+}: {
+  resetUrl: string;
+  guestName?: string | null;
+}): string {
   const content = `
-    <h2 style="color:#0F172A; font-size:22px; margin-bottom:20px;">Restablecer Contraseña / Reset Password</h2>
-    
-    <p style="margin-bottom:16px;">Hola ${guestName},</p>
-    <p style="margin-bottom:16px;">Hello ${guestName},</p>
-
-    <p style="margin-bottom:16px;">
-      Solicitaste restablecer tu contraseña. Haz clic en el botón de abajo:<br/>
-      You requested a password reset. Click the button below:
+    ${emailHeading('Restablecer contraseña / Reset password')}
+    ${emailGreeting(guestName)}
+    ${emailBilingual(
+      'Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón:',
+      'We received a request to reset your password. Click the button below:',
+    )}
+    ${emailButton({ href: resetUrl, label: 'Restablecer contraseña / Reset password' })}
+    <div style="height:16px; line-height:16px;">&nbsp;</div>
+    ${emailBilingual(
+      'Este enlace expira en 1 hora y solo puede usarse una vez.',
+      'This link expires in 1 hour and can only be used once.',
+      { muted: true },
+    )}
+    <p style="margin:0 0 16px 0; color:#64748B; font-size:13px; word-break:break-all;">
+      Si el botón no funciona, copia y pega este enlace / If the button doesn't work, copy and paste this link:<br/>
+      <a href="${esc(resetUrl)}" style="color:${EMAIL_BRAND.linkColor};">${esc(resetUrl)}</a>
     </p>
-
-    <a href="${resetUrl}" style="display:inline-block; background-color:${EMAIL_BRAND.buttonBackground}; color:${EMAIL_BRAND.buttonText}; padding:14px 28px; text-decoration:none; border-radius:6px; font-weight:600; font-size:16px;">Restablecer Contraseña / Reset Password</a>
-
-    <p style="margin-top:16px; color:#64748B; font-size:14px;">
-      Este enlace expira en 1 hora.<br/>
-      This link expires in 1 hour.
-    </p>
-
-    <p style="margin-top:24px; color:#64748B; font-size:14px;">
-      ¿Necesitas ayuda? Contáctanos por WhatsApp: ${EMAIL_BRAND.whatsappPhone}<br/>
-      Need help? Contact us on WhatsApp: ${EMAIL_BRAND.whatsappPhone}
-    </p>
+    ${emailBilingual(
+      'Si no solicitaste este cambio, ignora este correo: tu contraseña no cambiará.',
+      "If you didn't request this, ignore this email: your password won't change.",
+      { muted: true },
+    )}
+    ${emailHelpLine()}
   `;
 
-  return emailLayout({ content, previewText: 'Restablece tu contraseña' });
+  return emailLayout({ content, previewText: 'Restablece tu contraseña · Reset your password' });
 }

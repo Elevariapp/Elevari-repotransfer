@@ -1,43 +1,58 @@
-import { EMAIL_BRAND } from './brand.js';
-import { emailLayout } from './layout.js';
+import {
+  emailBilingual,
+  emailButton,
+  emailFacts,
+  emailGreeting,
+  emailHeading,
+  emailHelpLine,
+  emailLayout,
+} from './layout.js';
+import { formatMoney, formatStayDate } from './format.js';
 
-export function bookingConfirmation({ bookingId, propertyName, checkIn, checkOut, total, guestName }: { bookingId: string; propertyName: string; checkIn: string; checkOut: string; total: string; guestName: string }): string {
+export function bookingConfirmation({
+  bookingId,
+  propertyName,
+  checkIn,
+  checkOut,
+  guests,
+  total,
+  currency = 'COP',
+  guestName,
+  bookingUrl,
+}: {
+  bookingId: string;
+  propertyName: string;
+  checkIn: Date | string;
+  checkOut: Date | string;
+  guests?: number | null;
+  total?: number | null;
+  currency?: string;
+  guestName?: string | null;
+  bookingUrl: string;
+}): string {
+  const facts: Array<[string, string]> = [
+    ['ID de reserva / Booking ID', bookingId],
+    ['Propiedad / Property', propertyName],
+    ['Check-in', formatStayDate(checkIn)],
+    ['Check-out', formatStayDate(checkOut)],
+  ];
+  if (guests) facts.push(['Huéspedes / Guests', String(guests)]);
+  if (total != null) facts.push(['Total pagado / Total paid', formatMoney(total, currency)]);
+
   const content = `
-    <h2 style="color:#0F172A; font-size:22px; margin-bottom:20px;">¡Reserva Confirmada! / Booking Confirmed!</h2>
-    
-    <p style="margin-bottom:16px;">Hola ${guestName},</p>
-    <p style="margin-bottom:16px;">Hello ${guestName},</p>
-
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom:24px;">
-      <tr>
-        <td style="padding:8px 0; color:#64748B; width:30%;">ID de Reserva / Booking ID:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${bookingId}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; color:#64748B;">Propiedad / Property:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${propertyName}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; color:#64748B;">Check-in:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${checkIn}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; color:#64748B;">Check-out:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${checkOut}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; color:#64748B;">Total:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${total}</td>
-      </tr>
-    </table>
-
-    <a href="#" style="display:inline-block; background-color:${EMAIL_BRAND.buttonBackground}; color:${EMAIL_BRAND.buttonText}; padding:14px 28px; text-decoration:none; border-radius:6px; font-weight:600; font-size:16px;">Ver Reserva / View Booking</a>
-
-    <p style="margin-top:24px; color:#64748B; font-size:14px;">
-      ¿Necesitas ayuda? Contáctanos por WhatsApp: ${EMAIL_BRAND.whatsappPhone}<br/>
-      Need help? Contact us on WhatsApp: ${EMAIL_BRAND.whatsappPhone}
-    </p>
+    ${emailHeading('¡Reserva confirmada! / Booking confirmed!')}
+    ${emailGreeting(guestName)}
+    ${emailBilingual(
+      'Tu pago fue recibido y tu reserva está confirmada. ¡Prepárate para disfrutar!',
+      'Your payment was received and your booking is confirmed. Get ready to enjoy!',
+    )}
+    ${emailFacts(facts)}
+    ${emailButton({ href: bookingUrl, label: 'Ver mis reservas / View my bookings' })}
+    ${emailHelpLine()}
   `;
 
-  return emailLayout({ content, previewText: `Tu reserva ${bookingId} ha sido confirmada` });
+  return emailLayout({
+    content,
+    previewText: `Reserva confirmada en ${propertyName} · Booking confirmed at ${propertyName}`,
+  });
 }

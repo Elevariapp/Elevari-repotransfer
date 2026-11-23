@@ -13,9 +13,15 @@ import { adminRoutes } from './routes/admin.js';
 import { financialRoutes } from './routes/financial.js';
 import { hostRoutes } from './routes/host.js';
 import { analyticsRoutes } from './routes/analytics.js';
+import { accountRoutes } from './routes/account.js';
+import { notificationRoutes } from './routes/notifications.js';
 
 export async function buildApp() {
   const app = Fastify({
+    // The API only listens on the internal network, behind nginx, which sets a single
+    // X-Forwarded-For hop (the real client address). Without this every visitor shares the
+    // proxy's address and therefore one rate-limit bucket.
+    trustProxy: true,
     // Structured logs with request correlation and secret redaction.
     logger: {
       level: process.env.LOG_LEVEL ?? 'info',
@@ -34,6 +40,18 @@ export async function buildApp() {
       return (Array.isArray(incoming) ? incoming[0] : incoming) ?? randomUUID();
     },
     requestIdHeader: 'x-request-id',
+  });
+
+  // Browsers and the apps send `Content-Type: application/json` even on POSTs without a body
+  // (cancel a booking, approve media...). Fastify rejects that with a 400 by default, so treat an
+  // empty body as "no body" and keep its stock parser (with prototype-poisoning protection) for the rest.
+  const parseJson = app.getDefaultJsonParser('error', 'error');
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (request, body, done) => {
+    if (body === '') {
+      done(null, undefined);
+      return;
+    }
+    parseJson(request, body as string, done);
   });
 
   await app.register(cors, {
@@ -82,6 +100,8 @@ export async function buildApp() {
   await app.register(adminRoutes, { prefix: '/api/v1' });
   await app.register(financialRoutes, { prefix: '/api/v1' });
   await app.register(analyticsRoutes, { prefix: '/api/v1' });
+  await app.register(accountRoutes, { prefix: '/api/v1' });
+  await app.register(notificationRoutes, { prefix: '/api/v1' });
 
   return app;
 }

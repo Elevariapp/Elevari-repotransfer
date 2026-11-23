@@ -12,7 +12,10 @@ import {
 } from '../lib/reserve-availability.js';
 import { calculateCancellationRefund } from '../lib/cancellation-policy.js';
 import { issuePaymentRefund } from '../lib/refund-payment.js';
-import { sendBookingCancellationEmail } from '../lib/transactional-emails.js';
+import {
+  sendBookingCancellationEmail,
+  sendHostBookingCancelledEmail,
+} from '../lib/transactional-emails.js';
 import { authenticate } from '../plugins/auth.js';
 
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -280,6 +283,12 @@ export async function bookingRoutes(app: FastifyInstance) {
     }).catch((err) => {
       request.log.warn({ err, bookingId: id }, 'Cancellation email not sent');
     });
+
+    if (booking.status === 'confirmed') {
+      sendHostBookingCancelledEmail(id).catch((err) => {
+        request.log.warn({ err, bookingId: id }, 'Host cancellation email not sent');
+      });
+    }
 
     return {
       booking: updated,

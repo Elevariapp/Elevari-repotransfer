@@ -79,15 +79,37 @@ model User {
   id           String   @id @default(uuid())
   email        String   @unique
   name         String?
+  phone        String?
   passwordHash String?  @map("password_hash")
   role         UserRole @default(guest)
+  /// Bumped on password change/reset; a JWT carrying an older value is rejected.
+  tokenVersion Int      @default(0) @map("token_version")
+  /// When the password was last changed (shown in the notification feed).
+  passwordChangedAt DateTime? @map("password_changed_at")
+  /// Set when the user deletes their account; the row is kept anonymized for accounting.
+  deletedAt    DateTime? @map("deleted_at")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   properties Property[] @relation("HostProperties")
   bookings   Booking[]  @relation("GuestBookings")
+  pushTokens PushToken[]
 
   @@map("users")
+}
+
+model PushToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_tokens")
 }
 
 model Property {

@@ -2,6 +2,58 @@ import { EMAIL_BRAND } from './brand.js';
 
 const FONT_STACK = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
+/** Escapes user-controlled values (names, property titles…) before they go into HTML. */
+export function esc(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** "Hola Ana," / "Hello Ana," — bilingual greeting that degrades gracefully without a name. */
+export function emailGreeting(name?: string | null): string {
+  const clean = name?.trim();
+  const suffix = clean ? ` ${esc(clean)}` : '';
+  return `<p style="margin:0 0 4px 0;">Hola${suffix},</p><p style="margin:0 0 16px 0; color:#64748B;">Hello${suffix},</p>`;
+}
+
+export function emailHeading(text: string): string {
+  return `<h2 style="color:#0F172A; font-size:22px; line-height:1.3; margin:0 0 20px 0;">${esc(text)}</h2>`;
+}
+
+/** Spanish line followed by its English twin. Both are escaped, so interpolate raw values. */
+export function emailBilingual(es: string, en: string, { muted = false }: { muted?: boolean } = {}): string {
+  const color = muted ? 'color:#64748B; font-size:14px;' : '';
+  return `<p style="margin:0 0 16px 0; ${color}">${esc(es)}<br/>${esc(en)}</p>`;
+}
+
+export function emailButton({ href, label }: { href: string; label: string }): string {
+  return `<a href="${esc(href)}" style="display:inline-block; background-color:${EMAIL_BRAND.buttonBackground}; color:${EMAIL_BRAND.buttonText}; padding:14px 28px; text-decoration:none; border-radius:6px; font-weight:600; font-size:16px;">${esc(label)}</a>`;
+}
+
+/** Two-column label/value table; values are escaped here so callers pass raw strings. */
+export function emailFacts(rows: Array<[label: string, value: string]>): string {
+  const body = rows
+    .map(
+      ([label, value]) => `
+      <tr>
+        <td style="padding:8px 12px 8px 0; color:#64748B; width:38%; vertical-align:top;">${esc(label)}</td>
+        <td style="padding:8px 0; color:#0F172A; font-weight:600; word-break:break-word;">${esc(value)}</td>
+      </tr>`,
+    )
+    .join('');
+  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:0 0 24px 0;">${body}</table>`;
+}
+
+export function emailHelpLine(): string {
+  return `<p style="margin-top:24px; color:#64748B; font-size:14px;">
+      ¿Necesitas ayuda? Contáctanos por WhatsApp: ${EMAIL_BRAND.whatsappPhone}<br/>
+      Need help? Contact us on WhatsApp: ${EMAIL_BRAND.whatsappPhone}
+    </p>`;
+}
+
 export function emailLayout({ content, previewText }: { content: string; previewText: string }): string {
   return `
 <!DOCTYPE html>
@@ -20,6 +72,7 @@ export function emailLayout({ content, previewText }: { content: string; preview
   <![endif]-->
 </head>
 <body style="margin:0; padding:0; font-family:${FONT_STACK}; background-color:#FEF3C7; background-image: linear-gradient(135deg, rgba(217, 119, 6, 0.12) 0%, rgba(15, 23, 42, 0.06) 100%);">
+  <div style="display:none; max-height:0; overflow:hidden; mso-hide:all; font-size:1px; line-height:1px; color:#FEF3C7; opacity:0;">${esc(previewText)}</div>
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:600px; margin:0 auto; background-color:#FFFFFF; border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(15, 23, 42, 0.12);">
     <!-- Hero: flat render of the Elevari scene (public/brand/email/banner.jpg) with live text on top.
          Email clients can't run SVG or animation, so this is the static member of the scene family.
@@ -74,7 +127,7 @@ export function emailLayout({ content, previewText }: { content: string; preview
           <a href="mailto:${EMAIL_BRAND.supportEmail}" style="color:#EA9A2E; text-decoration:none; font-weight:600;">${EMAIL_BRAND.supportEmail}</a>
         </p>
         <p style="margin:0;">
-          <a href="https://wa.me/${EMAIL_BRAND.whatsappPhone.replace('+', '')}" style="color:#EA9A2E; text-decoration:none; font-weight:600;">WhatsApp: ${EMAIL_BRAND.whatsappPhone}</a>
+          <a href="https://wa.me/${EMAIL_BRAND.whatsappPhone.replace(/\D/g, '')}" style="color:#EA9A2E; text-decoration:none; font-weight:600;">WhatsApp: ${EMAIL_BRAND.whatsappPhone}</a>
         </p>
       </td>
     </tr>

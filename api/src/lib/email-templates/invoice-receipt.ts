@@ -1,49 +1,69 @@
 import { EMAIL_BRAND } from './brand.js';
-import { emailLayout } from './layout.js';
+import {
+  emailBilingual,
+  emailButton,
+  emailFacts,
+  emailGreeting,
+  emailHeading,
+  emailHelpLine,
+  emailLayout,
+  esc,
+} from './layout.js';
+import { formatMoney } from './format.js';
 
-export function invoiceReceipt({ invoiceId, bookingId, propertyName, total, guestName }: { invoiceId: string; bookingId: string; propertyName: string; total: string; guestName: string }): string {
+export function invoiceReceipt({
+  invoiceId,
+  bookingId,
+  propertyName,
+  total,
+  currency = 'COP',
+  guestName,
+  billingUrl,
+}: {
+  invoiceId?: string | null;
+  bookingId: string;
+  propertyName: string;
+  total?: number | null;
+  currency?: string;
+  guestName?: string | null;
+  billingUrl: string;
+}): string {
+  const issued = Boolean(invoiceId);
+  const facts: Array<[string, string]> = [
+    [
+      'Factura / Invoice',
+      issued ? String(invoiceId) : 'En proceso / In progress',
+    ],
+    ['ID de reserva / Booking ID', bookingId],
+    ['Propiedad / Property', propertyName],
+  ];
+  if (total != null) facts.push(['Total pagado / Total paid', formatMoney(total, currency)]);
+
+  const note = issued
+    ? emailBilingual('Gracias por tu pago. Tu factura electrónica ya fue emitida.', 'Thank you for your payment. Your electronic invoice has been issued.')
+    : emailBilingual(
+        'Gracias por tu pago. Estamos generando tu factura electrónica y te avisaremos cuando esté lista.',
+        "Thank you for your payment. We're generating your electronic invoice and will let you know when it's ready.",
+      );
+
   const content = `
-    <h2 style="color:#0F172A; font-size:22px; margin-bottom:20px;">Factura / Invoice Receipt</h2>
-    
-    <p style="margin-bottom:16px;">Hola ${guestName},</p>
-    <p style="margin-bottom:16px;">Hello ${guestName},</p>
-
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom:24px;">
-      <tr>
-        <td style="padding:8px 0; color:#64748B; width:30%;">Número de Factura / Invoice #:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${invoiceId}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; color:#64748B;">ID de Reserva / Booking ID:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${bookingId}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; color:#64748B;">Propiedad / Property:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${propertyName}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; color:#64748B;">Total:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${total}</td>
-      </tr>
-    </table>
-
-    <p style="margin-bottom:16px;">
-      Gracias por tu pago. / Thank you for your payment.
+    ${emailHeading(issued ? 'Factura / Invoice' : 'Recibo de pago / Payment receipt')}
+    ${emailGreeting(guestName)}
+    ${emailFacts(facts)}
+    ${note}
+    ${emailButton({ href: billingUrl, label: 'Ver mis facturas / View my invoices' })}
+    <p style="margin:24px 0 0 0; color:#64748B; font-size:14px;">
+      ${esc(EMAIL_BRAND.companyName)}<br/>
+      NIT: ${esc(EMAIL_BRAND.companyNIT)}<br/>
+      ${esc(EMAIL_BRAND.companyAddress)}
     </p>
-
-    <a href="#" style="display:inline-block; background-color:${EMAIL_BRAND.buttonBackground}; color:${EMAIL_BRAND.buttonText}; padding:14px 28px; text-decoration:none; border-radius:6px; font-weight:600; font-size:16px;">Descargar Factura / Download Invoice</a>
-
-    <p style="margin-top:24px; color:#64748B; font-size:14px;">
-      ${EMAIL_BRAND.companyName}<br/>
-      NIT: ${EMAIL_BRAND.companyNIT}<br/>
-      ${EMAIL_BRAND.companyAddress}
-    </p>
-
-    <p style="margin-top:16px; color:#64748B; font-size:14px;">
-      ¿Necesitas ayuda? Contáctanos por WhatsApp: ${EMAIL_BRAND.whatsappPhone}<br/>
-      Need help? Contact us on WhatsApp: ${EMAIL_BRAND.whatsappPhone}
-    </p>
+    ${emailHelpLine()}
   `;
 
-  return emailLayout({ content, previewText: `Tu factura ${invoiceId} está lista` });
+  return emailLayout({
+    content,
+    previewText: issued
+      ? `Tu factura ${invoiceId} está lista · Your invoice ${invoiceId} is ready`
+      : 'Recibimos tu pago · We received your payment',
+  });
 }
