@@ -41,7 +41,7 @@ jobs:
             r=$(doh "$h" A)
             echo "-- $h  (DNS status $(echo "$r" | jq -r '.Status // "error"'); 0 = ok, 3 = name does not exist)"
             ips=$(echo "$r" | jq -r '.Answer[]? | select(.type==1) | .data')
-            if [ -z "$ips" ]; then echo "   no A record"; else python3 /tmp/classify.py $ips | sed 's/^/   /'; fi
+            if [ -z "$ips" ]; then echo "   no A record"; else printf '%s\n' "$ips" | xargs python3 /tmp/classify.py | sed 's/^/   /'; fi
           done
           echo "-- Nameservers: $(doh "$DOMAIN" NS | jq -r '[.Answer[]? | select(.type==2) | .data] | join(", ")')"
           echo
