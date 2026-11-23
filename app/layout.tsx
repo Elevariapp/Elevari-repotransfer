@@ -6,6 +6,7 @@ import ConditionalFooter from '@/components/layout/ConditionalFooter';
 import MarketingScripts from '@/components/analytics/MarketingScripts';
 import ObservabilityProvider from '@/components/observability/ObservabilityProvider';
 import { themeInitScript } from '@/components/theme/ThemeToggle';
+import { sceneInitScript } from '@/lib/scene/time-of-day';
 
 import { siteUrl } from '@/lib/site-url';
 import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema';
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: sceneInitScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSchema) }} />
       </head>
