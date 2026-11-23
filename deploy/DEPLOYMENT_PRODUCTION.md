@@ -71,7 +71,7 @@ Internet → Cloudflare (SSL) → Nginx (:80) → web (:3000) | api (:4000) | bo
 - VPS: 2 vCPU, 4 GB RAM mínimo (8 GB recomendado con MinIO)
 - Docker 24+ y Docker Compose v2
 - Dominio apuntando al VPS (A record)
-- Cloudflare o Certbot para TLS (recomendado: Cloudflare proxy + SSL Full)
+- Cloudflare o Certbot para TLS (con el nginx actual, solo HTTP en :80: Cloudflare proxy + SSL *Flexible*; ver sección 5)
 
 ## 1. Preparar servidor
 
@@ -120,10 +120,14 @@ docker compose -f docker-compose.prod.yml ps
 
 ## 5. SSL con Cloudflare
 
-1. Añade el dominio en Cloudflare
-2. Proxy naranja activado en DNS
-3. SSL/TLS → Full (strict) si usas origin cert, o Full
+1. Añade el dominio en Cloudflare y cambia los nameservers en el registrador.
+2. **DNS → Records** (todos con proxy naranja): `A @` → IP del VPS, `CNAME www` → `elevari.live`, `A api` y `A app` → IP del VPS (la app móvil usa `api.elevari.live` y `app.elevari.live`). **Borra cualquier otro registro de `@`/`www`** (A, AAAA o CNAME): Cloudflare importa los registros de parking del registrador al añadir el dominio y, si quedan, sirven la página "/lander" en vez de tu sitio.
+3. **SSL/TLS → Overview → Flexible.** El nginx del stack solo escucha HTTP en el puerto 80 y el firewall del VPS no abre el 443. Con *Full* o *Full (strict)* Cloudflare intenta HTTPS contra el origen y devuelve error 522/525. Usa Full (strict) solo después de instalar un certificado de origen en nginx y abrir el 443.
 4. Webhook Wompi → `https://tu-dominio/api/v1/webhooks/wompi`
+
+### Si el sitio no carga
+
+Actions → **Server diagnostics** → Run workflow (solo lectura; el repo es público, así que no imprime secretos). Comprueba DNS, registro del dominio, respuesta de Cloudflare, puertos del origen, contenedores y si Cloudflare llega de verdad a tu nginx. El último job (*Does Cloudflare reach OUR server?*) dice "RESULT: Cloudflare reaches this server" cuando el registro DNS apunta bien.
 
 ## 6. Backups PostgreSQL
 
