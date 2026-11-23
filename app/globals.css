@@ -7,16 +7,16 @@
  */
 @theme {
   /* Brand core */
-  --color-elevari-forest: #d97706;
-  --color-elevari-forest-deep: #b45309;
+  --color-elevari-forest: #c2410c;
+  --color-elevari-forest-deep: #9a340e;
   --color-elevari-forest-light: #ea9a2e;
   /* Action tokens stay dark in both themes: white text on them remains AA. */
-  --color-elevari-action: #d97706;
-  --color-elevari-action-hover: #b45309;
-  --color-elevari-fresh: #064e3b;
+  --color-elevari-action: #c2410c;
+  --color-elevari-action-hover: #9a340e;
+  --color-elevari-fresh: #ea9a2e;
   --color-elevari-fresh-soft: #fef3c7;
-  --color-elevari-amber: #d97706;
-  --color-elevari-amber-ink: #92400e;
+  --color-elevari-amber: #f59e0b;
+  --color-elevari-amber-ink: #9a340e;
   --color-elevari-amber-soft: #fef3c7;
   --color-elevari-ivory: #fef3c7;
   --color-elevari-surface: #ffffff;
@@ -27,9 +27,9 @@
   --color-elevari-border: #e2e8f0;
 
   /* Feedback */
-  --color-elevari-success: #064e3b;
+  --color-elevari-success: #ea9a2e;
   --color-elevari-success-soft: #fef3c7;
-  --color-elevari-warning: #d97706;
+  --color-elevari-warning: #f59e0b;
   --color-elevari-warning-soft: #fef3c7;
   --color-elevari-error: #b3261e;
   --color-elevari-error-soft: #fdeceb;
@@ -79,15 +79,15 @@
   color-scheme: light;
 
   /* Brand */
-  --elevari-forest: #d97706;
-  --elevari-forest-deep: #b45309;
+  --elevari-forest: #c2410c;
+  --elevari-forest-deep: #9a340e;
   --elevari-forest-light: #ea9a2e;
-  --elevari-action: #d97706;
-  --elevari-action-hover: #b45309;
-  --elevari-fresh: #064e3b;
+  --elevari-action: #c2410c;
+  --elevari-action-hover: #9a340e;
+  --elevari-fresh: #ea9a2e;
   --elevari-fresh-soft: #fef3c7;
-  --elevari-amber: #d97706;
-  --elevari-amber-ink: #92400e;
+  --elevari-amber: #f59e0b;
+  --elevari-amber-ink: #9a340e;
   --elevari-amber-soft: #fef3c7;
   --elevari-ivory: #fef3c7;
   --elevari-surface: #ffffff;
@@ -96,13 +96,13 @@
   --elevari-ink: #0f172a;
   --elevari-muted: #64748b;
   --elevari-border: #e2e8f0;
-  --elevari-success: #064e3b;
+  --elevari-success: #ea9a2e;
   --elevari-success-soft: #fef3c7;
-  --elevari-warning: #d97706;
+  --elevari-warning: #f59e0b;
   --elevari-warning-soft: #fef3c7;
   --elevari-error: #b3261e;
   --elevari-error-soft: #fdeceb;
-  --elevari-focus: #d97706;
+  --elevari-focus: #f59e0b;
 
   /* Spacing / radius / elevation */
   --elevari-space-xs: 0.25rem;
@@ -145,20 +145,20 @@
   /* Brand: lighter ambers for text/links; actions stay dark for white labels */
   --color-elevari-forest: #ea9a2e;
   --color-elevari-forest-light: #ea9a2e;
-  --color-elevari-forest-deep: #b45309;
-  --color-elevari-fresh: #064e3b;
+  --color-elevari-forest-deep: #9a340e;
+  --color-elevari-fresh: #ea9a2e;
   --color-elevari-fresh-soft: #fef3c7;
 
   /* Accents */
-  --color-elevari-amber: #d97706;
+  --color-elevari-amber: #f59e0b;
   /* amber-ink is used as text on the light amber-soft chip, so it stays dark */
-  --color-elevari-amber-ink: #92400e;
+  --color-elevari-amber-ink: #9a340e;
   --color-elevari-amber-soft: #fef3c7;
 
   /* Feedback */
-  --color-elevari-success: #064e3b;
+  --color-elevari-success: #ea9a2e;
   --color-elevari-success-soft: #fef3c7;
-  --color-elevari-warning: #d97706;
+  --color-elevari-warning: #f59e0b;
   --color-elevari-warning-soft: #fef3c7;
   --color-elevari-error: #ff9b93;
   --color-elevari-error-soft: #3b1b19;
@@ -173,19 +173,19 @@
   --elevari-muted: #a9bab3;
   --elevari-forest: #ea9a2e;
   --elevari-forest-light: #ea9a2e;
-  --elevari-forest-deep: #b45309;
-  --elevari-fresh: #064e3b;
+  --elevari-forest-deep: #9a340e;
+  --elevari-fresh: #ea9a2e;
   --elevari-fresh-soft: #fef3c7;
-  --elevari-amber: #d97706;
-  --elevari-amber-ink: #92400e;
+  --elevari-amber: #f59e0b;
+  --elevari-amber-ink: #9a340e;
   --elevari-amber-soft: #fef3c7;
-  --elevari-success: #064e3b;
+  --elevari-success: #ea9a2e;
   --elevari-success-soft: #fef3c7;
-  --elevari-warning: #d97706;
+  --elevari-warning: #f59e0b;
   --elevari-warning-soft: #fef3c7;
   --elevari-error: #ff9b93;
   --elevari-error-soft: #3b1b19;
-  --elevari-focus: #ea9a2e;
+  --elevari-focus: #f59e0b;
 
   /* Softer, darker elevation */
   --elevari-shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.35);

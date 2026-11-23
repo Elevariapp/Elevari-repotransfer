@@ -1,17 +1,18 @@
 export const colors = {
   // Primarios
-  forest: '#D97706',
-  forestDeep: '#B45309',
+  forest: '#C2410C',
+  forestDeep: '#9A340E',
   forestLight: '#EA9A2E',
-  fresh: '#064E3B',
+  fresh: '#EA9A2E',
   freshSoft: '#FEF3C7',
   // Acento
-  amber: '#D97706',
-  amberInk: '#92400E',
+  amber: '#F59E0B',
+  amberInk: '#9A340E',
   amberSoft: '#FEF3C7',
   // Fondos y superficies
   ivory: '#FEF3C7',
   surface: '#FFFFFF',
+  white: '#FFFFFF',
   sand: '#E8E3D5',
   // Texto
   slate: '#0F172A',

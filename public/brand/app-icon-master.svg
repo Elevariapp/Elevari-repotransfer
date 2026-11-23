@@ -2,8 +2,8 @@
   <!-- App icon master — elevated horizon, new brand palette -->
   <defs>
     <linearGradient id="plateGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#B45309"/>
-      <stop offset="100%" stop-color="#92400E"/>
+      <stop offset="0%" stop-color="#C2410C"/>
+      <stop offset="100%" stop-color="#9A340E"/>
     </linearGradient>
     <filter id="amberGlow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="6" result="blur"/>
@@ -11,8 +11,8 @@
     </filter>
   </defs>
   <rect width="1024" height="1024" rx="224" fill="url(#plateGradient)"/>
-  <path d="M336 688C336 464 424 304 512 304C600 304 688 464 688 688" stroke="#064E3B" stroke-width="72" stroke-linecap="round"/>
-  <path d="M380 552H644" stroke="#064E3B" stroke-width="72" stroke-linecap="round"/>
+  <path d="M336 688C336 464 424 304 512 304C600 304 688 464 688 688" stroke="#EA9A2E" stroke-width="72" stroke-linecap="round"/>
+  <path d="M380 552H644" stroke="#EA9A2E" stroke-width="72" stroke-linecap="round"/>
   <path d="M404 416H620" stroke="#FEF3C7" stroke-width="60" stroke-linecap="round" opacity="0.9"/>
-  <circle cx="728" cy="336" r="44" fill="#D97706" filter="url(#amberGlow)"/>
+  <circle cx="728" cy="336" r="44" fill="#F59E0B" filter="url(#amberGlow)"/>
 </svg>
