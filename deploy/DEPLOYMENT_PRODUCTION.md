@@ -10,6 +10,8 @@ Guía para desplegar el stack Docker en un VPS (Hetzner, DigitalOcean, etc.) con
 > - `HETZNER_IP` — IP del servidor (ej. `2.29.165.225`)
 > - `HETZNER_USER` — usuario SSH (ej. `root`)
 > - `HETZNER_SSH_KEY` — contenido completo de tu clave privada SSH (`~/.ssh/id_ed25519_elevari_hetzner`)
+> - `EXPO_TOKEN` — token de EAS CLI para builds de Android (obtener en expo.dev/settings/access-tokens)
+> - `GOOGLE_PLAY_SERVICE_ACCOUNT` — JSON de cuenta de servicio de Google Play Console (rol "Lanzamiento")
 >
 > **`.env.production` NO se sube a GitHub.** Debes copiarlo manualmente al servidor:
 > ```bash
@@ -54,6 +56,10 @@ Variables críticas:
 | `NEXT_PUBLIC_API_URL` | `https://tu-dominio` (sin `/api/v1`) |
 | `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_SECRET`, `WOMPI_INTEGRITY_SECRET` | Pagos Wompi (COP) |
 | `ALEGRA_EMAIL` + `ALEGRA_API_TOKEN` | Facturación Colombia |
+| `WHATSAPP_TOKEN` | Token de Meta Cloud API para el bot de WhatsApp |
+| `WHATSAPP_PHONE_NUMBER_ID` | ID del número de teléfono de WhatsApp Business |
+| `WHATSAPP_BUSINESS_ACCOUNT_ID` | ID de la cuenta WABA |
+| `WHATSAPP_VERIFY_TOKEN` | Token de verificación del webhook de WhatsApp |
 
 ## 3. Build y arranque
 
@@ -72,6 +78,7 @@ docker compose -f docker-compose.prod.yml exec api npx prisma db seed
 
 ```bash
 curl http://localhost/health          # API health vía nginx
+curl http://localhost/bot/health      # WhatsApp Bot health
 curl -I http://localhost/properties   # Next.js
 docker compose -f docker-compose.prod.yml ps
 ```
@@ -139,5 +146,7 @@ curl https://tu-dominio/api/v1/admin/invoices/pending \
 | Webhooks 404 | Nginx debe proxy `/api/` a api:4000 |
 | Imágenes no cargan | `MINIO_PUBLIC_URL` + bucket público |
 | Facturas no emiten | Verificar Alegra keys; revisar `pending_invoices` |
+| WhatsApp bot no responde | Verificar `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_VERIFY_TOKEN`; revisar logs `docker compose -f docker-compose.prod.yml logs whatsapp-bot` |
+| WhatsApp bot health falla | Verificar que el contenedor `whatsapp-bot` esté corriendo y expuesto en el puerto 3001 |
 
 Ver también: `INFRASTRUCTURE.md`, `ROADMAP.md`

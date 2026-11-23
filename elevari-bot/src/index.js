@@ -66,6 +66,11 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+// GET /health — Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'whatsapp-bot' });
+});
+
 app.listen(PORT, HOST, () => {
   console.log(`Elevari WhatsApp Bot listening on ${HOST}:${PORT}`);
   console.log(`WhatsApp number: ${whatsapp.phoneNumber}`);

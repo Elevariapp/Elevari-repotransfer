@@ -24,8 +24,7 @@ echo "→ Validando variables..."
 ENV_FILE="$ROOT/$ENV_FILE" "$ROOT/deploy/scripts/validate-env.sh" || {
   echo ""
   echo "Corrige .env.production antes de continuar (o usa PAYMENTS_MODE=mock solo para staging)."
-  read -r -p "¿Continuar de todos modos? [y/N] " ans
-  [[ "$ans" =~ ^[yY]$ ]] || exit 1
+  exit 1
 }
 
 echo "→ Build imágenes..."
@@ -34,15 +33,36 @@ docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build
 echo "→ Arrancando servicios..."
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
 
-echo "→ Esperando health..."
-sleep 8
+echo "→ Esperando health (máx 120s)..."
+MAX_RETRIES=24
+RETRY_INTERVAL=5
+for i in $(seq 1 "$MAX_RETRIES"); do
+  if curl -sf "http://localhost/health" >/dev/null 2>&1; then
+    echo "✓ API health OK (vía nginx localhost)"
+    break
+  fi
+  if [[ "$i" -eq "$MAX_RETRIES" ]]; then
+    echo "✗ API health check falló después de $((MAX_RETRIES * RETRY_INTERVAL))s"
+    echo "  Revisa logs: docker compose -f $COMPOSE_FILE logs --tail=50 api web nginx"
+    exit 1
+  fi
+  sleep "$RETRY_INTERVAL"
+done
 
-if curl -sf "http://localhost/health" >/dev/null 2>&1; then
-  echo "✓ API health OK (vía nginx localhost)"
-else
-  echo "⚠ Health check falló en localhost — revisa logs:"
-  echo "  docker compose -f $COMPOSE_FILE logs --tail=50 api web nginx"
-fi
+# WhatsApp bot health check
+echo "→ Verificando WhatsApp bot health..."
+for i in $(seq 1 "$MAX_RETRIES"); do
+  if curl -sf "http://localhost/bot/health" >/dev/null 2>&1; then
+    echo "✓ WhatsApp bot health OK"
+    break
+  fi
+  if [[ "$i" -eq "$MAX_RETRIES" ]]; then
+    echo "✗ WhatsApp bot health check falló después de $((MAX_RETRIES * RETRY_INTERVAL))s"
+    echo "  Revisa logs: docker compose -f $COMPOSE_FILE logs --tail=50 whatsapp-bot"
+    exit 1
+  fi
+  sleep "$RETRY_INTERVAL"
+done
 
 echo ""
 echo "=== Deploy completado ==="

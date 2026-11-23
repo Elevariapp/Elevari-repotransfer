@@ -30,7 +30,10 @@
     "api:migrate": "cd api && npx prisma migrate deploy",
     "api:seed": "cd api && npx prisma db seed",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "ci:local": "npm run go-live:validate",
+    "ci:local:full": "npm run go-live:validate && docker compose -f docker-compose.prod.yml --env-file .env.production up -d",
+    "hooks:install": "cp .githooks/* .git/hooks/ && chmod +x .git/hooks/*"
   },
   "dependencies": {
     "@google-cloud/vision": "^5.3.6",

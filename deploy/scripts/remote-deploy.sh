@@ -17,7 +17,7 @@ scp "$ROOT/.env.staging" "$DROPLET_USER@$DROPLET_IP:$REMOTE_DIR/.env.staging"
 
 ssh "$DROPLET_USER@$DROPLET_IP" "DROPLET_IP=$DROPLET_IP bash -s" <<'REMOTE'
 set -euo pipefail
-cd /opt/wana
+cd /opt/elevari
 
 if ! command -v docker >/dev/null 2>&1; then
   apt-get update -qq
