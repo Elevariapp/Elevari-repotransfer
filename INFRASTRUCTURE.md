@@ -21,7 +21,7 @@ Stripe and Bold implementations were removed; only the provider abstraction rema
 | Topic | Reference |
 |-------|-----------|
 | Brand guide, colors, voice, contrast rules | `docs/brand/ELEVARI_BRAND_GUIDE.md` |
-| Logo concepts + app icon | `docs/brand/ELEVARI_LOGO_CONCEPTS.md` |
+| Logo concepts + app icon | `docs/ELEVARI_LOGO_CONCEPTS.md`, `docs/reports/brand-assets-certification.md` |
 | Design tokens (CSS + TS, light/dark/high-contrast) | `docs/design/TOKEN_SYSTEM.md`, `app/globals.css`, `lib/design-tokens.ts` |
 | Components | `docs/design/DESIGN_SYSTEM.md`, `components/ui/` |
 | Migration status | `docs/design/UI_MIGRATION_PLAN.md` |

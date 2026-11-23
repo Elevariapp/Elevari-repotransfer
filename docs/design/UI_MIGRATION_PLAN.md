@@ -44,8 +44,8 @@ Resultado: cambio de marca global con un diff acotado y sin tocar lógica de neg
 | `app/globals.css` | Nuevos tokens, alias legacy, foco visible global, skip link, header/footer/botones/calendario re-tematizados, sombras y motion en `@theme` |
 | `app/layout.tsx` | Plus Jakarta Sans + Inter, skip link, toasts tokenizados, `text-elevari-slate` |
 | `app/icon.svg`, `public/brand/*` | Isotipo recoloreado + 3 conceptos + icono maestro |
-| `components/Logo.tsx` | Wordmark en `font-display`, descriptor "Escapes naturales" |
-| `components/brand/ElevariMark.tsx` | Forest plate, fresh loop, amber point |
+| `components/Logo.tsx` | Wordmark «Elevari» en `font-display`, sin descriptor |
+| `components/brand/ElevariMark.tsx` | Placa terracota, arco ámbar, punto ámbar |
 | `components/ui/*` | Nuevas primitivas: Button, Card, Input, Badge, Modal, PriceBreakdown |
 | `components/home/*` | Hero con propuesta de valor y señales de confianza; TrustStrip actualizado |
 | `components/booking/*` | Precio con `PriceBreakdown`, alertas tokenizadas, sheet con `role="dialog"` |

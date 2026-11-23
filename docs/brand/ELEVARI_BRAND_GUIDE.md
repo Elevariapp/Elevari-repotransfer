@@ -45,11 +45,11 @@ Nunca corporativa, nunca fría, nunca agresiva.
 
 | Rol | Token | Hex | Uso |
 |-----|-------|-----|-----|
-| Primario | `--elevari-forest` | `#D97706` | CTA principal, header, marca |
-| Primario profundo | `--elevari-forest-deep` | `#B45309` | Header, footer, hover de CTA |
-| Secundario | `--elevari-fresh` | `#064E3B` | Isotipo, acentos naturales, éxito suave |
-| Acento | `--elevari-amber` | `#D97706` | Estrellas, badges, destacados |
-| Acento texto | `--elevari-amber-ink` | `#92400E` | Texto sobre fondos ámbar suaves |
+| Primario | `--elevari-forest` | `#C2410C` | CTA principal, marca (terracota) |
+| Primario profundo | `--elevari-forest-deep` | `#9A340E` | Header, footer, hover de CTA |
+| Secundario | `--elevari-fresh` | `#EA9A2E` | Isotipo (arco y horizonte), acentos cálidos |
+| Acento | `--elevari-amber` | `#F59E0B` | Punto del isotipo, foco, estrellas, badges |
+| Acento texto | `--elevari-amber-ink` | `#9A340E` | Texto sobre fondos ámbar suaves |
 | Fondo | `--elevari-ivory` | `#FEF3C7` | Fondo general |
 | Superficie | `--elevari-surface` | `#FFFFFF` | Tarjetas y formularios |
 | Arena | `--elevari-sand` | `#E8E3D5` | Separadores, estados inactivos |
@@ -58,21 +58,24 @@ Nunca corporativa, nunca fría, nunca agresiva.
 | Texto secundario | `--elevari-muted` | `#64748B` | Texto de apoyo |
 | Borde | `--elevari-border` | `#E2E8F0` | Bordes y divisores |
 
-**Feedback:** success `#064E3B` · warning `#92400E` · error `#B3261E` (cada uno con su variante `-soft`).
+**Feedback:** success `#EA9A2E` · warning `#F59E0B` · error `#B3261E` (valores de `app/globals.css`). Los nombres `forest` y `fresh` son heredados de la paleta anterior; sus valores ya son terracota y ámbar.
 
 ### Reglas de contraste (WCAG 2.2 AA)
 
 | Combinación | Ratio | Veredicto |
 |-------------|-------|-----------|
-| Slate sobre Ivory | 12.10 | ✅ Texto normal |
-| Blanco sobre Forest | 6.29 | ✅ CTA y header |
-| Blanco sobre Forest Deep | 10.33 | ✅ |
-| Slate sobre Amber | 6.39 | ✅ Botón acento |
-| Forest sobre Ivory | 5.73 | ✅ Enlaces |
-| Muted sobre Ivory | 5.10 | ✅ Texto secundario |
-| Amber sobre Ivory | 1.89 | ❌ Nunca para texto |
+| Slate sobre Ivory | 16.03 | ✅ Texto normal |
+| Blanco sobre Terracota | 5.18 | ✅ CTA |
+| Blanco sobre Terracota profundo | 7.31 | ✅ Header y footer |
+| Enlaces del header (blanco 88 %) sobre el degradado terracota | 4.97 | ✅ |
+| Slate sobre Amber | 8.31 | ✅ Botón acento |
+| Terracota sobre Ivory | 4.65 | ✅ Enlaces |
+| Terracota sobre Blanco | 5.18 | ✅ Enlaces en tarjetas y botones de correo |
+| Terracota profundo sobre Amber-soft | 6.57 | ✅ Texto `amber-ink` |
+| Muted sobre Ivory | 4.27 | ⚠️ Solo texto grande (≥ 18 px) o sobre blanco (4.76) |
+| Amber sobre Ivory | 1.93 | ❌ Nunca para texto |
 
-> Regla dura: el ámbar `#D97706` es **decorativo** (estrellas, iconos, fondos). Para texto sobre claro usar `amber-ink` o `slate`.
+> Regla dura: el ámbar (`#F59E0B`, `#EA9A2E`) es **decorativo** (estrellas, iconos, fondos, el isotipo). Para texto sobre claro usar `amber-ink` o `slate`.
 
 ---
 
@@ -121,10 +124,10 @@ Ver `docs/brand/ELEVARI_MOODBOARD.md`.
 
 | Plataforma | Regla |
 |------------|-------|
-| Web | Header forest, fondo ivory, tarjetas blancas, CTA forest |
-| Email | Fondo ivory, cabecera forest con wordmark blanco, CTA forest |
+| Web | Header terracota, fondo ivory, tarjetas blancas, CTA terracota |
+| Email | Fondo ivory, cabecera con foto y wordmark blanco, CTA terracota |
 | App (futuro) | Mismos tokens; navegación nativa, no copiar el header web |
-| Social | Isotipo forest + acento ámbar; foto siempre protagonista |
+| Social | Isotipo terracota + acento ámbar; foto siempre protagonista |
 
 ---
 
