@@ -165,3 +165,40 @@ jobs:
           rm -f ~/.ssh/diag_key
           [ $rc -eq 0 ] || echo "::error::SSH step ended with exit code $rc"
           exit $rc
+
+  origin-trace:
+    name: Does Cloudflare reach OUR server?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DOMAIN: elevari.live
+      HETZNER_IP: ${{ secrets.HETZNER_IP || vars.HETZNER_IP }}
+      HETZNER_USER: ${{ secrets.HETZNER_USER || vars.HETZNER_USER }}
+      HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+    steps:
+      - name: Send tagged requests through Cloudflare, then look for the tag in nginx
+        run: |
+          set +e
+          for v in HETZNER_IP HETZNER_USER HETZNER_SSH_KEY; do
+            [ -z "${!v}" ] && { echo "::error::$v is not set"; exit 1; }
+          done
+          TAG="diag$(date +%s)$RANDOM"
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+          for path in / /health /bot/health; do
+            curl -sS -m 25 -A "$UA" -o /dev/null -w "through Cloudflare: https://$DOMAIN$path -> HTTP %{http_code}\n" "https://$DOMAIN$path?$TAG=1" 2>&1
+          done
+          sleep 3
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$HETZNER_SSH_KEY" | tr -d '\r' > ~/.ssh/trace_key
+          chmod 600 ~/.ssh/trace_key
+          out=$(ssh -i ~/.ssh/trace_key -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o LogLevel=ERROR \
+            "$HETZNER_USER@$HETZNER_IP" "cd /opt/elevari && docker logs \$(docker compose -f docker-compose.prod.yml --env-file .env.production ps -q nginx) 2>&1 | grep -F '$TAG'")
+          rm -f ~/.ssh/trace_key
+          echo
+          echo "nginx on your server saw $(printf '%s\n' "$out" | grep -c .) of the 3 tagged requests:"
+          printf '%s\n' "$out" | awk 'NF {split($1,ip,"."); split($7,p,"?"); print "  from " ip[1] "." ip[2] ".x.x  " p[1] " -> " $9}'
+          if [ -z "$out" ]; then
+            echo "RESULT: Cloudflare is NOT sending $DOMAIN to this server. Its origin for the record is somewhere else."
+          else
+            echo "RESULT: Cloudflare reaches this server."
+          fi
