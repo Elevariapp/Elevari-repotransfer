@@ -53,6 +53,13 @@
   --spacing-xl: 2.5rem;
   --spacing-2xl: 4rem;
 
+  /* max-w-* looks up --spacing-* before --container-*, so the scale above would shrink max-w-xs…2xl to 0.25–4rem. */
+  --max-width-xs: 20rem;
+  --max-width-sm: 24rem;
+  --max-width-md: 28rem;
+  --max-width-lg: 32rem;
+  --max-width-xl: 36rem;
+  --max-width-2xl: 42rem;
   /* Radius scale */
   --radius-sm: 0.5rem;
   --radius-md: 0.875rem;
@@ -222,17 +229,17 @@
   --color-elevari-border: #6b7c74;
   --elevari-muted: #2f403a;
   --elevari-border: #6b7c74;
-  --elevari-focus: #1e4835;
+  --elevari-focus: #9a340e;
 }
 
 [data-theme='dark'][data-contrast='high'] {
   --color-elevari-muted: #dce7e1;
   --color-elevari-border: #7e928a;
-  --color-elevari-forest: #9adfbb;
+  --color-elevari-forest: #fbbf24;
   --elevari-muted: #dce7e1;
   --elevari-border: #7e928a;
-  --elevari-forest: #9adfbb;
-  --elevari-focus: #9adfbb;
+  --elevari-forest: #fbbf24;
+  --elevari-focus: #fbbf24;
 }
 
 [data-contrast='high'] :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
@@ -606,7 +613,7 @@
 
   .elevari-header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: linear-gradient(180deg, rgba(6, 78, 59, 0.98) 0%, rgba(217, 119, 6, 0.97) 100%);
+    background: linear-gradient(180deg, rgba(154, 52, 14, 0.98) 0%, rgba(194, 65, 12, 0.97) 100%);
     backdrop-filter: blur(18px);
     box-shadow: 0 8px 32px rgba(22, 34, 44, 0.24);
   }
@@ -617,7 +624,7 @@
     font-size: 0.8125rem;
     font-weight: 500;
     white-space: nowrap;
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(255, 255, 255, 0.88);
     transition: color 0.15s ease, background-color 0.15s ease;
   }
 
@@ -1170,7 +1177,7 @@
   .elevari-footer {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(180deg, var(--elevari-forest-deep) 0%, #064e3b 100%);
+    background: linear-gradient(180deg, var(--elevari-forest-deep) 0%, #431407 100%);
     color: #ffffff;
   }
 
