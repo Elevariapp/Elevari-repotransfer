@@ -1,13 +1,26 @@
-import { Suspense } from 'react';
-import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
+import type { Metadata } from 'next';
+import Header from '@/components/Header';
+import HostAnalytics from '@/components/host/HostAnalytics';
+import HostBreadcrumbs from '@/components/host/HostBreadcrumbs';
+
+export const metadata: Metadata = {
+  title: 'Analíticas',
+  robots: { index: false, follow: false },
+};
 
 export default function HostAnalyticsPage() {
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
-      <Suspense fallback={<div>Cargando...</div>}>
-        <AnalyticsDashboard userRole="host" />
-      </Suspense>
-    </div>
+    <>
+      <Header />
+      <main id="contenido" className="elevari-container py-8 lg:py-12">
+        <HostBreadcrumbs items={[{ label: 'Tus propiedades', href: '/host' }, { label: 'Analíticas' }]} />
+        <header className="mt-4 mb-8">
+          <p className="elevari-eyebrow">Anfitrión</p>
+          <h1 className="mt-2 font-display text-3xl text-elevari-slate">Analíticas</h1>
+          <p className="mt-2 text-elevari-muted">Reservas, ocupación e ingresos de tus espacios.</p>
+        </header>
+        <HostAnalytics />
+      </main>
+    </>
   );
 }
