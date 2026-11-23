@@ -49,7 +49,7 @@ export default async function OpengraphImage({
           height: '100%',
           display: 'flex',
           position: 'relative',
-          background: 'linear-gradient(135deg, #064E3B 0%, #D97706 55%, #0F172A 100%)',
+          background: 'linear-gradient(135deg, #9A340E 0%, #C2410C 55%, #431407 100%)',
           color: '#FEF3C7',
           fontFamily: 'system-ui, sans-serif',
         }}
@@ -67,7 +67,7 @@ export default async function OpengraphImage({
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(90deg, rgba(15,42,32,0.94) 0%, rgba(15,42,32,0.55) 100%)',
+            background: 'linear-gradient(90deg, rgba(42,14,5,0.94) 0%, rgba(42,14,5,0.55) 100%)',
           }}
         />
         <div
@@ -81,34 +81,27 @@ export default async function OpengraphImage({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 16,
-                background: '#0F172A',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '2px solid #064E3B',
-                fontSize: 26,
-                color: '#064E3B',
-              }}
-            >
-              ◠
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1 }}>eleveri</span>
-              <span style={{ fontSize: 15, letterSpacing: 4, color: '#FEF3C7' }}>ESCAPES NATURALES</span>
-            </div>
+            <svg width="58" height="58" viewBox="133 113 270 270" fill="none">
+              <path
+                d="M168 344C168 232 212 152 256 152C300 152 344 232 344 344"
+                stroke="#EA9A2E"
+                strokeWidth="30"
+                strokeLinecap="round"
+              />
+              <path d="M190 272H322" stroke="#EA9A2E" strokeWidth="30" strokeLinecap="round" />
+              <path d="M200 208H312" stroke="#FEF3C7" strokeWidth="26" strokeLinecap="round" opacity="0.9" />
+              <circle cx="364" cy="168" r="34" fill="#F59E0B" opacity="0.3" />
+              <circle cx="364" cy="168" r="20" fill="#F59E0B" />
+            </svg>
+            <span style={{ fontSize: 38, fontWeight: 700, letterSpacing: -1 }}>Elevari</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ width: 88, height: 6, background: '#D97706', borderRadius: 3, marginBottom: 26 }} />
+            <div style={{ width: 88, height: 6, background: '#EA9A2E', borderRadius: 3, marginBottom: 26 }} />
             <span style={{ fontSize: 62, fontWeight: 700, lineHeight: 1.08, letterSpacing: -1.5, maxWidth: 900 }}>
               {title.length > 72 ? `${title.slice(0, 71)}…` : title}
             </span>
-            <span style={{ marginTop: 20, fontSize: 28, color: '#DCE7E1' }}>{location}</span>
+            <span style={{ marginTop: 20, fontSize: 28, color: '#FED7AA' }}>{location}</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -120,7 +113,7 @@ export default async function OpengraphImage({
                 fontSize: 22,
                 padding: '10px 22px',
                 borderRadius: 999,
-                border: '1px solid rgba(234,243,199,0.45)',
+                border: '1px solid rgba(254,243,199,0.45)',
                 color: '#FEF3C7',
               }}
             >
