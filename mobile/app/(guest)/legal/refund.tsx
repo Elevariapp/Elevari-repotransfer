@@ -32,7 +32,7 @@ export default function RefundScreen() {
           <Text style={styles.sectionTitle}>2. Reembolsos por cancelación del anfitrión</Text>
           <Text style={styles.body}>
             Si el anfitrión cancela tu reserva, recibirás un reembolso completo del monto pagado,
-            incluida la tarifa de servicio de Eleveri.
+            incluida la tarifa de servicio de Elevari.
           </Text>
         </View>
 

@@ -3,7 +3,7 @@ import { prisma } from '../prisma.js';
 import { isAvailabilityConflictError } from '../reserve-availability.js';
 import { parseIcalEvents } from './parse-ical.js';
 
-const FEED_USER_AGENT = 'Eleveri-CalendarSync/1.0';
+const FEED_USER_AGENT = 'Elevari-CalendarSync/1.0';
 
 function sourceForChannel(channel: CalendarFeedChannel): AvailabilitySource {
   return channel === 'airbnb' ? 'ota_airbnb' : 'ota_booking';

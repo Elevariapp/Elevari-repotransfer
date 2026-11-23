@@ -1,5 +1,6 @@
 export type AuditResult = { ok: boolean; message: string };
 
+// The legacy misspelling is matched on purpose: this guard exists to catch it coming back.
 export function cgc1_brandConsistency(content: string): AuditResult {
   const hasEleveri = /Eleveri/i.test(content);
   const hasElevari = /Elevari/i.test(content);

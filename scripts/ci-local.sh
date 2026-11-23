@@ -40,6 +40,10 @@ elif [[ -x "$HOME/go/bin/actionlint" ]]; then
 else
   echo "○ actionlint no instalado — brew install actionlint | go install github.com/rhysd/actionlint/cmd/actionlint@latest"
 fi
+# Sin shellcheck, actionlint omite los scripts de los `run:`; CI siempre lo tiene, así que un fallo ahí no se vería en local.
+if ! command -v shellcheck >/dev/null 2>&1; then
+  echo "○ shellcheck no instalado — CI revisará los scripts de los workflows y local no (brew install shellcheck | apt install shellcheck)"
+fi
 
 ensure_deps .
 ensure_deps mobile

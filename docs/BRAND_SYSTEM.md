@@ -1,6 +1,6 @@
 # Brand System — Elevari
 
-Última validación: 2026-11-21 · rama chore/elevari-production
+Última validación: 2026-11-23 · rama chore/rebrand-elevari
 
 ## Compañía y atribución
 
@@ -12,13 +12,15 @@
 
 ## Colores de marca
 
+Paleta **Terracota + Crema**. Fuente: `app/globals.css`; espejos en `lib/design-tokens.ts` (web) y `mobile/lib/design-tokens.ts` (móvil). Los nombres `forest` y `fresh` son heredados: sus valores ya no son verdes.
+
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--elevari-forest-deep` | `#B45309` | Placa de fondo, fondos oscuros, header/footer |
-| `--elevari-forest` | `#D97706` | Acciones primarias, enlaces |
-| `--elevari-fresh` | `#064E3B` | Trazos del símbolo de marca |
-| `--elevari-amber` | `#D97706` | Punto de acento, botones secundarios, detalles |
-| `--elevari-amber-soft` | `#FEF3C7` | Líneas suaves, fondos de acento |
+| `--elevari-forest-deep` | `#9A340E` | Terracota profundo: extremo oscuro de la placa, header/footer, texto sobre ámbar |
+| `--elevari-forest` | `#C2410C` | Terracota: acciones primarias, enlaces, extremo claro de la placa |
+| `--elevari-fresh` | `#EA9A2E` | Ámbar del símbolo: arco y horizonte |
+| `--elevari-amber` | `#F59E0B` | Punto de acento, foco, detalles |
+| `--elevari-amber-soft` | `#FEF3C7` | Línea suave del símbolo, fondos de acento |
 | `--elevari-ivory` | `#FEF3C7` | Fondo claro, superficies |
 | `--elevari-sand` | `#E8E3D5` | Bordes, fondos sutiles |
 | `--elevari-slate` | `#0F172A` | Texto principal |
@@ -26,20 +28,18 @@
 
 ## Símbolo de marca (ElevariMark)
 
-Símbolo abstracto: bucle continuo + punto de elevación. Colores: placa forest-deep, bucle fresh, horizonte amber-soft, punto amber.
+Símbolo **Horizon** (concepto 1, oficial): arco de elevación + línea de horizonte + punto de luz. Placa terracota (`#C2410C` → `#9A340E`), arco y horizonte `#EA9A2E`, línea suave `#FEF3C7`, punto `#F59E0B` con resplandor.
 
-Ver `components/brand/ElevariMark.tsx` y `public/brand/elevari-mark.svg`.
+Ver `components/brand/ElevariMark.tsx` (props `size`, `className`, `plain`, `decorative`, `title`) y `public/brand/app-icon-master.svg`. `components/Logo.tsx` combina el símbolo con el wordmark «Elevari», sin descriptor.
 
-## Concepto 4 — Elevari Blend
+## Iconos y assets móviles
 
-Versión estilo App Store del símbolo: placa redondeada, bucle continuo, punto elevado en amber. Usado en correos transaccionales y como ícono de marca en entornos reducidos.
-
-Ver `components/brand/ElevariBlend.tsx` y `public/brand/logo-concept-4-blend.svg`.
+Los PNG (iconos web, Apple touch, launcher/adaptive/splash/notificación de Expo) se generan con `node scripts/certification/generate-icons.mjs` a partir de `public/brand/app-icon-master.svg` y `app/icon.svg`. No editar los PNG a mano. Detalle en `docs/reports/brand-assets-certification.md`.
 
 ## Uso en correos (Resend)
 
-- Logo: `/brand/logo-concept-4-blend.svg` (referenciado en `api/src/lib/email-templates/brand.ts`)
-- Colores de correo mapeados a tokens de marca (ver `brand.ts`)
+- Logo: `https://elevari.live/brand/icons/icon-128.png` (PNG; los clientes de correo no renderizan SVG). Definido en `api/src/lib/email-templates/brand.ts`
+- Botones y enlaces en terracota `#C2410C` (contraste 5.2:1 con texto blanco); enlaces del pie en ámbar `#EA9A2E`
 - Pie de correo: atribución a Elevari + Glamping Waná, Sutatausa/Cucunubá, Cundinamarca, Colombia
 
 ## Accesibilidad

@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const collection = getCollection(params.slug);
   if (!collection) return {};
   return {
-    title: `${collection.title} | Elevari`,
+    title: collection.title,
     description: collection.description,
     alternates: { canonical: siteUrl(collection.canonical) },
     openGraph: {

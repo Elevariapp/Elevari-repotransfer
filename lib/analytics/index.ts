@@ -1,5 +1,5 @@
 /**
- * Client-side analytics for the Eleveri web storefront.
+ * Client-side analytics for the Elevari web storefront.
  *
  * Emits conversion/funnel events to the browser dataLayer (GTM-compatible)
  * and keeps an in-memory queue for testing/debugging.

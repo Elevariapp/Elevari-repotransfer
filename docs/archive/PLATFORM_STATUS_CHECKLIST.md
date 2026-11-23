@@ -1,7 +1,7 @@
 # Elevari — Smart Checklist (estado de plataforma)
 
 **Última revisión:** post-deploy `https://elevari.live`  
-**Modo:** pre-live · pagos mock · dominio Eleveri activo  
+**Modo:** pre-live · pagos mock · dominio Elevari activo  
 **Mapa go-live (checklist ejecutable):** [`docs/GO_LIVE_PRODUCTION_MAP.md`](GO_LIVE_PRODUCTION_MAP.md)
 
 Leyenda: ✅ listo · ⚠️ parcial · ❌ no funcional / legacy · 📋 pendiente

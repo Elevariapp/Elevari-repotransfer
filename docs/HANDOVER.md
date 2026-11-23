@@ -3,20 +3,20 @@
 ## Brand Assets
 
 ### Logo
-- **Primary Logo:** `public/brand/logo-concept-4-blend.svg` (Concept 4 Blend)
-- **Component:** `components/brand/ElevariBlend.tsx`
-- **Mark Component:** `components/brand/ElevariMark.tsx`
-- **Logo Component:** `components/brand/Logo.tsx`
+- **Primary Logo:** `public/brand/logo-concept-1-horizon.svg` (Concept 1 Horizon, official)
+- **Mark Component:** `components/brand/ElevariMark.tsx` (the only React implementation of the mark)
+- **Logo Component:** `components/Logo.tsx` (mark + "Elevari" wordmark)
 - **WhatsApp Button:** `components/brand/WhatsAppButton.tsx`
-- **Cinematic Background:** `components/brand/CinematicBackground.tsx`
+- **Cinematic Auth Background:** `components/auth/CinematicAuthBackground.tsx`
 - **Google Map:** `components/brand/GoogleMap.tsx`
 
 ### Brand Colors
 | Element | Color | Hex |
 |---------|-------|-----|
-| Primary | Amber | `#F59E0B` |
-| Dark | Amber Dark | `#D97706` |
-| Light | Amber Light | `#FCD34D` |
+| Primary | Terracotta | `#C2410C` |
+| Dark | Terracotta Deep | `#9A340E` |
+| Accent | Amber | `#EA9A2E` |
+| Light | Cream | `#FEF3C7` |
 | Secondary | Slate 900 | `#0F172A` |
 | Text | Slate 600 | `#475569` |
 | Background | Slate 50 | `#F8FAFC` |
@@ -105,21 +105,21 @@ import GoogleMap from '@/components/brand/GoogleMap';
 />
 ```
 
-## Registration Page Cinematic Background
+## Auth Cinematic Background
 
 ### Component
-`components/brand/CinematicBackground.tsx`
+`components/auth/CinematicAuthBackground.tsx` (rendered by `components/auth/AuthShell.tsx`)
 
-### Page
-`app/registration/page.tsx`
+### Pages
+`/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`. The old `/registration` placeholder was removed and now redirects to `/auth/register`.
 
 ### Features
-- Mountains and nature landscapes background
-- Amber gradient overlay matching brand colors
-- CSS animations (parallax, slow zoom, particle overlays)
-- Dark overlay for text readability
+- Layered mountains, rivers and people backgrounds with independent parallax drift
+- Slow ken-burns zoom
+- Amber gradient overlay matching brand colors and a dark overlay for text readability
+- CSS particle overlay
+- Time-of-day detection; night mode adds stars and a moon glow
 - Respects `prefers-reduced-motion`
-- Responsive design
 
 ## Placeholder Audit
 

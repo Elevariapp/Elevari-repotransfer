@@ -1,6 +1,6 @@
 # Logo Concepts — Elevari
 
-Última validación: 2026-11-22 · rama b-main
+Última validación: 2026-11-23 · rama chore/rebrand-elevari
 
 ## Compañía y atribución
 
@@ -10,7 +10,7 @@
 
 ## Concepto 1 — Elevari Horizon (oficial)
 
-Elevación arco + línea de horizonte + punto amber. Placa forest-deep con degradado, trazos fresh, línea amber-soft, punto amber con resplandor.
+Elevación arco + línea de horizonte + punto amber. Placa terracota con degradado, arco y horizonte ámbar, línea suave crema, punto amber con resplandor.
 
 Archivo: `public/brand/logo-concept-1-horizon.svg`
 
@@ -18,14 +18,14 @@ Archivo: `public/brand/logo-concept-1-horizon.svg`
 
 | Rol | Valor | Concepto 1 |
 |-----|-------|------------|
-| Placa | `#B45309` → `#92400E` (degradado) | Fondo de la marca |
-| Bucle / trazo | `#064E3B` | Fresh |
-| Línea suave | `#FEF3C7` | Amber-soft |
-| Punto / acento | `#D97706` | Amber con filtro de resplandor |
+| Placa | `#C2410C` → `#9A340E` (degradado) | Fondo de la marca |
+| Arco y horizonte | `#EA9A2E` | Ámbar |
+| Línea suave | `#FEF3C7` | Crema (opacidad 0.9) |
+| Punto / acento | `#F59E0B` | Amber con filtro de resplandor |
 
 ## Componente de marca
 
-`components/brand/ElevariMark.tsx` — símbolo reutilizable con props `className` y `plain`.
+`components/brand/ElevariMark.tsx` — símbolo reutilizable con props `size`, `className`, `plain` (solo el glifo, sin placa; para fondos oscuros), `decorative` (`aria-hidden`, sin `<title>`; úsalo junto a texto) y `title`. Los ids del degradado y del resplandor son únicos por instancia. Es el único componente React del símbolo: no crear copias.
 
 ## Documentos relacionados
 

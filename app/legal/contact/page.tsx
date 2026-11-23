@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Información de contacto | Elevari',
+  title: 'Información de contacto',
   description: 'Formas de contactar con Elevari: soporte, privacidad, moderación y consultas generales.',
 };
 

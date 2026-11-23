@@ -10,12 +10,16 @@
 
 ## Brand Colors
 
-### Primary Colors
+### Primary Colors (Terracotta + Cream)
 | Name | Hex | RGB | Usage |
 |------|-----|-----|-------|
-| Amber Primary | `#F59E0B` | 245, 158, 11 | Main brand color, buttons, links, accents |
-| Amber Dark | `#D97706` | 217, 119, 6 | Hover states, active elements |
-| Amber Light | `#FCD34D` | 252, 211, 77 | Backgrounds, subtle highlights |
+| Terracotta | `#C2410C` | 194, 65, 12 | Main brand color: buttons, links, mark plate |
+| Terracotta Deep | `#9A340E` | 154, 52, 14 | Header/footer, hover states, dark end of the plate |
+| Amber | `#EA9A2E` | 234, 154, 46 | Mark arch and horizon, highlights on terracotta |
+| Amber Accent | `#F59E0B` | 245, 158, 11 | Mark point, focus ring, small accents |
+| Cream | `#FEF3C7` | 254, 243, 199 | Page background, soft lines |
+
+Source of truth: `app/globals.css` (`--elevari-*`), mirrored in `lib/design-tokens.ts` and `mobile/lib/design-tokens.ts`.
 
 ### Secondary Colors
 | Name | Hex | RGB | Usage |
@@ -34,41 +38,28 @@
 | Error | `#EF4444` | Errors, destructive actions |
 | Info | `#3B82F6` | Information, links |
 
-## Logo Concepts
+## Logo
 
-### Concept 1: Arc + Amber Point
-A circular arc with a single amber point representing a property marker or booking pin.
+The official mark is **Concept 1 — Horizon**: an elevation arc, a horizon line and an amber point on a terracotta plate (`public/brand/logo-concept-1-horizon.svg`). The earlier Path, Nest and Blend explorations were retired.
 
-### Concept 2: Ascending Path
-An upward-trending path line representing growth, reservations, and hospitality elevation.
-
-### Concept 3: Containment Curve
-A protective curve surrounding a central element, representing security, care, and guest experience.
-
-### Concept 4: Blend (Current)
-A blended combination of Concepts 1-3:
-- Arc from Concept 1
-- Ascending path from Concept 2
-- Containment curve from Concept 3
-- Amber gradient overlay matching brand primary color
-- App Store style, scalable SVG format
+Lockup: the mark next to the wordmark "Elevari", with no tagline.
 
 ## Component References
 
-- `components/brand/ElevariMark.tsx` — Brand mark icon component
-- `components/Logo.tsx` — Main logo component
-- `components/brand/ElevariBlend.tsx` — Concept 4 blend logo component
+- `components/brand/ElevariMark.tsx` — the only React implementation of the mark
+- `components/Logo.tsx` — mark + "Elevari" wordmark lockup
 
 ## Email Brand Colors
 
-- Primary: `#D97706` (Forest)
+- Primary: `#C2410C` (Terracotta)
 - Secondary: `#0F172A` (Slate)
-- Accent: `#D97706` (Amber)
-- Button background: `#D97706`
+- Accent: `#C2410C` (Terracotta)
+- Button background: `#C2410C`
 - Button text: `#FFFFFF`
-- Link color: `#D97706`
+- Link color: `#C2410C`
 - Footer background: `#0F172A`
-- Footer text: `#FEF3C7` (Ivory)
+- Footer text: `#FEF3C7` (Cream); footer links `#EA9A2E` (Amber)
+- Logo: `https://elevari.live/brand/icons/icon-128.png` (PNG, because mail clients do not render SVG)
 
 ## WhatsApp Business Brand
 

@@ -22,7 +22,7 @@ export default function TermsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Aceptación</Text>
           <Text style={styles.body}>
-            Al usar Eleveri aceptas estos términos. Si no estás de acuerdo, no utilices la
+            Al usar Elevari aceptas estos términos. Si no estás de acuerdo, no utilices la
             plataforma. El uso de la plataforma implica la aceptación plena y sin reservas de todas
             las disposiciones incluidas en este documento.
           </Text>
@@ -31,7 +31,7 @@ export default function TermsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>2. Servicio</Text>
           <Text style={styles.body}>
-            Eleveri conecta huéspedes con anfitriones de espacios de glamping y refugios. Eleveri no
+            Elevari conecta huéspedes con anfitriones de espacios de glamping y refugios. Elevari no
             es propietario de los alojamientos salvo que se indique expresamente. La plataforma
             funciona como intermediario para facilitar reservas y pagos.
           </Text>
@@ -50,7 +50,7 @@ export default function TermsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>4. Tarifa de servicio de Elevari</Text>
           <Text style={styles.body}>
-            Eleveri aplica una tarifa de servicio del 15% sobre el precio del alojamiento. Esta
+            Elevari aplica una tarifa de servicio del 15% sobre el precio del alojamiento. Esta
             tarifa se muestra desglosada antes de confirmar el pago y no es reembolsable salvo en
             casos de cancelación por el anfitrión o fuerza mayor.
           </Text>
@@ -60,7 +60,7 @@ export default function TermsScreen() {
           <Text style={styles.sectionTitle}>5. Anfitriones</Text>
           <Text style={styles.body}>
             Los anfitriones deben proporcionar información veraz, mantener calendarios actualizados y
-            cumplir normas locales de turismo y seguridad. Eleveri puede suspender listados que
+            cumplir normas locales de turismo y seguridad. Elevari puede suspender listados que
             incumplan estándares de calidad o legalidad.
           </Text>
         </View>
@@ -76,8 +76,8 @@ export default function TermsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>7. Limitación de responsabilidad</Text>
           <Text style={styles.body}>
-            Eleveri facilita la conexión entre partes. No garantizamos disponibilidad continua del
-            servicio ni ausencia de errores. La responsabilidad directa de Eleveri se limita al valor
+            Elevari facilita la conexión entre partes. No garantizamos disponibilidad continua del
+            servicio ni ausencia de errores. La responsabilidad directa de Elevari se limita al valor
             de la reserva correspondiente cuando la ley lo permita.
           </Text>
         </View>

@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Política de reembolso | Elevari',
+  title: 'Política de reembolso',
   description: 'Política de reembolso y cancelación de reservas de Elevari.',
 };
 

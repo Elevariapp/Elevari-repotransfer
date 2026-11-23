@@ -12,7 +12,7 @@ Remaining items are explicitly listed as non-blocking follow-ups.
 | Workstream | Status | Where |
 |-----------|--------|-------|
 | Brand system | ✅ | `docs/brand/ELEVARI_BRAND_GUIDE.md`, tokens in `app/globals.css` |
-| Logo proposals (3) | ✅ | `public/brand/logo-concept-{1,2,3}-*.svg`, `docs/brand/ELEVARI_LOGO_CONCEPTS.md` |
+| Logo (Horizon adopted; Path, Nest and Blend retired) | ✅ | `public/brand/logo-concept-1-horizon.svg`, `docs/ELEVARI_LOGO_CONCEPTS.md` |
 | App icon system | ✅ | `public/brand/app-icon-master.svg`, `app/icon.svg` |
 | Design tokens | ✅ | `app/globals.css` (`@theme` + `:root`), `lib/design-tokens.ts`, `docs/design/TOKEN_SYSTEM.md` |
 | Design system / components | ✅ | `components/ui/*`, `docs/design/DESIGN_SYSTEM.md` |
