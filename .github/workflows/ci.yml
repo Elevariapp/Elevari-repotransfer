@@ -88,6 +88,12 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Scene outputs are up to date
         run: npm run scene:check
+      - name: Fonts are self-hosted
+        run: |
+          if git grep -n "next/font/google" -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.mjs'; then
+            echo "::error::next/font/google downloads fonts while building and broke the Hetzner deploy. Self-host with next/font/local (app/fonts)."
+            exit 1
+          fi
       - run: npm run build
         env:
           NEXT_PUBLIC_API_URL: http://localhost:4000

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import { Toaster } from 'react-hot-toast';
 import ConditionalFooter from '@/components/layout/ConditionalFooter';
 import MarketingScripts from '@/components/analytics/MarketingScripts';
@@ -24,15 +24,19 @@ export const metadata: Metadata = {
   },
 };
 
-const inter = Inter({
-  subsets: ['latin'],
+// Self-hosted on purpose: the Google Fonts loader downloads fonts at build time and
+// crashed the Docker build on the VPS when Google answered with extensionless URLs.
+// Latin covers all Spanish text; other scripts fall back to the system font.
+const inter = localFont({
+  src: './fonts/inter-latin-wght-normal.woff2',
+  weight: '100 900',
   variable: '--font-inter',
   display: 'swap',
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
-  weight: ['500', '600', '700'],
-  subsets: ['latin'],
+const plusJakarta = localFont({
+  src: './fonts/plus-jakarta-sans-latin-wght-normal.woff2',
+  weight: '200 800',
   variable: '--font-display',
   display: 'swap',
 });
