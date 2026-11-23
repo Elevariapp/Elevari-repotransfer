@@ -183,11 +183,14 @@ jobs:
         working-directory: mobile
     steps:
       - uses: actions/checkout@v7
-      - name: Check EXPO_TOKEN
+      - name: Check EXPO_TOKEN and EAS project
         id: token
         run: |
           if [ -z "$EXPO_TOKEN" ]; then
             echo "::warning::EXPO_TOKEN secret not set — skipping EAS build"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          elif ! grep -qE '"projectId": *"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"' app.json; then
+            echo "::warning::mobile/app.json extra.eas.projectId is not an EAS UUID — run 'npx eas-cli init' in mobile/ and commit it. Skipping EAS build"
             echo "present=false" >> "$GITHUB_OUTPUT"
           else
             echo "present=true" >> "$GITHUB_OUTPUT"
