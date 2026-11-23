@@ -15,7 +15,7 @@ set -a
 source "$ENV_FILE"
 set +a
 
-echo "=== Eleveri — Turnstile config ==="
+echo "=== Elevari — Turnstile config ==="
 echo ""
 
 if [[ "${TURNSTILE_DISABLED:-}" == "1" || "${NEXT_PUBLIC_TURNSTILE_DISABLED:-}" == "1" ]]; then

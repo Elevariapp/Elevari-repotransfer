@@ -45,7 +45,7 @@ Resultado: cambio de marca global con un diff acotado y sin tocar lógica de neg
 | `app/layout.tsx` | Plus Jakarta Sans + Inter, skip link, toasts tokenizados, `text-elevari-slate` |
 | `app/icon.svg`, `public/brand/*` | Isotipo recoloreado + 3 conceptos + icono maestro |
 | `components/Logo.tsx` | Wordmark en `font-display`, descriptor "Escapes naturales" |
-| `components/brand/EleveriMark.tsx` | Forest plate, fresh loop, amber point |
+| `components/brand/ElevariMark.tsx` | Forest plate, fresh loop, amber point |
 | `components/ui/*` | Nuevas primitivas: Button, Card, Input, Badge, Modal, PriceBreakdown |
 | `components/home/*` | Hero con propuesta de valor y señales de confianza; TrustStrip actualizado |
 | `components/booking/*` | Precio con `PriceBreakdown`, alertas tokenizadas, sheet con `role="dialog"` |

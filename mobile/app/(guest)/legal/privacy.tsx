@@ -22,7 +22,7 @@ export default function PrivacyScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Responsable</Text>
           <Text style={styles.body}>
-            Eleveri opera la plataforma de reservas de experiencias de glamping y refugios en
+            Elevari opera la plataforma de reservas de experiencias de glamping y refugios en
             Colombia. Para consultas sobre privacidad escríbenos a privacidad@elevari.live.
           </Text>
         </View>

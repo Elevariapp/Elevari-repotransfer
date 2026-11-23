@@ -39,7 +39,7 @@
 | Pantalla | Verificación | Estado |
 |----------|--------------|--------|
 | Home | Propuesta de valor + 3 señales de confianza + precio transparente | PASS |
-| Detalle | "Anfitrión Eleveri verificado", amenidades, reseñas, desglose | PASS (código) |
+| Detalle | "Anfitrión Elevari verificado", amenidades, reseñas, desglose | PASS (código) |
 | Checkout | Desglose base × noches + Tarifa de Servicio Elevari = Total | PASS |
 | Confirmación | Estado real (`confirmado` / `en proceso`) y próximos pasos | PASS |
 | FAQ | Corregido: Wompi (antes Bold/Stripe) y "precio final" | PASS |

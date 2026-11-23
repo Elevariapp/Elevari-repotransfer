@@ -35,7 +35,7 @@ export default function ExperiencePillars() {
       </div>
       <div className="elevari-container relative py-16 lg:py-24">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="elevari-eyebrow">Por qué Eleveri</p>
+          <p className="elevari-eyebrow">Por qué Elevari</p>
           <h2 className="elevari-display-section mt-4 text-elevari-slate">
             Más que un alojamiento, una experiencia
           </h2>

@@ -23,7 +23,7 @@ Expert in conversion rate optimization (CRO) and SEO. Suggests UI/UX changes tha
 | Property pages | `app/properties/` |
 | Header / nav | `components/Header.tsx` |
 | Booking UX | `components/BookingModal.tsx`, `components/DateRangePicker.tsx` |
-| Reviews / social proof | `components/ReviewsDisplay.tsx` |
+| Reviews / social proof | `components/booking/PropertyReviews.tsx` |
 | Legal / trust | `app/legal/` |
 | i18n copy | `messages/` |
 

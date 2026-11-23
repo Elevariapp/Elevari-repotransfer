@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Política de privacidad | Eleveri',
-  description: 'Política de privacidad y protección de datos personales de Eleveri.',
+  title: 'Política de privacidad',
+  description: 'Política de privacidad y protección de datos personales de Elevari.',
 };
 
 export default function PrivacyPage() {
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="font-semibold text-elevari-slate">1. Responsable</h2>
           <p className="mt-2">
-            Eleveri opera la plataforma de reservas de experiencias de glamping y refugios en
+            Elevari opera la plataforma de reservas de experiencias de glamping y refugios en
             Colombia. Para consultas sobre privacidad escríbenos a privacidad@elevari.live.
           </p>
         </section>

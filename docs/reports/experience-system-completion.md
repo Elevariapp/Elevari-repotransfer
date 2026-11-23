@@ -9,7 +9,7 @@
 
 | Área | Criterio | Resultado | Evidencia |
 |------|----------|-----------|-----------|
-| Brand Integrity | Logo, isotipo, favicon, nomenclatura | **PASS** | `components/brand/EleveriMark.tsx`, `app/icon.svg`, `app/apple-icon.png`, iconos 16→1024 |
+| Brand Integrity | Logo, isotipo, favicon, nomenclatura | **PASS** | `components/brand/ElevariMark.tsx`, `app/icon.svg`, `app/apple-icon.png`, iconos 16→1024 |
 | Design Tokens | Solo tokens oficiales | **PASS** | 0 `background: white` fijos; superficies con `--elevari-surface` |
 | Wana Eradication | `wana-*` = 0 | **PASS** | 0 en CSS y 0 en `app/`, `components/`, `lib/` (257 → 0) |
 | Component Authority | Todo consume `components/ui` | **PARCIAL (62%)** | 13 archivos importan primitivas; 43 usos de clases del sistema; 66 `<button>` nativos (iconos/steppers pendientes) |

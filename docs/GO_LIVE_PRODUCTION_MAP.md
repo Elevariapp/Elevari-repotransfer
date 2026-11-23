@@ -1,4 +1,4 @@
-# Eleveri — Mapa go-live producción
+# Elevari — Mapa go-live producción
 
 **Última actualización:** Jul 2026  
 **Estado actual:** `https://elevari.live` · `PAYMENTS_MODE=mock` · pre-live operativo  
@@ -75,7 +75,7 @@ Referencia: `docs/RESEND_SETUP.md`
 
 - [ ] Revisión abogado: `/legal/terms`, `/legal/privacy`
 - [ ] Política cancelación/reembolsos visible para huésped (FAQ + checkout)
-- [ ] Datos responsable tratamiento (Eleveri / contacto)
+- [ ] Datos responsable tratamiento (Elevari / contacto)
 
 ### Channel manager — Fase 1 (anti doble booking OTA)
 
@@ -90,7 +90,7 @@ Referencia: `docs/RESEND_SETUP.md`
   ICAL_SYNC_JOB_INTERVAL_MS=600000
   ```
 - [ ] Redeploy + migraciones al día
-- [ ] Prueba: bloquear 2 noches en Airbnb → en ≤10 min no reservable en Eleveri
+- [ ] Prueba: bloquear 2 noches en Airbnb → en ≤10 min no reservable en Elevari
 
 ### Moderación y calidad
 
@@ -139,7 +139,7 @@ Referencia: `docs/RESEND_SETUP.md`
 - [ ] Google Analytics `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - [ ] Meta Pixel + CAPI (`META_PIXEL_ID`, `META_ACCESS_TOKEN`)
 - [ ] OG images por propiedad (SEO / WhatsApp preview)
-- [ ] Fase 2 iCal: export Eleveri → import en Airbnb/Booking
+- [ ] Fase 2 iCal: export Elevari → import en Airbnb/Booking
 - [ ] Panel host: estado sync calendario (Fase 3 CM)
 - [ ] Merge rama feature → `main` + push GitHub
 - [ ] Segunda propiedad onboarded

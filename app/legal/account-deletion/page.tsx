@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Eliminar mi cuenta | Elevari',
+  title: 'Eliminar mi cuenta',
   description: 'Procedimiento para eliminar tu cuenta de Elevari y solicitar la eliminación de tus datos personales.',
 };
 

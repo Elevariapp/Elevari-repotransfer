@@ -22,7 +22,7 @@ export default function ContentModerationScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Propósito</Text>
           <Text style={styles.body}>
-            Eleveri revisa el contenido publicado en la plataforma (descripciones, fotos, reseñas y
+            Elevari revisa el contenido publicado en la plataforma (descripciones, fotos, reseñas y
             mensajes) para garantizar que cumpla con nuestros estándares de calidad, seguridad y
             legalidad.
           </Text>

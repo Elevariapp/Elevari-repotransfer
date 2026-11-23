@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps) {
       twitter: share.twitter,
     };
   } catch {
-    return { title: 'Propiedad | Elevari' };
+    return { title: 'Propiedad' };
   }
 }
 
@@ -157,7 +157,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                     <ElevariMark className="h-full w-full" />
                   </div>
                   <div>
-                    <p className="font-semibold text-elevari-slate">Anfitrión Eleveri verificado</p>
+                    <p className="font-semibold text-elevari-slate">Anfitrión Elevari verificado</p>
                     <p className="text-sm text-elevari-muted">Experiencia glamping curada · respuesta rápida</p>
                   </div>
                 </div>

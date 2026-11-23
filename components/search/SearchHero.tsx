@@ -27,7 +27,7 @@ const HERO_SLIDES = [
 ];
 
 const LOCATIONS = [
-  { label: 'Cualquier lugar en Colombia', value: '', detail: 'Toda la colección Eleveri' },
+  { label: 'Cualquier lugar en Colombia', value: '', detail: 'Toda la colección Elevari' },
   { label: 'Sutatausa', value: 'Sutatausa', detail: 'Sabana, montañas y domos' },
   { label: 'Cucunubá', value: 'Cucunubá', detail: 'Paisaje rural y cielo abierto' },
   { label: 'Cundinamarca', value: 'Cundinamarca', detail: 'Cerca de Bogotá' },
