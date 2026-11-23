@@ -1,48 +1,148 @@
-import { StyleSheet, View, Text, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
-import { colors, spacing, typography, radius, shadows } from '@/lib/design-tokens';
+import { useRouter } from 'expo-router';
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Button } from '@/components/Button';
+import { Screen } from '@/components/Screen';
+import { Banner, EmptyState, ErrorState, LoadingState } from '@/components/States';
+import { StatusChip } from '@/components/StatusChip';
+import { colors, radius, shadows, spacing, typography } from '@/lib/design-tokens';
+import { pluralize } from '@/lib/format';
+import { fetchHostProperties, HOST_STATUS_LABELS, HOST_STATUS_TONES } from '@/lib/host';
+import type { HostProperty } from '@/lib/types';
+import { useScreenResource } from '@/lib/use-resource';
+
+function HostPropertyCard({ property, onPress }: { property: HostProperty; onPress?: () => void }) {
+  const label = HOST_STATUS_LABELS[property.status] ?? property.status;
+  const pending = property.pending_media_count ?? 0;
+  const photos = pluralize(property.media_count, 'foto', 'fotos');
+  const summary = [property.city, photos, pending > 0 ? `${pending} en revisión` : null].filter(Boolean).join(' · ');
+
+  const content = (
+    <View style={styles.card}>
+      {property.cover_image ? (
+        <Image
+          source={{ uri: property.cover_image }}
+          style={styles.image}
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+        />
+      ) : (
+        <View style={[styles.image, styles.placeholder]}>
+          <Text style={styles.placeholderGlyph}>🏡</Text>
+        </View>
+      )}
+      <View style={styles.content}>
+        <View style={styles.top}>
+          <Text style={styles.title} numberOfLines={2}>
+            {property.title}
+          </Text>
+          <StatusChip label={label} tone={HOST_STATUS_TONES[property.status] ?? 'neutral'} />
+        </View>
+        <Text style={styles.meta}>{summary}</Text>
+        {property.status === 'draft' ? (
+          <Text style={styles.note}>Nuestro equipo revisará tu propiedad antes de publicarla.</Text>
+        ) : null}
+        {onPress ? <Text style={styles.link}>Ver como huésped →</Text> : null}
+      </View>
+    </View>
+  );
+
+  const accessibilityLabel = `${property.title}, ${summary}, ${label}`;
+  if (!onPress) {
+    return (
+      <View accessible accessibilityLabel={accessibilityLabel}>
+        {content}
+      </View>
+    );
+  }
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint="Abre la propiedad como la ven los huéspedes"
+    >
+      {content}
+    </Pressable>
+  );
+}
 
 export default function HostPropertiesScreen() {
-  const properties = [
-    { id: '1', title: 'Cabaña en el bosque', location: 'Guatapé, Colombia', price: 150000, image: '' },
-    { id: '2', title: 'Apartamento moderno', location: 'Medellín, Colombia', price: 120000, image: '' },
-  ];
+  const router = useRouter();
+  const { data, loading, refreshing, error, reload, refresh } = useScreenResource(
+    fetchHostProperties,
+    'No pudimos cargar tus propiedades.',
+  );
+  const properties = data ?? [];
+  const addProperty = () => router.push('/(host)/property/new');
+
+  let emptyState;
+  if (loading) {
+    emptyState = <LoadingState label="Cargando tus propiedades…" />;
+  } else if (error) {
+    emptyState = <ErrorState message={error} onRetry={reload} />;
+  } else {
+    emptyState = (
+      <EmptyState
+        title="Aún no tienes propiedades"
+        message="Crea tu primer anuncio. Nuestro equipo lo revisará antes de publicarlo."
+        actionLabel="Agregar propiedad"
+        onAction={addProperty}
+      />
+    );
+  }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Mis propiedades</Text>
-        <Text style={styles.subtitle}>Gestiona tus anuncios activos</Text>
-      </View>
-
+    <Screen
+      title="Propiedades"
+      tabbed
+      scroll={false}
+      headerRight={
+        <Button size="sm" onPress={addProperty} accessibilityLabel="Agregar propiedad">
+          + Agregar
+        </Button>
+      }
+    >
       <FlatList
         data={properties}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card}>
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardLocation}>📍 {item.location}</Text>
-              <Text style={styles.cardPrice}>
-                {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(item.price)} / noche
-              </Text>
-            </View>
-          </TouchableOpacity>
+          <HostPropertyCard
+            property={item}
+            onPress={item.status === 'published' ? () => router.push(`/(guest)/property/${item.slug}`) : undefined}
+          />
         )}
-        contentContainerStyle={styles.listContent}
+        ListHeaderComponent={error && properties.length > 0 ? <Banner tone="error">{error}</Banner> : undefined}
+        ListEmptyComponent={emptyState}
+        contentContainerStyle={styles.list}
+        refreshing={refreshing}
+        onRefresh={refresh}
+        showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.ivory },
-  header: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: spacing.lg },
-  title: { fontSize: typography.sizes.heading, fontWeight: typography.weights.bold, color: colors.ink },
-  subtitle: { fontSize: typography.sizes.body, color: colors.muted, marginTop: spacing.xs },
-  listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
-  card: { backgroundColor: colors.surface, borderRadius: radius.lg, marginBottom: spacing.lg, ...shadows.card, padding: spacing.md },
-  cardContent: { gap: spacing.sm },
-  cardTitle: { fontSize: typography.sizes.body, fontWeight: typography.weights.semibold, color: colors.ink },
-  cardLocation: { fontSize: typography.sizes.caption, color: colors.muted },
-  cardPrice: { fontSize: typography.sizes.body, fontWeight: typography.weights.bold, color: colors.forest },
+  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, paddingTop: spacing.sm },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+    ...shadows.card,
+  },
+  image: { width: '100%', height: 150, backgroundColor: colors.sand },
+  placeholder: { alignItems: 'center', justifyContent: 'center' },
+  placeholderGlyph: { fontSize: 36 },
+  content: { padding: spacing.md },
+  top: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing.sm },
+  title: { flex: 1, fontSize: typography.sizes.body, fontWeight: typography.weights.semibold, color: colors.ink },
+  meta: { fontSize: typography.sizes.caption, color: colors.muted, marginTop: spacing.xs },
+  note: { fontSize: typography.sizes.caption, color: colors.amberInk, marginTop: spacing.sm },
+  link: {
+    fontSize: typography.sizes.caption,
+    fontWeight: typography.weights.semibold,
+    color: colors.forest,
+    marginTop: spacing.sm,
+  },
 });

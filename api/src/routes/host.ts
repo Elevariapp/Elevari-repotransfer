@@ -1,36 +1,158 @@
 import type { FastifyInstance } from 'fastify';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { uniquePropertySlug } from '../lib/slug.js';
+import { ApiErrorCode, apiErrorBody } from '../lib/api-errors.js';
 import { authenticate, requireRoles } from '../plugins/auth.js';
 
+// numeric(10,2) column: larger values overflow the column (used to surface as a 500).
+const MAX_PRICE_PER_NIGHT = 99_999_999;
+const MAX_AMENITIES = 30;
+
+// The public catalog filters amenities by exact key, so these must be stored in canonical form.
+const AMENITY_KEYS: Record<string, string> = {
+  wifi: 'wifi',
+  'wi-fi': 'wifi',
+  fogata: 'fogata',
+  vista: 'vista',
+  'vista panoramica': 'vista',
+  'vista panorámica': 'vista',
+  estacionamiento: 'estacionamiento',
+};
+
+function normalizeAmenities(values: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const raw of values) {
+    const value = AMENITY_KEYS[raw.toLowerCase()] ?? raw;
+    const key = value.toLowerCase();
+    if (!value || seen.has(key)) continue;
+    seen.add(key);
+    result.push(value);
+  }
+  return result;
+}
+
 const createPropertySchema = z.object({
-  title: z.string().min(3).max(120),
-  description: z.string().min(20).max(5000),
-  city: z.string().min(2).max(80),
-  price_per_night: z.number().positive(),
-  max_guests: z.number().int().min(1).max(20).default(2),
-  amenities: z.array(z.string()).default([]),
+  title: z
+    .string({ required_error: 'El título es obligatorio', invalid_type_error: 'El título no es válido' })
+    .trim()
+    .min(3, 'El título debe tener al menos 3 caracteres')
+    .max(120, 'El título no puede superar los 120 caracteres'),
+  description: z
+    .string({ required_error: 'La descripción es obligatoria', invalid_type_error: 'La descripción no es válida' })
+    .trim()
+    .min(20, 'La descripción debe tener al menos 20 caracteres')
+    .max(5000, 'La descripción no puede superar los 5000 caracteres'),
+  city: z
+    .string({ required_error: 'La ciudad es obligatoria', invalid_type_error: 'La ciudad no es válida' })
+    .trim()
+    .min(2, 'La ciudad debe tener al menos 2 caracteres')
+    .max(80, 'La ciudad no puede superar los 80 caracteres'),
+  price_per_night: z
+    .number({
+      required_error: 'El precio por noche es obligatorio',
+      invalid_type_error: 'El precio por noche debe ser un número',
+    })
+    .finite('El precio por noche no es válido')
+    .min(1, 'El precio por noche debe ser mayor a 0')
+    .max(MAX_PRICE_PER_NIGHT, 'El precio por noche es demasiado alto'),
+  max_guests: z
+    .number({ invalid_type_error: 'El máximo de huéspedes debe ser un número' })
+    .int('El máximo de huéspedes debe ser un número entero')
+    .min(1, 'El máximo de huéspedes debe ser al menos 1')
+    .max(20, 'El máximo de huéspedes es 20')
+    .default(2),
+  amenities: z
+    .array(z.string().trim().max(60, 'Cada comodidad puede tener hasta 60 caracteres'), {
+      invalid_type_error: 'Las comodidades no son válidas',
+    })
+    .max(MAX_AMENITIES, `Puedes elegir hasta ${MAX_AMENITIES} comodidades`)
+    .default([]),
 });
 
+const listQuerySchema = z.object({
+  host_id: z.string().trim().min(1).max(64).optional(),
+});
+
+type CreatePropertyInput = z.infer<typeof createPropertySchema>;
+
+async function createDraftProperty(hostId: string, input: CreatePropertyInput) {
+  for (let attempt = 0; ; attempt++) {
+    const slug = await uniquePropertySlug(input.title, { randomSuffix: attempt > 0 });
+    try {
+      return await prisma.property.create({
+        data: {
+          slug,
+          title: input.title,
+          description: input.description,
+          city: input.city,
+          pricePerNight: input.price_per_night,
+          maxGuests: input.max_guests,
+          amenities: normalizeAmenities(input.amenities),
+          hostId,
+          status: 'draft',
+          country: 'CO',
+        },
+      });
+    } catch (err) {
+      // Two creations with the same title can pick the same slug; retry with a random suffix.
+      const slugTaken = err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002';
+      if (!slugTaken || attempt >= 3) throw err;
+    }
+  }
+}
+
 export async function hostRoutes(app: FastifyInstance) {
+  // Unexpected failures must not leak Prisma/driver details to the client.
+  app.setErrorHandler((error, request, reply) => {
+    const statusCode = (error as { statusCode?: number }).statusCode;
+    if (statusCode && statusCode < 500) return reply.send(error);
+    request.log.error({ err: error }, 'host request failed');
+    return reply.status(500).send({
+      error: 'No pudimos completar la solicitud. Inténtalo de nuevo en unos minutos.',
+      code: 'HOST_REQUEST_FAILED',
+    });
+  });
+
   app.get(
     '/host/properties',
     { preHandler: [authenticate, requireRoles(['host', 'admin'])] },
-    async (request) => {
+    async (request, reply) => {
+      const query = listQuerySchema.safeParse(request.query);
+      if (!query.success) {
+        return reply
+          .status(400)
+          .send(apiErrorBody(ApiErrorCode.INVALID_QUERY, { message: 'El identificador del anfitrión no es válido.' }));
+      }
+
+      // Hosts only ever see their own listings; only admins may inspect another host.
       const hostId =
-        request.auth!.role === 'admin'
-          ? (request.query as { host_id?: string }).host_id ?? request.auth!.sub
-          : request.auth!.sub;
+        request.auth!.role === 'admin' ? query.data.host_id ?? request.auth!.sub : request.auth!.sub;
 
       const properties = await prisma.property.findMany({
         where: { hostId },
         orderBy: { createdAt: 'desc' },
         include: {
-          media: { orderBy: { sortOrder: 'asc' }, take: 1 },
+          media: {
+            where: { type: 'image', status: { not: 'rejected' } },
+            orderBy: { sortOrder: 'asc' },
+            take: 1,
+          },
           _count: { select: { media: true } },
         },
       });
+
+      const pendingByProperty = new Map<string, number>();
+      if (properties.length > 0) {
+        const pending = await prisma.propertyMedia.groupBy({
+          by: ['propertyId'],
+          where: { propertyId: { in: properties.map((p) => p.id) }, status: 'pending' },
+          _count: { _all: true },
+        });
+        for (const row of pending) pendingByProperty.set(row.propertyId, row._count._all);
+      }
 
       return {
         data: properties.map((p) => ({
@@ -41,6 +163,7 @@ export async function hostRoutes(app: FastifyInstance) {
           city: p.city,
           cover_image: p.media[0]?.thumbnailUrl ?? p.media[0]?.url ?? null,
           media_count: p._count.media,
+          pending_media_count: pendingByProperty.get(p.id) ?? 0,
         })),
       };
     },
@@ -50,28 +173,14 @@ export async function hostRoutes(app: FastifyInstance) {
     '/host/properties',
     { preHandler: [authenticate, requireRoles(['host', 'admin'])] },
     async (request, reply) => {
-      const body = createPropertySchema.safeParse(request.body);
+      const body = createPropertySchema.safeParse(request.body ?? {});
       if (!body.success) {
-        return reply.status(400).send({ error: 'Invalid body', details: body.error.flatten() });
+        return reply
+          .status(400)
+          .send(apiErrorBody(ApiErrorCode.INVALID_BODY, { details: body.error.flatten() }));
       }
 
-      const hostId = request.auth!.sub;
-      const slug = await uniquePropertySlug(body.data.title);
-
-      const property = await prisma.property.create({
-        data: {
-          slug,
-          title: body.data.title,
-          description: body.data.description,
-          city: body.data.city,
-          pricePerNight: body.data.price_per_night,
-          maxGuests: body.data.max_guests,
-          amenities: body.data.amenities,
-          hostId,
-          status: 'draft',
-          country: 'CO',
-        },
-      });
+      const property = await createDraftProperty(request.auth!.sub, body.data);
 
       return reply.status(201).send({
         property: {
@@ -80,6 +189,9 @@ export async function hostRoutes(app: FastifyInstance) {
           title: property.title,
           status: property.status,
           city: property.city,
+          cover_image: null,
+          media_count: 0,
+          pending_media_count: 0,
         },
       });
     },

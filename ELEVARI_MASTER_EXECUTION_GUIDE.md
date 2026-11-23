@@ -126,7 +126,7 @@ These facts are extracted from the actual codebase and must be reflected in all 
 ### Auth (JWT)
 
 - Header: `Authorization: Bearer <token>`
-- Cookie: `wana_token` (middleware protects `/host`, `/account`, `/admin`)
+- Cookie: `elevari_token` (the proxy protects `/host`, `/account`, `/admin`; `wana_token` is still read for older sessions)
 
 ## How to Use This Guide
 

@@ -1,36 +1,81 @@
-import { EMAIL_BRAND } from './brand.js';
-import { emailLayout } from './layout.js';
+import {
+  emailBilingual,
+  emailButton,
+  emailFacts,
+  emailGreeting,
+  emailHeading,
+  emailHelpLine,
+  emailLayout,
+  esc,
+} from './layout.js';
+import { formatMoney } from './format.js';
 
-export function bookingCancellation({ bookingId, propertyName, guestName }: { bookingId: string; propertyName: string; guestName: string }): string {
+export function bookingCancellation({
+  bookingId,
+  propertyName,
+  guestName,
+  reason,
+  refundAmount,
+  refundEligible,
+  expiredUnpaid = false,
+  currency = 'COP',
+  exploreUrl,
+}: {
+  bookingId: string;
+  propertyName: string;
+  guestName?: string | null;
+  reason?: string;
+  refundAmount?: number;
+  refundEligible?: boolean;
+  expiredUnpaid?: boolean;
+  currency?: string;
+  exploreUrl: string;
+}): string {
+  const headline = expiredUnpaid
+    ? emailBilingual(
+        'Tu reserva expiró porque el pago no se completó a tiempo. Las fechas quedaron liberadas y no se te cobró nada.',
+        "Your booking expired because payment wasn't completed in time. The dates were released and you were not charged.",
+      )
+    : emailBilingual('Tu reserva fue cancelada.', 'Your booking was cancelled.');
+
+  let refundBlock = '';
+  if (!expiredUnpaid) {
+    if (refundAmount && refundAmount > 0) {
+      refundBlock = emailBilingual(
+        `Reembolso: ${formatMoney(refundAmount, currency)}. Se devuelve a tu método de pago original; el tiempo de acreditación depende de tu banco.`,
+        `Refund: ${formatMoney(refundAmount, currency)}. It goes back to your original payment method; timing depends on your bank.`,
+      );
+    } else if (refundEligible === false) {
+      refundBlock = emailBilingual(
+        'Según la política de cancelación, esta reserva no tiene reembolso.',
+        'Under the cancellation policy, this booking is not refundable.',
+      );
+    }
+  }
+
+  const reasonBlock =
+    reason && !expiredUnpaid
+      ? `<p style="margin:0 0 16px 0; color:#64748B; font-size:14px;">Detalle / Details: ${esc(reason)}</p>`
+      : '';
+
   const content = `
-    <h2 style="color:#0F172A; font-size:22px; margin-bottom:20px;">Reserva Cancelada / Booking Cancelled</h2>
-    
-    <p style="margin-bottom:16px;">Hola ${guestName},</p>
-    <p style="margin-bottom:16px;">Hello ${guestName},</p>
-
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom:24px;">
-      <tr>
-        <td style="padding:8px 0; color:#64748B; width:30%;">ID de Reserva / Booking ID:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${bookingId}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; color:#64748B;">Propiedad / Property:</td>
-        <td style="padding:8px 0; color:#0F172A; font-weight:600;">${propertyName}</td>
-      </tr>
-    </table>
-
-    <p style="margin-bottom:16px;">
-      Tu reserva ha sido cancelada exitosamente.<br/>
-      Your booking has been successfully cancelled.
-    </p>
-
-    <a href="#" style="display:inline-block; background-color:${EMAIL_BRAND.buttonBackground}; color:${EMAIL_BRAND.buttonText}; padding:14px 28px; text-decoration:none; border-radius:6px; font-weight:600; font-size:16px;">Nueva Reserva / New Booking</a>
-
-    <p style="margin-top:24px; color:#64748B; font-size:14px;">
-      ¿Necesitas ayuda? Contáctanos por WhatsApp: ${EMAIL_BRAND.whatsappPhone}<br/>
-      Need help? Contact us on WhatsApp: ${EMAIL_BRAND.whatsappPhone}
-    </p>
+    ${emailHeading(expiredUnpaid ? 'Reserva expirada / Booking expired' : 'Reserva cancelada / Booking cancelled')}
+    ${emailGreeting(guestName)}
+    ${emailFacts([
+      ['ID de reserva / Booking ID', bookingId],
+      ['Propiedad / Property', propertyName],
+    ])}
+    ${headline}
+    ${refundBlock}
+    ${reasonBlock}
+    ${emailButton({ href: exploreUrl, label: 'Nueva reserva / New booking' })}
+    ${emailHelpLine()}
   `;
 
-  return emailLayout({ content, previewText: `Tu reserva ${bookingId} ha sido cancelada` });
+  return emailLayout({
+    content,
+    previewText: expiredUnpaid
+      ? 'Tu reserva expiró sin pago · Your booking expired unpaid'
+      : 'Tu reserva fue cancelada · Your booking was cancelled',
+  });
 }

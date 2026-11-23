@@ -1,8 +1,11 @@
 export { EMAIL_BRAND, type EmailBrand } from './brand.js';
-export { emailLayout } from './layout.js';
+export { emailLayout, esc } from './layout.js';
+export { accountDeleted } from './account-deleted.js';
 export { bookingConfirmation } from './booking-confirmation.js';
 export { bookingCancellation } from './booking-cancellation.js';
 export { checkInReminder } from './check-in-reminder.js';
+export { hostBookingCancelled } from './host-booking-cancelled.js';
+export { hostNewBooking } from './host-new-booking.js';
 export { invoiceReceipt } from './invoice-receipt.js';
 export { passwordChanged } from './password-changed.js';
 export { passwordReset } from './password-reset.js';

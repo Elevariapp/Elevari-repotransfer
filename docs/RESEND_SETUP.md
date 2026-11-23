@@ -46,6 +46,10 @@ All templates are located in `api/src/lib/email-templates/`:
 | `invoice-receipt.ts` | Invoice/receipt email |
 | `password-changed.ts` | Password changed notification |
 | `password-reset.ts` | Password reset email |
+| `account-deleted.ts` | Account deleted confirmation |
+| `host-new-booking.ts` | Host: a new booking was confirmed |
+| `host-booking-cancelled.ts` | Host: a booking was cancelled |
+| `format.ts` | Shared date/money formatting (Colombia time, COP) |
 | `welcome.ts` | Welcome email |
 
 ## Sender Configuration
@@ -57,10 +61,37 @@ See `api/src/lib/email.ts` for sender name/email configuration.
 ## Environment Variables
 
 ```bash
-RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=reserve@elevari.live
-RESEND_FROM_NAME=Elevari S.A.S
+RESEND_API_KEY=re_xxx                           # required in production: without it NO email is sent
+RESEND_FROM="Elevari <reserve@elevari.live>"    # optional (alias EMAIL_FROM); must be on a domain verified in Resend
+EMAIL_REPLY_TO=                                 # optional
+PUBLIC_SITE_URL=https://elevari.live            # base URL for the links inside emails (default: https://elevari.live)
 ```
+
+`deploy/scripts/validate-env.sh` warns when `RESEND_API_KEY` is empty in production.
+
+## Delivery
+
+`deliverEmail()` in `api/src/lib/email.ts` calls Resend's REST API directly (no SDK).
+
+- In production, a missing `RESEND_API_KEY` is reported as **not sent**. Forgot-password then answers 503 instead of telling the user an email is on its way. Outside production it only logs.
+- Network errors, timeouts, 429 and 5xx are retried (3 attempts, backoff). Every attempt carries the same `Idempotency-Key`, so a retry can never produce a duplicate. Booking confirmations and reminders use stable keys, so they go out once per event.
+- The recipient and the message body are never logged.
+
+## What is sent, and when
+
+| Event | Email | Trigger |
+|-------|-------|---------|
+| Registration, first Google sign-in | Welcome | `routes/auth.ts` |
+| Forgot password | Reset link (1 hour, single use) | `routes/auth.ts` |
+| Password changed (reset or from settings) | Password changed | `routes/auth.ts` |
+| Account deleted | Account deleted (sent to the address held before it was anonymised) | `routes/auth.ts` |
+| Booking paid | Booking confirmation (guest) + new booking (host) | `lib/marketing.ts` |
+| Booking cancelled | Cancellation (guest) + cancelled booking (host) | `routes/bookings.ts` |
+| Unpaid booking expired | Cancellation (guest) | `jobs/expire-pending-bookings.ts` |
+| Day before check-in | Check-in reminder | `jobs/send-check-in-reminders.ts` |
+| Electronic invoice issued | Invoice receipt | `lib/invoicing.ts` |
+
+The in-app notification bell (`GET /api/v1/notifications`) shows the matching events for the signed-in user.
 
 ## Usage
 

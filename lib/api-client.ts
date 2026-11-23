@@ -1,4 +1,4 @@
-import { getToken } from './auth-session';
+import { clearSession, getToken } from './auth-session';
 import { humanizeApiError } from './api-errors';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -13,6 +13,7 @@ export class ApiError extends Error {
     message: string,
     public status: number,
     public details?: unknown,
+    public code?: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -21,23 +22,33 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, options?: RequestInit & { auth?: boolean }): Promise<T> {
   const token = options?.auth ? getAuthToken() : null;
+  // Fastify answers 400 to an empty body that claims to be JSON, so only declare it when there is one.
+  const hasBody = typeof options?.body === 'string';
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-    next: options?.next,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: {
+        ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options?.headers,
+      },
+      next: options?.next,
+    });
+  } catch {
+    throw new ApiError(humanizeApiError('Network error'), 0, undefined, 'network_error');
+  }
 
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
+    // The API no longer accepts this session (expired, revoked or account removed): drop it so the
+    // UI falls back to the signed-out state. Skipped if another login replaced the token meanwhile.
+    if (res.status === 401 && token && getAuthToken() === token) clearSession();
     const raw = typeof data.error === 'string' ? data.error : 'Request failed';
     const code = typeof data.code === 'string' ? data.code : undefined;
-    throw new ApiError(humanizeApiError(raw, code), res.status, data.details);
+    throw new ApiError(humanizeApiError(raw, code), res.status, data.details, code);
   }
 
   return data as T;
@@ -88,7 +99,54 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string | null;
+  phone: string | null;
   role: 'guest' | 'host' | 'admin';
+  /** False for accounts created with Google that never set a password. */
+  has_password: boolean;
+}
+
+export interface AccountPayment {
+  id: string;
+  booking_id: string;
+  property_title: string;
+  amount: number;
+  currency: string;
+  status: string;
+  provider: string;
+  refunded_amount: number;
+  created_at: string;
+}
+
+export interface AccountInvoice {
+  id: string;
+  booking_id: string;
+  property_title: string;
+  invoice_number: string | null;
+  status: 'issued' | 'pending';
+  total: number | null;
+  currency: string;
+  created_at: string;
+}
+
+export type AppNotificationType =
+  | 'booking_confirmed'
+  | 'booking_expired'
+  | 'booking_cancelled'
+  | 'checked_in'
+  | 'stay_completed'
+  | 'host_new_booking'
+  | 'host_booking_cancelled'
+  | 'check_in_soon'
+  | 'payment_failed'
+  | 'password_changed';
+
+export interface AppNotification {
+  id: string;
+  type: AppNotificationType | (string & {});
+  title: string;
+  body: string;
+  booking_id: string | null;
+  created_at: string;
 }
 
 export const wanaApi = {
@@ -124,12 +182,35 @@ export const wanaApi = {
 
   me: () => request<{ user: AuthUser | null }>('/api/v1/auth/me', { auth: true }),
 
-  changePassword: (password: string) =>
-    request<{ success: boolean }>('/api/v1/auth/change-password', {
+  updateProfile: (body: { name?: string; phone?: string | null }) =>
+    request<{ user: AuthUser }>('/api/v1/auth/me', {
+      method: 'PATCH',
+      auth: true,
+      body: JSON.stringify(body),
+    }),
+
+  /** Returns a fresh token: changing the password revokes the one used for the request. */
+  changePassword: (body: { current_password?: string; password: string }) =>
+    request<{ success: boolean; token: string }>('/api/v1/auth/change-password', {
       method: 'POST',
       auth: true,
-      body: JSON.stringify({ password }),
+      body: JSON.stringify(body),
     }),
+
+  deleteAccount: (body: { password?: string; confirm_email?: string }) =>
+    request<{ success: boolean }>('/api/v1/auth/delete-account', {
+      method: 'POST',
+      auth: true,
+      body: JSON.stringify(body),
+    }),
+
+  billing: () =>
+    request<{ payments: AccountPayment[]; invoices: AccountInvoice[] }>('/api/v1/account/billing', {
+      auth: true,
+    }),
+
+  notifications: () =>
+    request<{ data: AppNotification[] }>('/api/v1/notifications', { auth: true }),
 
   forgotPassword: (email: string) =>
     request<{ success: boolean; message: string }>('/api/v1/auth/forgot-password', {
@@ -147,7 +228,10 @@ export const wanaApi = {
     request<{ data: GuestBookingRow[] }>('/api/v1/bookings/me', { auth: true }),
 
   cancelBooking: (id: string) =>
-    request<{ booking: { id: string; status: string } }>(`/api/v1/bookings/${id}/cancel`, {
+    request<{
+      booking: { id: string; status: string };
+      cancellation: { refund_amount: number; reason: string };
+    }>(`/api/v1/bookings/${id}/cancel`, {
       method: 'POST',
       auth: true,
     }),
@@ -319,10 +403,11 @@ export interface HostPropertySummary {
   id: string;
   slug: string;
   title: string;
-  status: string;
+  status: PropertyStatus;
   city: string | null;
   cover_image: string | null;
   media_count: number;
+  pending_media_count?: number;
 }
 
 export type PropertyStatus = 'draft' | 'published' | 'unavailable' | 'maintenance';

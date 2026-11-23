@@ -1,6 +1,7 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import type { UserRole } from '@prisma/client';
 import { verifyToken, type JwtPayload } from '../lib/auth.js';
+import { prisma } from '../lib/prisma.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -21,7 +22,19 @@ export async function authenticate(request: FastifyRequest, reply: FastifyReply)
     return reply.status(401).send({ error: 'Invalid or expired token' });
   }
 
-  request.auth = payload;
+  // The JWT alone can't tell us the account was deleted or the password changed since it
+  // was issued, so check the user row (primary-key lookup).
+  const account = await prisma.user.findUnique({
+    where: { id: payload.sub },
+    select: { email: true, role: true, deletedAt: true, tokenVersion: true },
+  });
+  if (!account || account.deletedAt || account.tokenVersion !== payload.tv) {
+    return reply
+      .status(401)
+      .send({ error: 'Tu sesión ya no es válida. Inicia sesión de nuevo.', code: 'session_revoked' });
+  }
+
+  request.auth = { ...payload, email: account.email, role: account.role };
 }
 
 export function requireRoles(roles: UserRole[]) {

@@ -1,16 +1,18 @@
-import { Pressable, PressableProps, StyleSheet, Text, View, ViewProps, ActivityIndicator } from 'react-native';
-import { colors, radius, spacing, typography, shadows } from '@/lib/design-tokens';
+import type { ReactNode } from 'react';
+import { ActivityIndicator, Pressable, PressableProps, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
+import { colors, radius, spacing, typography } from '@/lib/design-tokens';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'accent';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'accent' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-interface ButtonProps extends PressableProps {
+interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
   fullWidth?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
   disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
 const variantStyles: Record<ButtonVariant, { bg: string; color: string; border?: string }> = {
@@ -18,6 +20,7 @@ const variantStyles: Record<ButtonVariant, { bg: string; color: string; border?:
   secondary: { bg: colors.surface, color: colors.forest, border: colors.border },
   ghost: { bg: 'transparent', color: colors.muted },
   accent: { bg: colors.amber, color: colors.amberInk },
+  danger: { bg: colors.error, color: colors.surface },
 };
 
 const sizeStyles: Record<ButtonSize, { height: number; padding: number; fontSize: number }> = {
@@ -34,35 +37,42 @@ export function Button({
   disabled = false,
   children,
   style,
+  accessibilityLabel,
   ...props
 }: ButtonProps) {
   const vs = variantStyles[variant];
   const ss = sizeStyles[size];
+  const inactive = disabled || loading;
 
   return (
     <Pressable
-      disabled={disabled || loading}
-      style={[
+      disabled={inactive}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? (typeof children === 'string' ? children : undefined)}
+      accessibilityState={{ disabled: inactive, busy: loading }}
+      style={({ pressed }) => [
         styles.container,
         {
           backgroundColor: vs.bg,
           height: ss.height,
           borderRadius: radius.md,
-          ...(fullWidth && { width: '100%' }),
-          ...(vs.border && { borderWidth: 1, borderColor: vs.border }),
-          ...(style && { ...style }),
+          opacity: inactive ? 0.6 : pressed ? 0.85 : 1,
         },
-        ...(disabled || loading ? [{ opacity: 0.6 }] : []),
+        fullWidth && styles.fullWidth,
+        vs.border ? { borderWidth: 1, borderColor: vs.border } : null,
+        style,
       ]}
       {...props}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={vs.color} style={styles.loading} />
+        <ActivityIndicator size="small" color={vs.color} />
       ) : (
-        <Text style={[
-          styles.text,
-          { color: vs.color, fontSize: ss.fontSize, fontWeight: typography.weights.semibold },
-        ]}>
+        <Text
+          style={[
+            styles.text,
+            { color: vs.color, fontSize: ss.fontSize, fontWeight: typography.weights.semibold },
+          ]}
+        >
           {children}
         </Text>
       )}
@@ -76,10 +86,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
   },
+  fullWidth: {
+    width: '100%',
+  },
   text: {
     textAlign: 'center',
-  },
-  loading: {
-    marginRight: spacing.sm,
   },
 });

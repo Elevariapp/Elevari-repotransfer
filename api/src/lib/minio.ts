@@ -37,9 +37,20 @@ export function getS3Client(): S3Client {
         secretAccessKey: cfg.secretKey,
       },
       forcePathStyle: true,
+      // Fail fast when storage is down instead of hanging until the proxy times out.
+      maxAttempts: 2,
+      requestHandler: { connectionTimeout: 5_000, requestTimeout: 60_000 },
     });
   }
   return client;
+}
+
+/** Raised when the object store rejects or cannot be reached (never carries user input). */
+export class StorageError extends Error {
+  constructor(public readonly cause: unknown) {
+    super(cause instanceof Error ? cause.message : String(cause));
+    this.name = 'StorageError';
+  }
 }
 
 export function getPublicUrl(key: string): string {
@@ -50,6 +61,23 @@ export function getPublicUrl(key: string): string {
   return `${publicBase.replace(/\/$/, '')}/${key}`;
 }
 
+/** Inverse of getPublicUrl: returns the object key for one of our public URLs, or null. */
+export function keyFromPublicUrl(url: string): string | null {
+  const prefix = getPublicUrl('');
+  if (url.startsWith(prefix) && url.length > prefix.length) {
+    return url.slice(prefix.length);
+  }
+  // URLs stored before MINIO_PUBLIC_URL changed still contain "/<bucket>/<key>".
+  try {
+    const marker = `/${getConfig().bucket}/`;
+    const { pathname } = new URL(url);
+    const at = pathname.indexOf(marker);
+    return at >= 0 && pathname.length > at + marker.length ? pathname.slice(at + marker.length) : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function uploadBuffer(
   key: string,
   body: Buffer,
@@ -58,14 +86,18 @@ export async function uploadBuffer(
   const { bucket } = getConfig();
   const s3 = getS3Client();
 
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: body,
-      ContentType: contentType,
-    }),
-  );
+  try {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Body: body,
+        ContentType: contentType,
+      }),
+    );
+  } catch (err) {
+    throw new StorageError(err);
+  }
 
   return getPublicUrl(key);
 }

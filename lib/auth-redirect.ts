@@ -6,21 +6,15 @@ export function navigateAfterAuth(path: string) {
   window.location.assign(path);
 }
 
+/** An explicit destination (e.g. the page that sent the user to log in) wins; otherwise the role's home. */
 export function resolvePostAuthPath(
   role: 'guest' | 'host' | 'admin',
   redirect?: string | null,
 ): string {
   const safe = safeAuthRedirect(redirect);
+  if (safe !== '/') return safe;
 
-  if (role === 'admin') {
-    if (safe.startsWith('/admin')) return safe;
-    return '/admin';
-  }
-
-  if (role === 'host') {
-    if (safe.startsWith('/host') || safe.startsWith('/checkout')) return safe;
-    return '/host';
-  }
-
-  return safe;
+  if (role === 'admin') return '/admin';
+  if (role === 'host') return '/host';
+  return '/';
 }

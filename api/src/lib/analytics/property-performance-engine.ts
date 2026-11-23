@@ -5,25 +5,32 @@
  * Response time metric is disabled until messaging schema is added.
  */
 import { prisma } from '../prisma.js';
-import { RevenueAnalyticsEngine } from './revenue-engine.js';
-import { OccupancyAnalyticsEngine } from './occupancy-engine.js';
+import { RevenueAnalyticsEngine, type RevenueMetrics } from './revenue-engine.js';
+import { OccupancyAnalyticsEngine, type OccupancyMetrics } from './occupancy-engine.js';
+import type { AnalyticsRange } from './range.js';
 
 export interface PerformanceFilters {
-  startDate?: Date;
-  endDate?: Date;
+  range: AnalyticsRange;
 }
 
 export interface PropertyPerformance {
   propertyId: string;
   propertySlug: string;
   propertyTitle: string;
+  propertyStatus: string;
   score: number;
   metrics: {
     occupancyRate: number;
     revpar: number;
     adr: number;
     reviewScore: number;
+    reviewCount: number;
     responseTime: number;
+    bookingsCount: number;
+    nightsSold: number;
+    nightsBooked: number;
+    netRevenue: number;
+    hostEarnings: number;
   };
   normalized: {
     occupancy: number;
@@ -36,107 +43,138 @@ export interface PropertyPerformance {
 export interface HostPerformance {
   hostId: string;
   hostEmail: string;
-  averageScore: number;
+  /** null when the host has no published property to rate. */
+  averageScore: number | null;
+  /** Properties that can take bookings (everything except drafts). */
   propertiesCount: number;
+  /** Properties still waiting for the review that publishes them. */
+  draftPropertiesCount: number;
   properties: PropertyPerformance[];
 }
 
-export class PropertyPerformanceEngine {
-  static async calculateForProperty(propertyId: string, filters: PerformanceFilters = {}): Promise<PropertyPerformance> {
-    const revenue = await RevenueAnalyticsEngine.forProperty(propertyId, filters);
-    const occupancy = await OccupancyAnalyticsEngine.forProperty(propertyId, filters);
+interface PropertyRow {
+  id: string;
+  slug: string;
+  title: string;
+  status: string;
+}
 
+// RevPAR (COP per available night) that earns the full revenue score.
+const REVPAR_TARGET_COP = 250_000;
+
+const round2 = (value: number) => Math.round(value * 100) / 100;
+
+export class PropertyPerformanceEngine {
+  /** Scores many properties with a fixed number of queries (no per-property round trips). */
+  private static async build(properties: PropertyRow[], range: AnalyticsRange): Promise<PropertyPerformance[]> {
+    if (properties.length === 0) return [];
+    const propertyIds = properties.map((property) => property.id);
+
+    const [revenue, occupancy, reviews] = await Promise.all([
+      RevenueAnalyticsEngine.byProperty({ range, propertyIds }),
+      OccupancyAnalyticsEngine.byProperty({ range, propertyIds }),
+      prisma.review.groupBy({
+        by: ['propertyId'],
+        where: { propertyId: { in: propertyIds }, isVisible: true },
+        _avg: { rating: true },
+        _count: { _all: true },
+      }),
+    ]);
+    const reviewByProperty = new Map(reviews.map((row) => [row.propertyId, row]));
+
+    return properties.map((property) => {
+      const revenueMetrics = revenue.get(property.id) as RevenueMetrics;
+      const occupancyMetrics = occupancy.get(property.id) as OccupancyMetrics;
+      const review = reviewByProperty.get(property.id);
+      const reviewCount = review?._count._all ?? 0;
+      const reviewScore = reviewCount > 0 ? Number(review?._avg.rating ?? 0) : 0;
+      // Schema validation: No Message model exists, response time disabled
+      const responseTime = 0;
+
+      const normalized = {
+        occupancy: round2(this.normalize(occupancyMetrics.occupancyRate, 0, 100)),
+        revpar: round2(this.normalize(revenueMetrics.revpar, 0, REVPAR_TARGET_COP)),
+        review: round2(this.normalize(reviewScore, 0, 5)),
+        response: 100, // Default when no messaging data
+      };
+
+      // Without reviews the weight is shared by the other two metrics instead of counting as a zero.
+      const score =
+        reviewCount > 0
+          ? 0.4 * normalized.occupancy + 0.4 * normalized.revpar + 0.2 * normalized.review
+          : (0.4 * normalized.occupancy + 0.4 * normalized.revpar) / 0.8;
+
+      return {
+        propertyId: property.id,
+        propertySlug: property.slug,
+        propertyTitle: property.title,
+        propertyStatus: property.status,
+        score: round2(score),
+        metrics: {
+          occupancyRate: occupancyMetrics.occupancyRate,
+          revpar: revenueMetrics.revpar,
+          adr: revenueMetrics.adr,
+          reviewScore: round2(reviewScore),
+          reviewCount,
+          responseTime,
+          bookingsCount: revenueMetrics.bookingsCount,
+          nightsSold: revenueMetrics.nightsSold,
+          nightsBooked: occupancyMetrics.nightsBooked,
+          netRevenue: revenueMetrics.netRevenue,
+          hostEarnings: revenueMetrics.hostEarnings,
+        },
+        normalized,
+      };
+    });
+  }
+
+  static async calculateForProperty(propertyId: string, filters: PerformanceFilters): Promise<PropertyPerformance> {
     const property = await prisma.property.findUnique({
       where: { id: propertyId },
-      select: { id: true, slug: true, title: true },
+      select: { id: true, slug: true, title: true, status: true },
     });
 
     if (!property) {
       throw new Error(`Property ${propertyId} not found`);
     }
 
-    const reviewScore = await this.getReviewScore(propertyId);
-    // Schema validation: No Message model exists, response time disabled
-    const responseTime = 0;
-
-    const metrics = {
-      occupancyRate: occupancy.occupancyRate,
-      revpar: revenue.revpar,
-      adr: revenue.adr,
-      reviewScore,
-      responseTime,
-    };
-
-    const normalized = {
-      occupancy: this.normalize(metrics.occupancyRate, 0, 100),
-      revpar: this.normalize(metrics.revpar, 0, 500),
-      review: this.normalize(metrics.reviewScore, 0, 5),
-      response: 100, // Default when no messaging data
-    };
-
-    const score = 
-      0.40 * normalized.occupancy +
-      0.40 * normalized.revpar +
-      0.20 * normalized.review;
-
-    return {
-      propertyId,
-      propertySlug: property.slug,
-      propertyTitle: property.title,
-      score: Math.round(score * 100) / 100,
-      metrics,
-      normalized,
-    };
+    const [performance] = await this.build([property], filters.range);
+    return performance;
   }
 
-  static async calculateForHost(hostId: string, filters: PerformanceFilters = {}): Promise<HostPerformance> {
-    const properties = await prisma.property.findMany({
-      where: { hostId },
-      select: { id: true, slug: true, title: true },
-    });
+  static async calculateForHost(hostId: string, filters: PerformanceFilters): Promise<HostPerformance> {
+    const [host, properties, draftPropertiesCount] = await Promise.all([
+      prisma.user.findUnique({ where: { id: hostId }, select: { email: true } }),
+      prisma.property.findMany({
+        where: { hostId, status: { not: 'draft' } },
+        select: { id: true, slug: true, title: true, status: true },
+      }),
+      prisma.property.count({ where: { hostId, status: 'draft' } }),
+    ]);
 
-    const performances = await Promise.all(
-      properties.map((p: any) => this.calculateForProperty(p.id, filters))
-    );
-
-    const averageScore = performances.reduce((sum: number, p: any) => sum + p.score, 0) / performances.length;
-
-    const host = await prisma.user.findUnique({
-      where: { id: hostId },
-      select: { id: true, email: true },
-    });
+    const performances = (await this.build(properties, filters.range)).sort((a, b) => b.score - a.score);
+    const averageScore =
+      performances.length > 0
+        ? performances.reduce((sum, performance) => sum + performance.score, 0) / performances.length
+        : null;
 
     return {
       hostId,
       hostEmail: host?.email || '',
-      averageScore: Math.round(averageScore * 100) / 100,
+      averageScore: averageScore === null ? null : round2(averageScore),
       propertiesCount: properties.length,
-      properties: performances.sort((a: any, b: any) => b.score - a.score),
+      draftPropertiesCount,
+      properties: performances,
     };
   }
 
-  static async calculateAll(filters: PerformanceFilters = {}): Promise<PropertyPerformance[]> {
+  static async calculateAll(filters: PerformanceFilters): Promise<PropertyPerformance[]> {
     const properties = await prisma.property.findMany({
-      select: { id: true },
+      where: { status: { not: 'draft' } },
+      select: { id: true, slug: true, title: true, status: true },
     });
 
-    const performances = await Promise.all(
-      properties.map((p: any) => this.calculateForProperty(p.id, filters))
-    );
-
-    return performances.sort((a: any, b: any) => b.score - a.score);
-  }
-
-  private static async getReviewScore(propertyId: string): Promise<number> {
-    const reviews = await prisma.review.findMany({
-      where: { propertyId },
-      select: { rating: true },
-    });
-
-    if (reviews.length === 0) return 0;
-    
-    const sum = reviews.reduce((acc: number, r: any) => acc + r.rating, 0);
-    return sum / reviews.length;
+    return (await this.build(properties, filters.range)).sort((a, b) => b.score - a.score);
   }
 
   private static normalize(value: number, min: number, max: number): number {

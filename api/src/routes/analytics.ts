@@ -1,44 +1,72 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { authenticate, requireRoles } from '../plugins/auth.js';
+import { ApiErrorCode, apiErrorBody } from '../lib/api-errors.js';
+import { idListSchema, resolveRange, type ScopeFilters } from '../lib/analytics/range.js';
 import { RevenueAnalyticsEngine } from '../lib/analytics/revenue-engine.js';
 import { OccupancyAnalyticsEngine } from '../lib/analytics/occupancy-engine.js';
 import { AttributionEngine } from '../lib/analytics/attribution-engine.js';
 import { PropertyPerformanceEngine } from '../lib/analytics/property-performance-engine.js';
 
-const dateSchema = z.object({
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-  property_ids: z.array(z.string()).optional(),
-  host_ids: z.array(z.string()).optional(),
+const querySchema = z.object({
+  start_date: z.string().max(40).optional(),
+  end_date: z.string().max(40).optional(),
+  property_ids: idListSchema,
+  host_ids: idListSchema,
 });
 
+/**
+ * Validates the shared query (YYYY-MM-DD dates, id lists) and applies role scoping.
+ * Hosts are always pinned to their own account, whatever `host_ids` says; only admins may choose hosts.
+ * Replies 400 itself and returns null when the query is invalid.
+ */
+function scopeFromRequest(request: FastifyRequest, reply: FastifyReply): ScopeFilters | null {
+  const parsed = querySchema.safeParse(request.query);
+  if (!parsed.success) {
+    reply.status(400).send(apiErrorBody(ApiErrorCode.INVALID_QUERY));
+    return null;
+  }
+
+  const resolved = resolveRange(parsed.data.start_date, parsed.data.end_date);
+  if (!resolved.ok) {
+    reply.status(400).send(apiErrorBody(ApiErrorCode.INVALID_QUERY, { message: resolved.message }));
+    return null;
+  }
+
+  const { sub, role } = request.auth!;
+  return {
+    range: resolved.range,
+    propertyIds: parsed.data.property_ids,
+    hostIds: role === 'host' ? [sub] : parsed.data.host_ids,
+  };
+}
+
+function periodOf(scope: ScopeFilters) {
+  const { startDate, endDate, days } = scope.range;
+  return { start_date: startDate, end_date: endDate, days };
+}
+
 export async function analyticsRoutes(app: FastifyInstance) {
+  // Unexpected failures must not leak Prisma/driver details to the client.
+  app.setErrorHandler((error, request, reply) => {
+    const statusCode = (error as { statusCode?: number }).statusCode;
+    if (statusCode && statusCode < 500) return reply.send(error);
+    request.log.error({ err: error }, 'analytics request failed');
+    return reply.status(500).send({
+      error: 'No pudimos calcular las métricas ahora. Inténtalo de nuevo en unos minutos.',
+      code: 'ANALYTICS_FAILED',
+    });
+  });
+
   app.get(
     '/analytics/revenue',
     { preHandler: [authenticate, requireRoles(['admin', 'host'])] },
     async (request, reply) => {
-      const body = dateSchema.safeParse(request.query);
-      if (!body.success) {
-        return reply.status(400).send({ error: 'Invalid query' });
-      }
+      const scope = scopeFromRequest(request, reply);
+      if (!scope) return reply;
 
-      const filters = {
-        startDate: body.data.start_date ? new Date(body.data.start_date) : undefined,
-        endDate: body.data.end_date ? new Date(body.data.end_date) : undefined,
-        propertyIds: body.data.property_ids,
-        hostIds: body.data.host_ids,
-      };
-
-      const userId = request.auth!.sub;
-      const role = request.auth!.role;
-
-      if (role === 'host') {
-        filters.hostIds = [userId];
-      }
-
-      const metrics = await RevenueAnalyticsEngine.calculate(filters);
-      return reply.send({ data: metrics });
+      const metrics = await RevenueAnalyticsEngine.calculate(scope);
+      return reply.send({ data: metrics, period: periodOf(scope) });
     }
   );
 
@@ -46,27 +74,11 @@ export async function analyticsRoutes(app: FastifyInstance) {
     '/analytics/occupancy',
     { preHandler: [authenticate, requireRoles(['admin', 'host'])] },
     async (request, reply) => {
-      const body = dateSchema.safeParse(request.query);
-      if (!body.success) {
-        return reply.status(400).send({ error: 'Invalid query' });
-      }
+      const scope = scopeFromRequest(request, reply);
+      if (!scope) return reply;
 
-      const filters = {
-        startDate: body.data.start_date ? new Date(body.data.start_date) : undefined,
-        endDate: body.data.end_date ? new Date(body.data.end_date) : undefined,
-        propertyIds: body.data.property_ids,
-        hostIds: body.data.host_ids,
-      };
-
-      const userId = request.auth!.sub;
-      const role = request.auth!.role;
-
-      if (role === 'host') {
-        filters.hostIds = [userId];
-      }
-
-      const metrics = await OccupancyAnalyticsEngine.calculate(filters);
-      return reply.send({ data: metrics });
+      const metrics = await OccupancyAnalyticsEngine.calculate(scope);
+      return reply.send({ data: metrics, period: periodOf(scope) });
     }
   );
 
@@ -74,20 +86,11 @@ export async function analyticsRoutes(app: FastifyInstance) {
     '/analytics/attribution',
     { preHandler: [authenticate, requireRoles(['admin'])] },
     async (request, reply) => {
-      const body = dateSchema.safeParse(request.query);
-      if (!body.success) {
-        return reply.status(400).send({ error: 'Invalid query' });
-      }
+      const scope = scopeFromRequest(request, reply);
+      if (!scope) return reply;
 
-      const filters = {
-        startDate: body.data.start_date ? new Date(body.data.start_date) : undefined,
-        endDate: body.data.end_date ? new Date(body.data.end_date) : undefined,
-        propertyIds: body.data.property_ids,
-        hostIds: body.data.host_ids,
-      };
-
-      const metrics = await AttributionEngine.calculate(filters);
-      return reply.send({ data: metrics });
+      const metrics = await AttributionEngine.calculate(scope);
+      return reply.send({ data: metrics, period: periodOf(scope) });
     }
   );
 
@@ -95,27 +98,18 @@ export async function analyticsRoutes(app: FastifyInstance) {
     '/analytics/property-performance',
     { preHandler: [authenticate, requireRoles(['admin', 'host'])] },
     async (request, reply) => {
-      const body = dateSchema.safeParse(request.query);
-      if (!body.success) {
-        return reply.status(400).send({ error: 'Invalid query' });
+      const scope = scopeFromRequest(request, reply);
+      if (!scope) return reply;
+
+      if (request.auth!.role === 'host') {
+        const performance = await PropertyPerformanceEngine.calculateForHost(request.auth!.sub, {
+          range: scope.range,
+        });
+        return reply.send({ data: performance, period: periodOf(scope) });
       }
 
-      const userId = request.auth!.sub;
-      const role = request.auth!.role;
-
-      if (role === 'host') {
-        const performance = await PropertyPerformanceEngine.calculateForHost(userId, {
-          startDate: body.data.start_date ? new Date(body.data.start_date) : undefined,
-          endDate: body.data.end_date ? new Date(body.data.end_date) : undefined,
-        });
-        return reply.send({ data: performance });
-      } else {
-        const performances = await PropertyPerformanceEngine.calculateAll({
-          startDate: body.data.start_date ? new Date(body.data.start_date) : undefined,
-          endDate: body.data.end_date ? new Date(body.data.end_date) : undefined,
-        });
-        return reply.send({ data: performances });
-      }
+      const performances = await PropertyPerformanceEngine.calculateAll({ range: scope.range });
+      return reply.send({ data: performances, period: periodOf(scope) });
     }
   );
 
@@ -123,34 +117,55 @@ export async function analyticsRoutes(app: FastifyInstance) {
     '/analytics/insights',
     { preHandler: [authenticate, requireRoles(['admin', 'host'])] },
     async (request, reply) => {
-      const userId = request.auth!.sub;
-      const role = request.auth!.role;
+      const scope = scopeFromRequest(request, reply);
+      if (!scope) return reply;
 
-      const insights = [];
+      const insights: Array<Record<string, unknown>> = [];
 
-      if (role === 'host') {
-        const performance = await PropertyPerformanceEngine.calculateForHost(userId);
-        
-        const underperforming = performance.properties.filter(p => p.score < 50);
-        if (underperforming.length > 0) {
+      if (request.auth!.role === 'host') {
+        const performance = await PropertyPerformanceEngine.calculateForHost(request.auth!.sub, {
+          range: scope.range,
+        });
+
+        if (performance.draftPropertiesCount > 0) {
+          const count = performance.draftPropertiesCount;
           insights.push({
-            type: 'underperforming',
-            message: `${underperforming.length} propiedades con bajo rendimiento`,
-            properties: underperforming.map(p => ({ id: p.propertyId, score: p.score })),
+            type: 'pending_review',
+            message:
+              count === 1
+                ? '1 propiedad en revisión: todavía no es visible para los huéspedes.'
+                : `${count} propiedades en revisión: todavía no son visibles para los huéspedes.`,
+            recommendation: 'Sube fotos de calidad: son lo primero que revisamos antes de publicarla.',
           });
         }
 
-        const avgOccupancy = performance.properties.reduce((sum, p) => sum + p.metrics.occupancyRate, 0) / performance.properties.length;
-        if (avgOccupancy < 50) {
-          insights.push({
-            type: 'low_occupancy',
-            message: `Ocupación promedio baja: ${avgOccupancy.toFixed(1)}%`,
-            recommendation: 'Considera ajustar precios o mejorar visibilidad',
-          });
+        // Drafts cannot take bookings yet, so only live properties are judged.
+        const live = performance.properties;
+        if (live.length > 0) {
+          const underperforming = live.filter((p) => p.score < 50);
+          if (underperforming.length > 0) {
+            insights.push({
+              type: 'underperforming',
+              message:
+                underperforming.length === 1
+                  ? '1 propiedad con bajo rendimiento'
+                  : `${underperforming.length} propiedades con bajo rendimiento`,
+              properties: underperforming.map((p) => ({ id: p.propertyId, score: p.score })),
+            });
+          }
+
+          const avgOccupancy = live.reduce((sum, p) => sum + p.metrics.occupancyRate, 0) / live.length;
+          if (avgOccupancy < 50) {
+            insights.push({
+              type: 'low_occupancy',
+              message: `Ocupación promedio baja: ${String(Math.round(avgOccupancy * 10) / 10).replace('.', ',')}%`,
+              recommendation: 'Considera ajustar precios o mejorar visibilidad',
+            });
+          }
         }
       }
 
-      return reply.send({ data: insights });
+      return reply.send({ data: insights, period: periodOf(scope) });
     }
   );
 }

@@ -3,7 +3,7 @@ export const metadata = {
   description: 'Formas de contactar con Elevari: soporte, privacidad, moderación y consultas generales.',
 };
 
-import WhatsAppButton from '@/components/brand/WhatsAppButton';
+import { whatsappUrl } from '@/lib/whatsapp';
 
 export default function ContactPage() {
   return (
@@ -11,7 +11,7 @@ export default function ContactPage() {
       <p className="elevari-eyebrow">Legal</p>
       <h1 className="mt-2 font-display text-3xl text-elevari-slate">Información de contacto</h1>
       <p className="mt-2 text-sm text-elevari-muted">
-        Última actualización: 19 de noviembre de 2026
+        Última actualización: 23 de noviembre de 2026
       </p>
 
       <div className="mt-8 space-y-6 text-elevari-slate leading-relaxed">
@@ -57,6 +57,19 @@ export default function ContactPage() {
               </tr>
             </tbody>
           </table>
+          <p className="mt-4">
+            También puedes escribirnos por{' '}
+            <a
+              href={whatsappUrl('Hola, quiero información sobre Elevari.')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-elevari-forest hover:underline"
+            >
+              WhatsApp
+            </a>
+            : nuestro asistente virtual te responde al instante y, si prefieres hablar con una persona,
+            puedes elegir esa opción en el menú.
+          </p>
         </section>
 
         <section>
@@ -120,7 +133,6 @@ export default function ContactPage() {
           </ul>
         </section>
       </div>
-      <WhatsAppButton />
     </article>
   );
 }

@@ -1,73 +1,145 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/Button';
+import { Input } from '@/components/Input';
+import { Screen } from '@/components/Screen';
+import { Banner } from '@/components/States';
+import { getApiErrorCode, getApiErrorMessage } from '@/lib/api';
 import { colors, spacing, typography } from '@/lib/design-tokens';
+import { deleteAccount } from '@/lib/session';
+import { useAppStore } from '@/lib/store';
+import { openWhatsAppSupport } from '@/lib/support';
 
 export default function AccountDeletionConfirmScreen() {
   const router = useRouter();
+  const user = useAppStore((state) => state.user);
+  // Google accounts have no password: they confirm by typing their e-mail.
+  const needsPassword = user?.has_password !== false;
+  const [secret, setSecret] = useState('');
+  const [fieldError, setFieldError] = useState('');
+  const [error, setError] = useState('');
+  const [hasActiveBookings, setHasActiveBookings] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const submit = async () => {
+    setLoading(true);
+    setError('');
+    setFieldError('');
+    setHasActiveBookings(false);
+    try {
+      // On success the session is cleared and the route guards send the user to the login screen.
+      await deleteAccount(needsPassword ? { password: secret } : { email: secret });
+    } catch (err) {
+      const code = getApiErrorCode(err);
+      const message = getApiErrorMessage(err, 'No pudimos eliminar tu cuenta. Inténtalo de nuevo.');
+      if (code === 'invalid_password' || code === 'invalid_confirmation') {
+        setFieldError(message);
+      } else {
+        setError(message);
+        setHasActiveBookings(code === 'active_bookings');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = () => {
+    if (loading) return;
+    if (!secret.trim()) {
+      setFieldError(needsPassword ? 'Ingresa tu contraseña para confirmar.' : 'Escribe tu correo para confirmar.');
+      return;
+    }
+    setFieldError('');
+
+    Alert.alert('¿Eliminar tu cuenta?', 'Esta acción es permanente y no se puede deshacer.', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Eliminar', style: 'destructive', onPress: () => void submit() },
+    ]);
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backText}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Confirmar eliminación</Text>
+    <Screen title="Confirmar eliminación" back backHref="/(guest)/profile">
+      <Text style={styles.subtitle}>
+        Esta acción es permanente. No podrás recuperar tu cuenta ni tus datos.
+      </Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>¿Qué ocurrirá?</Text>
+        <Text style={styles.body}>
+          Tu perfil, reservas, listados y datos personales se eliminarán de forma permanente.
+          Algunos datos podrán conservarse de forma anonimizada o por obligaciones legales y
+          fiscales en Colombia.
+        </Text>
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.subtitle}>
-          Esta acción es permanente. No podrás recuperar tu cuenta ni tus datos.
-        </Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Confirma que eres tú</Text>
+        {error ? <Banner tone="error">{error}</Banner> : null}
+        {hasActiveBookings ? (
+          <View style={styles.actions}>
+            <Button variant="secondary" fullWidth onPress={() => router.push('/(guest)/my-bookings')}>
+              Ver mis reservas
+            </Button>
+            <Button variant="ghost" fullWidth onPress={() => void openWhatsAppSupport()}>
+              Ayuda por WhatsApp
+            </Button>
+          </View>
+        ) : null}
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>¿Qué ocurrirá?</Text>
-          <Text style={styles.body}>
-            Tu perfil, reservas, listados y datos personales se eliminarán de forma permanente.
-            Algunos datos podrán conservarse de forma anonimizada o por obligaciones legales y
-            fiscales en Colombia.
-          </Text>
-        </View>
+        {needsPassword ? (
+          <Input
+            label="Contraseña"
+            value={secret}
+            onChangeText={setSecret}
+            error={fieldError || undefined}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="current-password"
+            textContentType="password"
+            returnKeyType="done"
+            onSubmitEditing={handleDelete}
+            editable={!loading}
+          />
+        ) : (
+          <Input
+            label="Escribe tu correo para confirmar"
+            value={secret}
+            onChangeText={setSecret}
+            placeholder={user?.email}
+            hint="Tu cuenta se creó con Google y no tiene contraseña."
+            error={fieldError || undefined}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            textContentType="emailAddress"
+            returnKeyType="done"
+            onSubmitEditing={handleDelete}
+            editable={!loading}
+          />
+        )}
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Confirmar</Text>
-          <Text style={styles.body}>
-            Si estás seguro de que deseas eliminar tu cuenta, presiona el botón de abajo.
-          </Text>
-        </View>
-
-        <TouchableOpacity style={styles.dangerButton} onPress={() => router.replace('/(auth)/login')}>
-          <Text style={styles.dangerText}>Sí, eliminar mi cuenta</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
-          <Text style={styles.cancelText}>Cancelar</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
+      <Button
+        variant="danger"
+        size="lg"
+        fullWidth
+        loading={loading}
+        onPress={handleDelete}
+        accessibilityLabel="Sí, eliminar mi cuenta"
+      >
+        Sí, eliminar mi cuenta
+      </Button>
+      <Button variant="ghost" size="lg" fullWidth disabled={loading} onPress={() => router.back()} style={styles.cancel}>
+        Cancelar
+      </Button>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.ivory },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  backButton: { padding: spacing.sm },
-  backText: { fontSize: typography.sizes.body, color: colors.muted },
-  title: {
-    flex: 1,
-    fontSize: typography.sizes.heading,
-    fontWeight: typography.weights.bold,
-    color: colors.ink,
-  },
-  scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
   subtitle: {
     fontSize: typography.sizes.caption,
     color: colors.muted,
@@ -85,26 +157,6 @@ const styles = StyleSheet.create({
     color: colors.slate,
     lineHeight: 22,
   },
-  dangerButton: {
-    backgroundColor: colors.error,
-    paddingVertical: spacing.md,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: spacing.lg,
-  },
-  dangerText: {
-    color: colors.white,
-    fontWeight: typography.weights.semibold,
-    fontSize: typography.sizes.body,
-  },
-  cancelButton: {
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    marginTop: spacing.sm,
-  },
-  cancelText: {
-    color: colors.muted,
-    fontWeight: typography.weights.semibold,
-    fontSize: typography.sizes.body,
-  },
+  actions: { gap: spacing.sm, marginBottom: spacing.md },
+  cancel: { marginTop: spacing.sm },
 });

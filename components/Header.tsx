@@ -58,7 +58,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <header className={`elevari-header z-50 overflow-x-clip ${sticky ? 'sticky top-0' : ''}`}>
+    <header className={`elevari-header z-50 overflow-x-clip ${sticky ? 'sticky top-0' : 'relative'}`}>
       <div className="elevari-container grid h-14 min-h-[3.5rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:h-16 lg:h-[4.25rem] lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-4">
         <div className="flex min-w-0 items-center justify-self-start">
           <span className="lg:hidden">

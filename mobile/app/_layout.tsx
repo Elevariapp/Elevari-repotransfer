@@ -1,56 +1,31 @@
+import * as SplashScreen from 'expo-splash-screen';
 import { Stack } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { AppEffects } from '@/components/AppEffects';
+import { bootstrapSession } from '@/lib/session';
 import { useAppStore } from '@/lib/store';
-import { authStorage } from '@/lib/auth';
-import { colors } from '@/lib/design-tokens';
+
+// Keep the native splash screen up until the saved session has been restored.
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
-  const [isReady, setIsReady] = useState(false);
-  const { isLoading, setLoading, user, setUser, setAuthenticated, isAuthenticated } = useAppStore();
+  const isLoading = useAppStore((state) => state.isLoading);
 
   useEffect(() => {
-    async function bootstrap() {
-      try {
-        const token = await authStorage.getToken();
-        const storedUser = await authStorage.getUser();
-        if (token && storedUser) {
-          setUser(storedUser);
-          setAuthenticated(true);
-        } else {
-          setAuthenticated(false);
-        }
-      } catch {
-        setAuthenticated(false);
-      } finally {
-        setLoading(false);
-        setIsReady(true);
-      }
-    };
-    bootstrap();
+    void bootstrapSession();
   }, []);
 
-  if (!isReady) {
-    return (
-      <Stack.Screen
-        options={{ headerShown: false, statusBarStyle: 'auto' }}
-      />
-    );
-  }
+  useEffect(() => {
+    if (!isLoading) SplashScreen.hideAsync().catch(() => undefined);
+  }, [isLoading]);
 
+  // Which group a user may see is decided by the guards in each group's layout.
   return (
-    <Stack>
-      {isAuthenticated ? (
-        <Stack.Screen
-          options={{ headerShown: false }}
-          name="(guest)"
-        />
-      ) : (
-        <Stack.Screen
-          options={{ headerShown: false }}
-          name="(auth)"
-        />
-      )}
-    </Stack>
+    <>
+      <StatusBar style="dark" />
+      <AppEffects />
+      <Stack screenOptions={{ headerShown: false }} />
+    </>
   );
 }

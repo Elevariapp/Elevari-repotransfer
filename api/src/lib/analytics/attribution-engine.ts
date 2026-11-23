@@ -6,13 +6,10 @@
  * For full UTM tracking, schema needs to be extended with utmSource, utmMedium, utmCampaign fields.
  */
 import { prisma } from '../prisma.js';
+import { ACTIVE_BOOKING_STATUSES, CAPTURED_PAYMENT_STATUSES } from './revenue-engine.js';
+import type { ScopeFilters } from './range.js';
 
-export interface AttributionFilters {
-  startDate?: Date;
-  endDate?: Date;
-  propertyIds?: string[];
-  hostIds?: string[];
-}
+export type AttributionFilters = ScopeFilters;
 
 export interface AttributionMetrics {
   totalRevenue: number;
@@ -38,36 +35,27 @@ export interface SourceMetrics {
 }
 
 export class AttributionEngine {
-  static async calculate(filters: AttributionFilters = {}): Promise<AttributionMetrics> {
-    const { startDate, endDate, propertyIds, hostIds } = filters;
-    
-    const bookingWhere: any = {
-      status: { in: ['confirmed', 'checked_in', 'completed'] },
-    };
-
-    if (startDate || endDate) {
-      bookingWhere.createdAt = {};
-      if (startDate) bookingWhere.createdAt.gte = startDate;
-      if (endDate) bookingWhere.createdAt.lte = endDate;
-    }
-
-    if (propertyIds?.length) {
-      bookingWhere.propertyId = { in: propertyIds };
-    }
+  static async calculate(filters: AttributionFilters): Promise<AttributionMetrics> {
+    const { range, propertyIds, hostIds } = filters;
 
     const bookings = await prisma.booking.findMany({
-      where: bookingWhere,
-      include: {
-        property: { select: { id: true, hostId: true } },
-        payments: { where: { status: 'succeeded' } },
-        events: { where: { toStatus: 'confirmed' }, take: 1 },
+      where: {
+        status: { in: ACTIVE_BOOKING_STATUSES },
+        createdAt: { gte: range.startAt, lt: range.endAtExclusive },
+        ...(propertyIds?.length ? { propertyId: { in: propertyIds } } : {}),
+        ...(hostIds?.length ? { property: { hostId: { in: hostIds } } } : {}),
+      },
+      select: {
+        payments: {
+          where: { status: { in: CAPTURED_PAYMENT_STATUSES } },
+          select: {
+            amount: true,
+            refunds: { where: { status: { in: ['refunded', 'pending_manual'] } }, select: { amountMinor: true } },
+          },
+        },
+        events: { where: { toStatus: 'confirmed' }, take: 1, select: { metadata: true } },
       },
     });
-
-    let filteredBookings = bookings;
-    if (hostIds?.length) {
-      filteredBookings = bookings.filter((b: any) => hostIds.includes(b.property.hostId));
-    }
 
     const channelMap = new Map<string, ChannelMetrics>();
     const sourceMap = new Map<string, SourceMetrics>();
@@ -75,8 +63,15 @@ export class AttributionEngine {
     let totalRevenue = 0;
     let totalBookings = 0;
 
-    for (const booking of filteredBookings) {
-      const revenue = booking.payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+    for (const booking of bookings) {
+      // Net of refunds, like the revenue engine.
+      const revenue = booking.payments.reduce(
+        (sum, payment) =>
+          sum +
+          Number(payment.amount) -
+          payment.refunds.reduce((refunded, refund) => refunded + refund.amountMinor / 100, 0),
+        0,
+      );
       totalRevenue += revenue;
       totalBookings++;
 
@@ -133,11 +128,11 @@ export class AttributionEngine {
     return 'direct_none';
   }
 
-  static async forProperty(propertyId: string, filters: Omit<AttributionFilters, 'propertyIds'> = {}) {
+  static async forProperty(propertyId: string, filters: Omit<AttributionFilters, 'propertyIds'>) {
     return this.calculate({ ...filters, propertyIds: [propertyId] });
   }
 
-  static async forHost(hostId: string, filters: Omit<AttributionFilters, 'hostIds'> = {}) {
+  static async forHost(hostId: string, filters: Omit<AttributionFilters, 'hostIds'>) {
     return this.calculate({ ...filters, hostIds: [hostId] });
   }
 }

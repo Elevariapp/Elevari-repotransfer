@@ -9,19 +9,23 @@ export async function verifyGoogleIdToken(idToken: string): Promise<GoogleProfil
   const clientId = process.env.GOOGLE_CLIENT_ID ?? process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   if (!clientId) return null;
 
-  const res = await fetch(
-    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
-  );
-
-  if (!res.ok) return null;
-
-  const data = (await res.json()) as {
+  let data: {
     aud?: string;
     email?: string;
     email_verified?: string | boolean;
     name?: string;
     sub?: string;
   };
+  try {
+    const res = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
+      { signal: AbortSignal.timeout(8_000) },
+    );
+    if (!res.ok) return null;
+    data = await res.json();
+  } catch {
+    return null;
+  }
 
   if (data.aud !== clientId || !data.email || !data.sub) return null;
 

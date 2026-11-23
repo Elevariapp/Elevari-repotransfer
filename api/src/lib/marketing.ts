@@ -3,6 +3,7 @@ import { prisma } from './prisma.js';
 import { issueBookingInvoice } from './invoicing.js';
 import {
   sendBookingConfirmationEmail,
+  sendHostNewBookingEmail,
   sendInvoiceReceiptEmail,
 } from './transactional-emails.js';
 
@@ -68,6 +69,7 @@ export async function sendMetaPurchaseEvent(bookingId: string): Promise<void> {
 export async function onBookingConfirmed(bookingId: string): Promise<void> {
   await Promise.allSettled([
     sendBookingConfirmationEmail(bookingId),
+    sendHostNewBookingEmail(bookingId),
     sendMetaPurchaseEvent(bookingId),
     issueBookingInvoice(bookingId),
   ]);
