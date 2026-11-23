@@ -20,9 +20,9 @@ export const colors = {
   muted: '#64748B',
   border: '#E2E8F0',
   // Feedback
-  success: '#064E3B',
+  success: '#EA9A2E',
   successSoft: '#FEF3C7',
-  warning: '#D97706',
+  warning: '#F59E0B',
   warningSoft: '#FEF3C7',
   error: '#B3261E',
   errorSoft: '#FDECEB',
