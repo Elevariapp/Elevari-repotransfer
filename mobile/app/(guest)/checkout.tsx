@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   title: { fontSize: typography.sizes.heading, fontWeight: typography.weights.bold, color: colors.ink },
   content: { padding: spacing.lg },
   divider: { flexDirection: 'row', alignItems: 'center', marginVertical: spacing.lg },
-  dividerText: { fontSize: typography.sizes.caption, color: colors.muted, marginHorizontal: spacing.sm },
+  dividerText: { fontSize: typography.sizes.caption, color: colors.muted, marginHorizontal: spacing.sm, numberOfLines: 1, ellipsizeMode: 'tail' },
   errorBanner: { backgroundColor: colors.errorSoft, borderRadius: 8, padding: spacing.md, marginBottom: spacing.md },
   errorText: { fontSize: typography.sizes.caption, color: colors.error },
 });

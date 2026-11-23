@@ -1,3 +1,5 @@
+import { siteUrl } from '@/lib/site-url';
+
 export interface SecurityAlertData {
   userName: string;
   eventType: string;
@@ -30,9 +32,9 @@ export function SecurityAlertEmail({ data }: { data: SecurityAlertData }) {
         .detail-label { color: #64748B; font-size: 0.875rem; }
         .detail-value { font-weight: 500; color: #0F172A; }
         .cta { text-align: center; margin: 24px 0; }
-        .cta-button { display: inline-block; background: #D97706; color: #FFFFFF; padding: 14px 32px; border-radius: 0.875rem; text-decoration: none; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .cta-button { display: inline-block; background: #C2410C; color: #FFFFFF; padding: 14px 32px; border-radius: 0.875rem; text-decoration: none; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; }
         .footer { padding: 24px; background: #0F172A; color: #FEF3C7; font-size: 0.8125rem; text-align: center; border-top: 1px solid #E2E8F0; }
-        .footer a { color: #D97706; text-decoration: none; }
+        .footer a { color: #F59E0B; text-decoration: none; }
         .badge { display: inline-block; background: #FDECEB; color: #B3261E; padding: 6px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 16px; }
       </style>
     </head>
@@ -40,6 +42,7 @@ export function SecurityAlertEmail({ data }: { data: SecurityAlertData }) {
       <div class="container">
         <div class="card">
           <div class="header">
+            <img src="${siteUrl('/logo.png')}" alt="Elevari" width="48" height="48" style="display: block; margin: 0 auto 12px;" />
             <h1>Alerta de seguridad 🔒</h1>
           </div>
           <div class="body">

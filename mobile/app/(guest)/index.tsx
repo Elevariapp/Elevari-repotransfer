@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.lg, ...shadows.card },
   image: { width: '100%', height: 200 },
   cardContent: { padding: spacing.md },
-  cardTitle: { fontSize: typography.sizes.body, fontWeight: typography.weights.semibold, color: colors.ink, marginBottom: spacing.xs },
-  cardLocation: { fontSize: typography.sizes.caption, color: colors.muted, marginBottom: spacing.sm },
-  cardPrice: { fontSize: typography.sizes.body, fontWeight: typography.weights.bold, color: colors.forest },
+  cardTitle: { fontSize: typography.sizes.body, fontWeight: typography.weights.semibold, color: colors.ink, marginBottom: spacing.xs, numberOfLines: 1, ellipsizeMode: 'tail' },
+  cardLocation: { fontSize: typography.sizes.caption, color: colors.muted, marginBottom: spacing.sm, numberOfLines: 1, ellipsizeMode: 'tail' },
+  cardPrice: { fontSize: typography.sizes.body, fontWeight: typography.weights.bold, color: colors.forest, numberOfLines: 1, ellipsizeMode: 'tail' },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

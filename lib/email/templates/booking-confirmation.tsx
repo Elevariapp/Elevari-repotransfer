@@ -26,7 +26,7 @@ export function BookingConfirmationEmail({ data }: { data: BookingConfirmationDa
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #FEF3C7; color: #0F172A; }
         .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
         .card { background: #FFFFFF; border-radius: 1.25rem; overflow: hidden; box-shadow: 0 12px 32px rgba(22, 34, 44, 0.1); }
-        .header { background: #D97706; color: #FFFFFF; padding: 32px 24px; text-align: center; }
+        .header { background: #C2410C; color: #FFFFFF; padding: 32px 24px; text-align: center; }
         .header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; }
         .body { padding: 32px 24px; }
         .body h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.25rem; color: #0F172A; margin-top: 0; }
@@ -34,16 +34,17 @@ export function BookingConfirmationEmail({ data }: { data: BookingConfirmationDa
         .detail-label { color: #64748B; font-size: 0.875rem; }
         .detail-value { font-weight: 500; color: #0F172A; }
         .cta { text-align: center; margin: 24px 0; }
-        .cta-button { display: inline-block; background: #D97706; color: #FFFFFF; padding: 14px 32px; border-radius: 0.875rem; text-decoration: none; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .cta-button { display: inline-block; background: #C2410C; color: #FFFFFF; padding: 14px 32px; border-radius: 0.875rem; text-decoration: none; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; }
         .footer { padding: 24px; background: #0F172A; color: #FEF3C7; font-size: 0.8125rem; text-align: center; border-top: 1px solid #E2E8F0; }
-        .footer a { color: #D97706; text-decoration: none; }
-        .badge { display: inline-block; background: #FEF3C7; color: #064E3B; padding: 6px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 16px; }
+        .footer a { color: #F59E0B; text-decoration: none; }
+        .badge { display: inline-block; background: #FEF3C7; color: #9A340E; padding: 6px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 16px; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="card">
           <div class="header">
+            <img src="${siteUrl('/logo.png')}" alt="Elevari" width="48" height="48" style="display: block; margin: 0 auto 12px;" />
             <h1>¡Reserva confirmada! 🏕️</h1>
           </div>
           <div class="body">
