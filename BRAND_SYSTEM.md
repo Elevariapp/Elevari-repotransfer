@@ -59,7 +59,7 @@ Lockup: the mark next to the wordmark "Elevari", with no tagline.
 - Link color: `#C2410C`
 - Footer background: `#0F172A`
 - Footer text: `#FEF3C7` (Cream); footer links `#EA9A2E` (Amber)
-- Logo: `https://elevari.live/brand/icons/icon-128.png` (PNG, because mail clients do not render SVG)
+- Logo: `https://raw.githubusercontent.com/Elevariapp/Elevari-repotransfer/b-main/public/brand/icons/icon-128.png` (PNG, because mail clients do not render SVG; hosted on GitHub raw, not `elevari.live`, because Cloudflare challenges mail image proxies)
 
 ## WhatsApp Business Brand
 
