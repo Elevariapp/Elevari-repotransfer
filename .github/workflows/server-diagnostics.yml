@@ -1,0 +1,143 @@
+name: Server diagnostics
+
+# Manual and read-only: Actions → Server diagnostics → Run workflow.
+# This repository is public, so its logs are public: nothing here prints env files, tokens or the server IP.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-view:
+    name: Public view (DNS, registration, Cloudflare, HTTPS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DOMAIN: elevari.live
+      ORIGIN_IP: ${{ secrets.HETZNER_IP || vars.HETZNER_IP }}
+    steps:
+      - name: DNS and domain registration
+        run: |
+          set +e
+          doh() { curl -sS -m 15 -H 'accept: application/dns-json' "https://cloudflare-dns.com/dns-query?name=$1&type=$2"; }
+          { curl -sS -m 15 https://www.cloudflare.com/ips-v4; echo; curl -sS -m 15 https://www.cloudflare.com/ips-v6; echo; } > /tmp/cf-ips.txt
+          cat > /tmp/classify.py <<'PY'
+          import ipaddress, os, sys
+          nets = [ipaddress.ip_network(l.strip()) for l in open('/tmp/cf-ips.txt') if l.strip()]
+          origin = os.environ.get('ORIGIN_IP', '')
+          for ip in sys.argv[1:]:
+              a = ipaddress.ip_address(ip)
+              if ip == origin:
+                  kind = 'your Hetzner server (DNS only, not proxied by Cloudflare)'
+              elif any(a in n for n in nets):
+                  kind = 'Cloudflare proxy'
+              else:
+                  kind = 'NOT Cloudflare and NOT your Hetzner server'
+              print(ip if ip != origin else '<origin-ip>', '->', kind)
+          PY
+          echo "== DNS as the public internet sees it"
+          for h in "$DOMAIN" "www.$DOMAIN" "app.$DOMAIN" "api.$DOMAIN"; do
+            r=$(doh "$h" A)
+            echo "-- $h  (DNS status $(echo "$r" | jq -r '.Status // "error"'); 0 = ok, 3 = name does not exist)"
+            ips=$(echo "$r" | jq -r '.Answer[]? | select(.type==1) | .data')
+            if [ -z "$ips" ]; then echo "   no A record"; else python3 /tmp/classify.py $ips | sed 's/^/   /'; fi
+          done
+          echo "-- Nameservers: $(doh "$DOMAIN" NS | jq -r '[.Answer[]? | select(.type==2) | .data] | join(", ")')"
+          echo
+          echo "== Domain registration (RDAP)"
+          for u in "https://rdap.identitydigital.services/rdap/domain/$DOMAIN" "https://rdap.org/domain/$DOMAIN"; do
+            if curl -sSL -m 20 -o /tmp/rdap.json "$u" && jq -e . /tmp/rdap.json >/dev/null 2>&1; then
+              jq -r '"   status: \((.status // []) | join(", "))", ((.events // [])[] | "   \(.eventAction): \(.eventDate)"), "   nameservers: \([(.nameservers // [])[].ldhName] | join(", "))"' /tmp/rdap.json
+              break
+            fi
+          done
+
+      - name: What visitors get over HTTPS
+        run: |
+          set +e
+          mask() { if [ -n "$ORIGIN_IP" ]; then sed "s/${ORIGIN_IP//./\\.}/<origin-ip>/g"; else cat; fi; }
+          for u in "https://$DOMAIN/" "https://www.$DOMAIN/" "https://app.$DOMAIN/" "https://api.$DOMAIN/health"; do
+            echo "-- $u"
+            : > /tmp/head.txt; : > /tmp/body.html
+            curl -sS -m 25 -o /tmp/body.html -D /tmp/head.txt -w "   result: HTTP %{http_code} in %{time_total}s\n" "$u" 2>&1 | mask
+            tr -d '\r' < /tmp/head.txt | grep -iE '^(server|cf-ray|location|cf-cache-status):' | sed 's/^/   /'
+            grep -oiE 'error (code )?[0-9]{3,4}[^<]{0,60}' /tmp/body.html | head -2 | sed 's/^/   page says: /'
+          done
+          echo "-- TLS certificate presented for $DOMAIN"
+          echo | openssl s_client -connect "$DOMAIN:443" -servername "$DOMAIN" 2>/dev/null | openssl x509 -noout -issuer -dates 2>&1 | sed 's/^/   /'
+
+      - name: Straight to the origin server (bypassing Cloudflare)
+        run: |
+          set +e
+          if [ -z "$ORIGIN_IP" ]; then echo "HETZNER_IP is not set"; exit 0; fi
+          mask() { sed "s/${ORIGIN_IP//./\\.}/<origin-ip>/g"; }
+          for p in 22 80 443; do
+            if timeout 8 bash -c "exec 3<>/dev/tcp/$ORIGIN_IP/$p" 2>/dev/null; then echo "port $p: OPEN"; else echo "port $p: closed or filtered (seen from GitHub's network)"; fi
+          done
+          curl -sS -m 12 -o /dev/null -w "http://origin/ with Host: $DOMAIN -> HTTP %{http_code}\n" -H "Host: $DOMAIN" "http://$ORIGIN_IP/" 2>&1 | mask
+          curl -sSk -m 12 -o /dev/null -w "https://origin/ (TLS on 443) -> HTTP %{http_code}\n" --resolve "$DOMAIN:443:$ORIGIN_IP" "https://$DOMAIN/" 2>&1 | mask
+
+  server:
+    name: Server inside (containers, nginx, ports)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HETZNER_IP: ${{ secrets.HETZNER_IP || vars.HETZNER_IP }}
+      HETZNER_USER: ${{ secrets.HETZNER_USER || vars.HETZNER_USER }}
+      HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+    steps:
+      - name: Read-only checks over SSH
+        run: |
+          set +e
+          for v in HETZNER_IP HETZNER_USER HETZNER_SSH_KEY; do
+            [ -z "${!v}" ] && { echo "::error::$v is not set"; exit 1; }
+          done
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$HETZNER_SSH_KEY" | tr -d '\r' > ~/.ssh/diag_key
+          chmod 600 ~/.ssh/diag_key
+          ssh -i ~/.ssh/diag_key -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o LogLevel=ERROR \
+            "$HETZNER_USER@$HETZNER_IP" 'bash -s' <<'REMOTE'
+          export LC_ALL=C
+          mask() { sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/x.x.x.x/g; s/[A-Za-z0-9+\/_=-]{32,}/<redacted>/g' | cut -c1-240; }
+          echo "== host"
+          echo "uptime: $(uptime -p)"
+          free -m | awk 'NR==2{printf "memory: %s MB used of %s MB\n",$3,$2}'
+          df -h / | awk 'NR==2{print "disk: "$3" used of "$2" ("$5")"}'
+          echo "docker service: $(systemctl is-active docker)"
+          cd /opt/elevari 2>/dev/null || { echo "/opt/elevari does not exist"; exit 0; }
+          echo "repo: $(git rev-parse --short HEAD) - $(git log -1 --format=%s | cut -c1-80)"
+          echo
+          echo "== every container on the host"
+          docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+          echo
+          echo "== restart counts and health"
+          for c in $(docker ps -aq); do
+            docker inspect -f '{{.Name}} state={{.State.Status}} restarts={{.RestartCount}} health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$c"
+          done
+          echo
+          echo "== who listens on 80/443 (host)"
+          ss -tlnpH | awk '$4 ~ /:(80|443)$/ {print $4, $6}' | cut -c1-120
+          echo
+          echo "== checks made from the server itself"
+          for p in /health / /bot/health; do
+            curl -sS -m 8 -o /dev/null -w "http://127.0.0.1$p -> HTTP %{http_code}\n" -H 'Host: elevari.live' "http://127.0.0.1$p" 2>&1 | head -1
+          done
+          curl -sk -m 8 -o /dev/null -w "https://127.0.0.1/ -> HTTP %{http_code} (000 = nothing serves TLS on 443)\n" https://127.0.0.1/
+          echo
+          echo "== host firewall (ports only)"
+          if command -v ufw >/dev/null; then ufw status | head -1; ufw status | awk '$1 ~ /^(80|443|22)(\/|$)/ {print $1, $2}'; else echo "ufw not installed"; fi
+          echo
+          echo "== nginx config test"
+          docker exec "$(docker compose -f docker-compose.prod.yml --env-file .env.production ps -q nginx)" nginx -t 2>&1 | mask
+          echo
+          echo "== recent error lines per service (IPs and tokens masked)"
+          for s in nginx web api bot; do
+            echo "-- $s"
+            docker compose -f docker-compose.prod.yml --env-file .env.production logs --no-color --tail 300 "$s" 2>&1 | grep -iE 'error|fatal|emerg|crit|unhandled|econn|eaddr|denied' | tail -8 | mask
+          done
+          REMOTE
+          rc=$?
+          rm -f ~/.ssh/diag_key
+          [ $rc -eq 0 ] || echo "::error::SSH step ended with exit code $rc"
+          exit $rc
