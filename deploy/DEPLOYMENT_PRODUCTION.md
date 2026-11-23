@@ -46,7 +46,7 @@ El job `mobile-build-android` encola con EAS un AAB (`production`, Play Store) y
 
 ### WhatsApp bot
 
-`elevari-bot/` se construye y arranca junto al resto del stack (servicio `bot` en `docker-compose.prod.yml`, puerto interno 3001). Nginx expone solo `/webhook/whatsapp` y `/bot/health`; `/chat` queda interno. Configura en Meta → WhatsApp → Webhook: `https://<dominio>/webhook/whatsapp` con el mismo `WHATSAPP_VERIFY_TOKEN` de `.env.production`.
+`elevari-bot/` se construye y arranca junto al resto del stack (servicio `bot` en `docker-compose.prod.yml`, puerto interno 3001). Nginx expone solo `/webhook/whatsapp` y `/bot/health`. Configura en Meta → WhatsApp → Webhook: `https://<dominio>/webhook/whatsapp` con el mismo `WHATSAPP_VERIFY_TOKEN` de `.env.production`, y define `WHATSAPP_APP_SECRET` (el *App Secret* de la app de Meta): el bot firma-verifica cada mensaje y en producción responde 503 si falta.
 
 ### Validar localmente antes de hacer push
 

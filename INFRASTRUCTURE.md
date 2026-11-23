@@ -79,7 +79,7 @@ Or all-in-docker: `npm run docker:up`
 ### Auth (JWT)
 
 - Header: `Authorization: Bearer <token>`
-- Cookie web: `wana_token` (middleware protege `/host`, `/account`, `/admin`)
+- Cookie web: `elevari_token` (el proxy protege `/host`, `/account`, `/admin`; `wana_token` se sigue leyendo para sesiones antiguas)
 - Demo: `guest@elevari.live`, `host@elevari.live`, `admin@elevari.live` / `elevari12345`
 
 ### Pagos (Fase 2 — Wompi-first)

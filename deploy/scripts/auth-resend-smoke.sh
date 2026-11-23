@@ -53,12 +53,28 @@ done
 
 guest_token=$(smoke_login "$EMAIL" | json_field "['token']")
 
+wrong_current=$(curl -s -X POST "$BASE_URL/api/v1/auth/change-password" \
+  -H "Authorization: Bearer $guest_token" \
+  -H 'Content-Type: application/json' \
+  -d "{\"current_password\":\"definitely-not-the-password\",\"password\":\"$PASSWORD\"}")
+if echo "$wrong_current" | grep -q 'invalid_current_password'; then
+  ok "change-password rejects a wrong current password (session kept)"
+else
+  bad "change-password with wrong current password: $wrong_current"
+fi
+
+# Re-sets the same password: exercises the whole flow without changing the demo credentials.
 change_resp=$(curl -sf -X POST "$BASE_URL/api/v1/auth/change-password" \
   -H "Authorization: Bearer $guest_token" \
   -H 'Content-Type: application/json' \
-  -d '{"password":"wana12345"}') || true
+  -d "{\"current_password\":\"$PASSWORD\",\"password\":\"$PASSWORD\"}") || true
 if echo "$change_resp" | grep -q '"success":true'; then
-  ok "change-password (idempotent reset to demo pass)"
+  ok "change-password"
+  new_token=$(echo "$change_resp" | json_field "['token']")
+  old_status=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/api/v1/auth/me" -H "Authorization: Bearer $guest_token")
+  new_status=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/api/v1/auth/me" -H "Authorization: Bearer $new_token")
+  if [[ "$old_status" == "401" ]]; then ok "old session revoked after change-password"; else bad "old session still valid ($old_status)"; fi
+  if [[ "$new_status" == "200" ]]; then ok "fresh token accepted after change-password"; else bad "fresh token rejected ($new_status)"; fi
 else
   bad "change-password"
 fi

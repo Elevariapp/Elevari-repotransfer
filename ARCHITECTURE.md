@@ -36,7 +36,7 @@ The two units communicate via HTTP/REST. The web app calls the API on port 4000.
 | Language | TypeScript | 6.0.3 | Strict mode |
 | ORM | Prisma | 6.3.1 | PostgreSQL client, migrations |
 | Database | PostgreSQL | — | Port 5432 |
-| Auth | JWT (jsonwebtoken) | — | Bearer token + `wana_token` cookie |
+| Auth | JWT (jsonwebtoken) | — | Bearer token + `elevari_token` cookie |
 | Payments | Wompi SDK / REST | — | Only active provider |
 | Email | Resend | — | Transactional emails |
 | Scheduling | node-cron | — | Background jobs |
@@ -159,8 +159,8 @@ wana-2026/
 ### Authentication Flow
 
 1. Guest/host logs in → `POST /api/v1/auth/login` → returns JWT
-2. JWT stored in `wana_token` cookie (httpOnly, secure)
-3. Middleware checks cookie on protected routes (`/host`, `/account`, `/admin`)
+2. JWT stored by the browser in the `elevari_token` cookie (`SameSite=Lax`, `Secure` on HTTPS, shared across `.elevari.live`; not httpOnly). Names live in `lib/auth-cookie.ts`; the pre-rebrand `wana_token` is still read so old sessions keep working
+3. The proxy (`proxy.ts`) checks the cookie on protected routes (`/host`, `/account`, `/admin`)
 4. API validates JWT on `Authorization: Bearer <token>` header
 
 ### Payment Flow (Wompi)

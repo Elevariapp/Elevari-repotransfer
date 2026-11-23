@@ -136,10 +136,17 @@ echo "--- WhatsApp bot ---"
 check_optional WHATSAPP_TOKEN "${WHATSAPP_TOKEN:-}"
 check_optional WHATSAPP_PHONE_NUMBER_ID "${WHATSAPP_PHONE_NUMBER_ID:-}"
 check_optional WHATSAPP_VERIFY_TOKEN "${WHATSAPP_VERIFY_TOKEN:-}"
+check_optional WHATSAPP_APP_SECRET "${WHATSAPP_APP_SECRET:-}"
+if [[ -z "${WHATSAPP_APP_SECRET:-}" && "$MODE_LABEL" == "production" ]]; then
+  echo "${YELLOW}  ⚠ Sin WHATSAPP_APP_SECRET el bot rechaza (503) los mensajes entrantes en producción${NC}"
+fi
 
 echo ""
 echo "--- Marketing ---"
-check_optional RESEND_API_KEY "$RESEND_API_KEY"
+check_optional RESEND_API_KEY "${RESEND_API_KEY:-}"
+if [[ -z "${RESEND_API_KEY:-}" && "$MODE_LABEL" == "production" ]]; then
+  echo "${YELLOW}  ⚠ Sin RESEND_API_KEY no se envía ningún correo (recuperar contraseña, confirmaciones de reserva)${NC}"
+fi
 check_optional NEXT_PUBLIC_GA_MEASUREMENT_ID "$NEXT_PUBLIC_GA_MEASUREMENT_ID"
 
 if [[ "$MODE_LABEL" == "production" ]]; then

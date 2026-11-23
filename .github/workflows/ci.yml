@@ -116,6 +116,7 @@ jobs:
           cache-dependency-path: elevari-bot/package-lock.json
       - run: npm ci --no-audit --no-fund
       - run: npm run check
+      - run: npm test
       - name: Smoke test /health
         run: |
           PORT=3999 node src/index.js &
