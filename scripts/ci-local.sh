@@ -32,6 +32,15 @@ if [[ $LOCKS -eq 1 ]]; then
   done
 fi
 
+# Catches invalid workflow files (e.g. `secrets.*` inside step `if:`), which make GitHub fail the run in 0s.
+if command -v actionlint >/dev/null 2>&1; then
+  step "workflow lint" actionlint
+elif [[ -x "$HOME/go/bin/actionlint" ]]; then
+  step "workflow lint" "$HOME/go/bin/actionlint"
+else
+  echo "○ actionlint no instalado — brew install actionlint | go install github.com/rhysd/actionlint/cmd/actionlint@latest"
+fi
+
 ensure_deps .
 ensure_deps mobile
 ensure_deps api

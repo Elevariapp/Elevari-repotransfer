@@ -66,11 +66,6 @@ check_required NEXT_PUBLIC_SITE_URL "$NEXT_PUBLIC_SITE_URL"
 check_required NEXT_PUBLIC_API_URL "$NEXT_PUBLIC_API_URL"
 check_required CORS_ORIGIN "$CORS_ORIGIN"
 
-if [[ "${JWT_SECRET:-}" == change_me* && "$MODE_LABEL" == production ]]; then
-  echo "${RED}✗ JWT_SECRET sigue con el valor de plantilla (change_me...)${NC}"
-  errors=$((errors + 1))
-fi
-
 if [[ "${JWT_SECRET:-}" != "" && ${#JWT_SECRET} -lt 32 ]]; then
   echo "${RED}✗ JWT_SECRET debe tener al menos 32 caracteres${NC}"
   errors=$((errors + 1))
@@ -147,8 +142,21 @@ echo "--- Marketing ---"
 check_optional RESEND_API_KEY "$RESEND_API_KEY"
 check_optional NEXT_PUBLIC_GA_MEASUREMENT_ID "$NEXT_PUBLIC_GA_MEASUREMENT_ID"
 
-echo ""
-echo "=== Resumen: $errors error(es), $warnings advertencia(s) ==="
+if [[ "$MODE_LABEL" == "production" ]]; then
+  echo ""
+  echo "--- Production placeholder check ---"
+  while IFS='=' read -r key value; do
+    key="${key%%#*}"
+    key="${key%% *}"
+    value="${value%%#*}"
+    value="${value%\"}"
+    value="${value#\"}"
+    if [[ -n "$key" && -n "$value" && "$value" == change_me* ]]; then
+      echo "${RED}✗ PRODUCTION: $key tiene valor placeholder 'change_me*' — no permitido en producción${NC}"
+      errors=$((errors + 1))
+    fi
+  done < "$ENV_FILE"
+fi
 
 if [[ $errors -gt 0 ]]; then
   exit 1
