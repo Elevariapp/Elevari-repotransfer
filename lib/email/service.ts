@@ -1,4 +1,4 @@
-import { resend, EMAIL_FROM } from './client';
+import { getResend, EMAIL_FROM } from './client';
 import { BookingConfirmationEmail } from './templates/booking-confirmation';
 import { SecurityAlertEmail } from './templates/security-alert';
 import { WelcomeEmail } from './templates/welcome';
@@ -46,7 +46,7 @@ export async function sendEmail(params: SendEmailParams) {
   }
 
   try {
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from: EMAIL_FROM,
       to,
       subject: subjects[type],
