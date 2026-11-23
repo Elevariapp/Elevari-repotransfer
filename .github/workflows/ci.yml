@@ -234,6 +234,14 @@ jobs:
       HETZNER_USER: ${{ secrets.HETZNER_USER || vars.HETZNER_USER }}
       HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      META_APP_ID: ${{ secrets.META_APP_ID || '1045490988562190' }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET || secrets.facebook_Key }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN || secrets.WHATSAPP_TOKEN }}
+      WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+      WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID || '1705399497596090' }}
+      WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
+      WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET || secrets.facebook_Key }}
+      WHATSAPP_BUSINESS_ACCOUNT_ID: ${{ secrets.WHATSAPP_BUSINESS_ACCOUNT_ID }}
     steps:
       - name: Check deploy secrets
         id: secrets
@@ -265,7 +273,7 @@ jobs:
           host: ${{ env.HETZNER_IP }}
           username: ${{ env.HETZNER_USER }}
           key: ${{ env.HETZNER_SSH_KEY }}
-          envs: RESEND_API_KEY
+          envs: RESEND_API_KEY,META_APP_ID,META_APP_SECRET,META_ACCESS_TOKEN,WHATSAPP_TOKEN,WHATSAPP_PHONE_NUMBER_ID,WHATSAPP_VERIFY_TOKEN,WHATSAPP_APP_SECRET,WHATSAPP_BUSINESS_ACCOUNT_ID
           command_timeout: 30m
           script: |
             set -euo pipefail
@@ -282,10 +290,25 @@ jobs:
             if not path.exists():
                 raise SystemExit(".env.production is missing on the production server")
 
-            resend = os.environ.get("RESEND_API_KEY", "").strip()
+            managed_keys = (
+                "RESEND_API_KEY",
+                "META_APP_ID",
+                "META_APP_SECRET",
+                "META_ACCESS_TOKEN",
+                "WHATSAPP_TOKEN",
+                "WHATSAPP_PHONE_NUMBER_ID",
+                "WHATSAPP_VERIFY_TOKEN",
+                "WHATSAPP_APP_SECRET",
+                "WHATSAPP_BUSINESS_ACCOUNT_ID",
+            )
+            managed_values = {
+                key: os.environ.get(key, "").strip()
+                for key in managed_keys
+            }
             lines = path.read_text().splitlines()
             quoted = []
-            found_resend = False
+            found_keys = set()
+            updated_keys = []
 
             for line in lines:
                 if not line or line.lstrip().startswith("#") or "=" not in line:
@@ -293,10 +316,11 @@ jobs:
                     continue
 
                 key, value = line.split("=", 1)
-                if key == "RESEND_API_KEY" and resend:
-                    value = resend
-                    found_resend = True
-                elif key == "RESEND_API_KEY" and not value.strip():
+                if key in managed_values and managed_values[key]:
+                    value = managed_values[key]
+                    found_keys.add(key)
+                    updated_keys.append(key)
+                elif key in managed_values and not value.strip():
                     continue
 
                 value = value.strip()
@@ -305,11 +329,16 @@ jobs:
                 value = value.replace("\\", "\\\\").replace("'", "'\"'\"'")
                 quoted.append(f"{key}='{value}'")
 
-            if resend and not found_resend:
-                quoted.append(f"RESEND_API_KEY='{resend}'")
+            for key in managed_keys:
+                value = managed_values[key]
+                if value and key not in found_keys:
+                    value = value.replace("\\", "\\\\").replace("'", "'\"'\"'")
+                    quoted.append(f"{key}='{value}'")
+                    updated_keys.append(key)
 
             path.write_text("\n".join(quoted) + "\n")
             path.chmod(0o600)
+            print("Managed production keys updated:", ", ".join(sorted(set(updated_keys))) or "none")
             PY
             if [[ -n "${RESEND_API_KEY:-}" ]]; then
               echo "→ RESEND_API_KEY updated on the production server"
