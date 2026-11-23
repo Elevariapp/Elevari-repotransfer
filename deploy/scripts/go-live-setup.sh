@@ -9,7 +9,7 @@ echo "=== Waná — Go-Live Setup (paso 1) ==="
 
 if command -v docker >/dev/null 2>&1; then
   echo "→ Iniciando postgres, redis, minio..."
-  docker compose up -d postgres redis minio minio-init
+  docker compose up -d postgres redis minio
   echo "→ Esperando postgres..."
   sleep 5
 else

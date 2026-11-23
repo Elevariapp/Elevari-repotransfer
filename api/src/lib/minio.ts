@@ -1,4 +1,11 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  HeadBucketCommand,
+  CreateBucketCommand,
+  PutBucketPolicyCommand,
+} from '@aws-sdk/client-s3';
 
 let client: S3Client | null = null;
 
@@ -67,6 +74,47 @@ export async function deleteObject(key: string): Promise<void> {
   const { bucket } = getConfig();
   const s3 = getS3Client();
   await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+}
+
+/**
+ * Creates the media bucket and its anonymous read-only policy when missing.
+ * Retries while the storage container is still starting; never throws.
+ */
+export async function ensureBucket(log: { info: (m: string) => void; warn: (m: string) => void }): Promise<void> {
+  const { bucket } = getConfig();
+  const s3 = getS3Client();
+
+  for (let attempt = 1; attempt <= 10; attempt++) {
+    try {
+      try {
+        await s3.send(new HeadBucketCommand({ Bucket: bucket }));
+      } catch {
+        await s3.send(new CreateBucketCommand({ Bucket: bucket }));
+        log.info(`[storage] bucket ${bucket} created`);
+      }
+      await s3.send(
+        new PutBucketPolicyCommand({
+          Bucket: bucket,
+          Policy: JSON.stringify({
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Effect: 'Allow',
+                Principal: { AWS: ['*'] },
+                Action: ['s3:GetObject'],
+                Resource: [`arn:aws:s3:::${bucket}/*`],
+              },
+            ],
+          }),
+        }),
+      );
+      log.info(`[storage] bucket ${bucket} ready (public read)`);
+      return;
+    } catch (err) {
+      log.warn(`[storage] bucket setup attempt ${attempt}/10 failed: ${err instanceof Error ? err.message : String(err)}`);
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+  }
 }
 
 export function isMinioConfigured(): boolean {

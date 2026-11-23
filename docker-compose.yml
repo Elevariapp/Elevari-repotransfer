@@ -32,10 +32,11 @@ services:
       retries: 10
 
   minio:
-    image: minio/minio:latest
+    # Docker Hub's minio/minio is no longer published; Chainguard build pinned by digest.
+    image: cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
     container_name: wana-minio
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    command: ["server", "/data", "--console-address", ":9001"]
     environment:
       MINIO_ROOT_USER: wana_minio
       MINIO_ROOT_PASSWORD: wana_minio_password
@@ -50,20 +51,7 @@ services:
       timeout: 5s
       retries: 5
 
-  minio-init:
-    image: minio/mc:latest
-    container_name: wana-minio-init
-    depends_on:
-      minio:
-        condition: service_started
-    entrypoint: >
-      /bin/sh -c "
-      sleep 3;
-      mc alias set wana http://minio:9000 wana_minio wana_minio_password;
-      mc mb wana/wana-media --ignore-existing;
-      mc anonymous set download wana/wana-media;
-      exit 0;
-      "
+  # The api creates the bucket and its public-read policy at startup (ensureBucket).
 
   api:
     build:
