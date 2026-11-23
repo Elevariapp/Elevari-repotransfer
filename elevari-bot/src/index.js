@@ -1,81 +1,43 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const config = require('./config/index');
+'use strict';
 
-const app = express();
-const PORT = config.server.port;
-const HOST = config.server.host;
+const { loadConfig, secretValues } = require('./config');
+const { createLogger, describeError } = require('./logger');
+const { createApp } = require('./app');
 
-const { whatsapp } = config;
+const SHUTDOWN_TIMEOUT_MS = 8000;
 
-app.use(bodyParser.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
-app.use(bodyParser.urlencoded({ extended: true }));
+// Entry point: reads the environment, builds the app and listens. All behaviour lives in app.js.
+// Nothing here may throw on a missing variable: the bot boots with an empty environment and
+// reports what is missing through /health and its startup logs.
+const config = loadConfig();
+const logger = createLogger({ secrets: secretValues(config) });
+const app = createApp({ config, logger });
+const { host, port } = config.server;
 
-// GET /health — liveness probe (Docker healthcheck + deploy verification)
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', service: 'elevari-bot' });
+// Node's default is to crash on an unhandled rejection; a failed send must never take the bot down
+process.on('unhandledRejection', (reason) => {
+  logger.error('process.unhandled_rejection', describeError(reason));
 });
 
-// GET /webhook/whatsapp — Meta Cloud API webhook verification
-app.get('/webhook/whatsapp', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
-
-  if (mode && token) {
-    if (mode === 'subscribe' && token === whatsapp.verifyToken) {
-      console.log('WEBHOOK_VERIFIED');
-      return res.status(200).send(challenge);
-    }
-    return res.status(403).send('Forbidden');
-  }
-  res.status(400).send('Bad Request');
+const server = app.listen(port, host, () => {
+  logger.info('server.listening', { host, port });
 });
 
-// POST /webhook/whatsapp — Meta Cloud API incoming messages
-app.post('/webhook/whatsapp', (req, res) => {
-  res.status(200).send('EVENT_RECEIVED');
-
-  const entry = req.body?.entry ?? [];
-  for (const e of entry) {
-    const changes = e.changes ?? [];
-    for (const change of changes) {
-      const value = change.value ?? {};
-      const messages = value.messages ?? [];
-      for (const message of messages) {
-        const from = message.from;
-        const text = message.text?.body ?? '';
-        console.log(`WhatsApp message from ${from}: ${text}`);
-        // TODO: Integrate AI concierge response logic here
-      }
-    }
-  }
+server.on('error', (err) => {
+  logger.error('server.failed', describeError(err));
+  process.exit(1);
 });
 
-// POST /chat — Chat endpoint for AI concierge
-app.post('/chat', async (req, res) => {
-  try {
-    const { message, phoneNumber } = req.body;
-    if (!message || !phoneNumber) {
-      return res.status(400).json({ error: 'message and phoneNumber are required' });
-    }
-
-    // Forward to WhatsApp Business via Meta Cloud API (placeholder)
-    const whatsappUrl = `https://graph.facebook.com/v18.0/${whatsapp.phoneNumberId}/messages`;
-    console.log(`Would send to ${phoneNumber}: ${message}`);
-
-    res.status(200).json({ status: 'queued', to: phoneNumber });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.listen(PORT, HOST, () => {
-  console.log(`Elevari WhatsApp Bot listening on ${HOST}:${PORT}`);
-  console.log(`WhatsApp number: ${whatsapp.phoneNumber}`);
-  console.log(`Webhook: http://${HOST}:${PORT}${whatsapp.webhookEndpoint}`);
-  console.log(`Chat: http://${HOST}:${PORT}${whatsapp.chatEndpoint}`);
-});
-
-module.exports = app;
+// Docker stops the container with SIGTERM and node is PID 1, so the signal has to be handled here
+let shuttingDown = false;
+function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  logger.info('server.shutting_down', { signal });
+  setTimeout(() => process.exit(1), SHUTDOWN_TIMEOUT_MS).unref();
+  server.close(() => {
+    app.locals.idle().then(() => process.exit(0));
+  });
+}
+process.once('SIGTERM', () => shutdown('SIGTERM'));
+process.once('SIGINT', () => shutdown('SIGINT'));
