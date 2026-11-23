@@ -67,6 +67,22 @@ jobs:
           echo "-- TLS certificate presented for $DOMAIN"
           echo | openssl s_client -connect "$DOMAIN:443" -servername "$DOMAIN" 2>/dev/null | openssl x509 -noout -issuer -dates 2>&1 | sed 's/^/   /'
 
+      - name: Why Cloudflare answers what it answers
+        run: |
+          set +e
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+          show() {
+            : > /tmp/head.txt; : > /tmp/body.html
+            curl -sS -m 25 "$@" -o /tmp/body.html -D /tmp/head.txt -w "   HTTP %{http_code}\n" 2>&1
+            tr -d '\r' < /tmp/head.txt | grep -viE '^(set-cookie|report-to|nel):' | sed 's/^/   | /'
+            printf '   title: %s\n' "$(grep -oiE '<title>[^<]*</title>' /tmp/body.html | head -1)"
+            printf '   text:  %s\n' "$(sed -e 's/<[^>]*>/ /g' /tmp/body.html | tr -s ' \n\t' ' ' | sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/x.x.x.x/g' | cut -c1-300)"
+          }
+          echo "== curl User-Agent -> https://$DOMAIN/";             show "https://$DOMAIN/"
+          echo "== Browser User-Agent -> https://$DOMAIN/";          show -A "$UA" -H 'Accept: text/html,application/xhtml+xml' -H 'Accept-Language: es-CO,es;q=0.9' "https://$DOMAIN/"
+          echo "== Plain HTTP -> http://$DOMAIN/";                   show -A "$UA" "http://$DOMAIN/"
+          echo "== Browser User-Agent -> https://$DOMAIN/robots.txt"; show -A "$UA" "https://$DOMAIN/robots.txt"
+
       - name: Straight to the origin server (bypassing Cloudflare)
         run: |
           set +e
@@ -130,6 +146,14 @@ jobs:
           echo
           echo "== nginx config test"
           docker exec "$(docker compose -f docker-compose.prod.yml --env-file .env.production ps -q nginx)" nginx -t 2>&1 | mask
+          echo
+          echo "== visitor requests nginx has received (public IPs only, curl probes excluded, no IPs or query strings)"
+          NG=$(docker compose -f docker-compose.prod.yml --env-file .env.production ps -q nginx)
+          echo "nginx container started: $(docker inspect -f '{{.State.StartedAt}}' "$NG")"
+          ext=$(docker logs "$NG" 2>&1 | grep -E '^[0-9a-f:.]+ - ' | grep -vE '^(127\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)' | grep -v 'curl/')
+          echo "requests: $(printf '%s\n' "$ext" | grep -c .)"
+          printf '%s\n' "$ext" | awk 'NF {print $9}' | sort | uniq -c | sed 's/^/  status /'
+          printf '%s\n' "$ext" | tail -8 | awk 'NF {split($7,p,"?"); print "  " substr($4,2), substr($6,2), p[1], "->", $9}'
           echo
           echo "== recent error lines per service (IPs and tokens masked)"
           for s in nginx web api bot; do
