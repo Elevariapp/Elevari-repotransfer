@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Enable once with: npm run hooks:install
+# Skip in an emergency with: git push --no-verify
+exec ./scripts/ci-local.sh

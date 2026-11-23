@@ -23,8 +23,9 @@ WhatsApp Business AI Bot for Elevari S.A.S — a hospitality platform for managi
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
+| `/health` | GET | Liveness probe (Docker healthcheck, `/bot/health` via nginx) |
 | `/webhook/whatsapp` | GET/POST | Meta Cloud API webhook |
-| `/chat` | POST | Chat endpoint for AI concierge |
+| `/chat` | POST | Chat endpoint for AI concierge (internal only, not exposed by nginx) |
 
 ## Placement
 
@@ -50,3 +51,7 @@ cp .env.example .env
 # Edit .env with your Meta Cloud API credentials
 npm run dev
 ```
+
+## Deployment
+
+The bot ships in the main stack (`docker-compose.prod.yml`, service `bot`) and is deployed by the `b-main` CI pipeline via `deploy/scripts/deploy-prod.sh`. See `deploy/DEPLOYMENT_PRODUCTION.md`.

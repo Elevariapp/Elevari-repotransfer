@@ -66,6 +66,11 @@ check_required NEXT_PUBLIC_SITE_URL "$NEXT_PUBLIC_SITE_URL"
 check_required NEXT_PUBLIC_API_URL "$NEXT_PUBLIC_API_URL"
 check_required CORS_ORIGIN "$CORS_ORIGIN"
 
+if [[ "${JWT_SECRET:-}" == change_me* && "$MODE_LABEL" == production ]]; then
+  echo "${RED}✗ JWT_SECRET sigue con el valor de plantilla (change_me...)${NC}"
+  errors=$((errors + 1))
+fi
+
 if [[ "${JWT_SECRET:-}" != "" && ${#JWT_SECRET} -lt 32 ]]; then
   echo "${RED}✗ JWT_SECRET debe tener al menos 32 caracteres${NC}"
   errors=$((errors + 1))
@@ -130,6 +135,12 @@ else
   check_optional ALEGRA_EMAIL "$ALEGRA_EMAIL"
   check_optional ALEGRA_API_TOKEN "$ALEGRA_API_TOKEN"
 fi
+
+echo ""
+echo "--- WhatsApp bot ---"
+check_optional WHATSAPP_TOKEN "${WHATSAPP_TOKEN:-}"
+check_optional WHATSAPP_PHONE_NUMBER_ID "${WHATSAPP_PHONE_NUMBER_ID:-}"
+check_optional WHATSAPP_VERIFY_TOKEN "${WHATSAPP_VERIFY_TOKEN:-}"
 
 echo ""
 echo "--- Marketing ---"

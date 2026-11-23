@@ -154,7 +154,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <section>
                 <div className="flex items-center gap-4 rounded-2xl border border-elevari-border bg-gradient-to-br from-white to-elevari-ivory p-5 shadow-sm ring-1 ring-elevari-amber/10">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-elevari-forest-deep p-2.5 shadow-sm ring-2 ring-elevari-amber/25">
-                    <ElevariMark className="h-full w-full" plain />
+                    <ElevariMark className="h-full w-full" />
                   </div>
                   <div>
                     <p className="font-semibold text-elevari-slate">Anfitrión Eleveri verificado</p>
@@ -274,7 +274,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 country={property.country}
                 latitude={property.latitude}
                 longitude={property.longitude}
-                address={property.address ?? property.title}
+                address={property.title}
               />
               <SimilarProperties current={currentSummary} candidates={similar} />
             </div>

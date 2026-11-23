@@ -2,6 +2,15 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
+type GoogleMapsApi = {
+  Map: new (el: HTMLElement, opts: Record<string, unknown>) => unknown;
+  Marker: new (opts: Record<string, unknown>) => unknown;
+};
+
+function getGoogleMaps(): GoogleMapsApi | undefined {
+  return (window as unknown as { google?: { maps?: GoogleMapsApi } }).google?.maps;
+}
+
 interface GoogleMapProps {
   latitude: number;
   longitude: number;
@@ -66,10 +75,11 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   }, [scriptLoaded]);
 
   useEffect(() => {
-    if (!isLoaded || !mapRef.current || !window.google) return;
+    const maps = getGoogleMaps();
+    if (!isLoaded || !mapRef.current || !maps) return;
 
     try {
-      const map = new window.google.maps.Map(mapRef.current, {
+      const map = new maps.Map(mapRef.current, {
         center: { lat: latitude, lng: longitude },
         zoom: 15,
         disableDefaultUI: true,
@@ -82,7 +92,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
         ],
       });
 
-      new window.google.maps.Marker({
+      new maps.Marker({
         position: { lat: latitude, lng: longitude },
         map,
         title: address || 'Property Location',

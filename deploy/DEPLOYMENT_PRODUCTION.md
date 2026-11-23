@@ -1,25 +1,67 @@
 # Elevari — Production Deployment (Fase 6E)
 
-Guía para desplegar el stack Docker en un VPS (Hetzner, DigitalOcean, etc.) con Nginx, PostgreSQL, Redis, MinIO, API Fastify y Next.js standalone.
+Guía para desplegar el stack Docker en un VPS (Hetzner, DigitalOcean, etc.) con Nginx, PostgreSQL, Redis, MinIO, API Fastify, Next.js standalone y WhatsApp bot.
 
 **Checklist completo:** `deploy/GO_LIVE_CHECKLIST.md`
 
-> **Despliegue automático (GitHub Actions):** Cada push a la rama `b-main` activa el pipeline de CI/CD que despliega automáticamente en Hetzner. También puedes desplegar manualmente desde la pestaña **Actions** → **Deploy to Hetzner Production** → **Run workflow**.
->
-> **Secrets requeridos en GitHub** (Settings → Secrets and variables → Actions):
-> - `HETZNER_IP` — IP del servidor (ej. `2.29.165.225`)
-> - `HETZNER_USER` — usuario SSH (ej. `root`)
-> - `HETZNER_SSH_KEY` — contenido completo de tu clave privada SSH (`~/.ssh/id_ed25519_elevari_hetzner`)
->
-> **`.env.production` NO se sube a GitHub.** Debes copiarlo manualmente al servidor:
-> ```bash
-> scp .env.production root@2.29.165.225:/opt/elevari/.env.production
-> ```
+## Despliegue automático (GitHub Actions + SSH)
+
+Cada push a `b-main` ejecuta `.github/workflows/ci.yml`: build API/Web, check del bot, validación de env/compose, typecheck móvil y, si todo pasa, el job **Deploy to Hetzner Production** (`appleboy/ssh-action`) entra por SSH al VPS, hace `git reset --hard origin/b-main`, valida `.env.production` y ejecuta `deploy/scripts/deploy-prod.sh` (build + `up -d` de **web, api, bot, nginx**, con health checks que fallan el job si algo no responde). También manual: **Actions → CI → Run workflow** (rama `b-main`).
+
+> **Costo de minutos:** los repos públicos tienen minutos ilimitados en runners de GitHub. En repos privados el pipeline ya está optimizado (cancelación de runs obsoletos, caché npm y `.next/cache`, EAS con `--no-wait`, build móvil solo si cambia `mobile/`). El build Docker pesado corre en tu VPS, no en GitHub.
+
+### Secrets (Settings → Secrets and variables → Actions → *New repository secret*)
+
+| Secret | Valor |
+|--------|-------|
+| `HETZNER_IP` | IP del VPS (ej. `2.29.165.225`) |
+| `HETZNER_USER` | Usuario SSH (ej. `root`) |
+| `HETZNER_SSH_KEY` | Clave **privada** completa (incluye `-----BEGIN/END-----`) |
+| `EXPO_TOKEN` | Token de expo.dev → Account Settings → Access Tokens (opcional: sin él se omite el build Android) |
+
+Crear una clave dedicada al deploy:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/elevari_deploy -C "github-actions-deploy" -N ""
+ssh-copy-id -i ~/.ssh/elevari_deploy.pub root@<HETZNER_IP>   # o añade la .pub a ~/.ssh/authorized_keys
+cat ~/.ssh/elevari_deploy                                   # → pegar en HETZNER_SSH_KEY
+```
+
+Con GitHub CLI: `gh secret set HETZNER_IP`, `gh secret set HETZNER_USER`, `gh secret set HETZNER_SSH_KEY < ~/.ssh/elevari_deploy`, `gh secret set EXPO_TOKEN`.
+
+### Preparar el VPS una vez
+
+```bash
+git clone https://github.com/Elevariapp/Elevari-repotransfer.git /opt/elevari
+cd /opt/elevari && git checkout b-main
+cp deploy/.env.production.example .env.production   # editar: JWT_SECRET único, claves Wompi, WHATSAPP_*
+chmod +x deploy/scripts/*.sh
+```
+
+`.env.production` **no** se sube a GitHub. Si vive solo en el servidor, `git reset --hard` no lo toca (está en `.gitignore`).
+
+### Android (EAS)
+
+El job `mobile-build-android` encola con EAS un AAB (`production`, Play Store) y un APK (`preview`, instalación directa). Descárgalos en https://expo.dev → proyecto → Builds. Se ejecuta solo si cambia `mobile/` o por *Run workflow*.
+
+### WhatsApp bot
+
+`elevari-bot/` se construye y arranca junto al resto del stack (servicio `bot` en `docker-compose.prod.yml`, puerto interno 3001). Nginx expone solo `/webhook/whatsapp` y `/bot/health`; `/chat` queda interno. Configura en Meta → WhatsApp → Webhook: `https://<dominio>/webhook/whatsapp` con el mismo `WHATSAPP_VERIFY_TOKEN` de `.env.production`.
+
+### Validar localmente antes de hacer push
+
+```bash
+npm run hooks:install      # una vez: activa pre-push (corre ci:local)
+npm run ci:local           # typechecks web/mobile/api, env staging, log, bot, compose
+npm run ci:local:full      # + lockfiles con npm 10 y builds reales de api y web
+```
+
+> Los lockfiles deben generarse con npm 10 (el de Node 22 en CI): `npx npm@10 install --package-lock-only` dentro de la carpeta correspondiente. Un lockfile de npm 11 puede romper `npm ci` en CI.
 
 ## Arquitectura
 
 ```
-Internet → Cloudflare (SSL) → Nginx (:80) → web (:3000) | api (:4000)
+Internet → Cloudflare (SSL) → Nginx (:80) → web (:3000) | api (:4000) | bot (:3001)
                                     ↓
               postgres · redis · minio (red interna)
 ```

@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuthShell image="/properties/glamping-wana/06.webp">
+    <AuthShell>
       <p className="elevari-eyebrow">Cuenta</p>
       <h1 className="mt-2 font-display text-2xl text-elevari-slate sm:text-3xl">Recuperar contraseña</h1>
       <p className="mt-3 text-sm text-elevari-muted">
