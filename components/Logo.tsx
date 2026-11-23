@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import EleveriMark from '@/components/brand/EleveriMark';
+import ElevariMark from '@/components/brand/ElevariMark';
 
 type LogoProps = {
   compact?: boolean;
@@ -17,7 +17,7 @@ export default function Logo({ compact = false, onDark = true }: LogoProps) {
       className="group flex min-w-0 items-center gap-2.5 sm:gap-3"
     >
       <span className="relative shrink-0 transition-transform duration-200 group-hover:scale-[1.03]">
-        <EleveriMark className={compact ? 'h-8 w-8 sm:h-9 sm:w-9' : 'h-9 w-9 sm:h-10 sm:w-10'} />
+        <ElevariMark className={compact ? 'h-8 w-8 sm:h-9 sm:w-9' : 'h-9 w-9 sm:h-10 sm:w-10'} />
       </span>
       {!compact ? (
         <span className="min-w-0 leading-none">

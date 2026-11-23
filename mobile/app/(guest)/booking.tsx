@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: typography.sizes.body, color: colors.muted, marginBottom: spacing.lg },
   infoCard: { backgroundColor: colors.surface, borderRadius: 12, padding: spacing.lg, ...{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 2 } },
   label: { fontSize: typography.sizes.caption, color: colors.muted, marginBottom: spacing.xs },
-  value: { fontSize: typography.sizes.body, color: colors.slate, fontWeight: typography.weights.medium, marginBottom: spacing.md, numberOfLines: 1, ellipsizeMode: 'tail' },
+  value: { fontSize: typography.sizes.body, color: colors.slate, fontWeight: typography.weights.medium, marginBottom: spacing.md },
   errorBanner: { backgroundColor: colors.errorSoft, borderRadius: 8, padding: spacing.md, marginBottom: spacing.md },
   errorText: { fontSize: typography.sizes.caption, color: colors.error },
 });
