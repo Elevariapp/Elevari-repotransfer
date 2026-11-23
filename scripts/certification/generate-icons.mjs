@@ -7,7 +7,7 @@
  *   app/icon.svg                      32 px favicon with chunkier strokes for tiny sizes
  *
  * Outputs
- *   public/brand/icons/icon-<size>.png  16-256 keep the rounded plate; 512/1024 are store icons
+ *   public/brand/icons/icon-<size>.png  16-256 keep the rounded plate; 192/512/1024 are full-bleed (web manifest, store)
  *   app/apple-icon.png                  180 px touch icon
  *   mobile/assets/*.png                 Expo launcher, adaptive layers, splash, favicon, notification
  *
@@ -106,7 +106,7 @@ for (const size of [16, 32, 64]) {
 for (const size of [128, 256]) {
   await write(join(WEB_ICONS, `icon-${size}.png`), master, { size });
 }
-for (const size of [512, 1024]) {
+for (const size of [192, 512, 1024]) {
   await write(join(WEB_ICONS, `icon-${size}.png`), square(master), { size, flat: true });
 }
 await write(join(ROOT, 'app', 'apple-icon.png'), square(master), { size: 180, flat: true });

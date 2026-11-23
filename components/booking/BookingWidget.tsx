@@ -304,7 +304,10 @@ export default function BookingWidget({
       <div className="hidden lg:block lg:sticky lg:top-24 lg:self-start">{widgetBody}</div>
 
       {/* Mobile bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-elevari-border elevari-glass px-4 py-3 shadow-[0_-8px_30px_rgba(15,31,24,0.08)] lg:hidden">
+      <div
+        data-sticky-bottom-bar
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-elevari-border elevari-glass px-4 py-3 shadow-[0_-8px_30px_rgba(15,31,24,0.08)] lg:hidden"
+      >
         <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
           <div>
             <p className="font-semibold text-elevari-slate">{totalDisplay}</p>

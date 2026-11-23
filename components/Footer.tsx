@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Logo from '@/components/Logo';
+import { whatsappContext, whatsappUrl } from '@/lib/whatsapp';
 
 const exploreLinks = [
   { href: '/properties', label: 'Colección completa' },
@@ -27,7 +28,7 @@ export default function Footer() {
   return (
     <footer className="elevari-footer mt-20">
       <div className="elevari-footer-glow" aria-hidden />
-      <div className="elevari-container relative py-14 lg:py-16">
+      <div className="elevari-container relative pb-20 pt-14 lg:pt-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-4">
             <Logo onDark />
@@ -63,6 +64,16 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <a
+                  href={whatsappUrl(whatsappContext('/host').message)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="elevari-footer-link"
+                >
+                  Soporte por WhatsApp
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -85,6 +96,14 @@ export default function Footer() {
             © {new Date().getFullYear()} Elevari. Todos los derechos reservados.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+            <a
+              href={whatsappUrl(whatsappContext('/').message)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="elevari-footer-link"
+            >
+              WhatsApp
+            </a>
             <Link href="/auth/login" className="elevari-footer-link">
               Iniciar sesión
             </Link>

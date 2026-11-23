@@ -3,8 +3,6 @@ export const metadata = {
   description: 'Política de reembolso y cancelación de reservas de Elevari.',
 };
 
-import WhatsAppButton from '@/components/brand/WhatsAppButton';
-
 export default function RefundPage() {
   return (
     <article className="max-w-3xl">
@@ -91,7 +89,6 @@ export default function RefundPage() {
           </p>
         </section>
       </div>
-      <WhatsAppButton />
     </article>
   );
 }

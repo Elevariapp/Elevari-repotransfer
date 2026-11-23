@@ -10,7 +10,6 @@ import TrustSignals from '@/components/conversion/TrustSignals';
 import SimilarProperties from '@/components/conversion/SimilarProperties';
 import PropertyLocation from '@/components/booking/PropertyLocation';
 import ElevariMark from '@/components/brand/ElevariMark';
-import WhatsAppButton from '@/components/brand/WhatsAppButton';
 import { formatPropertyLocation } from '@/lib/property-location';
 import { formatCop } from '@/lib/format';
 import { buildPropertyShareMetadata } from '@/lib/share-metadata';
@@ -290,7 +289,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
           </div>
         </div>
       </main>
-      <WhatsAppButton />
     </>
   );
 }

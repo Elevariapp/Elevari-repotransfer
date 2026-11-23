@@ -3,12 +3,14 @@ import './globals.css';
 import localFont from 'next/font/local';
 import { Toaster } from 'react-hot-toast';
 import ConditionalFooter from '@/components/layout/ConditionalFooter';
+import FloatingActions from '@/components/layout/FloatingActions';
 import MarketingScripts from '@/components/analytics/MarketingScripts';
 import ObservabilityProvider from '@/components/observability/ObservabilityProvider';
 import { themeInitScript } from '@/components/theme/ThemeToggle';
 import { sceneInitScript } from '@/lib/scene/time-of-day';
 
 import { siteUrl } from '@/lib/site-url';
+import { installCaptureScript } from '@/lib/pwa-install-script';
 import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema';
 
 const SITE_URL = siteUrl();
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: 'Elevari — Glamping en Colombia', template: '%s | Elevari' },
   description: 'Reserva experiencias de glamping únicas en Colombia. Naturaleza, confort y aventura.',
+  appleWebApp: { capable: true, title: 'Elevari', statusBarStyle: 'default' },
   openGraph: {
     siteName: 'Elevari',
     locale: 'es_CO',
@@ -50,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: sceneInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: installCaptureScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSchema) }} />
       </head>
@@ -61,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ObservabilityProvider />
         {children}
         <ConditionalFooter />
+        <FloatingActions />
         <Toaster
           position="top-center"
           containerStyle={{ zIndex: 9999 }}
