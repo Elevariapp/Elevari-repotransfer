@@ -7,7 +7,7 @@ import CatalogPagination from '@/components/catalog/CatalogPagination';
 import CatalogViewTracker from '@/components/catalog/CatalogViewTracker';
 import RecentlyViewed from '@/components/conversion/RecentlyViewed';
 import IntentRecoveryBanner from '@/components/conversion/IntentRecoveryBanner';
-import CinematicHeroBackground from '@/components/brand/CinematicHeroBackground';
+import ScenicBackground from '@/components/scene/ScenicBackground';
 import { wanaApi } from '@/lib/api-client';
 import { humanizeApiError } from '@/lib/api-errors';
 import { activeFilterCount, parseCatalogParams } from '@/lib/catalog-params';
@@ -72,16 +72,16 @@ export default async function PropertiesPage({
         sort={params.sort}
       />
       <main id="contenido" className="pb-16">
-        {/* Cinematic hero background for the booking area — mountains, rivers, people overlays */}
-        <CinematicHeroBackground className="pt-20 pb-16">
+        <section className="relative overflow-hidden pt-20 pb-16">
+          <ScenicBackground variant="lite" idPrefix="catalog-hero" scrim="center" />
           <div className="elevari-container relative z-10">
             <header className="max-w-2xl mx-auto text-center">
-              <p className="elevari-eyebrow-lux">Colección</p>
+              <p className="elevari-eyebrow-lux !text-elevari-amber-soft">Colección</p>
               <h1 className="elevari-display-hero elevari-display-hero--light mt-3 mb-6">
                 Espacios únicos en Colombia
               </h1>
               <div className="elevari-divider-gold mx-auto mt-5 mb-8" />
-              <p className="text-lg text-elevari-sand/90 leading-relaxed max-w-2xl mx-auto">
+              <p className="text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
                 Selecciona fechas en cada propiedad para ver el precio total antes de reservar.
               </p>
               {fromApi && (
@@ -95,8 +95,8 @@ export default async function PropertiesPage({
             <CatalogFilters params={params} />
 
             {hasFilters && (
-              <p className="mt-4 text-sm text-elevari-sand/80">
-                {params.city && <span className="font-medium text-elevari-slate">{params.city}</span>}
+              <p className="mt-4 text-sm text-white/85">
+                {params.city && <span className="font-medium text-white">{params.city}</span>}
                 {params.guests && <span className="ml-2">· {params.guests} huéspedes</span>}
                 {params.checkIn && params.checkOut && (
                   <span className="ml-2">
@@ -109,7 +109,7 @@ export default async function PropertiesPage({
               </p>
             )}
           </div>
-        </CinematicHeroBackground>
+        </section>
 
         <IntentRecoveryBanner />
         <RecentlyViewed />

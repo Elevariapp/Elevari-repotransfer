@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { SceneScreen } from '@/components/scene/SceneScreen';
 import { colors, spacing, typography } from '@/lib/design-tokens';
 import { api } from '@/lib/api';
 import { authStorage } from '@/lib/auth';
@@ -39,86 +39,67 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Bienvenido de vuelta</Text>
-            <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
-          </View>
+    <SceneScreen>
+      <View style={styles.header}>
+        <Text style={styles.title}>Bienvenido de vuelta</Text>
+        <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+      </View>
 
-          <View style={styles.form}>
-            <Input
-              label="Correo electrónico"
-              placeholder="tu@correo.com"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-              error={error.includes('correo') ? error : undefined}
-            />
-            <Input
-              label="Contraseña"
-              placeholder="••••••••"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              error={error.includes('contraseña') ? error : undefined}
-            />
-          </View>
+      <Input
+        label="Correo electrónico"
+        placeholder="tu@correo.com"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
+        error={error.includes('correo') ? error : undefined}
+      />
+      <Input
+        label="Contraseña"
+        placeholder="••••••••"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+        error={error.includes('contraseña') ? error : undefined}
+      />
 
-          {error && (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
+      {error && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
 
-          <Button
-            variant="primary"
-            size="lg"
-            loading={loading}
-            fullWidth
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            Iniciar sesión
-          </Button>
+      <Button
+        variant="primary"
+        size="lg"
+        loading={loading}
+        fullWidth
+        onPress={handleLogin}
+        disabled={loading}
+      >
+        Iniciar sesión
+      </Button>
 
-          <View style={styles.divider}>
-            <Text style={styles.dividerText}>o</Text>
-          </View>
+      <View style={styles.divider}>
+        <Text style={styles.dividerText}>o</Text>
+      </View>
 
-          <Button
-            variant="ghost"
-            size="lg"
-            fullWidth
-            onPress={() => router.push('/(auth)/register')}
-          >
-            Crear cuenta
-          </Button>
-        </ScrollView>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+      <Button
+        variant="ghost"
+        size="lg"
+        fullWidth
+        onPress={() => router.push('/(auth)/register')}
+      >
+        Crear cuenta
+      </Button>
+    </SceneScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.ivory,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-    justifyContent: 'center',
-  },
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.lg,
   },
   title: {
     fontSize: typography.sizes.heading,
@@ -129,9 +110,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: typography.sizes.body,
     color: colors.muted,
-  },
-  form: {
-    gap: spacing.md,
   },
   errorBanner: {
     backgroundColor: colors.errorSoft,
@@ -146,7 +124,8 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.lg,
+    justifyContent: 'center',
+    marginVertical: spacing.md,
   },
   dividerText: {
     fontSize: typography.sizes.caption,

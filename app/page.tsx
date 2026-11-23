@@ -6,7 +6,7 @@ import { wanaApi } from '@/lib/api-client';
 import ExperiencePillars from '@/components/home/ExperiencePillars';
 import TrustStrip from '@/components/home/TrustStrip';
 import CategoryStrip from '@/components/home/CategoryStrip';
-import CinematicBand from '@/components/home/CinematicBand';
+import SceneBand from '@/components/home/SceneBand';
 import { ButtonLink } from '@/components/ui';
 
 export const revalidate = 60;
@@ -31,12 +31,6 @@ export default async function HomePage() {
 
         {featured.length > 0 && (
           <section id="coleccion" className="relative py-14 lg:py-20">
-            <div className="absolute inset-0 opacity-[0.04]" aria-hidden>
-              <div
-                className="h-full w-full bg-cover bg-center"
-                style={{ backgroundImage: 'url(/properties/glamping-wana/04.webp)' }}
-              />
-            </div>
             <div className="elevari-container relative">
               <div className="mb-10 flex items-end justify-between gap-4">
                 <div>
@@ -78,7 +72,7 @@ export default async function HomePage() {
           </section>
         )}
 
-        <CinematicBand image="/properties/glamping-wana/05.webp" alt="Montañas de Sutatausa" overlay="dark">
+        <SceneBand idPrefix="band-sabana">
           <div className="elevari-container py-16 sm:py-20 text-center text-white">
             <p className="elevari-eyebrow elevari-eyebrow-lux !text-elevari-amber-soft">Sabana de Bogotá</p>
             <h2 className="elevari-display-section elevari-display-section--light mt-4 max-w-2xl mx-auto">
@@ -97,15 +91,13 @@ export default async function HomePage() {
               Ver espacio destacado
             </ButtonLink>
           </div>
-        </CinematicBand>
+        </SceneBand>
 
         <ExperiencePillars />
 
         <section className="elevari-container pb-20">
-          <CinematicBand
-            image="/properties/glamping-wana/03.webp"
-            alt="Experiencia glamping"
-            overlay="dark"
+          <SceneBand
+            idPrefix="band-cta"
             className="rounded-[1.75rem] shadow-elevari-lg ring-1 ring-elevari-amber/20"
           >
             <div className="px-8 py-14 text-center text-white sm:px-14 sm:py-16">
@@ -120,7 +112,7 @@ export default async function HomePage() {
                 Ver toda la colección
               </ButtonLink>
             </div>
-          </CinematicBand>
+          </SceneBand>
         </section>
       </main>
     </>
