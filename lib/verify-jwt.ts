@@ -1,7 +1,10 @@
 import { jwtVerify } from 'jose';
 
-const JWT_ISSUER = 'elevari-api';
-const JWT_AUDIENCE = 'elevari-web';
+// The API signs session tokens with the wana-* claims (api/src/lib/auth.ts). The elevari-* pair is
+// accepted as well so renaming the claims on one side can never lock every user out of the
+// protected routes again.
+const JWT_ISSUERS = ['wana-api', 'elevari-api'];
+const JWT_AUDIENCES = ['wana-web', 'elevari-web'];
 
 export type WebJwtPayload = {
   sub: string;
@@ -20,8 +23,8 @@ function getSecret(): Uint8Array {
 export async function verifyWebJwt(token: string): Promise<WebJwtPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret(), {
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
+      issuer: JWT_ISSUERS,
+      audience: JWT_AUDIENCES,
     });
     if (!payload.sub || !payload.email || !payload.role) return null;
     const role = String(payload.role);

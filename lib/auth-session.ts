@@ -1,25 +1,25 @@
-const TOKEN_KEY = 'elevari_token';
+import { LEGACY_SESSION_COOKIE, SESSION_COOKIE, sessionCookieDomain } from './auth-cookie';
+
+const TOKEN_KEY = SESSION_COOKIE;
+const LEGACY_TOKEN_KEY = LEGACY_SESSION_COOKIE;
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  name: string | null;
-  role: 'guest' | 'host' | 'admin';
+/** Fired on this tab whenever the stored session is replaced or removed (other tabs get `storage`). */
+export const SESSION_CHANGE_EVENT = 'elevari:session-change';
+
+function announceChange() {
+  window.dispatchEvent(new Event(SESSION_CHANGE_EVENT));
 }
 
-function cookieDomainAttribute(): string {
+function domainAttribute(): string {
   if (typeof window === 'undefined') return '';
-  const host = window.location.hostname;
-  if (host === 'elevari.live' || host.endsWith('.elevari.live')) {
-    return '; Domain=.elevari.live';
-  }
-  return '';
+  const domain = sessionCookieDomain(window.location.hostname);
+  return domain ? `; Domain=${domain}` : '';
 }
 
-function readCookieToken(): string | null {
+function readCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|;\s*)elevari_token=([^;]*)/);
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
   if (!match?.[1]) return null;
   try {
     return decodeURIComponent(match[1]);
@@ -28,15 +28,34 @@ function readCookieToken(): string | null {
   }
 }
 
-/** Client token: localStorage first, then sync from cookie (middleware / SSR checkout). */
+function writeCookie(token: string) {
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  const encoded = encodeURIComponent(token);
+  document.cookie = `${SESSION_COOKIE}=${encoded}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax${secure}${domainAttribute()}`;
+}
+
+/** Expires the cookie both as host-only and with the shared domain, since they are distinct cookies. */
+function expireCookie(name: string) {
+  document.cookie = `${name}=; path=/; max-age=0`;
+  const domain = domainAttribute();
+  if (domain) document.cookie = `${name}=; path=/; max-age=0${domain}`;
+}
+
+/** Client token: localStorage first, then sync from cookie (proxy / SSR checkout). */
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   const fromStorage = localStorage.getItem(TOKEN_KEY);
   if (fromStorage) return fromStorage;
-  const fromCookie = readCookieToken();
+  const fromCookie = readCookie(SESSION_COOKIE);
   if (fromCookie) {
     localStorage.setItem(TOKEN_KEY, fromCookie);
     return fromCookie;
+  }
+  // Sessions started before the rebrand: carry them over to the current names.
+  const legacy = localStorage.getItem(LEGACY_TOKEN_KEY) ?? readCookie(LEGACY_SESSION_COOKIE);
+  if (legacy) {
+    setSession(legacy);
+    return legacy;
   }
   return null;
 }
@@ -44,15 +63,19 @@ export function getToken(): string | null {
 export function setSession(token: string) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(TOKEN_KEY, token);
-  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-  const encoded = encodeURIComponent(token);
-  document.cookie = `elevari_token=${encoded}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax${secure}${cookieDomainAttribute()}`;
+  writeCookie(token);
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
+  expireCookie(LEGACY_SESSION_COOKIE);
+  announceChange();
 }
 
 export function clearSession() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(TOKEN_KEY);
-  document.cookie = `elevari_token=; path=/; max-age=0${cookieDomainAttribute()}`;
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
+  expireCookie(SESSION_COOKIE);
+  expireCookie(LEGACY_SESSION_COOKIE);
+  announceChange();
 }
 
 export function authHeaders(): Record<string, string> {
@@ -63,6 +86,7 @@ export function authHeaders(): Record<string, string> {
 /** Evita open-redirect en login (?redirect=//evil.com). */
 export function safeAuthRedirect(path: string | null | undefined): string {
   if (!path) return '/';
-  if (path.startsWith('/') && !path.startsWith('//')) return path;
+  // Browsers read "/\evil.com" like "//evil.com".
+  if (path.startsWith('/') && !path.startsWith('//') && !path.includes('\\')) return path;
   return '/';
 }

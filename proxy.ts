@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebJwt } from '@/lib/verify-jwt';
+import {
+  LEGACY_SESSION_COOKIE,
+  SESSION_COOKIE,
+  readSessionCookie,
+  sessionCookieDomain,
+} from '@/lib/auth-cookie';
 
 /**
  * Next.js 16 proxy (formerly middleware.ts).
@@ -7,6 +13,16 @@ import { verifyWebJwt } from '@/lib/verify-jwt';
  */
 const PROTECTED_PREFIXES = ['/host', '/account', '/admin'];
 const ADMIN_PREFIX = '/admin';
+
+// ResponseCookies is keyed by name, so it cannot expire the host-only and the Domain=.elevari.live
+// variants of the same cookie in one response; append the headers directly.
+function expireSessionCookies(res: NextResponse, hostname: string) {
+  const domain = sessionCookieDomain(hostname);
+  for (const name of [SESSION_COOKIE, LEGACY_SESSION_COOKIE]) {
+    res.headers.append('set-cookie', `${name}=; Path=/; Max-Age=0`);
+    if (domain) res.headers.append('set-cookie', `${name}=; Path=/; Max-Age=0; Domain=${domain}`);
+  }
+}
 
 export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -16,7 +32,7 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const rawToken = req.cookies.get('wana_token')?.value;
+  const rawToken = readSessionCookie((name) => req.cookies.get(name));
   if (!rawToken) {
     const login = new URL('/auth/login', req.url);
     login.searchParams.set('redirect', pathname);
@@ -35,7 +51,7 @@ export default async function proxy(req: NextRequest) {
     const login = new URL('/auth/login', req.url);
     login.searchParams.set('redirect', pathname);
     const res = NextResponse.redirect(login);
-    res.cookies.set('wana_token', '', { path: '/', maxAge: 0 });
+    expireSessionCookies(res, req.nextUrl.hostname);
     return res;
   }
 
