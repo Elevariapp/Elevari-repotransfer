@@ -1,49 +1,55 @@
-import { resend, EMAIL_FROM } from './client';
+import { getResend, EMAIL_FROM } from './client';
 import { BookingConfirmationEmail } from './templates/booking-confirmation';
 import { SecurityAlertEmail } from './templates/security-alert';
 import { WelcomeEmail } from './templates/welcome';
 
+import type { BookingConfirmationData } from './templates/booking-confirmation';
+import type { SecurityAlertData } from './templates/security-alert';
+import type { WelcomeData } from './templates/welcome';
+
 export type EmailType = 'booking-confirmation' | 'security-alert' | 'welcome';
 
-export interface SendEmailParams {
-  to: string;
-  type: EmailType;
-  data: Record<string, unknown>;
-}
+export type SendEmailParams =
+  | { to: string; type: 'booking-confirmation'; data: BookingConfirmationData }
+  | { to: string; type: 'security-alert'; data: SecurityAlertData }
+  | { to: string; type: 'welcome'; data: WelcomeData };
 
-const templateMap: Record<EmailType, { subject: string; component: typeof BookingConfirmationEmail }> = {
-  'booking-confirmation': {
-    subject: 'Confirmación de reserva - Elevari',
-    component: BookingConfirmationEmail,
-  },
-  'security-alert': {
-    subject: 'Alerta de seguridad - Elevari',
-    component: SecurityAlertEmail,
-  },
-  'welcome': {
-    subject: 'Bienvenido a Elevari',
-    component: WelcomeEmail,
-  },
+const subjects: Record<EmailType, string> = {
+  'booking-confirmation': 'Confirmación de reserva - Elevari',
+  'security-alert': 'Alerta de seguridad - Elevari',
+  'welcome': 'Bienvenido a Elevari',
 };
 
-export async function sendEmail({ to, type, data }: SendEmailParams) {
+function renderEmail(params: SendEmailParams): string | undefined {
+  switch (params.type) {
+    case 'booking-confirmation':
+      return BookingConfirmationEmail({ data: params.data });
+    case 'security-alert':
+      return SecurityAlertEmail({ data: params.data });
+    case 'welcome':
+      return WelcomeEmail({ data: params.data });
+    default:
+      return undefined;
+  }
+}
+
+export async function sendEmail(params: SendEmailParams) {
+  const { to, type } = params;
   if (!process.env.RESEND_API_KEY) {
     console.warn('[Email] RESEND_API_KEY not configured, skipping email send');
     return { success: false, error: 'RESEND_API_KEY not configured' };
   }
 
-  const template = templateMap[type];
-  if (!template) {
+  const html = renderEmail(params);
+  if (html === undefined) {
     return { success: false, error: `Unknown email type: ${type}` };
   }
 
-  const html = template.component({ data: data as Parameters<typeof template.component>[0]['data'] });
-
   try {
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from: EMAIL_FROM,
       to,
-      subject: template.subject,
+      subject: subjects[type],
       html,
     });
     return { success: true, data: result };
@@ -53,14 +59,14 @@ export async function sendEmail({ to, type, data }: SendEmailParams) {
   }
 }
 
-export async function sendBookingConfirmation(to: string, data: Parameters<typeof BookingConfirmationEmail>[0]['data']) {
+export async function sendBookingConfirmation(to: string, data: BookingConfirmationData) {
   return sendEmail({ to, type: 'booking-confirmation', data });
 }
 
-export async function sendSecurityAlert(to: string, data: Parameters<typeof SecurityAlertEmail>[0]['data']) {
+export async function sendSecurityAlert(to: string, data: SecurityAlertData) {
   return sendEmail({ to, type: 'security-alert', data });
 }
 
-export async function sendWelcomeEmail(to: string, data: Parameters<typeof WelcomeEmail>[0]['data']) {
+export async function sendWelcomeEmail(to: string, data: WelcomeData) {
   return sendEmail({ to, type: 'welcome', data });
 }

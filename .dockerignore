@@ -7,3 +7,6 @@ node_modules
 *.md
 backups
 api
+mobile
+elevari-bot
+e2e

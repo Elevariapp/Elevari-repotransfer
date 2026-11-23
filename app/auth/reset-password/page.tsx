@@ -102,7 +102,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <AuthShell image="/properties/glamping-wana/07.jpg">
+    <AuthShell>
       <Suspense fallback={<p className="text-elevari-muted">Cargando…</p>}>
         <ResetPasswordForm />
       </Suspense>

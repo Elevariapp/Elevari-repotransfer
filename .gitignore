@@ -49,3 +49,6 @@ ehthumbs.db
 
 # Local Netlify folder
 .netlify
+
+# TypeScript incremental cache
+*.tsbuildinfo

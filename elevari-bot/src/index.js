@@ -11,6 +11,11 @@ const { whatsapp } = config;
 app.use(bodyParser.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// GET /health — liveness probe (Docker healthcheck + deploy verification)
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'elevari-bot' });
+});
+
 // GET /webhook/whatsapp — Meta Cloud API webhook verification
 app.get('/webhook/whatsapp', (req, res) => {
   const mode = req.query['hub.mode'];
@@ -64,11 +69,6 @@ app.post('/chat', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
-});
-
-// GET /health — Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', service: 'whatsapp-bot' });
 });
 
 app.listen(PORT, HOST, () => {

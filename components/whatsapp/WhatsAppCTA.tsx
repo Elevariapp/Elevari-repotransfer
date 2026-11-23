@@ -11,11 +11,10 @@ export default function WhatsAppCTA() {
 
   useEffect(() => {
     try {
-      dismissed = Boolean(localStorage.getItem('elevari:wa-dismissed'));
+      setDismissed(Boolean(localStorage.getItem('elevari:wa-dismissed')));
     } catch {
       /* ignore */
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (dismissed) return null;

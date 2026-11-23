@@ -15,6 +15,9 @@
     "docker:prod:build": "docker compose -f docker-compose.prod.yml --env-file .env.production build",
     "docker:prod:up": "docker compose -f docker-compose.prod.yml --env-file .env.production up -d",
     "docker:prod:down": "docker compose -f docker-compose.prod.yml --env-file .env.production down",
+    "ci:local": "./scripts/ci-local.sh",
+    "ci:local:full": "./scripts/ci-local.sh --full",
+    "hooks:install": "git config core.hooksPath .githooks",
     "go-live:setup": "./deploy/scripts/go-live-setup.sh",
     "go-live:validate": "./deploy/scripts/validate-env.sh",
     "go-live:validate:staging": "STAGING=1 ./deploy/scripts/validate-env.sh",
@@ -30,10 +33,7 @@
     "api:migrate": "cd api && npx prisma migrate deploy",
     "api:seed": "cd api && npx prisma db seed",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "ci:local": "npm run go-live:validate",
-    "ci:local:full": "npm run go-live:validate && docker compose -f docker-compose.prod.yml --env-file .env.production up -d",
-    "hooks:install": "cp .githooks/* .git/hooks/ && chmod +x .git/hooks/*"
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@google-cloud/vision": "^5.3.6",

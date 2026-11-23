@@ -1,19 +1,19 @@
 {
-  "name": "elevari-whatsapp-bot",
+  "name": "elevari-bot",
   "version": "1.0.0",
   "private": true,
-  "description": "Elevari WhatsApp Business Bot — Meta Cloud API integration",
+  "description": "Elevari WhatsApp Business bot (Meta Cloud API)",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node src/index.js",
-    "check": "node --check src/index.js"
+    "dev": "node --watch src/index.js",
+    "check": "node --check src/index.js && node --check src/config/index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "body-parser": "^1.20.2"
-  },
-  "engines": {
-    "node": ">=20"
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0"
   }
 }

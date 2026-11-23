@@ -132,6 +132,12 @@ else
 fi
 
 echo ""
+echo "--- WhatsApp bot ---"
+check_optional WHATSAPP_TOKEN "${WHATSAPP_TOKEN:-}"
+check_optional WHATSAPP_PHONE_NUMBER_ID "${WHATSAPP_PHONE_NUMBER_ID:-}"
+check_optional WHATSAPP_VERIFY_TOKEN "${WHATSAPP_VERIFY_TOKEN:-}"
+
+echo ""
 echo "--- Marketing ---"
 check_optional RESEND_API_KEY "$RESEND_API_KEY"
 check_optional NEXT_PUBLIC_GA_MEASUREMENT_ID "$NEXT_PUBLIC_GA_MEASUREMENT_ID"
