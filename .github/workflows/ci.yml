@@ -221,8 +221,8 @@ jobs:
       group: deploy-production
       cancel-in-progress: false
     env:
-      HETZNER_IP: ${{ secrets.HETZNER_IP }}
-      HETZNER_USER: ${{ secrets.HETZNER_USER }}
+      HETZNER_IP: ${{ secrets.HETZNER_IP || vars.HETZNER_IP }}
+      HETZNER_USER: ${{ secrets.HETZNER_USER || vars.HETZNER_USER }}
       HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
     steps:
       - name: Check deploy secrets
@@ -239,9 +239,9 @@ jobs:
       - name: Deploy to Hetzner via SSH
         uses: appleboy/ssh-action@v1.2.5
         with:
-          host: ${{ secrets.HETZNER_IP }}
-          username: ${{ secrets.HETZNER_USER }}
-          key: ${{ secrets.HETZNER_SSH_KEY }}
+          host: ${{ env.HETZNER_IP }}
+          username: ${{ env.HETZNER_USER }}
+          key: ${{ env.HETZNER_SSH_KEY }}
           script_stop: true
           command_timeout: 30m
           script: |
