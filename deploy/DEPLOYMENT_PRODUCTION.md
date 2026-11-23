@@ -129,6 +129,14 @@ docker compose -f docker-compose.prod.yml ps
 
 Actions → **Server diagnostics** → Run workflow (solo lectura; el repo es público, así que no imprime secretos). Comprueba DNS, registro del dominio, respuesta de Cloudflare, puertos del origen, contenedores y si Cloudflare llega de verdad a tu nginx. El último job (*Does Cloudflare reach OUR server?*) dice "RESULT: Cloudflare reaches this server" cuando el registro DNS apunta bien.
 
+### Cloudflare Workers Builds (opcional; no es producción)
+
+Producción es el stack Docker del VPS detrás del proxy de Cloudflare. El Worker `elevari-repotransfer` (Workers & Pages → conectado a Git) solo publica una copia en `*.workers.dev`; `elevari.live` **no depende de él**. No le añadas rutas ni dominios personalizados: capturaría el tráfico que hoy va al VPS.
+
+- El `name` de `package.json` debe ser exactamente el nombre del Worker (`elevari-repotransfer`). La autoconfiguración de Next.js crea el binding `WORKER_SELF_REFERENCE` apuntando a ese `name`; si no coincide, el build falla con *Service binding 'WORKER_SELF_REFERENCE' references Worker '…' which was not found [code: 10143]*.
+- La copia necesita sus propias variables: `NEXT_PUBLIC_API_URL` y `NEXT_PUBLIC_SITE_URL` como variables de build, y las de runtime en Settings → Variables and Secrets.
+- Si no la quieres: Worker → Settings → Builds → Disconnect (el check rojo "Workers Builds" desaparece; el CI y el deploy no cambian).
+
 ## 6. Backups PostgreSQL
 
 ```bash
