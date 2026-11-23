@@ -220,7 +220,22 @@ jobs:
     concurrency:
       group: deploy-production
       cancel-in-progress: false
+    env:
+      HETZNER_IP: ${{ secrets.HETZNER_IP }}
+      HETZNER_USER: ${{ secrets.HETZNER_USER }}
+      HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
     steps:
+      - name: Check deploy secrets
+        id: secrets
+        run: |
+          missing=""
+          for v in HETZNER_IP HETZNER_USER HETZNER_SSH_KEY; do
+            [ -z "${!v}" ] && missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error title=Deploy secrets missing::Add repository secret(s):$missing (Settings → Secrets and variables → Actions). See deploy/DEPLOYMENT_PRODUCTION.md"
+            exit 1
+          fi
       - name: Deploy to Hetzner via SSH
         uses: appleboy/ssh-action@v1.2.5
         with:
