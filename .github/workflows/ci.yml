@@ -236,13 +236,22 @@ jobs:
             echo "::error title=Deploy secrets missing::Add repository secret(s):$missing (Settings → Secrets and variables → Actions). See deploy/DEPLOYMENT_PRODUCTION.md"
             exit 1
           fi
+          # Non-secret diagnostics: lets you compare against `ssh-keygen -lf <your key>` locally.
+          printf '%s\n' "$HETZNER_SSH_KEY" | tr -d '\r' > /tmp/deploy_key && chmod 600 /tmp/deploy_key
+          echo "user-is-root: $([ "$HETZNER_USER" = root ] && echo yes || echo NO)  user-length: ${#HETZNER_USER}  ip-length: ${#HETZNER_IP}"
+          if ssh-keygen -y -f /tmp/deploy_key >/tmp/deploy_key.pub 2>/dev/null; then
+            echo "key fingerprint: $(ssh-keygen -lf /tmp/deploy_key.pub)"
+          else
+            echo "::error title=HETZNER_SSH_KEY invalid::The secret is not a valid private key. Paste the whole file, including the BEGIN/END lines."
+            exit 1
+          fi
+          rm -f /tmp/deploy_key /tmp/deploy_key.pub
       - name: Deploy to Hetzner via SSH
         uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ env.HETZNER_IP }}
           username: ${{ env.HETZNER_USER }}
           key: ${{ env.HETZNER_SSH_KEY }}
-          script_stop: true
           command_timeout: 30m
           script: |
             set -euo pipefail
