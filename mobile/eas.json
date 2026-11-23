@@ -17,18 +17,5 @@
       "channel": "production",
       "distribution": "store"
     }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "appleId": "RESERVE@ELEVARI.LIVE",
-        "ascAppId": "REPLACE_WITH_ASC_APP_ID",
-        "appleTeamId": "REPLACE_WITH_TEAM_ID"
-      },
-      "android": {
-        "serviceAccountKeyPath": "./secrets/google-service-account.json",
-        "track": "production"
-      }
-    }
   }
 }

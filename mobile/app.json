@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "elevari.androidapp",
+      "bundleIdentifier": "elevari.iosapp",
       "infoPlist": {
         "NSUserNotificationUsageDescription": "Elevari necesita enviar notificaciones push para confirmaciones de reserva y actualizaciones de anfitrión.",
         "NSLocationWhenInUseUsageDescription": "Elevari usa tu ubicación para mostrar propiedades cercanas.",
@@ -69,14 +69,10 @@
       "expo-secure-store",
       "expo-image-picker",
       "expo-file-system",
-      "react-native-svg",
-      "react-native-reanimated",
-      "react-native-gesture-handler",
       [
         "expo-build-properties",
         {
           "android": {
-            "googleServicesFile": "./google-services.json",
             "gradleVersion": "8.1.1",
             "compileSdkVersion": 34,
             "targetSdkVersion": 34
@@ -86,11 +82,7 @@
     ],
     "scheme": "elevari",
     "extra": {
-      "eas": {
-        "projectId": "elevari-mobile"
-      },
       "API_BASE_URL": "https://elevari.live/api/v1",
-      "WOMPI_PUBLIC_KEY": "pub_test_...",
       "PRIVACY_URL": "https://www.elevari.live/legal/privacy",
       "TERMS_URL": "https://www.elevari.live/legal/terms",
       "REFUND_URL": "https://www.elevari.live/legal/refund",

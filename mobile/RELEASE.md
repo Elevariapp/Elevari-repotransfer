@@ -2,13 +2,15 @@
 
 ## Estado actual
 
-La aplicación móvil está estabilizada y lista para build de producción.
+La aplicación móvil está implementada y preparada para la siguiente fase de build/release.
 
 - Rama principal: `b-main`
-- Último commit: `33c460d` — feat(mobile): completar dependencias, assets, env y corregir errores TypeScript
-- TypeScript: `tsc --noEmit` → 0 errores
-- Dependencias: todas instaladas y verificadas
-- Archivos de entorno: `.env`, `.env.development`, `.env.production`, `.env.example`
+- TypeScript: `npm run typecheck` debe terminar con 0 errores
+- Android package: `elevari.androidapp`
+- iOS bundle: `elevari.iosapp`
+- API móvil: `https://elevari.live/api/v1`
+- Iconos, splash, escena de autenticación y assets Android: incluidos
+- SDK Expo: 58
 
 ---
 
@@ -18,9 +20,11 @@ Antes de construir para producción se necesitan:
 
 | Elemento | Para qué sirve | Estado |
 |----------|---------------|--------|
-| Cuenta de Expo (EAS) | `eas login`, builds en la nube | ⏳ Pendiente de credenciales |
-| Google Play Console (service account) | `eas submit --platform android` | ⏳ Pendiente de cuenta de desarrollador |
-| Apple Developer + App Store Connect | `eas build --platform ios`, `eas submit --platform ios` | ⏳ Pendiente de cuenta de desarrollador |
+| Cuenta de Expo (EAS) | `eas login`, `eas init` y builds en la nube | Pendiente: cuenta y `EXPO_TOKEN` |
+| Google Play Console (service account) | `eas submit --platform android` | Pendiente: cuenta de desarrollador y credenciales |
+| Apple Developer + App Store Connect | `eas build --platform ios`, `eas submit --platform ios` | Pendiente: cuenta y certificados |
+| EAS project ID | Vincula el proyecto y los push notifications | Aún no configurado |
+| Google Services JSON | Firebase/FCM para Android | Falta el archivo real; no usar el valor placeholder |
 
 ---
 

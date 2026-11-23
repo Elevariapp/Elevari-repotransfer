@@ -19,7 +19,7 @@ interface BottomNavProps {
 
 // Tab bar shown only on the main screens of a group; detail screens hide it.
 export function BottomNav({ group, items }: BottomNavProps) {
-  const segments = useSegments();
+  const segments = useSegments() as readonly string[];
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
