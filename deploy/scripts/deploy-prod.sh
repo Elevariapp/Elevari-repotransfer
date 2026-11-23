@@ -39,6 +39,13 @@ docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build
 echo "→ Arrancando servicios..."
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --remove-orphans
 
+# nginx.conf se monta como archivo único: `git reset --hard` lo reemplaza por un inode nuevo y el
+# contenedor en marcha sigue con la config anterior hasta recrearlo. Se prueba antes para que una
+# config inválida nunca tumbe el sitio (si falla, nginx sigue con la config vieja).
+echo "→ Aplicando configuración de nginx..."
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm --no-deps --entrypoint nginx nginx -t
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --force-recreate --no-deps nginx
+
 echo "→ Esperando health (hasta 120s)..."
 wait_for() {
   local name="$1" url="$2"
