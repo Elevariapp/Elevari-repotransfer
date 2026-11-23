@@ -4,6 +4,7 @@ import { getPaymentsConfig } from './lib/payments/config.js';
 import { startPendingBookingExpiryJob } from './jobs/expire-pending-bookings.js';
 import { startOtaCalendarSyncJob } from './jobs/sync-ota-calendars.js';
 import { startCheckInReminderJob } from './jobs/send-check-in-reminders.js';
+import { ensureBucket, isMinioConfigured } from './lib/minio.js';
 
 // Startup validation — fail fast on partial payment configuration.
 const paymentsConfig = getPaymentsConfig();
@@ -22,6 +23,7 @@ try {
   startPendingBookingExpiryJob(app.log);
   startOtaCalendarSyncJob(app.log);
   startCheckInReminderJob(app.log);
+  if (isMinioConfigured()) void ensureBucket(app.log);
   console.log(`Wana API listening on http://${host}:${port}`);
 } catch (err) {
   app.log.error(err);

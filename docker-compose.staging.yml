@@ -33,9 +33,10 @@ services:
       - wana_staging
 
   minio:
-    image: minio/minio:latest
+    # Docker Hub's minio/minio is no longer published; Chainguard build pinned by digest.
+    image: cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    command: ["server", "/data", "--console-address", ":9001"]
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
@@ -44,21 +45,7 @@ services:
     networks:
       - wana_staging
 
-  minio-init:
-    image: minio/mc:latest
-    depends_on:
-      minio:
-        condition: service_started
-    entrypoint: >
-      /bin/sh -c "
-      sleep 5;
-      mc alias set wana http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
-      mc mb wana/${MINIO_BUCKET} --ignore-existing;
-      mc anonymous set download wana/${MINIO_BUCKET};
-      exit 0;
-      "
-    networks:
-      - wana_staging
+  # The api creates the bucket and its public-read policy at startup (ensureBucket).
 
   api:
     build:
