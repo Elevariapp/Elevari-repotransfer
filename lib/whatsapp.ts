@@ -11,7 +11,7 @@ export function whatsappUrl(message?: string): string {
 }
 
 export interface WhatsAppContext {
-  /** Tooltip / accessible name for the launcher. */
+  /** Accessible name and tooltip for the WhatsApp link. */
   label: string;
   /** Prefilled message. Plain Spanish words so the concierge routes it to the right topic. */
   message: string;
@@ -23,6 +23,20 @@ export function whatsappContext(pathname: string): WhatsAppContext {
     return {
       label: 'Preguntar por este espacio',
       message: `Hola, tengo una pregunta sobre este espacio de Elevari: ${siteUrl(pathname)}`,
+    };
+  }
+  const confirmed = /^\/checkout\/([^/]+)\/success\/?$/.exec(pathname);
+  if (confirmed) {
+    return {
+      label: 'Ayuda con mi reserva',
+      message: `Hola, necesito ayuda con mi reserva ${confirmed[1]} en Elevari.`,
+    };
+  }
+  const checkout = /^\/checkout\/([^/]+)\/?$/.exec(pathname);
+  if (checkout) {
+    return {
+      label: 'Ayuda con mi pago',
+      message: `Hola, necesito ayuda con el pago de mi reserva ${checkout[1]} en Elevari.`,
     };
   }
   if (pathname.startsWith('/checkout')) {

@@ -107,17 +107,13 @@ If the domain is behind Cloudflare, add a WAF / bot-protection skip rule for `/w
 
 ## Placement
 
-The WhatsApp button appears only on important pages:
-- Reservation/booking pages
-- Cancellation pages
-- Support/contact pages
-- Checkout/payment pages
+There is no floating WhatsApp button. A quiet hairline glyph with a text label sits in contextual places: header, footer, the property booking card, FAQ and contact pages, checkout and the booking confirmation, the app's support entries and the email help line and footer. The complete list is in `docs/HANDOVER.md`.
 
 ## UX Design
 
-- Subtle floating button or chat widget
+- Quiet glyph and text link, never a green bubble or a floating widget
 - Opt-in greeting, not auto-initiated
-- Clear CTA: "Talk to AI Concierge on WhatsApp"
+- Clear CTA: "Escríbenos por WhatsApp", with the page's own prefilled message
 - Respects user privacy — no data shared without consent
 
 ## Development

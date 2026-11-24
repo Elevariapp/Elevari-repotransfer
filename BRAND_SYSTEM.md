@@ -65,9 +65,9 @@ Lockup: the mark next to the wordmark "Elevari", with no tagline.
 ## WhatsApp Business Brand
 
 - Phone: +57 3232688534
-- CTA: "Talk to AI Concierge on WhatsApp"
-- Placement: Reservation, cancellation, support, checkout pages only
-- Style: Subtle floating button, opt-in greeting
+- CTA: "Escríbenos por WhatsApp" (a text link that carries the glyph, with the page's own prefilled message)
+- Placement: contextual and calm (header, footer, property booking card, help pages, checkout and confirmation, app support entries, emails); never a floating button. Details in `docs/HANDOVER.md`
+- Style: a quiet hairline glyph (outline bubble with a solid handset, `components/whatsapp/WhatsAppGlyph.tsx`), about 20-24px visible inside a 44px transparent hit area. No WhatsApp green, no filled plate or shadow. Terracotta `#C2410C` on light surfaces (amber in the dark theme), cream `#FEF3C7` on the always-dark header and footer, always at least 3:1 against its background
 
 ## Scene Background Design
 

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing, typography } from '@/lib/design-tokens';
 
@@ -7,11 +8,13 @@ interface SettingsRowProps {
   onPress: () => void;
   // Unread/pending counter shown as a pill before the chevron.
   badge?: number;
+  // Replaces the chevron, e.g. a glyph for rows that leave the app.
+  trailing?: ReactNode;
   destructive?: boolean;
   last?: boolean;
 }
 
-export function SettingsRow({ title, subtitle, onPress, badge = 0, destructive = false, last = false }: SettingsRowProps) {
+export function SettingsRow({ title, subtitle, onPress, badge = 0, trailing, destructive = false, last = false }: SettingsRowProps) {
   const label = badge > 0 ? `${title}, ${badge} sin leer` : title;
   return (
     <Pressable
@@ -30,7 +33,7 @@ export function SettingsRow({ title, subtitle, onPress, badge = 0, destructive =
           <Text style={styles.badgeText}>{badge > 9 ? '9+' : String(badge)}</Text>
         </View>
       ) : null}
-      <Text style={styles.chevron}>›</Text>
+      {trailing ? <View style={styles.trailing}>{trailing}</View> : <Text style={styles.chevron}>›</Text>}
     </Pressable>
   );
 }
@@ -88,4 +91,5 @@ const styles = StyleSheet.create({
   },
   badgeText: { color: colors.surface, fontSize: 12, fontWeight: typography.weights.bold },
   chevron: { fontSize: 22, color: colors.muted, marginLeft: spacing.xs },
+  trailing: { marginLeft: spacing.xs, marginRight: 2 },
 });

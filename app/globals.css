@@ -800,7 +800,7 @@
     color: var(--elevari-champagne-light);
   }
 
-  /* Install card + WhatsApp launcher share one fixed stack so they can never overlap. */
+  /* Fixed stack for floating cards (today only the app-install card) so they never overlap each other. */
   .elevari-floating-stack {
     position: fixed;
     inset-inline: 0;

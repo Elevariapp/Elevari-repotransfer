@@ -41,6 +41,7 @@ Los PNG (iconos web, Apple touch, launcher/adaptive/splash/notificación de Expo
 - Logo: `https://raw.githubusercontent.com/Elevariapp/Elevari-repotransfer/b-main/public/brand/icons/icon-128.png` (PNG; los clientes de correo no renderizan SVG). Se aloja en GitHub raw y no en `elevari.live` porque Cloudflare desafía a los proxies de imágenes del correo. Definido en `api/src/lib/email-templates/brand.ts`
 - Cabecera: `public/brand/email/banner.jpg` (render estático del paisaje; mismo alojamiento y mismo `brand.ts`) con el wordmark «Elevari» y el lema en HTML real encima, a la izquierda sobre la zona oscura. Si las imágenes están bloqueadas queda el color sólido `#7C2D12` con texto blanco y crema (≥ 8,4:1)
 - Botones y enlaces en terracota `#C2410C` (contraste 5.2:1 con texto blanco); enlaces del pie en ámbar `#EA9A2E`
+- WhatsApp: enlace de texto con un glifo de línea fina (sin verde, sin botón) en la línea de ayuda y en el pie, siempre con `emailWhatsAppLink()` de `layout.ts`. Los PNG `public/brand/email/whatsapp-terracotta.png` (cuerpo blanco) y `whatsapp-amber.png` (pie oscuro) se generan con `node scripts/email/generate-whatsapp-glyph.mjs` a partir del mismo dibujo de la web, se alojan igual que el logo y el glifo es decorativo (`alt=""`: el texto del enlace ya dice WhatsApp)
 - Pie de correo: atribución a Elevari + Glamping Waná, Sutatausa/Cucunubá, Cundinamarca, Colombia
 
 ## Accesibilidad

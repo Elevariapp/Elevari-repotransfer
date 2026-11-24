@@ -10,11 +10,13 @@ import TrustSignals from '@/components/conversion/TrustSignals';
 import SimilarProperties from '@/components/conversion/SimilarProperties';
 import PropertyLocation from '@/components/booking/PropertyLocation';
 import ElevariMark from '@/components/brand/ElevariMark';
+import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
 import { formatPropertyLocation } from '@/lib/property-location';
 import { formatCop } from '@/lib/format';
 import { buildPropertyShareMetadata } from '@/lib/share-metadata';
 import { wanaApi } from '@/lib/api-client';
 import { siteUrl } from '@/lib/site-url';
+import { whatsappContext } from '@/lib/whatsapp';
 import { AMENITY_LABELS, normalizeAmenity } from '@/lib/seo/similarity';
 import { findSimilar } from '@/lib/conversion/similar-properties';
 
@@ -255,7 +257,13 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   ¿Dudas? Consulta las{' '}
                   <a href="/legal/faq" className="font-semibold text-elevari-forest underline underline-offset-2">
                     preguntas frecuentes
-                  </a>
+                  </a>{' '}
+                  o{' '}
+                  <WhatsAppLink
+                    variant="flow"
+                    label="escríbenos por WhatsApp"
+                    message={whatsappContext(`/properties/${property.slug}`).message}
+                  />
                   .
                 </p>
               </section>

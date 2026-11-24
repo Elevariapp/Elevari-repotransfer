@@ -5,6 +5,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { SettingsGroup, SettingsRow } from '@/components/SettingsRow';
+import { WhatsAppGlyph } from '@/components/WhatsAppGlyph';
 import { colors, radius, spacing, typography } from '@/lib/design-tokens';
 import { refreshUnreadCount } from '@/lib/notifications';
 import type { Area } from '@/lib/routes';
@@ -119,6 +120,7 @@ export function ProfileScreen({ area }: { area: Area }) {
         <SettingsRow
           title="Ayuda por WhatsApp"
           subtitle="Escríbenos, te respondemos pronto"
+          trailing={<WhatsAppGlyph size={20} />}
           onPress={() => void openWhatsAppSupport()}
         />
         <SettingsRow title="Contacto y soporte" onPress={() => open('/legal/contact')} />

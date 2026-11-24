@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
+import { WhatsAppLink } from '@/components/WhatsAppLink';
 import { colors, spacing, typography } from '@/lib/design-tokens';
 
 export default function ContactScreen() {
@@ -28,6 +29,7 @@ export default function ContactScreen() {
             anfitriones@elevari.live (1-2 días hábiles). Accesibilidad: accesibilidad@elevari.live (5
             días hábiles).
           </Text>
+          <WhatsAppLink label="Escríbenos por WhatsApp" style={styles.whatsapp} />
         </View>
 
         <View style={styles.section}>
@@ -88,4 +90,5 @@ const styles = StyleSheet.create({
     color: colors.slate,
     lineHeight: 22,
   },
+  whatsapp: { marginTop: spacing.xs },
 });

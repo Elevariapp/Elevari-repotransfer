@@ -8,13 +8,14 @@ import { PriceBreakdown } from '@/components/PriceBreakdown';
 import { Screen } from '@/components/Screen';
 import { Banner, ErrorState, LoadingState } from '@/components/States';
 import { StatusChip } from '@/components/StatusChip';
+import { WhatsAppLink } from '@/components/WhatsAppLink';
 import { api, getApiErrorMessage, getApiErrorStatus } from '@/lib/api';
 import { BOOKING_STATUS_LABELS, BOOKING_STATUS_TONES, isPaidBooking, newIdempotencyKey } from '@/lib/booking';
 import { toDateOnly } from '@/lib/dates';
 import { colors, spacing, typography } from '@/lib/design-tokens';
 import { currencyForCountry, formatDateRange, formatMoney, pluralize } from '@/lib/format';
 import { firstParam } from '@/lib/routes';
-import { WEBSITE_URL, openExternalUrl, openWhatsAppSupport } from '@/lib/support';
+import { WEBSITE_URL, openExternalUrl } from '@/lib/support';
 import type {
   Booking,
   BookingPayment,
@@ -447,13 +448,12 @@ export default function CheckoutScreen() {
         <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/(guest)/legal/refund')}>
           Política de reembolso
         </Text>
-        <Text
-          style={styles.link}
-          accessibilityRole="link"
-          onPress={() => void openWhatsAppSupport(`Hola, necesito ayuda con mi reserva ${booking.id}.`)}
-        >
-          Ayuda por WhatsApp
-        </Text>
+        <WhatsAppLink
+          size="sm"
+          label="Ayuda por WhatsApp"
+          message={`Hola, necesito ayuda con mi reserva ${booking.id}.`}
+          style={styles.whatsappLink}
+        />
         {canCancel ? (
           <Text
             style={[styles.link, styles.dangerLink]}
@@ -487,5 +487,7 @@ const styles = StyleSheet.create({
   note: { fontSize: typography.sizes.caption, color: colors.muted, lineHeight: 19, marginBottom: spacing.md },
   links: { gap: spacing.md, marginTop: spacing.sm },
   link: { fontSize: typography.sizes.caption, color: colors.forest, fontWeight: typography.weights.semibold },
+  // The 44pt touch row would widen the gaps of this list, so it borrows the extra height from its margins.
+  whatsappLink: { marginVertical: -13 },
   dangerLink: { color: colors.error },
 });

@@ -5,11 +5,11 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Screen } from '@/components/Screen';
 import { Banner } from '@/components/States';
+import { WhatsAppLink } from '@/components/WhatsAppLink';
 import { getApiErrorCode, getApiErrorMessage } from '@/lib/api';
 import { colors, spacing, typography } from '@/lib/design-tokens';
 import { deleteAccount } from '@/lib/session';
 import { useAppStore } from '@/lib/store';
-import { openWhatsAppSupport } from '@/lib/support';
 
 export default function AccountDeletionConfirmScreen() {
   const router = useRouter();
@@ -81,9 +81,7 @@ export default function AccountDeletionConfirmScreen() {
             <Button variant="secondary" fullWidth onPress={() => router.push('/(guest)/my-bookings')}>
               Ver mis reservas
             </Button>
-            <Button variant="ghost" fullWidth onPress={() => void openWhatsAppSupport()}>
-              Ayuda por WhatsApp
-            </Button>
+            <WhatsAppLink label="Ayuda por WhatsApp" align="center" />
           </View>
         ) : null}
 

@@ -7,6 +7,8 @@ import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
 import NotificationBell from '@/components/notifications/NotificationBell';
+import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
+import { whatsappContext } from '@/lib/whatsapp';
 
 /** Cada enlace va a un destino distinto — sin duplicar /properties */
 const navLinks = [
@@ -56,6 +58,8 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
   };
 
   const closeMenu = () => setMenuOpen(false);
+  // Support channel for visitors and hosts; the internal admin screens have no use for it.
+  const whatsapp = pathname.startsWith('/admin') ? null : whatsappContext(pathname);
 
   return (
     <header className={`elevari-header z-50 overflow-x-clip ${sticky ? 'sticky top-0' : 'relative'}`}>
@@ -103,6 +107,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
 
         <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
           <ThemeToggle className="hidden sm:inline-flex" />
+          {whatsapp && <WhatsAppLink variant="icon" tone="onDark" label={whatsapp.label} message={whatsapp.message} />}
           {!loading && user ? (
             <>
               <Link href="/account" className="elevari-header-account hidden max-w-[7rem] lg:inline xl:max-w-[9rem]">

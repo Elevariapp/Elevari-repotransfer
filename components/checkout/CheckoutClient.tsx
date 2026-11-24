@@ -9,6 +9,8 @@ import { formatCop, formatDateRange } from '@/lib/format';
 import { formatPropertyLocation } from '@/lib/property-location';
 import PropertyThumb from '@/components/ui/PropertyThumb';
 import PriceBreakdown from '@/components/ui/PriceBreakdown';
+import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
+import { whatsappContext } from '@/lib/whatsapp';
 import CheckoutStepper from './CheckoutStepper';
 
 interface CheckoutClientProps {
@@ -236,6 +238,13 @@ export default function CheckoutClient({ booking, propertySlug, coverImage }: Ch
           <p className="mt-4 text-xs text-elevari-muted">
             Todos los pagos se procesan en pesos colombianos (COP) a través de Wompi.
           </p>
+          <div className="mt-3 border-t border-elevari-border pt-1">
+            <WhatsAppLink
+              label="¿Problemas con el pago? Escríbenos"
+              message={whatsappContext(`/checkout/${booking.id}`).message}
+              className="min-h-11 text-sm"
+            />
+          </div>
         </div>
       </aside>
     </div>

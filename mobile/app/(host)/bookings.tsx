@@ -3,8 +3,9 @@ import { StyleSheet, Text } from 'react-native';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
+import { WhatsAppLink } from '@/components/WhatsAppLink';
 import { colors, spacing, typography } from '@/lib/design-tokens';
-import { HOST_DASHBOARD_URL, openExternalUrl, openWhatsAppSupport } from '@/lib/support';
+import { HOST_DASHBOARD_URL, openExternalUrl } from '@/lib/support';
 
 const HOST_SUPPORT_MESSAGE = 'Hola, soy anfitrión en Elevari y necesito ayuda con las reservas de mi propiedad.';
 
@@ -35,9 +36,7 @@ export default function HostBookingsScreen() {
         </Button>
       </Card>
 
-      <Button variant="ghost" fullWidth onPress={() => void openWhatsAppSupport(HOST_SUPPORT_MESSAGE)}>
-        Ayuda por WhatsApp
-      </Button>
+      <WhatsAppLink label="Ayuda por WhatsApp" message={HOST_SUPPORT_MESSAGE} align="center" />
     </Screen>
   );
 }

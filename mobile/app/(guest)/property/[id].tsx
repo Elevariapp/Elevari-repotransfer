@@ -4,10 +4,12 @@ import { FlatList, Image, StyleSheet, Text, View, useWindowDimensions } from 're
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { ErrorState, LoadingState } from '@/components/States';
+import { WhatsAppLink } from '@/components/WhatsAppLink';
 import { api, getApiErrorMessage, getApiErrorStatus } from '@/lib/api';
 import { colors, radius, spacing, typography } from '@/lib/design-tokens';
 import { formatMoney, normalizeAmenities, pluralize } from '@/lib/format';
 import { firstParam } from '@/lib/routes';
+import { propertySupportMessage } from '@/lib/support';
 import type { Property } from '@/lib/types';
 
 const MAX_CONTENT_WIDTH = 720;
@@ -171,6 +173,10 @@ export default function PropertyDetailScreen() {
           ))}
         </View>
       ) : null}
+
+      <View style={styles.help}>
+        <WhatsAppLink label="¿Dudas sobre este espacio? Escríbenos" message={propertySupportMessage(property.slug)} />
+      </View>
     </Screen>
   );
 }
@@ -204,6 +210,7 @@ const styles = StyleSheet.create({
   review: { backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: spacing.md, marginBottom: spacing.sm },
   reviewStars: { color: colors.amber, fontSize: typography.sizes.body, marginBottom: spacing.xs },
   reviewText: { fontSize: typography.sizes.caption, color: colors.slate, lineHeight: 19 },
+  help: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.sm },
   footerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   footerPrice: { flexShrink: 0 },
   priceValue: { fontSize: typography.sizes.body, fontWeight: typography.weights.bold, color: colors.forest },
