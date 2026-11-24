@@ -202,3 +202,63 @@ jobs:
           else
             echo "RESULT: Cloudflare reaches this server."
           fi
+
+  whatsapp-bot:
+    name: WhatsApp bot (does Meta reach it, does it answer?)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DOMAIN: elevari.live
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Tag this run's test requests
+        run: echo "TAG=diag$(date +%s)$RANDOM" >> "$GITHUB_ENV"
+
+      # No secrets: the same two requests Meta makes (webhook verification and a message), refused by the bot on purpose.
+      - name: Who answers at the webhook, the bot or Cloudflare?
+        run: bash .github/scripts/whatsapp-diagnostics/public-probe.sh | tee "$RUNNER_TEMP/whatsapp-1-public.txt"
+
+      # Read-only. server-report.py reads the nginx and bot logs; meta-check.js runs inside the bot container and asks
+      # Meta (GET only) about the token, the phone number and the webhook the bot is using. Neither prints a value.
+      - name: What reached the server, what the bot did, what Meta has on file
+        env:
+          HETZNER_IP: '2.29.165.225'
+          HETZNER_USER: 'root'
+          HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+        run: |
+          set +e
+          for v in HETZNER_IP HETZNER_USER HETZNER_SSH_KEY; do
+            [ -z "${!v}" ] && { echo "::error::$v is not set"; exit 1; }
+          done
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$HETZNER_SSH_KEY" | tr -d '\r' > ~/.ssh/bot_key
+          chmod 600 ~/.ssh/bot_key
+          on_server() {
+            ssh -i ~/.ssh/bot_key -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o LogLevel=ERROR \
+              "$HETZNER_USER@$HETZNER_IP" "$@"
+          }
+          # Last line of defence for a public log: IPs and anything shaped like a token or a secret.
+          mask() { sed -E 's/[0-9]{1,3}(\.[0-9]{1,3}){3}/x.x.x.x/g; s/[A-Za-z0-9+\/_=|-]{32,}/<redacted>/g' | cut -c1-600; }
+          out="$RUNNER_TEMP/whatsapp-2-server.txt"
+          sleep 3
+          on_server python3 - "$TAG" < .github/scripts/whatsapp-diagnostics/server-report.py 2>&1 | mask > "$out"
+          rc=${PIPESTATUS[0]}
+          echo >> "$out"
+          # shellcheck disable=SC2016  # the $(...) must run on the server, not here
+          on_server 'cd /opt/elevari && bot=$(docker compose -f docker-compose.prod.yml --env-file .env.production ps -q bot 2>/dev/null) && [ -n "$bot" ] && docker exec -i "$bot" node - || echo "== Meta check skipped: the bot container is not running"' \
+            < .github/scripts/whatsapp-diagnostics/meta-check.js 2>&1 | mask >> "$out"
+          rm -f ~/.ssh/bot_key
+          cat "$out"
+          [ "$rc" -eq 0 ] || echo "::error::SSH step ended with exit code $rc"
+          exit "$rc"
+
+      - name: Put the report on the run's summary page
+        if: ${{ always() }}
+        run: |
+          {
+            echo '### WhatsApp bot'
+            echo '```text'
+            cat "$RUNNER_TEMP"/whatsapp-*.txt 2>/dev/null
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

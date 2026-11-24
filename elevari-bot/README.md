@@ -97,7 +97,29 @@ Logs are one JSON object per line. They never contain message text, profile name
 6. **WhatsApp → Configuration → Webhook**: callback URL `https://elevari.live/webhook/whatsapp`, verify token = `WHATSAPP_VERIFY_TOKEN`, **Verify and save**, then subscribe to the **messages** field.
 7. Send `hola` to +57 3232688534 and check that the menu arrives.
 
-If the domain is behind Cloudflare, add a WAF / bot-protection skip rule for `/webhook/whatsapp`: Meta's servers cannot solve a managed challenge, so verification would fail with 403.
+The domain is behind Cloudflare, and Meta's servers cannot solve a challenge page: if Cloudflare challenges them, step 6 fails with 403 and no customer message ever reaches the bot. See the next section.
+
+## If the bot does not answer
+
+The bot fails silently on purpose (it never writes to a customer unless everything checks out), so a healthy container says little. Run **Actions → Server diagnostics → Run workflow** and open the **WhatsApp bot** job (the same report is on the run's summary page). It is read-only, prints no values, and ends each part with a `RESULT:` line:
+
+1. **Who answers at the webhook** — the two requests Meta makes (verification `GET`, message `POST`) sent with Meta's User-Agent (`facebookexternalua`) from GitHub's network. The bot refuses both on purpose; what matters is whether the bot or Cloudflare answered.
+2. **What reached the server** — every request nginx received for `/webhook/whatsapp` and what the bot logged about it (event names and Meta's error codes only). nginx and the bot keep logs only since their last start and every deploy restarts them, so send `hola` to the number first and run the workflow a minute later.
+3. **What Meta has on file** — read-only Graph API questions asked from inside the bot container with the bot's own credentials: is the token valid and permanent, is `WHATSAPP_PHONE_NUMBER_ID` a number on the Cloud API, is the webhook registered with the `messages` field, is the app subscribed to the WhatsApp account, does `WHATSAPP_APP_SECRET` belong to the app.
+
+| What the report shows | Cause | Fix |
+|-----------------------|-------|-----|
+| "Stopped by Cloudflare" for the requests asked the way Meta asks, and no request from Meta in nginx | Cloudflare challenges non-browser clients | Cloudflare → **Security → Events**, filter by path `/webhook/whatsapp`, and read which service acted. **Bot Fight Mode** cannot be skipped by a WAF rule: turn the setting off, or add an IP Access rule with action *Allow* for Meta's network (ASN `AS32934`), or move to a plan with Super Bot Fight Mode and skip it for this path. A **custom or managed rule** / **Security Level**: add a WAF custom rule `http.request.uri.path eq "/webhook/whatsapp"` with action *Skip* |
+| No request from Meta, and the webhook is "not registered" or `messages` is not subscribed | Step 6 of *Connecting Meta* was never completed | Do step 6 (it only succeeds once Cloudflare lets Meta in) |
+| No request from Meta, everything registered | The Meta app is in Dev mode ("some webhooks will not be sent if your app is in Dev mode", Meta docs), or it is not subscribed to the WhatsApp account | Switch the app to **Live**; save the webhook again in WhatsApp → Configuration |
+| Platform is not `CLOUD_API`, or status is not `CONNECTED` | The number is not registered with the Cloud API (it may still be in use on the WhatsApp Business phone app, where its messages then go) | Register the number: WhatsApp Manager → Phone numbers |
+| Meta's `POST` gets `401`, `webhook.signature_rejected reason=mismatch` | `WHATSAPP_APP_SECRET` is not this app's secret | App settings → Basic → App secret → update the secret, redeploy |
+| `message.other_number_ignored` | `WHATSAPP_PHONE_NUMBER_ID` is not the number's ID | Use the *Phone number ID* from WhatsApp → API Setup (the report lists it) |
+| `graph.send_failed` with `code=190` | The access token expired (the one from API Setup lasts 24 hours) | Create a permanent System User token, update `WHATSAPP_TOKEN`, redeploy |
+| `graph.send_failed` with `code=131030` | Test number or Dev-mode app: only allow-listed recipients | Add a real number and switch the app to Live |
+| `message.handled … replied=true` | The bot is answering | Nothing: see *What the guest sees* for the messages it deliberately stays quiet on |
+
+The secrets live in the repository's Actions secrets and reach the server on the next deploy (CI on `b-main`).
 
 ## Known limitations
 

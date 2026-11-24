@@ -48,6 +48,8 @@ El job `mobile-build-android` encola con EAS un AAB (`production`, Play Store) y
 
 `elevari-bot/` se construye y arranca junto al resto del stack (servicio `bot` en `docker-compose.prod.yml`, puerto interno 3001). Nginx expone solo `/webhook/whatsapp` y `/bot/health`. Configura en Meta → WhatsApp → Webhook: `https://<dominio>/webhook/whatsapp` con el mismo `WHATSAPP_VERIFY_TOKEN` de `.env.production`, y define `WHATSAPP_APP_SECRET` (el *App Secret* de la app de Meta): el bot firma-verifica cada mensaje y en producción responde 503 si falta.
 
+Si el bot no responde: Actions → **Server diagnostics** → job **WhatsApp bot** (solo lectura, no imprime valores). Dice si Cloudflare frena las llamadas de Meta antes de llegar al bot, qué peticiones llegaron al servidor y qué hizo el bot con ellas, y qué tiene Meta registrado (token, número, webhook). Las causas y su arreglo están en `elevari-bot/README.md` → *If the bot does not answer*.
+
 ### Validar localmente antes de hacer push
 
 ```bash
@@ -132,7 +134,7 @@ docker compose -f docker-compose.prod.yml ps
 
 ### Si el sitio no carga
 
-Actions → **Server diagnostics** → Run workflow (solo lectura; el repo es público, así que no imprime secretos). Comprueba DNS, registro del dominio, respuesta de Cloudflare, puertos del origen, contenedores y si Cloudflare llega de verdad a tu nginx. El último job (*Does Cloudflare reach OUR server?*) dice "RESULT: Cloudflare reaches this server" cuando el registro DNS apunta bien.
+Actions → **Server diagnostics** → Run workflow (solo lectura; el repo es público, así que no imprime secretos). Comprueba DNS, registro del dominio, respuesta de Cloudflare, puertos del origen, contenedores y si Cloudflare llega de verdad a tu nginx. El job *Does Cloudflare reach OUR server?* dice "RESULT: Cloudflare reaches this server" cuando el registro DNS apunta bien.
 
 ### Cloudflare Workers Builds (opcional; no es producción)
 
