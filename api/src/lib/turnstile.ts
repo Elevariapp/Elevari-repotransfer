@@ -11,7 +11,7 @@ export async function verifyTurnstileToken(
   token: string,
   remoteip?: string,
 ): Promise<TurnstileVerifyResult> {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
+  const secret = process.env.TURNSTILE_SECRET_KEY || process.env.SITE_SECRET_KEY;
   if (!secret) return { ok: true };
 
   if (!token) return { ok: false, errorCodes: ['missing-input-response'] };
@@ -41,7 +41,7 @@ export async function verifyTurnstileToken(
 
 export function turnstileRequired(): boolean {
   if (process.env.TURNSTILE_DISABLED === '1') return false;
-  return Boolean(process.env.TURNSTILE_SECRET_KEY);
+  return Boolean(process.env.TURNSTILE_SECRET_KEY || process.env.SITE_SECRET_KEY);
 }
 
 /** Real client address: relies on Fastify's `trustProxy`, with nginx setting a single trusted hop. */

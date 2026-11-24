@@ -114,11 +114,10 @@ export default function TurnstileWidget({
       }
     };
 
+    // The script's onload event means the API is already ready. Calling ready() again
+    // here can drop the render in current Turnstile builds; render immediately instead.
     loadTurnstileScript()
-      .then(() => {
-        if (typeof window.turnstile?.ready === 'function') window.turnstile.ready(render);
-        else render();
-      })
+      .then(render)
       .catch(() => {
         if (!cancelled) {
           setStatus('error');
@@ -144,7 +143,7 @@ export default function TurnstileWidget({
     <div className="space-y-2">
       <p className="text-center text-xs font-medium text-elevari-muted">Verificación de seguridad</p>
       <div className={cx('relative', status !== 'error' && 'min-h-[65px]')}>
-        <div ref={containerRef} className="flex justify-center" />
+        <div ref={containerRef} className="flex justify-center" data-sitekey={SITE_KEY} />
         {status === 'loading' && (
           <p
             role="status"
@@ -179,7 +178,6 @@ export default function TurnstileWidget({
 declare global {
   interface Window {
     turnstile?: {
-      ready: (callback: () => void) => void;
       render: (container: HTMLElement, options: Record<string, unknown>) => string;
       remove: (widgetId: string) => void;
     };

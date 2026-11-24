@@ -37,6 +37,25 @@ check "Robots" "$BASE_URL/robots.txt" "200"
 check "Login page" "$BASE_URL/auth/login" "200"
 check "Register page" "$BASE_URL/auth/register" "200"
 
+# Rendered-content regression: a 200 alone does not prove that auth is usable.
+check_turnstile_page() {
+  local path="$1"
+  local body
+  body=$(mktemp)
+  if "${CURL[@]}" -f "$BASE_URL$path" -o "$body" 2>/dev/null \
+    && grep -q 'data-sitekey="0x4AAAAAAGL6Nkc1KmMspy5d"' "$body" \
+    && ! grep -q 'data-sitekey=""' "$body"; then
+    echo "✓ Turnstile sitekey — $path"
+  else
+    echo "✗ Turnstile sitekey ausente o vacío — $path"
+    FAIL=1
+  fi
+  rm -f "$body"
+}
+
+check_turnstile_page "/auth/login"
+check_turnstile_page "/auth/register"
+
 # A controlled invalid request proves that Cloudflare and nginx reach the auth API.
 # It creates no account and attempts no real login.
 check_auth_endpoint() {
