@@ -108,13 +108,21 @@ export default function AccountHub() {
       </section>
 
       {user.role !== 'guest' && (
-        <ul className="elevari-card overflow-hidden">
+        <ul className="elevari-card divide-y divide-elevari-border overflow-hidden">
           <LinkRow
             href={isAdmin ? '/admin' : '/host'}
             icon={isAdmin ? 'shield' : 'home'}
             label={isAdmin ? 'Panel de administración' : 'Panel de anfitrión'}
             hint={isAdmin ? 'Reservas, propiedades y moderación' : 'Tus espacios, reservas y fotos'}
           />
+          {!isAdmin && (
+            <LinkRow
+              href="/host/bookings"
+              icon="calendar"
+              label="Reservas de tus espacios"
+              hint="Próximas, pasadas y canceladas"
+            />
+          )}
         </ul>
       )}
 
