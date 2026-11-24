@@ -265,7 +265,14 @@ export function getApiErrorMessage(
   if (!err.response) return err.code === 'ERR_CANCELED' ? fallback : MESSAGES.network;
 
   const status = err.response.status;
-  if (status === 429) return MESSAGES.rateLimit;
+  if (status === 429) {
+    // A locked account names its own wait ("espera 15 minutos"): the generic text would promise a minute.
+    const body = errorBody(err);
+    if (body.code === 'login_locked' && typeof body.error === 'string' && body.error.trim()) {
+      return body.error.trim();
+    }
+    return MESSAGES.rateLimit;
+  }
 
   if (looksLikeHtml(err) || typeof err.response.data === 'string') {
     if (status === 403) return MESSAGES.blocked;
