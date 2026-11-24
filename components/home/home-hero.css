@@ -1,0 +1,98 @@
+/* Home hero (HomeHero.tsx): the scene fills the section, the copy and the search sit on top, the dock holds the switcher. */
+
+.home-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: max(34rem, calc(100svh - 3.5rem));
+}
+
+@media (min-width: 640px) {
+  .home-hero {
+    min-height: max(38rem, calc(100svh - 4rem));
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-hero {
+    min-height: max(40rem, min(calc(100svh - 4.25rem), 62rem));
+  }
+}
+
+/* The copy sits at the top and the stage (camp, family, fire) keeps the bottom */
+.home-hero__content {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  padding-top: clamp(2.25rem, 7vh, 5.5rem);
+  padding-bottom: clamp(7rem, 24svh, 17rem);
+  pointer-events: none;
+}
+
+.home-hero__content > * {
+  pointer-events: auto;
+}
+
+.home-hero__dock {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 1rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.home-hero__dock-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.home-hero__dock-row > * {
+  pointer-events: auto;
+}
+
+.home-hero__scroll {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgb(255 255 255 / 0.8);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.home-hero__scroll:hover {
+  color: #fff;
+}
+
+.home-hero__mouse {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 1.5rem;
+  height: 2.5rem;
+  padding: 0.25rem;
+  border: 1px solid rgb(255 255 255 / 0.4);
+  border-radius: 999px;
+}
+
+.home-hero__mouse > span {
+  width: 0.25rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-elevari-amber-soft, #fcd34d);
+}
+
+@media (min-width: 1024px) {
+  .home-hero__dock-row {
+    justify-content: flex-start;
+  }
+
+  .home-hero__scroll {
+    display: flex;
+  }
+}

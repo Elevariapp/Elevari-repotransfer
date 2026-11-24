@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
-import SearchHero from '@/components/search/SearchHero';
+import HomeHero from '@/components/home/HomeHero';
 import PropertyCard from '@/components/PropertyCard';
 import { wanaApi } from '@/lib/api-client';
 import ExperiencePillars from '@/components/home/ExperiencePillars';
@@ -24,7 +24,7 @@ export default async function HomePage() {
     <>
       <Header />
       <main id="contenido">
-        <SearchHero />
+        <HomeHero />
         <CategoryStrip />
 
         <TrustStrip />
