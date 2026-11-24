@@ -161,6 +161,38 @@ export interface AppNotification {
   created_at: string;
 }
 
+export interface NotificationPreferences {
+  email: { reminders: boolean; host_bookings: boolean };
+  push: { bookings: boolean; reminders: boolean; host_bookings: boolean };
+}
+
+export type NotificationPreferencesPatch = {
+  email?: Partial<NotificationPreferences['email']>;
+  push?: Partial<NotificationPreferences['push']>;
+};
+
+export type HostBookingScope = 'upcoming' | 'past' | 'cancelled';
+
+export interface HostBookingRow {
+  id: string;
+  status: string;
+  property: { id: string; title: string; slug: string };
+  /** Null when the guest deleted their account. */
+  guest_name: string | null;
+  guests: number;
+  check_in: string;
+  check_out: string;
+  nights: number;
+  host_receives: number | null;
+  currency: string;
+  created_at: string;
+}
+
+export interface HostBookingsPage {
+  data: HostBookingRow[];
+  pagination: { page: number; page_size: number; total: number; has_more: boolean };
+}
+
 export const wanaApi = {
   health: () => request<{ status: string; database: string }>('/health'),
 
@@ -224,6 +256,19 @@ export const wanaApi = {
   notifications: () =>
     request<{ data: AppNotification[] }>('/api/v1/notifications', { auth: true }),
 
+  getNotificationPreferences: () =>
+    request<{ preferences: NotificationPreferences }>('/api/v1/notifications/preferences', { auth: true }),
+
+  updateNotificationPreferences: (patch: NotificationPreferencesPatch) =>
+    request<{ preferences: NotificationPreferences }>('/api/v1/notifications/preferences', {
+      method: 'PATCH',
+      auth: true,
+      body: JSON.stringify(patch),
+    }),
+
+  /** Returns a fresh token: the role travels inside the session, so the old one would still say "guest". */
+  becomeHost: () => request<{ token: string; user: AuthUser }>('/api/v1/auth/become-host', { method: 'POST', auth: true }),
+
   forgotPassword: (email: string) =>
     request<{ success: boolean; message: string }>('/api/v1/auth/forgot-password', {
       method: 'POST',
@@ -250,6 +295,15 @@ export const wanaApi = {
 
   listHostProperties: () =>
     request<{ data: HostPropertySummary[] }>('/api/v1/host/properties', { auth: true }),
+
+  listHostBookings: (params: { scope?: HostBookingScope; page?: number; page_size?: number } = {}) => {
+    const q = new URLSearchParams();
+    if (params.scope) q.set('scope', params.scope);
+    if (params.page) q.set('page', String(params.page));
+    if (params.page_size) q.set('page_size', String(params.page_size));
+    const query = q.toString();
+    return request<HostBookingsPage>(`/api/v1/host/bookings${query ? `?${query}` : ''}`, { auth: true });
+  },
 
   createHostProperty: (body: {
     title: string;
