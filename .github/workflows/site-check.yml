@@ -1,57 +1,60 @@
 name: Site check (live)
 
-# Looks at the public site from GitHub's network, which is the only place the team can verify what visitors get:
-# status codes, the hero markers, whether Cloudflare Turnstile is enforced, and screenshots of the home hero
-# (Día / Tarde / Noche) on desktop and phone. Manual only; it deploys nothing and needs no secrets.
-# Download the screenshots from the run's "site-check" artifact.
+# Throwaway: builds the production web image from this branch exactly like deploy-prod.sh does (same Dockerfile,
+# same build path /app) and probes / and /app. Deploys nothing and needs no secrets.
 on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Site to check'
+        description: 'unused'
         type: string
         default: 'https://elevari.live'
 
 permissions:
   contents: read
 
-concurrency:
-  group: site-check
-  cancel-in-progress: true
-
 jobs:
   check:
-    name: Check the live site
+    name: Docker build repro
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      BASE_URL: ${{ inputs.base_url }}
-      OUT_DIR: site-check
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: '22'
-
-      - name: Install Playwright and Chromium
+      - name: Build the production web image
         run: |
-          mkdir -p "$RUNNER_TEMP/pw"
-          cd "$RUNNER_TEMP/pw"
-          npm init -y > /dev/null
-          npm install --no-audit --no-fund playwright@1.61.1
-          npx playwright install --with-deps chromium
-          echo "PW_DIR=$RUNNER_TEMP/pw" >> "$GITHUB_ENV"
+          set -o pipefail
+          mkdir -p site-check
+          docker build --progress=plain -t elevari-web:repro \
+            --build-arg NEXT_PUBLIC_API_URL=https://elevari.live/api/v1 \
+            --build-arg NEXT_PUBLIC_SITE_URL=https://elevari.live \
+            --build-arg NEXT_PUBLIC_GTM_ID=GTM-PXVGFFMK \
+            --build-arg NEXT_PUBLIC_PAYMENTS_MODE=live \
+            --build-arg NEXT_PUBLIC_TURNSTILE_DISABLED=0 \
+            --build-arg NEXT_PUBLIC_WHATSAPP_NUMBER=573232688534 \
+            . 2>&1 | tee site-check/build.log
 
-      - name: Run the checks and take the screenshots
-        run: node .github/scripts/site-check.mjs
+      - name: Run the image and probe the pages
+        run: |
+          docker run -d --name web -p 3000:3000 -e NODE_ENV=production elevari-web:repro
+          for i in $(seq 1 60); do curl -fsS http://localhost:3000/app -o /dev/null && break; sleep 1; done
+          for page in "" app properties; do
+            name="${page:-home}"
+            curl -sS -D "site-check/$name.headers" -o "site-check/$name.html" "http://localhost:3000/$page"
+            echo "$name: $(grep -o '<title>[^<]*</title>' "site-check/$name.html" | head -1) | sc-sw=$(grep -c 'sc-sw' "site-check/$name.html") | night=$(grep -c 'data-scene="night"' "site-check/$name.html") | bytes=$(wc -c < "site-check/$name.html")" | tee -a site-check/summary.txt
+          done
+          docker logs web > site-check/web.log 2>&1 || true
 
-      - name: Upload the screenshots and the report
+      - name: Fail unless / is the home hero
+        run: |
+          grep -q 'data-scene="night"' site-check/home.html
+          ! grep -q 'Instalar la app de Elevari' site-check/home.html
+
+      - name: Upload the build log and the pages
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
           name: site-check
           path: site-check/
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 7
