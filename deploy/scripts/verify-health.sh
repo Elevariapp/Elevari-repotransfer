@@ -4,13 +4,16 @@ set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://localhost}"
 FAIL=0
+# Cloudflare Bot Fight Mode rejects the default curl user agent from some server IPs.
+USER_AGENT="${SMOKE_USER_AGENT:-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36}"
+CURL=(curl -sS --max-time 30 -A "$USER_AGENT")
 
 check() {
   local name="$1"
   local url="$2"
   local expect="${3:-}"
 
-  if response=$(curl -sf -o /tmp/elevari_check_body -w "%{http_code}" "$url" 2>/dev/null); then
+  if response=$("${CURL[@]}" -f -o /tmp/elevari_check_body -w "%{http_code}" "$url" 2>/dev/null); then
     if [[ -n "$expect" && "$response" != "$expect" ]]; then
       echo "✗ $name — HTTP $response (esperado $expect)"
       FAIL=1
@@ -41,7 +44,7 @@ check_auth_endpoint() {
   local endpoint="$2"
   local body code
   body=$(mktemp)
-  code=$(curl -sS --max-time 30 -o "$body" -w "%{http_code}" \
+  code=$("${CURL[@]}" -o "$body" -w "%{http_code}" \
     -H "Content-Type: application/json" --data '{}' "$BASE_URL$endpoint" || true)
   if [[ "$code" == "400" ]] && grep -q '"error":"Invalid body"' "$body"; then
     echo "✓ $name — HTTP 400 validation response"
