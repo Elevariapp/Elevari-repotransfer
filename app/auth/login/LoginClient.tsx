@@ -9,6 +9,7 @@ import AuthDivider from '@/components/auth/AuthDivider';
 import AuthShell from '@/components/auth/AuthShell';
 import Button from '@/components/ui/Button';
 import { navigateAfterAuth, resolvePostAuthPath } from '@/lib/auth-redirect';
+import { cx } from '@/lib/cx';
 import { isTurnstileEnabledClient } from '@/lib/turnstile-config';
 
 const TURNSTILE_ENABLED = isTurnstileEnabledClient();
@@ -46,6 +47,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     const nextFieldErrors = validateFields();
     setFieldErrors(nextFieldErrors);
     if (Object.keys(nextFieldErrors).length > 0) {
@@ -59,8 +61,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
     setError(null);
     setLoading(true);
     try {
-      const user = await login(email, password, turnstileToken || undefined);
-      afterAuth(user);
+      afterAuth(await login(email.trim(), password, turnstileToken || undefined));
     } catch (err) {
       if (TURNSTILE_ENABLED) refreshTurnstile();
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
@@ -70,6 +71,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
   };
 
   const handleGoogle = async (credential: string) => {
+    if (loading) return;
     if (TURNSTILE_ENABLED && !turnstileToken) {
       setError('Completa la verificación de seguridad antes de Google');
       return;
@@ -77,8 +79,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
     setError(null);
     setLoading(true);
     try {
-      const user = await loginWithGoogle(credential, { turnstile_token: turnstileToken || undefined });
-      afterAuth(user);
+      afterAuth(await loginWithGoogle(credential, { turnstile_token: turnstileToken || undefined }));
     } catch (err) {
       if (TURNSTILE_ENABLED) refreshTurnstile();
       setError(err instanceof Error ? err.message : 'Error con Google');
@@ -100,20 +101,20 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
       {redirectTo !== '/' && (
         <p
           role="status"
-          className="mt-4 rounded-xl border border-elevari-amber/40 bg-elevari-warning-soft px-4 py-3 text-xs font-medium text-elevari-warning"
+          className="mt-4 rounded-xl border border-elevari-amber/40 bg-elevari-warning-soft px-4 py-3 text-xs font-medium text-elevari-amber-ink"
         >
           Inicia sesión para continuar. Si tu sesión expiró, vuelve a entrar.
         </p>
       )}
 
-      {(GOOGLE_ENABLED || TURNSTILE_ENABLED) && GOOGLE_ENABLED && (
+      {GOOGLE_ENABLED && (
         <div className="mt-6">
           <GoogleSignInButton onCredential={handleGoogle} text="signin_with" />
           <AuthDivider label="o con email" />
         </div>
       )}
 
-      <form onSubmit={handleLogin} noValidate className="space-y-4">
+      <form onSubmit={handleLogin} noValidate className={cx('space-y-4', !GOOGLE_ENABLED && 'mt-6')}>
         <div className="space-y-1.5">
           <label htmlFor="login-email" className="elevari-label block">
             Email

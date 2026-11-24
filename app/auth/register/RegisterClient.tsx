@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { ApiError } from '@/lib/api-client';
 import TurnstileWidget from '@/components/auth/TurnstileWidget';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import AuthDivider from '@/components/auth/AuthDivider';
 import AuthShell from '@/components/auth/AuthShell';
 import Button from '@/components/ui/Button';
 import { navigateAfterAuth, resolvePostAuthPath } from '@/lib/auth-redirect';
+import { cx } from '@/lib/cx';
 import { isTurnstileEnabledClient } from '@/lib/turnstile-config';
 
 const TURNSTILE_ENABLED = isTurnstileEnabledClient();
@@ -38,6 +40,7 @@ export default function RegisterClient({
     confirmPassword?: string;
   }>({});
   const [loading, setLoading] = useState(false);
+  const [emailTaken, setEmailTaken] = useState(false);
   const { register, loginWithGoogle } = useAuth();
 
   const needsTurnstile = TURNSTILE_ENABLED && !turnstileToken;
@@ -54,6 +57,7 @@ export default function RegisterClient({
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail)) next.email = 'Escribe un email válido.';
     if (!password) next.password = 'Crea una contraseña.';
     else if (password.length < 8) next.password = 'La contraseña debe tener al menos 8 caracteres.';
+    else if (password.length > 128) next.password = 'La contraseña no puede superar los 128 caracteres.';
     if (!confirmPassword) next.confirmPassword = 'Confirma tu contraseña.';
     else if (confirmPassword !== password) next.confirmPassword = 'Las contraseñas no coinciden.';
     return next;
@@ -70,6 +74,7 @@ export default function RegisterClient({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     const nextFieldErrors = validateFields();
     setFieldErrors(nextFieldErrors);
     if (Object.keys(nextFieldErrors).length > 0) {
@@ -81,18 +86,21 @@ export default function RegisterClient({
       return;
     }
     setError(null);
+    setEmailTaken(false);
     setLoading(true);
     try {
-      const user = await register({
-        email,
-        password,
-        name: `${name.trim()} ${lastName.trim()}`.trim(),
-        role,
-        turnstile_token: turnstileToken || undefined,
-      });
-      afterAuth(user);
+      afterAuth(
+        await register({
+          email: email.trim(),
+          password,
+          name: `${name.trim()} ${lastName.trim()}`.trim(),
+          role,
+          turnstile_token: turnstileToken || undefined,
+        }),
+      );
     } catch (err) {
       if (TURNSTILE_ENABLED) refreshTurnstile();
+      setEmailTaken(err instanceof ApiError && err.code === 'email_taken');
       setError(err instanceof Error ? err.message : 'Error al registrarse');
     } finally {
       setLoading(false);
@@ -100,6 +108,7 @@ export default function RegisterClient({
   };
 
   const handleGoogle = async (credential: string) => {
+    if (loading) return;
     if (TURNSTILE_ENABLED && !turnstileToken) {
       setError('Completa la verificación de seguridad antes de usar Google');
       return;
@@ -107,11 +116,12 @@ export default function RegisterClient({
     setError(null);
     setLoading(true);
     try {
-      const user = await loginWithGoogle(credential, {
-        turnstile_token: turnstileToken || undefined,
-        role,
-      });
-      afterAuth(user);
+      afterAuth(
+        await loginWithGoogle(credential, {
+          turnstile_token: turnstileToken || undefined,
+          role,
+        }),
+      );
     } catch (err) {
       if (TURNSTILE_ENABLED) refreshTurnstile();
       setError(err instanceof Error ? err.message : 'Error con Google');
@@ -138,7 +148,7 @@ export default function RegisterClient({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className={cx('space-y-4', !GOOGLE_ENABLED && 'mt-6')}>
         <div className="space-y-1.5">
           <label htmlFor="register-name" className="elevari-label block">
             Nombre
@@ -151,7 +161,8 @@ export default function RegisterClient({
               if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }));
             }}
             className="elevari-input"
-            autoComplete="name"
+            autoComplete="given-name"
+            maxLength={55}
             required
             aria-required="true"
             aria-invalid={fieldErrors.name ? true : undefined}
@@ -176,6 +187,7 @@ export default function RegisterClient({
             }}
             className="elevari-input"
             autoComplete="family-name"
+            maxLength={55}
             required
             aria-required="true"
             aria-invalid={fieldErrors.lastName ? true : undefined}
@@ -201,6 +213,9 @@ export default function RegisterClient({
             }}
             className="elevari-input"
             autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            spellCheck={false}
             required
             aria-required="true"
             aria-invalid={fieldErrors.email ? true : undefined}
@@ -298,7 +313,17 @@ export default function RegisterClient({
 
         {error && (
           <div role="alert" className="rounded-xl border border-elevari-error/30 bg-elevari-error-soft px-4 py-3 text-sm text-elevari-error">
-            {error}
+            <p>{error}</p>
+            {emailTaken && (
+              <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-medium">
+                <Link href={loginHref} className="elevari-link inline-flex min-h-[44px] items-center">
+                  Iniciar sesión
+                </Link>
+                <Link href="/auth/forgot-password" className="elevari-link inline-flex min-h-[44px] items-center">
+                  Recuperar contraseña
+                </Link>
+              </p>
+            )}
           </div>
         )}
 
