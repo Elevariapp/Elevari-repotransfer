@@ -83,10 +83,23 @@ export function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-/** Evita open-redirect en login (?redirect=//evil.com). */
-export function safeAuthRedirect(path: string | null | undefined): string {
-  if (!path) return '/';
-  // Browsers read "/\evil.com" like "//evil.com".
-  if (path.startsWith('/') && !path.startsWith('//') && !path.includes('\\')) return path;
-  return '/';
+const REDIRECT_PROBE_ORIGIN = 'https://redirect-check.invalid';
+const MAX_REDIRECT_LENGTH = 2048;
+
+/**
+ * Evita open-redirect en login (?redirect=//evil.com). Only same-origin paths are returned.
+ * Browsers read "/\evil.com" like "//evil.com" and strip tab/LF/CR anywhere in a URL, so
+ * "/\t/evil.com" would also navigate off-site: control characters are rejected outright and the
+ * path is re-parsed to prove it stays on the current origin.
+ */
+export function safeAuthRedirect(path: unknown): string {
+  if (typeof path !== 'string' || !path || path.length > MAX_REDIRECT_LENGTH) return '/';
+  if (!path.startsWith('/') || path.startsWith('//')) return '/';
+  if (/[\u0000-\u001f\u007f-\u009f\\]/.test(path)) return '/';
+  try {
+    if (new URL(path, REDIRECT_PROBE_ORIGIN).origin !== REDIRECT_PROBE_ORIGIN) return '/';
+  } catch {
+    return '/';
+  }
+  return path;
 }
