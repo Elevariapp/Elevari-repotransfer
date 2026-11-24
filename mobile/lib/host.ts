@@ -3,6 +3,8 @@ import type { StatusTone } from './booking';
 import type {
   CreateHostPropertyInput,
   CreateHostPropertyResponse,
+  HostBookingScope,
+  HostBookingsPage,
   HostProperty,
   HostPropertiesResponse,
   PropertyStatus,
@@ -146,4 +148,16 @@ export async function fetchHostProperties(): Promise<HostProperty[]> {
 export async function createHostProperty(input: CreateHostPropertyInput): Promise<HostProperty> {
   const response = await api.post<CreateHostPropertyResponse>('/host/properties', input);
   return response.property;
+}
+
+export const HOST_BOOKINGS_PAGE_SIZE = 20;
+
+export async function fetchHostBookings(scope: HostBookingScope, page: number): Promise<HostBookingsPage> {
+  const response = await api.get<HostBookingsPage>('/host/bookings', {
+    params: { scope, page, page_size: HOST_BOOKINGS_PAGE_SIZE },
+  });
+  return {
+    data: Array.isArray(response.data) ? response.data : [],
+    pagination: response.pagination ?? { page, page_size: HOST_BOOKINGS_PAGE_SIZE, total: 0, has_more: false },
+  };
 }

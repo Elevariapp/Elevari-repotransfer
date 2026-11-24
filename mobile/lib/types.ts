@@ -234,6 +234,28 @@ export interface NotificationsResponse {
   data: AppNotification[];
 }
 
+export type HostBookingScope = 'upcoming' | 'past' | 'cancelled';
+
+export interface HostBookingRow {
+  id: string;
+  status: BookingStatus;
+  property: { id: string; title: string; slug: string };
+  // Null when the guest deleted their account.
+  guest_name: string | null;
+  guests: number;
+  check_in: string;
+  check_out: string;
+  nights: number;
+  host_receives: number | null;
+  currency: string;
+  created_at: string;
+}
+
+export interface HostBookingsPage {
+  data: HostBookingRow[];
+  pagination: { page: number; page_size: number; total: number; has_more: boolean };
+}
+
 export interface HostProperty {
   id: string;
   slug: string;
