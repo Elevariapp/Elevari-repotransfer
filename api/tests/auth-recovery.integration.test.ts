@@ -51,7 +51,8 @@ describe('account recovery API (real database, captured e-mail)', { skip: hasTes
 
       assert.ok(stack.emails.length > before);
       assert.ok(linkToken(mail, '/auth/reset-password'), 'the e-mail carries a reset link');
-      assert.ok(mail.html.includes('https://elevari.test/auth/reset-password?token='));
+      assert.ok(mail.html.includes('https://elevari.test/auth/reset-password#token='), 'the token travels in the URL fragment, not the query');
+      assert.ok(!mail.html.includes('reset-password?token='));
     });
 
     it('caps reset e-mails per account (inbox flooding) without changing the answer', async () => {

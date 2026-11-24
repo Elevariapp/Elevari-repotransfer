@@ -458,7 +458,8 @@ export async function authRoutes(app: FastifyInstance) {
           return sendPasswordResetEmail({
             email: address,
             name: name ?? '',
-            resetUrl: `${publicSiteUrl()}/auth/reset-password?token=${encodeURIComponent(token)}`,
+            // In the fragment: it never reaches access logs, CDN logs or analytics.
+            resetUrl: `${publicSiteUrl()}/auth/reset-password#token=${encodeURIComponent(token)}`,
           });
         })(),
       );

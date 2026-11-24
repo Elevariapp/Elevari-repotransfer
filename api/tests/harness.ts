@@ -172,9 +172,10 @@ export async function startStack(): Promise<TestStack> {
   };
 }
 
-/** Pulls the `token` query parameter out of the first link in an e-mail that points at `pathname`. */
+/** Pulls the `token` (URL fragment or query parameter) out of the first link in an e-mail that points at `pathname`. */
 export function linkToken(email: CapturedEmail, pathname: string): string | null {
   const match = email.html.match(new RegExp(`href="([^"]*${pathname}[^"]*)"`));
   if (!match) return null;
-  return new URL(match[1].replace(/&amp;/g, '&')).searchParams.get('token');
+  const url = new URL(match[1].replace(/&amp;/g, '&'));
+  return new URLSearchParams(url.hash.replace(/^#/, '')).get('token') ?? url.searchParams.get('token');
 }
