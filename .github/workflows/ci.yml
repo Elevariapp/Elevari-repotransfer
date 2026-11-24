@@ -99,16 +99,20 @@ jobs:
           NEXT_PUBLIC_API_URL: http://localhost:4000
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
           JWT_SECRET: ci_jwt_secret_min_32_chars_for_build_only
-      # The Dockerfile ships `next build --webpack` with type errors ignored (small VPS), while the build
-      # above is Turbopack. Without this step a webpack-only failure only shows up on the server, mid-deploy.
-      - name: Production build (webpack, as in the Dockerfile)
-        run: npx next build --webpack
-        env:
-          NEXT_IGNORE_TYPE_ERRORS: '1'
-          NODE_OPTIONS: --max-old-space-size=1536
-          NEXT_PUBLIC_API_URL: http://localhost:4000
-          NEXT_PUBLIC_SITE_URL: http://localhost:3000
-          JWT_SECRET: ci_jwt_secret_min_32_chars_for_build_only
+      # The image is what production runs, and it builds in /app, where files resolve differently than on
+      # this runner: the home page shipped as the /app page while every build here was green. Building the
+      # Dockerfile also catches a webpack-only failure here instead of on the server, mid-deploy.
+      - name: Production image (Dockerfile) serves each route's own page
+        run: |
+          docker build -t elevari-web:ci \
+            --build-arg NEXT_PUBLIC_API_URL=http://localhost:4000 \
+            --build-arg NEXT_PUBLIC_SITE_URL=http://localhost:3000 .
+          docker run -d --name web -p 3000:3000 elevari-web:ci
+          for _ in $(seq 1 30); do
+            curl -sf -o /dev/null http://127.0.0.1:3000/ && break
+            sleep 1
+          done
+          ./deploy/scripts/check-web-routes.sh http://127.0.0.1:3000 || { docker logs --tail 40 web; exit 1; }
 
   bot:
     name: WhatsApp bot check

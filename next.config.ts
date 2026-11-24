@@ -100,6 +100,10 @@ const nextConfig: NextConfig = {
   turbopack: {},
   webpack(config) {
     config.plugins.push(avoidModuleIdZero);
+    // Next imports every page and layout by absolute path, and webpack first tries a path that starts
+    // with "/" inside the project folder. The Docker image builds in /app, so the home page
+    // (/app/app/page.tsx) resolved to /app/app/app/page.tsx: the /app route was served at "/".
+    config.resolve.preferAbsolute = true;
     return config;
   },
   // Optional build concurrency cap (useful on memory-constrained CI runners).

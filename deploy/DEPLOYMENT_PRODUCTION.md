@@ -6,9 +6,11 @@ Guía para desplegar el stack Docker en un VPS (Hetzner, DigitalOcean, etc.) con
 
 ## Despliegue automático (GitHub Actions + SSH)
 
-Cada push a `b-main` ejecuta `.github/workflows/ci.yml`: build API/Web, check del bot, validación de env/compose, typecheck móvil y, si todo pasa, el job **Deploy to Hetzner Production** (`appleboy/ssh-action`) entra por SSH al VPS, hace `git reset --hard origin/b-main`, valida `.env.production` y ejecuta `deploy/scripts/deploy-prod.sh` (build + `up -d` de **web, api, bot, nginx**, con health checks que fallan el job si algo no responde). También manual: **Actions → CI → Run workflow** (rama `b-main`).
+Cada push a `b-main` ejecuta `.github/workflows/ci.yml`: build API/Web, check del bot, validación de env/compose, typecheck móvil y, si todo pasa, el job **Deploy to Hetzner Production** (`appleboy/ssh-action`) entra por SSH al VPS, hace `git reset --hard origin/b-main`, valida `.env.production` y ejecuta `deploy/scripts/deploy-prod.sh` (build + `up -d` de **web, api, bot, nginx**, con health checks que fallan el job si algo no responde o si la portada no sirve su propia página: `deploy/scripts/check-web-routes.sh`). También manual: **Actions → CI → Run workflow** (rama `b-main`).
 
-> **Costo de minutos:** los repos públicos tienen minutos ilimitados en runners de GitHub. En repos privados el pipeline ya está optimizado (cancelación de runs obsoletos, caché npm y `.next/cache`, EAS con `--no-wait`, build móvil solo si cambia `mobile/`). El build Docker pesado corre en tu VPS, no en GitHub.
+> **Si el push o el PR lo hace Copilot (agente):** GitHub deja el run en `action_required`, sin jobs, hasta que una persona lo aprueba, así que **no despliega solo**. Un run de PR sin aprobar pasa a `failure` cuando se fusiona el PR: es un run que nunca arrancó, no un fallo del código. Opciones: pulsar **Approve and run workflows** en el PR, lanzar **Actions → CI → Run workflow** (rama `b-main`), o desactivar *Settings → Copilot → Cloud agent → Require approval for workflow runs* (los runs arrancan solos; a cambio, código de Copilot sin revisar se ejecuta con acceso a los secrets del repo).
+
+> **Costo de minutos:** los repos públicos tienen minutos ilimitados en runners de GitHub. En repos privados el pipeline ya está optimizado (cancelación de runs obsoletos, caché npm y `.next/cache`, EAS con `--no-wait`, build móvil solo si cambia `mobile/`). El build Docker de producción corre en tu VPS; el CI construye además la imagen web para comprobarla antes de desplegar.
 
 ### Secrets (Settings → Secrets and variables → Actions → *New repository secret*)
 
@@ -140,6 +142,7 @@ Producción es el stack Docker del VPS detrás del proxy de Cloudflare. El Worke
 
 - El `name` de `package.json` debe ser exactamente el nombre del Worker (`elevari-repotransfer`). La autoconfiguración de Next.js crea el binding `WORKER_SELF_REFERENCE` apuntando a ese `name`; si no coincide, el build falla con *Service binding 'WORKER_SELF_REFERENCE' references Worker '…' which was not found [code: 10143]*.
 - La copia necesita sus propias variables: `NEXT_PUBLIC_API_URL` y `NEXT_PUBLIC_SITE_URL` como variables de build, y las de runtime en Settings → Variables and Secrets.
+- En las ramas de PR ese build falla (check rojo "Workers Builds" en cada PR) aunque el CI esté bien. Para quitarlo sin perder la copia: Worker → Settings → Build → Branch control → desmarca **Enable Preview Builds**.
 - Si no la quieres: Worker → Settings → Builds → Disconnect (el check rojo "Workers Builds" desaparece; el CI y el deploy no cambian).
 
 ## 6. Backups PostgreSQL

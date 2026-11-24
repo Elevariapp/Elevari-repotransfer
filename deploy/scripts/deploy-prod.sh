@@ -71,6 +71,9 @@ if [[ $failed -ne 0 ]]; then
   exit 1
 fi
 
+echo "→ Comprobando que cada ruta sirve su página..."
+"$ROOT/deploy/scripts/check-web-routes.sh" http://localhost
+
 # Libera imágenes huérfanas de builds anteriores (no toca volúmenes)
 docker image prune -f >/dev/null 2>&1 || true
 
