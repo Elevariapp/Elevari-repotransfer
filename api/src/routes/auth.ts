@@ -84,8 +84,15 @@ const resetPasswordSchema = z.object({
   password: z.string().min(8).max(128),
 });
 
-// Per-account limit on top of the per-IP one: nobody can flood an inbox with reset e-mails.
+// Per-account limits on top of the per-IP ones: wrong passwords per address (a botnet rotating IPs
+// is still slowed down) and reset e-mails per account (nobody can flood an inbox).
+const loginFailures = createAttemptLimiter({ max: 10, windowMs: 15 * 60_000 });
 const resetEmailRequests = createAttemptLimiter({ max: 3, windowMs: 60 * 60_000 });
+
+function waitLabel(seconds: number): string {
+  const minutes = Math.max(1, Math.ceil(seconds / 60));
+  return minutes === 1 ? '1 minuto' : `${minutes} minutos`;
+}
 
 function isUniqueViolation(err: unknown): boolean {
   return typeof err === 'object' && err !== null && (err as { code?: unknown }).code === 'P2002';
@@ -169,6 +176,16 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: DEMO_ACCOUNT_BLOCKED_MESSAGE });
     }
 
+    // Keyed by the submitted address whether or not it exists, so the lock reveals nothing.
+    const lock = loginFailures.peek(address);
+    if (lock.blocked) {
+      return reply.header('Retry-After', String(lock.retryAfterSeconds)).status(429).send({
+        error: `Demasiados intentos fallidos. Por seguridad, espera ${waitLabel(lock.retryAfterSeconds)} e inténtalo de nuevo o restablece tu contraseña.`,
+        code: 'login_locked',
+        retry_after_seconds: lock.retryAfterSeconds,
+      });
+    }
+
     // Challenge first: checking it after the password would tell a bot which guesses were right.
     if (!(await requireTurnstile(request, reply, turnstile_token))) return;
 
@@ -176,14 +193,17 @@ export async function authRoutes(app: FastifyInstance) {
 
     if (!user?.passwordHash || user.deletedAt) {
       await verifyPasswordAgainstDummy(password);
+      loginFailures.hit(address);
       return reply.status(401).send({ error: 'Invalid email or password' });
     }
 
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
+      loginFailures.hit(address);
       return reply.status(401).send({ error: 'Invalid email or password' });
     }
 
+    loginFailures.reset(address);
     const token = await signToken(user);
 
     return {
@@ -481,6 +501,9 @@ export async function authRoutes(app: FastifyInstance) {
       data: { passwordHash, passwordChangedAt: new Date(), tokenVersion: { increment: 1 } },
     });
     if (updated.count === 0) return invalidLink();
+
+    // Opening the reset link proves control of the mailbox, so it also lifts a failed-login lock.
+    loginFailures.reset(normalizeEmail(user.email));
 
     notify(
       request,
