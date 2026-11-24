@@ -12,7 +12,8 @@ import {
   safeEqual,
   serializeUser,
 } from '../lib/auth.js';
-import { publicSiteUrl } from '../lib/email.js';
+import { isEmailDeliveryAvailable, publicSiteUrl } from '../lib/email.js';
+import { createAttemptLimiter } from '../lib/attempt-limiter.js';
 import { authenticate } from '../plugins/auth.js';
 import { requireTurnstile } from '../lib/auth-guards.js';
 import { verifyGoogleIdToken } from '../lib/google-auth.js';
@@ -82,6 +83,9 @@ const resetPasswordSchema = z.object({
   token: z.string().min(10),
   password: z.string().min(8).max(128),
 });
+
+// Per-account limit on top of the per-IP one: nobody can flood an inbox with reset e-mails.
+const resetEmailRequests = createAttemptLimiter({ max: 3, windowMs: 60 * 60_000 });
 
 function isUniqueViolation(err: unknown): boolean {
   return typeof err === 'object' && err !== null && (err as { code?: unknown }).code === 'P2002';
@@ -403,6 +407,16 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'Invalid body' });
     }
 
+    // Same answer for everyone: this only depends on the server setup, never on the address.
+    if (!isEmailDeliveryAvailable()) {
+      request.log.error('Password reset requested but e-mail delivery is not configured');
+      return reply.status(503).send({
+        error:
+          'El envío de correos no está disponible en este momento. Inténtalo de nuevo en unos minutos o escríbenos por WhatsApp.',
+        code: 'email_unavailable',
+      });
+    }
+
     const user = await findUserByEmail(body.data.email);
 
     // Respuesta genérica (no revelar si el email existe)
@@ -411,23 +425,23 @@ export async function authRoutes(app: FastifyInstance) {
       message: 'Si el correo está registrado, recibirás un enlace en unos minutos.',
     };
 
-    if (!user?.passwordHash || user.deletedAt) {
-      return okResponse;
-    }
-
-    const token = await signResetToken(user.id, user.email, user.passwordHash);
-    const resetUrl = `${publicSiteUrl()}/auth/reset-password?token=${encodeURIComponent(token)}`;
-
-    const result = await sendPasswordResetEmail({
-      email: user.email,
-      name: user.name ?? '',
-      resetUrl,
-    });
-    if (!result.sent) {
-      request.log.warn({ reason: result.reason }, 'Password reset email not sent');
-      return reply.status(503).send({
-        error: 'No se pudo enviar el correo. Intenta más tarde o cambia la contraseña desde tu cuenta.',
-      });
+    // The e-mail is sent after answering: awaiting the provider would make existing accounts
+    // slower (or fail with a 503) than unknown ones, which is an enumeration oracle.
+    if (user?.passwordHash && !user.deletedAt && !resetEmailRequests.peek(user.id).blocked) {
+      resetEmailRequests.hit(user.id);
+      const { id, email: address, name, passwordHash } = user;
+      notify(
+        request,
+        'Password reset',
+        (async () => {
+          const token = await signResetToken(id, address, passwordHash);
+          return sendPasswordResetEmail({
+            email: address,
+            name: name ?? '',
+            resetUrl: `${publicSiteUrl()}/auth/reset-password?token=${encodeURIComponent(token)}`,
+          });
+        })(),
+      );
     }
 
     return okResponse;
