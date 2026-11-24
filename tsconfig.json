@@ -41,6 +41,7 @@
     "node_modules",
     "api",
     "mobile",
-    "elevari-bot"
+    "elevari-bot",
+    "tests/mobile/api-errors.test.ts"
   ]
 }

@@ -90,7 +90,7 @@ Guests can switch off: reminder e-mails, and push for bookings / reminders. Host
 `GET /host/bookings?scope=upcoming|past|cancelled&page=` lists the bookings of the caller's own properties (paginated, 20 per page; the host never sees the guest's e-mail or phone). Web: `/host/bookings`. Mobile: Reservas tab of the host area. A guest account can become a host with `POST /auth/become-host` (web `/become-host`, mobile Perfil > Publica tu espacio).
 
 ### Tests
-`cd api && TEST_DATABASE_URL=postgresql://postgres@127.0.0.1:5432/elevari_test npm test` runs the integration suites against a real, local PostgreSQL (migrations applied, Resend and Expo replaced by local mock servers; see `api/tests/harness.ts`). Without `TEST_DATABASE_URL` they are skipped. `npx vitest run tests/` (repo root) covers the web and mobile pure logic. CI does not run these yet.
+`cd api && TEST_DATABASE_URL=postgresql://postgres@127.0.0.1:5432/elevari_test npm test` runs the integration suites against a real, local PostgreSQL (migrations applied, Resend and Expo replaced by local mock servers; see `api/tests/harness.ts`). Without `TEST_DATABASE_URL` they are skipped. `npx vitest run tests/` (repo root) covers the web and mobile pure logic; `tests/mobile/api-errors.test.ts` imports the app's `mobile/lib/api.ts`, so it also needs `npm ci` inside `mobile/`, and `tsconfig.json` leaves that one file out of the web type check (the web build has no Expo packages). CI does not run these yet.
 
 ## WhatsApp Business Integration
 
