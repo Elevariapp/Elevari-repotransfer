@@ -16,6 +16,11 @@ export const HOST_DASHBOARD_URL = `${WEBSITE_URL}/host`;
 
 export const DEFAULT_SUPPORT_MESSAGE = 'Hola, necesito ayuda con la app de Elevari.';
 
+/** Same words as the web booking card, so the concierge gets the listing address either way. */
+export function propertySupportMessage(slug: string): string {
+  return `Hola, tengo una pregunta sobre este espacio de Elevari: ${WEBSITE_URL}/properties/${slug}`;
+}
+
 export function buildWhatsAppUrl(text: string = DEFAULT_SUPPORT_MESSAGE): string {
   return `https://wa.me/${SUPPORT_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }

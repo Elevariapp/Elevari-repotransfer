@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
+import { WhatsAppLink } from '@/components/WhatsAppLink';
 import { colors, spacing, typography } from '@/lib/design-tokens';
 
 export default function FAQScreen() {
@@ -56,6 +57,11 @@ export default function FAQScreen() {
             Nuestro equipo la aprobará en pocos días.
           </Text>
         </View>
+
+        <View style={styles.closing}>
+          <Text style={styles.body}>¿No encuentras tu respuesta?</Text>
+          <WhatsAppLink label="Escríbenos por WhatsApp" />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -97,4 +103,5 @@ const styles = StyleSheet.create({
     color: colors.slate,
     lineHeight: 22,
   },
+  closing: { marginBottom: spacing.lg, gap: spacing.xs },
 });

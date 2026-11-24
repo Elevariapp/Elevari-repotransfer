@@ -1,5 +1,22 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { WHATSAPP_NUMBER, whatsappContext, whatsappUrl } from '@/lib/whatsapp';
+
+function glyphPaths(file: string) {
+  const source = readFileSync(path.resolve(__dirname, '..', file), 'utf8');
+  const grab = (name: string) => source.match(new RegExp(`const ${name} =\\s*'([^']+)'`))?.[1];
+  return { bubble: grab('BUBBLE'), handset: grab('HANDSET') };
+}
+
+describe('WhatsApp glyph', () => {
+  it('is drawn with the same paths on the web and in the mobile app', () => {
+    const web = glyphPaths('components/whatsapp/WhatsAppGlyph.tsx');
+    expect(web.bubble).toBeTruthy();
+    expect(web.handset).toBeTruthy();
+    expect(glyphPaths('mobile/components/WhatsAppGlyph.tsx')).toEqual(web);
+  });
+});
 
 describe('WhatsApp links', () => {
   it('builds a wa.me URL with the prefilled message encoded', () => {
