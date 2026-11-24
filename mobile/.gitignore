@@ -41,3 +41,9 @@ yarn-error.*
 /ios
 /android
 android/app/google-services.json
+
+# release credentials (Firebase config, Google Play service account): never commit
+secrets/
+google-services.json
+google-service-account*.json
+GoogleService-Info.plist
