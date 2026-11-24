@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Logo from '@/components/Logo';
-import { whatsappContext, whatsappUrl } from '@/lib/whatsapp';
+import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
+import { whatsappContext } from '@/lib/whatsapp';
 
 const exploreLinks = [
   { href: '/properties', label: 'Colección completa' },
@@ -39,6 +40,12 @@ export default function Footer() {
             <p className="mt-4 text-xs font-medium tracking-wide text-elevari-amber/90">
               Sutatausa · Cucunubá · Sabana de Bogotá
             </p>
+            <WhatsAppLink
+              tone="onDark"
+              label="Escríbenos por WhatsApp"
+              message={whatsappContext('/').message}
+              className="mt-3 min-h-11 text-[0.9375rem]"
+            />
           </div>
 
           <div className="lg:col-span-2 lg:col-start-6">
@@ -65,14 +72,12 @@ export default function Footer() {
                 </li>
               ))}
               <li>
-                <a
-                  href={whatsappUrl(whatsappContext('/host').message)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="elevari-footer-link"
-                >
-                  Soporte por WhatsApp
-                </a>
+                <WhatsAppLink
+                  tone="onDark"
+                  label="Soporte WhatsApp"
+                  message={whatsappContext('/host').message}
+                  className="text-[0.9375rem]"
+                />
               </li>
             </ul>
           </div>
@@ -96,14 +101,6 @@ export default function Footer() {
             © {new Date().getFullYear()} Elevari. Todos los derechos reservados.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
-            <a
-              href={whatsappUrl(whatsappContext('/').message)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="elevari-footer-link"
-            >
-              WhatsApp
-            </a>
             <Link href="/auth/login" className="elevari-footer-link">
               Iniciar sesión
             </Link>

@@ -1,4 +1,6 @@
 import Accordion from '@/components/Accordion';
+import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
+import { whatsappContext } from '@/lib/whatsapp';
 
 const faqItems = [
   {
@@ -44,6 +46,14 @@ export default function FAQPage() {
           {faqItems.map((item) => (
             <Accordion key={item.title} title={item.title} content={item.content} />
           ))}
+        </div>
+        <div className="mt-8 flex flex-wrap items-center gap-x-3 border-t border-elevari-border pt-4 text-sm text-elevari-muted">
+          <span>¿No encuentras tu respuesta?</span>
+          <WhatsAppLink
+            label="Escríbenos por WhatsApp"
+            message={whatsappContext('/legal/faq').message}
+            className="min-h-11"
+          />
         </div>
       </article>
   );

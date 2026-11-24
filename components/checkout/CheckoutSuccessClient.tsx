@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { wanaApi } from '@/lib/api-client';
 import { analytics } from '@/lib/analytics';
+import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
+import { whatsappContext } from '@/lib/whatsapp';
 
 export default function CheckoutSuccessClient({
   bookingId,
@@ -116,6 +118,14 @@ export default function CheckoutSuccessClient({
         <Link href="/properties" className="text-elevari-muted hover:text-elevari-forest">
           Explorar más espacios
         </Link>
+      </div>
+
+      <div className="mt-6 flex justify-center border-t border-elevari-border pt-2">
+        <WhatsAppLink
+          label="¿Dudas con tu reserva? Escríbenos"
+          message={whatsappContext(`/checkout/${bookingId}/success`).message}
+          className="min-h-11 text-sm"
+        />
       </div>
     </div>
   );

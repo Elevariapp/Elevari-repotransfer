@@ -3,7 +3,8 @@ export const metadata = {
   description: 'Formas de contactar con Elevari: soporte, privacidad, moderación y consultas generales.',
 };
 
-import { whatsappUrl } from '@/lib/whatsapp';
+import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
+import { whatsappContext } from '@/lib/whatsapp';
 
 export default function ContactPage() {
   return (
@@ -59,14 +60,12 @@ export default function ContactPage() {
           </table>
           <p className="mt-4">
             También puedes escribirnos por{' '}
-            <a
-              href={whatsappUrl('Hola, quiero información sobre Elevari.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-elevari-forest hover:underline"
-            >
-              WhatsApp
-            </a>
+            <WhatsAppLink
+              variant="flow"
+              iconSize={16}
+              label="WhatsApp"
+              message={whatsappContext('/legal/contact').message}
+            />
             : nuestro asistente virtual te responde al instante y, si prefieres hablar con una persona,
             puedes elegir esa opción en el menú.
           </p>

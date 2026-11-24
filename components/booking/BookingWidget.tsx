@@ -11,6 +11,8 @@ import { wanaApi, type BookingQuote } from '@/lib/api-client';
 import { analytics } from '@/lib/analytics';
 import PriceBreakdown from '@/components/ui/PriceBreakdown';
 import Button from '@/components/ui/Button';
+import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
+import { whatsappContext } from '@/lib/whatsapp';
 import { isValidStayRange, stayRangeError } from '@/lib/booking-dates';
 import { useAuth } from '@/hooks/useAuth';
 import 'react-day-picker/dist/style.css';
@@ -296,6 +298,13 @@ export default function BookingWidget({
         {!user ? 'Inicia sesión para reservar' : bookingLoading ? 'Reservando…' : quoteLoading ? 'Calculando…' : 'Reservar'}
       </Button>
       <p className="mt-3 text-center text-xs text-elevari-muted">No se hará ningún cobro por ahora</p>
+      <div className="mt-4 flex justify-center border-t border-elevari-border pt-1">
+        <WhatsAppLink
+          label="¿Dudas sobre este espacio? Escríbenos"
+          message={whatsappContext(`/properties/${slug}`).message}
+          className="min-h-11 text-sm"
+        />
+      </div>
     </div>
   );
 
