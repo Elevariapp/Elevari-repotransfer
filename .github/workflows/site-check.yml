@@ -1,0 +1,57 @@
+name: Site check (live)
+
+# Looks at the public site from GitHub's network, which is the only place the team can verify what visitors get:
+# status codes, the hero markers, whether Cloudflare Turnstile is enforced, and screenshots of the home hero
+# (Día / Tarde / Noche) on desktop and phone. Manual only; it deploys nothing and needs no secrets.
+# Download the screenshots from the run's "site-check" artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Site to check'
+        type: string
+        default: 'https://elevari.live'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check the live site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BASE_URL: ${{ inputs.base_url }}
+      OUT_DIR: site-check
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Install Playwright and Chromium
+        run: |
+          mkdir -p "$RUNNER_TEMP/pw"
+          cd "$RUNNER_TEMP/pw"
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund playwright@1.61.1
+          npx playwright install --with-deps chromium
+          echo "PW_DIR=$RUNNER_TEMP/pw" >> "$GITHUB_ENV"
+
+      - name: Run the checks and take the screenshots
+        run: node .github/scripts/site-check.mjs
+
+      - name: Upload the screenshots and the report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-check
+          path: site-check/
+          if-no-files-found: warn
+          retention-days: 14
