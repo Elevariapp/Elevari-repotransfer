@@ -135,6 +135,17 @@ jobs:
           # An APK is already a zip: recompressing only costs time.
           compression-level: 0
 
+      # A failed check publishes nothing, but the 15-20 minute build is worth keeping to see what the check saw.
+      - name: Keep the unverified APK for diagnosis
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: elevari-apk-unverified
+          path: mobile/android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: ignore
+          retention-days: 3
+          compression-level: 0
+
   publish:
     name: Publish prerelease
     needs: [build]

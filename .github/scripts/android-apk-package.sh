@@ -65,7 +65,18 @@ fi
 if grep -q '^application-debuggable' <<< "$badging"; then fail "The APK is debuggable."; fi
 
 # app.json blocks some permissions that libraries would otherwise add: prove the final manifest honours that.
-mapfile -t permissions < <(sed -n "s/^uses-permission: name='\([^']*\)'.*/\1/p" <<< "$badging" | sort -u)
+# INTERNET is always declared, so not finding it means the permission lines could not be read and the check would pass for nothing.
+permissions_of() { sed -n "s/^uses-permission[a-z0-9-]*: name='\([^']*\)'.*/\1/p" | sort -u; }
+mapfile -t permissions < <(permissions_of <<< "$badging")
+if ! printf '%s\n' "${permissions[@]}" | grep -qx 'android.permission.INTERNET'; then
+  mapfile -t permissions < <("$build_tools/aapt2" dump permissions "$apk" 2> /dev/null | permissions_of || true)
+fi
+if ! printf '%s\n' "${permissions[@]}" | grep -qx 'android.permission.INTERNET'; then
+  echo "::group::aapt2 output (permissions could not be read)"
+  { grep -i 'permission' <<< "$badging" || true; } | head -n 30
+  echo "::endgroup::"
+  fail "Could not read the declared permissions from the APK (android.permission.INTERNET not found)."
+fi
 while IFS= read -r blocked; do
   for permission in "${permissions[@]}"; do
     [ "$permission" != "$blocked" ] || fail "The APK still declares $blocked, which mobile/app.json blocks."
@@ -73,12 +84,26 @@ while IFS= read -r blocked; do
 done < <(jq -r '.expo.android.blockedPermissions[]?' app.json)
 permission_list="$(printf '%s\n' "${permissions[@]}" | sed 's/^android\.permission\.//' | paste -sd, - | sed 's/,/, /g')"
 
-signer_report="$("$build_tools/apksigner" verify --verbose --print-certs "$apk")" || fail "apksigner could not verify the APK signature."
-signer_sha256="$(sed -n 's/^Signer #1 certificate SHA-256 digest: \([0-9a-f]\{64\}\).*/\1/p' <<< "$signer_report" | head -n 1)"
+signer_report="$("$build_tools/apksigner" verify --verbose --print-certs "$apk" 2>&1)" || {
+  echo "$signer_report"
+  fail "apksigner could not verify the APK signature."
+}
+echo "::group::apksigner report"
+echo "$signer_report"
+echo "::endgroup::"
+# The certificate lines are labelled "Signer #1 ...", "Signer (minSdkVersion=..., maxSdkVersion=...) ..." or, in newer
+# build-tools, "V2 Signer: ..." / "V3.1 Signer: (minSdkVersion=...) ...". "Source Stamp Signer" lines are another key.
+mapfile -t signer_digests < <(
+  grep -E '^[[:space:]]*(V[0-9]+(\.[0-9]+)? )?Signer[ :(#].*certificate SHA-256 digest: [0-9a-fA-F]{64}' <<< "$signer_report" \
+    | sed -E 's/.*certificate SHA-256 digest: ([0-9a-fA-F]{64}).*/\1/' | tr 'A-F' 'a-f' | sort -u || true
+)
+[ "${#signer_digests[@]}" -ge 1 ] || fail "No signer certificate found in the apksigner report (see the log group above)."
+[ "${#signer_digests[@]}" -eq 1 ] || fail "The APK reports ${#signer_digests[@]} different signing certificates (${signer_digests[*]}); expected only $SIGNING_CERT_SHA256."
+signer_sha256="${signer_digests[0]}"
 [ "$signer_sha256" = "$SIGNING_CERT_SHA256" ] || fail "Signer certificate ($signer_sha256) is not the prepared keystore ($SIGNING_CERT_SHA256)."
 
 if [ -f android/app/debug.keystore ]; then
-  debug_sha256="$(keytool -exportcert -keystore android/app/debug.keystore -storepass android -alias androiddebugkey | sha256sum | cut -d ' ' -f 1)"
+  debug_sha256="$(keytool -exportcert -keystore android/app/debug.keystore -storepass android -alias androiddebugkey 2> /dev/null | sha256sum | cut -d ' ' -f 1 || true)"
   [ "$signer_sha256" != "$debug_sha256" ] || fail "The APK is signed with the public Expo debug key."
 fi
 
@@ -146,9 +171,6 @@ echo "Permissions declared by the APK: ${permission_list:-none}"
 if [ "${API_KEY_CONFIGURED:-false}" != true ]; then
   echo "::notice title=No x-api-key in this build::EXPO_PUBLIC_API_KEY is not set. If Turnstile is active on the server, sign-in and registration from the app fail with turnstile_failed. See mobile/RELEASE.md, section 'Acceso a la API desde la app'."
 fi
-echo "::group::apksigner report"
-echo "$signer_report"
-echo "::endgroup::"
 
 size_mb="$(awk -v b="$size_bytes" 'BEGIN { printf "%.1f", b / 1048576 }')"
 {
