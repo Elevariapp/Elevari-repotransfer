@@ -11,6 +11,7 @@ import { welcome } from './email-templates/welcome.js';
 import { EMAIL_BRAND } from './email-templates/brand.js';
 import { deliverEmail, siteUrl, type EmailSendResult } from './email.js';
 import type { WanaFees } from './fees.js';
+import { guestDisplayName } from './guest-name.js';
 import { resolveNotificationPreferences } from './notification-prefs.js';
 import { prisma } from './prisma.js';
 
@@ -54,7 +55,7 @@ function guestRecipient(booking: {
   if (booking.guest?.deletedAt) return null;
   const email = booking.guestEmail?.trim() || booking.guest?.email.trim();
   if (!email) return null;
-  return { email, name: booking.guestName?.trim() || booking.guest?.name?.trim() || null };
+  return { email, name: guestDisplayName(booking) };
 }
 
 async function loadBooking(bookingId: string) {
@@ -288,7 +289,7 @@ export async function sendHostNewBookingEmail(bookingId: string): Promise<EmailS
       hostName: host.name,
       bookingId: booking.id,
       propertyName: booking.property.title,
-      guestName: booking.guestName ?? booking.guest?.name,
+      guestName: guestDisplayName(booking),
       checkIn: booking.checkIn,
       checkOut: booking.checkOut,
       guests: booking.guests,
@@ -314,7 +315,7 @@ export async function sendHostBookingCancelledEmail(bookingId: string): Promise<
       hostName: host.name,
       bookingId: booking.id,
       propertyName: booking.property.title,
-      guestName: booking.guestName ?? booking.guest?.name,
+      guestName: guestDisplayName(booking),
       checkIn: booking.checkIn,
       checkOut: booking.checkOut,
       dashboardUrl: siteUrl('/host'),

@@ -93,7 +93,12 @@ export async function bookingRoutes(app: FastifyInstance) {
     const data = body.data;
     const guestId = request.auth!.sub;
     const guestEmail = data.guest_email ?? request.auth!.email;
-    const guestName = data.guest_name ?? guestEmail.split('@')[0];
+    // Booking for yourself without a name (the web checkout sends none): use the profile name, not "juan.perez23".
+    const profileName =
+      data.guest_name || data.guest_email
+        ? null
+        : (await prisma.user.findUnique({ where: { id: guestId }, select: { name: true } }))?.name?.trim() || null;
+    const guestName = data.guest_name ?? profileName ?? guestEmail.split('@')[0];
     const checkIn = parseDateUTC(data.check_in);
     const checkOut = parseDateUTC(data.check_out);
 

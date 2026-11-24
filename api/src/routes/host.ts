@@ -5,6 +5,7 @@ import { prisma } from '../lib/prisma.js';
 import { uniquePropertySlug } from '../lib/slug.js';
 import { ApiErrorCode, apiErrorBody } from '../lib/api-errors.js';
 import { colombiaToday } from '../lib/colombia-time.js';
+import { guestDisplayName } from '../lib/guest-name.js';
 import { nightsBetween, type WanaFees } from '../lib/fees.js';
 import { authenticate, requireRoles } from '../plugins/auth.js';
 
@@ -247,6 +248,7 @@ export async function hostRoutes(app: FastifyInstance) {
             checkOut: true,
             guests: true,
             guestName: true,
+            guestEmail: true,
             feesBreakdown: true,
             createdAt: true,
             guest: { select: { name: true, deletedAt: true } },
@@ -260,9 +262,7 @@ export async function hostRoutes(app: FastifyInstance) {
       return {
         data: rows.map((booking) => {
           const fees = booking.feesBreakdown as Partial<WanaFees> | null;
-          const guestName = booking.guest.deletedAt
-            ? null
-            : booking.guestName?.trim() || booking.guest.name?.trim() || null;
+          const guestName = booking.guest.deletedAt ? null : guestDisplayName(booking);
           return {
             id: booking.id,
             status: booking.status,

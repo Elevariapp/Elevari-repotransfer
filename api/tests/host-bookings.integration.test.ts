@@ -166,4 +166,55 @@ describe('GET /host/bookings (real database)', { skip: hasTestDatabase ? false :
     assert.equal(res.status, 200);
     assert.equal(res.body.data[0].guest_name, null);
   });
+
+  it('names a guest by their profile, not by the start of their e-mail', async () => {
+    const s = await scenario();
+    const legacy = await stack.prisma.booking.update({
+      where: { id: s.sooner.id },
+      data: { guestName: s.guest.email.split('@')[0], guestEmail: s.guest.email },
+    });
+    const res = await stack.call('GET', '/host/bookings', { token: s.host.token });
+    assert.equal(res.body.data.find((b: { id: string }) => b.id === legacy.id).guest_name, 'Camila Rojas');
+  });
+
+  describe('the name a new booking is stored with', () => {
+    const isoDay = (offset: number) => day(offset).toISOString().slice(0, 10);
+    let next = 30;
+
+    async function book(token: string, propertyId: string, extra: Record<string, unknown> = {}) {
+      const checkIn = next;
+      next += 3;
+      const res = await stack.call('POST', '/bookings', {
+        token,
+        body: {
+          property_id: propertyId,
+          check_in: isoDay(checkIn),
+          check_out: isoDay(checkIn + 2),
+          guests: 2,
+          idempotency_key: `name-${randomUUID()}`,
+          ...extra,
+        },
+      });
+      assert.equal(res.status, 201, JSON.stringify(res.body));
+      return stack.prisma.booking.findUniqueOrThrow({ where: { id: res.body.booking.id } });
+    }
+
+    it('is the profile name when the client sends none (the web checkout)', async () => {
+      const host = await stack.registerUser({ role: 'host' });
+      const guest = await stack.registerUser({ name: 'Camila Rojas' });
+      const stay = await property(host.id, 'Domo Aurora');
+      assert.equal((await book(guest.token, stay.id)).guestName, 'Camila Rojas');
+    });
+
+    it('is the name the client sends, and never the account holder when booking for someone else', async () => {
+      const host = await stack.registerUser({ role: 'host' });
+      const guest = await stack.registerUser({ name: 'Camila Rojas' });
+      const stay = await property(host.id, 'Domo Aurora');
+      assert.equal((await book(guest.token, stay.id, { guest_name: 'Laura Gómez' })).guestName, 'Laura Gómez');
+      assert.equal(
+        (await book(guest.token, stay.id, { guest_email: 'laura@example.test' })).guestName,
+        'laura',
+      );
+    });
+  });
 });
