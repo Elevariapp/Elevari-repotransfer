@@ -42,7 +42,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Droplet típico 1–2 GB RAM: webpack + heap acotado evita SIGKILL en docker build
 ENV NODE_OPTIONS=--max-old-space-size=1536
 ENV NEXT_IGNORE_TYPE_ERRORS=1
-RUN npx next build --webpack
+RUN npx next build --webpack && node scripts/check-route-modules.mjs
 
 FROM base AS runner
 WORKDIR /app
