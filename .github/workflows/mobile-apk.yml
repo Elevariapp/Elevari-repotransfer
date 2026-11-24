@@ -1,14 +1,248 @@
 name: Mobile APK
 
-# Placeholder. A workflow can only be dispatched once its file exists on the default branch;
-# registering this name lets the real APK build (on the release branch) be run with
-#   gh workflow run mobile-apk.yml --ref <branch>
-# before it is merged. The release branch replaces this file.
+# Builds an installable Android APK without an Expo account: `expo prebuild` + Gradle on a GitHub runner.
+# Manual only (workflow_dispatch). It never runs on push and never deploys the website.
+#
+# Signing: ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD / ANDROID_KEY_ALIAS (+ ANDROID_KEY_PASSWORD) when present,
+# otherwise a throwaway TEST key generated in the job (see .github/scripts/android-apk-sign.sh).
+# Optional secrets: GOOGLE_SERVICES_JSON (Firebase, Android push), EXPO_PUBLIC_API_KEY (WAF skip key), EXPO_TOKEN (EAS job).
+# Runbook (Spanish): mobile/RELEASE.md.
 on:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Publish the APK as a GitHub prerelease (tag android-latest on b-main, android-preview on any other branch)'
+        type: boolean
+        default: true
+      emulator_smoke:
+        description: 'Install the APK on an Android emulator and upload screenshots of the real app'
+        type: boolean
+        default: true
+      eas_build:
+        description: 'Also run an EAS cloud build (needs the EXPO_TOKEN secret and a real extra.eas.projectId; fails loudly without them)'
+        type: boolean
+        default: false
+      eas_profile:
+        description: 'EAS build profile for the optional EAS build'
+        type: choice
+        options:
+          - preview
+          - production
+        default: preview
+
+# Runs on the same ref queue up: publishing replaces a fixed release tag, so two runs must never interleave.
+concurrency:
+  group: mobile-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '22'
+  EXPO_NO_TELEMETRY: '1'
+  EXPO_NO_GIT_STATUS: '1'
+  # Baked into the JS bundle by the release build; the same value as the production profile in mobile/eas.json.
+  EXPO_PUBLIC_API_BASE_URL: https://elevari.live/api/v1
 
 jobs:
-  placeholder:
+  build:
+    name: Build and sign APK
     runs-on: ubuntu-latest
+    timeout-minutes: 75
+    defaults:
+      run:
+        working-directory: mobile
     steps:
-      - run: echo "Placeholder only; the real APK build is not merged yet."
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          # Expo SDK 58 / RN 0.88 require Node >= 22.13
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Validate the Expo config and TypeScript
+        run: |
+          npx expo config --type public > /dev/null
+          npm run typecheck
+
+      - name: Resolve the signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/android-apk-sign.sh"
+
+      # Minutes since the Unix epoch: strictly increasing, far below Android's 2.1 billion limit, no counter to store.
+      - name: Compute the version code
+        run: echo "ANDROID_VERSION_CODE=$(( $(date -u +%s) / 60 ))" >> "$GITHUB_ENV"
+
+      - name: Generate the native Android project (expo prebuild)
+        env:
+          CI: '1'
+          GOOGLE_SERVICES_JSON_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON_CONTENT" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON_CONTENT" > "$RUNNER_TEMP/google-services.json"
+            export GOOGLE_SERVICES_JSON="$RUNNER_TEMP/google-services.json"
+            echo "Firebase config found: Android push registration is enabled in this build."
+          else
+            echo "::notice title=Firebase not configured::GOOGLE_SERVICES_JSON is not set. The APK builds and runs, but Android push notifications stay inactive."
+          fi
+          npx expo prebuild --platform android --no-install
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          add-job-summary: on-failure
+
+      - name: Build the release APK (Gradle)
+        working-directory: mobile/android
+        timeout-minutes: 45
+        env:
+          # Empty unless the owner defined the secret; embedded in the public APK, so it is not a secret to the app.
+          EXPO_PUBLIC_API_KEY: ${{ secrets.EXPO_PUBLIC_API_KEY }}
+        run: >-
+          ./gradlew assembleRelease --stacktrace
+          -PreactNativeArchitectures=armeabi-v7a,arm64-v8a,x86_64
+          "-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g"
+
+      - name: Verify and package the APK
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/android-apk-package.sh"
+
+      - name: Upload the APK artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: elevari-apk
+          path: |
+            mobile/dist/elevari.apk
+            mobile/dist/elevari.apk.sha256
+            mobile/dist/elevari-build.json
+            mobile/dist/release-notes.md
+          if-no-files-found: error
+          retention-days: 30
+          # An APK is already a zip: recompressing only costs time.
+          compression-level: 0
+
+  publish:
+    name: Publish prerelease
+    needs: [build]
+    if: ${{ inputs.publish_release }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The only job that can write to the repository; it handles the artifact as data and runs no repository code.
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download the APK artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: elevari-apk
+          path: dist
+
+      # android-latest is the stable URL the website links to, so only b-main may write it. Every other branch
+      # replaces android-preview. Deleting first keeps exactly one release per tag.
+      - name: Publish the GitHub prerelease
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" = "refs/heads/b-main" ]; then
+            tag=android-latest
+            channel="estable"
+          else
+            tag=android-preview
+            channel="de prueba, rama $GITHUB_REF_NAME"
+          fi
+          version="$(jq -r '.versionName' dist/elevari-build.json)"
+          signing="$(jq -r '.signing' dist/elevari-build.json)"
+          title="Elevari para Android $version ($channel)"
+          if [ "$signing" = test ]; then title="$title · firma de prueba"; fi
+
+          if gh release view "$tag" > /dev/null 2>&1; then
+            gh release delete "$tag" --cleanup-tag --yes
+          fi
+          for attempt in 1 2 3 4 5; do
+            if gh release create "$tag" dist/elevari.apk dist/elevari.apk.sha256 dist/elevari-build.json \
+              --target "$GITHUB_SHA" --prerelease --title "$title" --notes-file dist/release-notes.md; then
+              break
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              echo "::error title=Release not published::gh release create failed 5 times for tag $tag."
+              exit 1
+            fi
+            sleep 10
+          done
+
+          base="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases"
+          {
+            echo "## Publicado"
+            echo
+            echo "- Release: $base/tag/$tag"
+            echo "- Descarga directa: $base/download/$tag/elevari.apk"
+            echo "- Firma: $signing"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  eas:
+    name: EAS cloud build (optional)
+    if: ${{ inputs.eas_build }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EAS_PROFILE: ${{ inputs.eas_profile }}
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v7
+
+      # Asked for explicitly, so a missing prerequisite is an error, never a silent skip.
+      - name: Preflight (EXPO_TOKEN and EAS project)
+        run: |
+          missing=()
+          [ -n "$EXPO_TOKEN" ] || missing+=("the EXPO_TOKEN repository secret")
+          jq -e '.expo.extra.eas.projectId | strings | test("^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$")' app.json > /dev/null 2>&1 \
+            || missing+=("extra.eas.projectId in mobile/app.json (run 'npx eas-cli init' in mobile/ and commit the result)")
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error title=EAS build requested but not configured::Missing: $(IFS=';'; echo "${missing[*]}"). See mobile/RELEASE.md, section EAS."
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli@27
+
+      - name: Build on EAS and wait for it
+        run: |
+          set -euo pipefail
+          eas build --platform android --profile "$EAS_PROFILE" --non-interactive --wait --json > eas-build.json
+          owner="$(jq -r '.[0].app.ownerAccount.name' eas-build.json)"
+          slug="$(jq -r '.[0].app.slug' eas-build.json)"
+          build_id="$(jq -r '.[0].id' eas-build.json)"
+          artifact="$(jq -r '.[0].artifacts.buildUrl // empty' eas-build.json)"
+          {
+            echo "## Compilación en EAS"
+            echo
+            echo "- Perfil: \`$EAS_PROFILE\`"
+            echo "- Página de la compilación: https://expo.dev/accounts/$owner/projects/$slug/builds/$build_id"
+            if [ -n "$artifact" ]; then echo "- Descarga: $artifact"; fi
+          } >> "$GITHUB_STEP_SUMMARY"
