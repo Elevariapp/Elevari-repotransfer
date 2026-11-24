@@ -22,6 +22,9 @@ export default function HostPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <Link href="/host/bookings" className="elevari-btn-ghost inline-flex min-h-[44px] shrink-0">
+              Reservas
+            </Link>
             <Link href="/host/analytics" className="elevari-btn-ghost inline-flex min-h-[44px] shrink-0">
               Analíticas
             </Link>

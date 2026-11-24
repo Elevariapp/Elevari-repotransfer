@@ -6,6 +6,8 @@ import {
   emailHeading,
   emailHelpLine,
   emailLayout,
+  emailPreferencesLine,
+  previewName,
 } from './layout.js';
 import { formatStayDate } from './format.js';
 
@@ -17,6 +19,7 @@ export function hostBookingCancelled({
   checkIn,
   checkOut,
   dashboardUrl,
+  preferencesUrl,
 }: {
   hostName?: string | null;
   bookingId: string;
@@ -25,6 +28,7 @@ export function hostBookingCancelled({
   checkIn: Date | string;
   checkOut: Date | string;
   dashboardUrl: string;
+  preferencesUrl?: string;
 }): string {
   const content = `
     ${emailHeading('Reserva cancelada / Booking cancelled')}
@@ -42,10 +46,16 @@ export function hostBookingCancelled({
     ])}
     ${emailButton({ href: dashboardUrl, label: 'Ir a mi panel / Go to my dashboard' })}
     ${emailHelpLine()}
+    ${emailPreferencesLine({
+      url: preferencesUrl,
+      reasonEs: 'tienes activadas las alertas de reservas de tus alojamientos',
+      reasonEn: 'booking alerts for your stays are switched on',
+    })}
   `;
 
+  const stay = previewName(propertyName);
   return emailLayout({
     content,
-    previewText: `Reserva cancelada en ${propertyName} · Booking cancelled at ${propertyName}`,
+    previewText: `Reserva cancelada en ${stay} · Booking cancelled at ${stay}`,
   });
 }

@@ -9,26 +9,10 @@ import {
   refreshNotifications,
   useNotifications,
 } from '@/hooks/useNotifications';
-import type { AppNotification } from '@/lib/api-client';
 import { formatRelativeTime } from '@/lib/format';
+import { notificationHref } from '@/lib/notification-links';
 
 const PANEL_ID = 'elevari-notifications-panel';
-
-function destinationFor(item: AppNotification): string {
-  switch (item.type) {
-    case 'booking_confirmed':
-      return item.booking_id ? `/checkout/${item.booking_id}/success` : '/account';
-    case 'payment_failed':
-      return item.booking_id ? `/checkout/${item.booking_id}` : '/account/payments';
-    case 'host_new_booking':
-    case 'host_booking_cancelled':
-      return '/host';
-    case 'password_changed':
-      return '/account/security';
-    default:
-      return '/account';
-  }
-}
 
 /** Account notifications for signed-in users. Renders nothing for visitors. */
 export default function NotificationBell() {
@@ -155,7 +139,7 @@ export default function NotificationBell() {
                   return (
                     <li key={item.id}>
                       <Link
-                        href={destinationFor(item)}
+                        href={notificationHref(item)}
                         onClick={() => {
                           markNotificationsRead([item.id]);
                           setOpen(false);

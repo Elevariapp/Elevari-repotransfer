@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma.js';
+import { pushBookingExpired } from '../lib/booking-push.js';
 import { sendBookingCancellationEmail } from '../lib/transactional-emails.js';
 
 const DEFAULT_TTL_MINUTES = 30;
@@ -49,6 +50,7 @@ export async function expireStalePendingBookings(): Promise<number> {
     }).catch(() => {
       /* non-blocking */
     });
+    void pushBookingExpired(id);
   }
 
   return stale.length;

@@ -15,6 +15,7 @@ import { hostRoutes } from './routes/host.js';
 import { analyticsRoutes } from './routes/analytics.js';
 import { accountRoutes } from './routes/account.js';
 import { notificationRoutes } from './routes/notifications.js';
+import { registerErrorHandlers } from './lib/error-handler.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -41,6 +42,8 @@ export async function buildApp() {
     },
     requestIdHeader: 'x-request-id',
   });
+
+  registerErrorHandlers(app);
 
   // Browsers and the apps send `Content-Type: application/json` even on POSTs without a body
   // (cancel a booking, approve media...). Fastify rejects that with a 400 by default, so treat an

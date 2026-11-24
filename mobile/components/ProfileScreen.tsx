@@ -6,10 +6,11 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { SettingsGroup, SettingsRow } from '@/components/SettingsRow';
 import { WhatsAppGlyph } from '@/components/WhatsAppGlyph';
+import { getApiErrorMessage } from '@/lib/api';
 import { colors, radius, spacing, typography } from '@/lib/design-tokens';
 import { refreshUnreadCount } from '@/lib/notifications';
 import type { Area } from '@/lib/routes';
-import { signOut } from '@/lib/session';
+import { becomeHost, signOut } from '@/lib/session';
 import { useAppStore } from '@/lib/store';
 import { HOST_DASHBOARD_URL, openExternalUrl, openWhatsAppSupport } from '@/lib/support';
 import type { UserRole } from '@/lib/types';
@@ -28,6 +29,7 @@ export function ProfileScreen({ area }: { area: Area }) {
   const user = useAppStore((state) => state.user);
   const unread = useAppStore((state) => state.unreadNotifications);
   const [signingOut, setSigningOut] = useState(false);
+  const [becomingHost, setBecomingHost] = useState(false);
   const userId = user?.id ?? null;
 
   // The badge may be stale after reading notifications or receiving new ones.
@@ -54,6 +56,29 @@ export function ProfileScreen({ area }: { area: Area }) {
     ]);
   };
 
+  const confirmBecomeHost = () => {
+    Alert.alert(
+      'Publica tu espacio',
+      'Convertiremos tu cuenta en una cuenta de anfitrión. Seguirás pudiendo reservar como huésped.',
+      [
+        { text: 'Ahora no', style: 'cancel' },
+        {
+          text: 'Activar anfitrión',
+          onPress: () => {
+            if (becomingHost) return;
+            setBecomingHost(true);
+            becomeHost()
+              .then(() => router.replace('/(host)'))
+              .catch((err: unknown) =>
+                Alert.alert('No pudimos activar tu cuenta de anfitrión', getApiErrorMessage(err)),
+              )
+              .finally(() => setBecomingHost(false));
+          },
+        },
+      ],
+    );
+  };
+
   const displayName = user?.name?.trim() || 'Tu cuenta';
   const initial = (user?.name?.trim() || user?.email || '?').charAt(0).toUpperCase();
   const canHost = user?.role === 'host' || user?.role === 'admin';
@@ -77,6 +102,11 @@ export function ProfileScreen({ area }: { area: Area }) {
           onPress={() => open('/change-password')}
         />
         <SettingsRow title="Notificaciones" badge={unread} onPress={() => open('/notifications')} />
+        <SettingsRow
+          title="Preferencias de avisos"
+          subtitle="Elige qué recibes por correo y en el celular"
+          onPress={() => open('/notification-settings')}
+        />
         {area === 'guest' ? (
           <SettingsRow title="Mis reservas" onPress={() => router.push('/(guest)/my-bookings')} last />
         ) : (
@@ -105,11 +135,22 @@ export function ProfileScreen({ area }: { area: Area }) {
         </SettingsGroup>
       ) : null}
 
+      {area === 'guest' && !canHost ? (
+        <SettingsGroup heading="Anfitrión">
+          <SettingsRow
+            title="Publica tu espacio"
+            subtitle="Convierte tu cuenta en cuenta de anfitrión"
+            onPress={confirmBecomeHost}
+            last
+          />
+        </SettingsGroup>
+      ) : null}
+
       {area === 'host' ? (
         <SettingsGroup heading="Anfitrión">
           <SettingsRow
             title="Panel web de anfitrión"
-            subtitle="Reservas, calendario y pagos en elevari.live"
+            subtitle="Calendario y pagos en elevari.live"
             onPress={() => void openExternalUrl(HOST_DASHBOARD_URL)}
             last
           />

@@ -16,6 +16,7 @@ import {
   sendBookingCancellationEmail,
   sendHostBookingCancelledEmail,
 } from '../lib/transactional-emails.js';
+import { pushBookingCancelled, pushHostBookingCancelled } from '../lib/booking-push.js';
 import { authenticate } from '../plugins/auth.js';
 
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -36,6 +37,11 @@ const createBookingSchema = quoteSchema.extend({
 function parseDateUTC(dateStr: string): Date {
   return new Date(`${dateStr}T00:00:00.000Z`);
 }
+
+const IDEMPOTENCY_KEY_IN_USE = {
+  error: 'Idempotency key already in use',
+  code: 'idempotency_key_in_use',
+} as const;
 
 export async function bookingRoutes(app: FastifyInstance) {
   app.post('/bookings/quote', async (request, reply) => {
@@ -87,7 +93,12 @@ export async function bookingRoutes(app: FastifyInstance) {
     const data = body.data;
     const guestId = request.auth!.sub;
     const guestEmail = data.guest_email ?? request.auth!.email;
-    const guestName = data.guest_name ?? guestEmail.split('@')[0];
+    // Booking for yourself without a name (the web checkout sends none): use the profile name, not "juan.perez23".
+    const profileName =
+      data.guest_name || data.guest_email
+        ? null
+        : (await prisma.user.findUnique({ where: { id: guestId }, select: { name: true } }))?.name?.trim() || null;
+    const guestName = data.guest_name ?? profileName ?? guestEmail.split('@')[0];
     const checkIn = parseDateUTC(data.check_in);
     const checkOut = parseDateUTC(data.check_out);
 
@@ -99,6 +110,10 @@ export async function bookingRoutes(app: FastifyInstance) {
       where: { idempotencyKey: data.idempotency_key },
     });
     if (existing) {
+      // Keys are global: another guest's booking must never be handed back (it carries their e-mail).
+      if (existing.guestId !== guestId) {
+        return reply.status(409).send(IDEMPOTENCY_KEY_IN_USE);
+      }
       return reply.status(200).send({ booking: existing, reused: true });
     }
 
@@ -143,6 +158,9 @@ export async function bookingRoutes(app: FastifyInstance) {
           where: { idempotencyKey: data.idempotency_key },
         });
         if (reused) {
+          if (reused.guestId !== guestId) {
+            return reply.status(409).send(IDEMPOTENCY_KEY_IN_USE);
+          }
           return reply.status(200).send({ booking: reused, reused: true });
         }
       }
@@ -288,6 +306,12 @@ export async function bookingRoutes(app: FastifyInstance) {
       sendHostBookingCancelledEmail(id).catch((err) => {
         request.log.warn({ err, bookingId: id }, 'Host cancellation email not sent');
       });
+      void pushHostBookingCancelled(id);
+    }
+
+    // Guests know when they cancel themselves; a cancellation by an admin is news to them.
+    if (booking.guestId !== request.auth!.sub) {
+      void pushBookingCancelled(id);
     }
 
     return {

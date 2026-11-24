@@ -6,6 +6,8 @@ import {
   emailHeading,
   emailHelpLine,
   emailLayout,
+  emailPreferencesLine,
+  previewName,
 } from './layout.js';
 import { formatStayDate } from './format.js';
 
@@ -15,12 +17,14 @@ export function checkInReminder({
   checkIn,
   guestName,
   bookingUrl,
+  preferencesUrl,
 }: {
   bookingId: string;
   propertyName: string;
   checkIn: Date | string;
   guestName?: string | null;
   bookingUrl: string;
+  preferencesUrl?: string;
 }): string {
   const content = `
     ${emailHeading('Recordatorio de check-in / Check-in reminder')}
@@ -36,10 +40,16 @@ export function checkInReminder({
     ])}
     ${emailButton({ href: bookingUrl, label: 'Ver mi reserva / View my booking' })}
     ${emailHelpLine()}
+    ${emailPreferencesLine({
+      url: preferencesUrl,
+      reasonEs: 'tienes activados los recordatorios de check-in',
+      reasonEn: 'check-in reminders are switched on',
+    })}
   `;
 
+  const stay = previewName(propertyName);
   return emailLayout({
     content,
-    previewText: `Tu check-in en ${propertyName} es mañana · Your check-in at ${propertyName} is tomorrow`,
+    previewText: `Tu check-in en ${stay} es mañana · Your check-in at ${stay} is tomorrow`,
   });
 }

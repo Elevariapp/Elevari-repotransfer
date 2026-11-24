@@ -13,7 +13,7 @@ import { cx } from '@/lib/cx';
 const ROLE_LABELS = { guest: 'Huésped', host: 'Anfitrión', admin: 'Administrador' } as const;
 
 const ROW =
-  'flex min-h-[56px] w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-elevari-ivory/60 focus-visible:bg-elevari-ivory/60';
+  'flex min-h-[56px] w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-elevari-ivory/60 focus-visible:bg-elevari-ivory/60 focus-visible:[outline-offset:-3px]';
 
 function RowBody({
   icon,
@@ -107,13 +107,30 @@ export default function AccountHub() {
         </Badge>
       </section>
 
-      {user.role !== 'guest' && (
-        <ul className="elevari-card overflow-hidden">
+      {user.role !== 'guest' ? (
+        <ul className="elevari-card divide-y divide-elevari-border overflow-hidden">
           <LinkRow
             href={isAdmin ? '/admin' : '/host'}
             icon={isAdmin ? 'shield' : 'home'}
             label={isAdmin ? 'Panel de administración' : 'Panel de anfitrión'}
             hint={isAdmin ? 'Reservas, propiedades y moderación' : 'Tus espacios, reservas y fotos'}
+          />
+          {!isAdmin && (
+            <LinkRow
+              href="/host/bookings"
+              icon="calendar"
+              label="Reservas de tus espacios"
+              hint="Próximas, pasadas y canceladas"
+            />
+          )}
+        </ul>
+      ) : (
+        <ul className="elevari-card overflow-hidden">
+          <LinkRow
+            href="/become-host"
+            icon="home"
+            label="Publica tu espacio en Elevari"
+            hint="Convierte tu cuenta en cuenta de anfitrión"
           />
         </ul>
       )}
@@ -122,6 +139,12 @@ export default function AccountHub() {
 
       <Group id="account-settings" title="Configuración">
         <LinkRow href="/account/profile" icon="user" label="Editar perfil" hint="Nombre y teléfono" />
+        <LinkRow
+          href="/account/notifications"
+          icon="bell"
+          label="Notificaciones"
+          hint="Correo y avisos en la app"
+        />
         <LinkRow
           href="/account/security"
           icon="lock"

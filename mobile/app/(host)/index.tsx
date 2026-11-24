@@ -59,10 +59,14 @@ export default function HostIndexScreen() {
       ) : null}
 
       <Card padded style={styles.note}>
-        <Text style={styles.noteTitle}>Reservas, calendario y pagos</Text>
+        <Text style={styles.noteTitle}>Calendario y pagos</Text>
         <Text style={styles.noteBody}>
-          Por ahora los gestionas desde el panel web de anfitrión. En la app puedes crear y revisar tus propiedades.
+          Las reservas de tus propiedades las ves en la pestaña Reservas. El calendario y los pagos los gestionas desde
+          el panel web de anfitrión.
         </Text>
+        <Button variant="secondary" fullWidth onPress={() => router.replace('/(host)/bookings')}>
+          Ver reservas
+        </Button>
         <Button variant="secondary" fullWidth onPress={() => void openExternalUrl(HOST_DASHBOARD_URL)}>
           Abrir panel web
         </Button>

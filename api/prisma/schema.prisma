@@ -88,6 +88,8 @@ model User {
   passwordChangedAt DateTime? @map("password_changed_at")
   /// Set when the user deletes their account; the row is kept anonymized for accounting.
   deletedAt    DateTime? @map("deleted_at")
+  /// Opt-outs per channel; null or missing keys mean the defaults (see lib/notification-prefs.ts).
+  notificationPrefs Json? @map("notification_prefs")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -208,6 +210,8 @@ model Booking {
   guestEmail     String?       @map("guest_email")
   guestName      String?       @map("guest_name")
   invoiceId      String?       @map("invoice_id")
+  /// Set when the check-in reminder push went out, so the 6-hourly reminder job sends it only once.
+  checkInReminderPushedAt DateTime? @map("check_in_reminder_pushed_at")
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
 

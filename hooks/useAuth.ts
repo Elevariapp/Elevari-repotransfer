@@ -140,6 +140,12 @@ export function useAuth() {
     return adopt(token, u);
   };
 
+  /** Turns the signed-in guest account into a host account and keeps the session on the new token. */
+  const becomeHost = async () => {
+    const { token, user: u } = await wanaApi.becomeHost();
+    return adopt(token, u);
+  };
+
   const logout = () => {
     clearSession();
   };
@@ -150,5 +156,5 @@ export function useAuth() {
     setState({ user: { ...state.user, ...patch } });
   };
 
-  return { user, loading, unavailable, login, register, loginWithGoogle, logout, refresh, updateUser };
+  return { user, loading, unavailable, login, register, loginWithGoogle, becomeHost, logout, refresh, updateUser };
 }

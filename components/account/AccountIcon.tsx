@@ -46,6 +46,18 @@ const PATHS: Record<string, ReactNode> = {
       <path d="M5 10v10h14V10" />
     </>
   ),
+  bell: (
+    <>
+      <path d="M6 16v-5a6 6 0 1112 0v5l2 2H4l2-2z" />
+      <path d="M10 21h4" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" />
+    </>
+  ),
 };
 
 export type AccountIconName = keyof typeof PATHS;

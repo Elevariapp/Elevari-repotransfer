@@ -3,16 +3,21 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authenticate } from '../plugins/auth.js';
 import { colombiaToday } from '../lib/colombia-time.js';
+import {
+  applyPreferencesPatch,
+  preferencesPatchSchema,
+  resolveNotificationPreferences,
+} from '../lib/notification-prefs.js';
+import {
+  bookingNotificationCopy,
+  stayRange,
+  type BookingNotificationType,
+} from '../lib/notification-copy.js';
+import { EXPO_PUSH_TOKEN_PATTERN } from '../lib/push.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const FEED_WINDOW_DAYS = 30;
 const FEED_LIMIT = 50;
-
-const SHORT_DATE = new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-
-function stayRange(checkIn: Date, checkOut: Date): string {
-  return `${SHORT_DATE.format(checkIn)} → ${SHORT_DATE.format(checkOut)}`;
-}
 
 interface FeedItem {
   id: string;
@@ -23,10 +28,14 @@ interface FeedItem {
   created_at: string;
 }
 
+const MAX_DEVICES_PER_USER = 10;
+
 const pushTokenSchema = z.object({
-  token: z.string().trim().min(10).max(300),
+  token: z.string().trim().max(300).regex(EXPO_PUSH_TOKEN_PATTERN, 'Invalid push token'),
   platform: z.enum(['ios', 'android']),
 });
+
+const pushTokenRemovalSchema = z.object({ token: z.string().trim().min(1).max(300) });
 
 export async function notificationRoutes(app: FastifyInstance) {
   /**
@@ -92,35 +101,35 @@ export async function notificationRoutes(app: FastifyInstance) {
 
     for (const event of events) {
       const { booking } = event;
-      const property = booking.property.title;
-      const dates = stayRange(booking.checkIn, booking.checkOut);
+      const copy = (type: BookingNotificationType) =>
+        bookingNotificationCopy(type, {
+          property: booking.property.title,
+          dates: stayRange(booking.checkIn, booking.checkOut),
+        });
       const base = { id: `event:${event.id}`, booking_id: booking.id, created_at: event.createdAt.toISOString() };
+      const push = (type: BookingNotificationType) => items.push({ ...base, type, ...copy(type) });
 
       if (booking.guestId === userId) {
         const reason = (event.metadata as { reason?: unknown } | null)?.reason;
         switch (event.toStatus) {
           case 'confirmed':
-            items.push({ ...base, type: 'booking_confirmed', title: 'Reserva confirmada', body: `${property} · ${dates}` });
+            push('booking_confirmed');
             break;
           case 'cancelled':
-            items.push(
-              reason === 'expired_unpaid'
-                ? { ...base, type: 'booking_expired', title: 'Reserva expirada', body: `${property}: el pago no se completó a tiempo y las fechas se liberaron.` }
-                : { ...base, type: 'booking_cancelled', title: 'Reserva cancelada', body: `${property} · ${dates}` },
-            );
+            push(reason === 'expired_unpaid' ? 'booking_expired' : 'booking_cancelled');
             break;
           case 'checked_in':
-            items.push({ ...base, type: 'checked_in', title: 'Check-in registrado', body: `${property}. ¡Que disfrutes tu estadía!` });
+            push('checked_in');
             break;
           case 'completed':
-            items.push({ ...base, type: 'stay_completed', title: 'Estadía completada', body: `Gracias por hospedarte en ${property}.` });
+            push('stay_completed');
             break;
         }
       } else if (booking.property.hostId === userId) {
         if (event.toStatus === 'confirmed') {
-          items.push({ ...base, type: 'host_new_booking', title: 'Nueva reserva', body: `${property} · ${dates}` });
+          push('host_new_booking');
         } else if (event.toStatus === 'cancelled' && event.fromStatus !== 'pending_payment' && event.fromStatus !== 'draft') {
-          items.push({ ...base, type: 'host_booking_cancelled', title: 'Reserva cancelada', body: `${property} · ${dates}` });
+          push('host_booking_cancelled');
         }
       }
     }
@@ -133,8 +142,7 @@ export async function notificationRoutes(app: FastifyInstance) {
       items.push({
         id: `checkin:${booking.id}`,
         type: 'check_in_soon',
-        title: isToday ? 'Tu check-in es hoy' : 'Tu check-in es mañana',
-        body: booking.property.title,
+        ...bookingNotificationCopy('check_in_soon', { property: booking.property.title, dates: '', isToday }),
         booking_id: booking.id,
         created_at: showAt.toISOString(),
       });
@@ -166,6 +174,34 @@ export async function notificationRoutes(app: FastifyInstance) {
     return { data: items.slice(0, FEED_LIMIT) };
   });
 
+  /** Which optional e-mails and push notifications the signed-in user receives. */
+  app.get('/notifications/preferences', { preHandler: authenticate }, async (request, reply) => {
+    const user = await prisma.user.findUnique({
+      where: { id: request.auth!.sub },
+      select: { notificationPrefs: true },
+    });
+    reply.header('Cache-Control', 'private, no-store');
+    return { preferences: resolveNotificationPreferences(user?.notificationPrefs) };
+  });
+
+  app.patch('/notifications/preferences', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
+    const body = preferencesPatchSchema.safeParse(request.body);
+    if (!body.success) {
+      return reply.status(400).send({ error: 'Invalid body', details: body.error.flatten() });
+    }
+
+    const userId = request.auth!.sub;
+    const existing = await prisma.user.findUnique({ where: { id: userId }, select: { notificationPrefs: true } });
+    const preferences = applyPreferencesPatch(resolveNotificationPreferences(existing?.notificationPrefs), body.data);
+    await prisma.user.update({ where: { id: userId }, data: { notificationPrefs: preferences } });
+
+    reply.header('Cache-Control', 'private, no-store');
+    return { preferences };
+  });
+
   /** Registers (or re-assigns) a device for push notifications. */
   app.post('/notifications/push-token', {
     preHandler: authenticate,
@@ -177,13 +213,40 @@ export async function notificationRoutes(app: FastifyInstance) {
     }
 
     const { token, platform } = body.data;
+    const userId = request.auth!.sub;
     await prisma.pushToken.upsert({
       where: { token },
-      create: { token, platform, userId: request.auth!.sub },
+      create: { token, platform, userId },
       // A device that signs in as someone else moves to that account.
-      update: { platform, userId: request.auth!.sub },
+      update: { platform, userId },
     });
 
+    // Keep only the most recent devices so one account can never fan a notification out to hundreds.
+    const stale = await prisma.pushToken.findMany({
+      where: { userId },
+      orderBy: { updatedAt: 'desc' },
+      skip: MAX_DEVICES_PER_USER,
+      select: { id: true },
+    });
+    if (stale.length > 0) {
+      await prisma.pushToken.deleteMany({ where: { id: { in: stale.map((entry) => entry.id) } } });
+    }
+
+    return { success: true };
+  });
+
+  /** Forgets this device for the signed-in user, so a signed-out phone stops receiving their notifications. */
+  app.post('/notifications/push-token/unregister', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
+    const body = pushTokenRemovalSchema.safeParse(request.body);
+    if (!body.success) {
+      return reply.status(400).send({ error: 'Invalid body', details: body.error.flatten() });
+    }
+
+    // Scoped to the caller: nobody can remove another account's device, and the answer never says whether it existed.
+    await prisma.pushToken.deleteMany({ where: { token: body.data.token, userId: request.auth!.sub } });
     return { success: true };
   });
 }

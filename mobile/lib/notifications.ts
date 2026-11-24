@@ -1,19 +1,29 @@
 import Constants from 'expo-constants';
+import type { NotificationResponse } from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { api } from './api';
 import { useAppStore } from './store';
-import type { AppNotification, NotificationsResponse } from './types';
+import type {
+  AppNotification,
+  NotificationPreferences,
+  NotificationPreferencesPatch,
+  NotificationsResponse,
+} from './types';
 
 type NotificationsModule = typeof import('expo-notifications');
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PERMISSION_ASKED_KEY = 'push_permission_asked';
+const PUSH_TOKEN_KEY = 'push_token_registered';
 const ANDROID_CHANNEL_ID = 'default';
+// Signing out must never feel stuck because the server is slow to answer.
+const UNREGISTER_TIMEOUT_MS = 3000;
 
 let notificationsModule: Promise<NotificationsModule | null> | null = null;
 let handlerInstalled = false;
 let lastRegistration: string | null = null;
+let lastHandledTap: string | null = null;
 
 // The native module is loaded lazily so that a missing/broken push setup can never break app start.
 function loadNotifications(): Promise<NotificationsModule | null> {
@@ -96,31 +106,65 @@ export async function registerForPushNotifications(userId: string): Promise<void
 
     await api.post('/notifications/push-token', { token, platform: Platform.OS });
     lastRegistration = registrationKey;
+    // Remembered so that signing out can stop pushes for this device.
+    await SecureStore.setItemAsync(PUSH_TOKEN_KEY, token).catch(() => undefined);
   } catch {
     // Push registration must never surface errors to the user.
   }
 }
 
-// Calls `onOpen` with the related booking id (if any) when the user taps a push notification.
-export function subscribeToNotificationTaps(onOpen: (bookingId: string | null) => void): () => void {
+// Stops pushes for this device before the session ends: they would otherwise keep arriving for the
+// account that just signed out. Best effort and bounded: offline or already-expired sessions skip it,
+// and the next sign-in simply moves the token to its new owner.
+export async function unregisterPushToken(): Promise<void> {
+  lastRegistration = null;
+  try {
+    const token = await SecureStore.getItemAsync(PUSH_TOKEN_KEY);
+    if (!token) return;
+    await api.post('/notifications/push-token/unregister', { token }, { timeout: UNREGISTER_TIMEOUT_MS });
+    await SecureStore.deleteItemAsync(PUSH_TOKEN_KEY);
+  } catch {
+    // Non-critical.
+  }
+}
+
+export interface NotificationTapTarget {
+  bookingId: string | null;
+  type: string | null;
+}
+
+function tapTarget(response: NotificationResponse): NotificationTapTarget {
+  const data: unknown = response.notification.request.content.data;
+  const record = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
+  const bookingId = record.booking_id ?? record.bookingId;
+  return {
+    bookingId: typeof bookingId === 'string' ? bookingId : null,
+    type: typeof record.type === 'string' ? record.type : null,
+  };
+}
+
+// Calls `onOpen` when the user taps a push notification, including the tap that launched the app.
+// Each tap is delivered once, even if the screen that listens is remounted.
+export function subscribeToNotificationTaps(onOpen: (target: NotificationTapTarget) => void): () => void {
   if (!getEasProjectId()) return () => undefined;
 
   let unsubscribe: (() => void) | null = null;
   let cancelled = false;
 
+  const deliver = (response: NotificationResponse) => {
+    const key = `${response.notification.request.identifier}:${response.notification.date}`;
+    if (key === lastHandledTap) return;
+    lastHandledTap = key;
+    onOpen(tapTarget(response));
+  };
+
   loadNotifications()
     .then((Notifications) => {
       if (!Notifications || cancelled) return;
-      const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-        const data: unknown = response.notification.request.content.data;
-        const raw =
-          data && typeof data === 'object'
-            ? (data as { booking_id?: unknown; bookingId?: unknown }).booking_id ??
-              (data as { bookingId?: unknown }).bookingId
-            : null;
-        onOpen(typeof raw === 'string' ? raw : null);
-      });
+      const subscription = Notifications.addNotificationResponseReceivedListener(deliver);
       unsubscribe = () => subscription.remove();
+      const launchedBy = Notifications.getLastNotificationResponse();
+      if (launchedBy) deliver(launchedBy);
     })
     .catch(() => undefined);
 
@@ -185,6 +229,18 @@ export async function markNotificationsSeen(userId: string, items: AppNotificati
 export async function fetchNotifications(): Promise<AppNotification[]> {
   const response = await api.get<NotificationsResponse>('/notifications');
   return Array.isArray(response.data) ? response.data : [];
+}
+
+export async function fetchNotificationPreferences(): Promise<NotificationPreferences> {
+  const response = await api.get<{ preferences: NotificationPreferences }>('/notifications/preferences');
+  return response.preferences;
+}
+
+export async function updateNotificationPreferences(
+  patch: NotificationPreferencesPatch,
+): Promise<NotificationPreferences> {
+  const response = await api.patch<{ preferences: NotificationPreferences }>('/notifications/preferences', patch);
+  return response.preferences;
 }
 
 // Updates the unread badge shown in the profile. Errors (e.g. offline) leave the count untouched.

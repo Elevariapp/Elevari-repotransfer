@@ -6,6 +6,7 @@ import {
   emailHeading,
   emailHelpLine,
   emailLayout,
+  previewName,
 } from './layout.js';
 import { formatMoney, formatStayDate } from './format.js';
 
@@ -51,8 +52,9 @@ export function bookingConfirmation({
     ${emailHelpLine()}
   `;
 
+  const stay = previewName(propertyName);
   return emailLayout({
     content,
-    previewText: `Reserva confirmada en ${propertyName} · Booking confirmed at ${propertyName}`,
+    previewText: `Reserva confirmada en ${stay} · Booking confirmed at ${stay}`,
   });
 }

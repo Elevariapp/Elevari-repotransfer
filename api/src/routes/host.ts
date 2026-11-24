@@ -4,6 +4,9 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { uniquePropertySlug } from '../lib/slug.js';
 import { ApiErrorCode, apiErrorBody } from '../lib/api-errors.js';
+import { colombiaToday } from '../lib/colombia-time.js';
+import { guestDisplayName } from '../lib/guest-name.js';
+import { nightsBetween, type WanaFees } from '../lib/fees.js';
 import { authenticate, requireRoles } from '../plugins/auth.js';
 
 // numeric(10,2) column: larger values overflow the column (used to surface as a 500).
@@ -75,6 +78,48 @@ const createPropertySchema = z.object({
 const listQuerySchema = z.object({
   host_id: z.string().trim().min(1).max(64).optional(),
 });
+
+const bookingsQuerySchema = z.object({
+  scope: z.enum(['upcoming', 'past', 'cancelled']).default('upcoming'),
+  page: z.coerce.number().int().min(1).max(10_000).default(1),
+  page_size: z.coerce.number().int().min(1).max(50).default(20),
+  host_id: z.string().trim().min(1).max(64).optional(),
+});
+
+type BookingScope = z.infer<typeof bookingsQuerySchema>['scope'];
+
+const HOST_VISIBLE_STATUSES = ['confirmed', 'checked_in'] as const;
+
+/**
+ * Only bookings a host has actually been told about: paid stays, and cancellations of stays that
+ * had been paid. Unpaid checkouts (draft, pending_payment, expired) never reach the host.
+ */
+function hostBookingsWhere(hostId: string, scope: BookingScope, today: Date): Prisma.BookingWhereInput {
+  const property = { hostId };
+  switch (scope) {
+    case 'upcoming':
+      return { property, status: { in: [...HOST_VISIBLE_STATUSES] }, checkOut: { gte: today } };
+    case 'past':
+      return {
+        property,
+        OR: [{ status: 'completed' }, { status: { in: [...HOST_VISIBLE_STATUSES] }, checkOut: { lt: today } }],
+      };
+    case 'cancelled':
+      return {
+        property,
+        status: 'cancelled',
+        events: { some: { toStatus: 'cancelled', fromStatus: { in: [...HOST_VISIBLE_STATUSES] } } },
+      };
+  }
+}
+
+function hostBookingsOrder(scope: BookingScope): Prisma.BookingOrderByWithRelationInput[] {
+  if (scope === 'upcoming') return [{ checkIn: 'asc' }, { createdAt: 'asc' }];
+  if (scope === 'past') return [{ checkIn: 'desc' }, { createdAt: 'desc' }];
+  return [{ updatedAt: 'desc' }];
+}
+
+const isoDay = (date: Date) => date.toISOString().slice(0, 10);
 
 type CreatePropertyInput = z.infer<typeof createPropertySchema>;
 
@@ -165,6 +210,74 @@ export async function hostRoutes(app: FastifyInstance) {
           media_count: p._count.media,
           pending_media_count: pendingByProperty.get(p.id) ?? 0,
         })),
+      };
+    },
+  );
+
+  /**
+   * Bookings on the host's own properties. Guests are shown by name only: contact details stay
+   * with Elevari, the same as in the new-booking e-mail.
+   */
+  app.get(
+    '/host/bookings',
+    { preHandler: [authenticate, requireRoles(['host', 'admin'])] },
+    async (request, reply) => {
+      const query = bookingsQuerySchema.safeParse(request.query);
+      if (!query.success) {
+        return reply
+          .status(400)
+          .send(apiErrorBody(ApiErrorCode.INVALID_QUERY, { message: 'Los filtros de reservas no son válidos.' }));
+      }
+
+      const { scope, page, page_size: pageSize } = query.data;
+      // Hosts only ever see bookings on their own listings; only admins may inspect another host.
+      const hostId =
+        request.auth!.role === 'admin' ? query.data.host_id ?? request.auth!.sub : request.auth!.sub;
+      const where = hostBookingsWhere(hostId, scope, colombiaToday());
+
+      const [rows, total] = await prisma.$transaction([
+        prisma.booking.findMany({
+          where,
+          orderBy: hostBookingsOrder(scope),
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+          select: {
+            id: true,
+            status: true,
+            checkIn: true,
+            checkOut: true,
+            guests: true,
+            guestName: true,
+            guestEmail: true,
+            feesBreakdown: true,
+            createdAt: true,
+            guest: { select: { name: true, deletedAt: true } },
+            property: { select: { id: true, title: true, slug: true } },
+          },
+        }),
+        prisma.booking.count({ where }),
+      ]);
+
+      reply.header('Cache-Control', 'private, no-store');
+      return {
+        data: rows.map((booking) => {
+          const fees = booking.feesBreakdown as Partial<WanaFees> | null;
+          const guestName = booking.guest.deletedAt ? null : guestDisplayName(booking);
+          return {
+            id: booking.id,
+            status: booking.status,
+            property: booking.property,
+            guest_name: guestName,
+            guests: booking.guests,
+            check_in: isoDay(booking.checkIn),
+            check_out: isoDay(booking.checkOut),
+            nights: nightsBetween(booking.checkIn, booking.checkOut),
+            host_receives: typeof fees?.host_receives === 'number' ? fees.host_receives : null,
+            currency: 'COP',
+            created_at: booking.createdAt.toISOString(),
+          };
+        }),
+        pagination: { page, page_size: pageSize, total, has_more: page * pageSize < total },
       };
     },
   );

@@ -12,7 +12,8 @@ import {
   safeEqual,
   serializeUser,
 } from '../lib/auth.js';
-import { publicSiteUrl } from '../lib/email.js';
+import { isEmailDeliveryAvailable, publicSiteUrl } from '../lib/email.js';
+import { createAttemptLimiter } from '../lib/attempt-limiter.js';
 import { authenticate } from '../plugins/auth.js';
 import { requireTurnstile } from '../lib/auth-guards.js';
 import { verifyGoogleIdToken } from '../lib/google-auth.js';
@@ -82,6 +83,16 @@ const resetPasswordSchema = z.object({
   token: z.string().min(10),
   password: z.string().min(8).max(128),
 });
+
+// Per-account limits on top of the per-IP ones: wrong passwords per address (a botnet rotating IPs
+// is still slowed down) and reset e-mails per account (nobody can flood an inbox).
+const loginFailures = createAttemptLimiter({ max: 10, windowMs: 15 * 60_000 });
+const resetEmailRequests = createAttemptLimiter({ max: 3, windowMs: 60 * 60_000 });
+
+function waitLabel(seconds: number): string {
+  const minutes = Math.max(1, Math.ceil(seconds / 60));
+  return minutes === 1 ? '1 minuto' : `${minutes} minutos`;
+}
 
 function isUniqueViolation(err: unknown): boolean {
   return typeof err === 'object' && err !== null && (err as { code?: unknown }).code === 'P2002';
@@ -165,6 +176,16 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: DEMO_ACCOUNT_BLOCKED_MESSAGE });
     }
 
+    // Keyed by the submitted address whether or not it exists, so the lock reveals nothing.
+    const lock = loginFailures.peek(address);
+    if (lock.blocked) {
+      return reply.header('Retry-After', String(lock.retryAfterSeconds)).status(429).send({
+        error: `Demasiados intentos fallidos. Por seguridad, espera ${waitLabel(lock.retryAfterSeconds)} e inténtalo de nuevo o restablece tu contraseña.`,
+        code: 'login_locked',
+        retry_after_seconds: lock.retryAfterSeconds,
+      });
+    }
+
     // Challenge first: checking it after the password would tell a bot which guesses were right.
     if (!(await requireTurnstile(request, reply, turnstile_token))) return;
 
@@ -172,14 +193,17 @@ export async function authRoutes(app: FastifyInstance) {
 
     if (!user?.passwordHash || user.deletedAt) {
       await verifyPasswordAgainstDummy(password);
+      loginFailures.hit(address);
       return reply.status(401).send({ error: 'Invalid email or password' });
     }
 
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
+      loginFailures.hit(address);
       return reply.status(401).send({ error: 'Invalid email or password' });
     }
 
+    loginFailures.reset(address);
     const token = await signToken(user);
 
     return {
@@ -286,6 +310,29 @@ export async function authRoutes(app: FastifyInstance) {
     });
 
     return { user: serializeUser(user) };
+  });
+
+  /**
+   * A guest turns their account into a host account. API role checks read the database, but the
+   * web route guard trusts the role inside the JWT, so the caller gets a fresh token. Hosts and
+   * admins keep their role and just get a token again, which makes a repeated call harmless.
+   */
+  app.post('/auth/become-host', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
+    const current = await prisma.user.findUnique({ where: { id: request.auth!.sub } });
+    if (!current || current.deletedAt) {
+      return reply.status(401).send({ error: 'Authentication required' });
+    }
+
+    const user =
+      current.role === 'guest'
+        ? await prisma.user.update({ where: { id: current.id }, data: { role: 'host' } })
+        : current;
+
+    const token = await signToken(user);
+    return { token, user: serializeUser(user) };
   });
 
   app.post('/auth/change-password', {
@@ -403,6 +450,16 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'Invalid body' });
     }
 
+    // Same answer for everyone: this only depends on the server setup, never on the address.
+    if (!isEmailDeliveryAvailable()) {
+      request.log.error('Password reset requested but e-mail delivery is not configured');
+      return reply.status(503).send({
+        error:
+          'El envío de correos no está disponible en este momento. Inténtalo de nuevo en unos minutos o escríbenos por WhatsApp.',
+        code: 'email_unavailable',
+      });
+    }
+
     const user = await findUserByEmail(body.data.email);
 
     // Respuesta genérica (no revelar si el email existe)
@@ -411,23 +468,24 @@ export async function authRoutes(app: FastifyInstance) {
       message: 'Si el correo está registrado, recibirás un enlace en unos minutos.',
     };
 
-    if (!user?.passwordHash || user.deletedAt) {
-      return okResponse;
-    }
-
-    const token = await signResetToken(user.id, user.email, user.passwordHash);
-    const resetUrl = `${publicSiteUrl()}/auth/reset-password?token=${encodeURIComponent(token)}`;
-
-    const result = await sendPasswordResetEmail({
-      email: user.email,
-      name: user.name ?? '',
-      resetUrl,
-    });
-    if (!result.sent) {
-      request.log.warn({ reason: result.reason }, 'Password reset email not sent');
-      return reply.status(503).send({
-        error: 'No se pudo enviar el correo. Intenta más tarde o cambia la contraseña desde tu cuenta.',
-      });
+    // The e-mail is sent after answering: awaiting the provider would make existing accounts
+    // slower (or fail with a 503) than unknown ones, which is an enumeration oracle.
+    if (user?.passwordHash && !user.deletedAt && !resetEmailRequests.peek(user.id).blocked) {
+      resetEmailRequests.hit(user.id);
+      const { id, email: address, name, passwordHash } = user;
+      notify(
+        request,
+        'Password reset',
+        (async () => {
+          const token = await signResetToken(id, address, passwordHash);
+          return sendPasswordResetEmail({
+            email: address,
+            name: name ?? '',
+            // In the fragment: it never reaches access logs, CDN logs or analytics.
+            resetUrl: `${publicSiteUrl()}/auth/reset-password#token=${encodeURIComponent(token)}`,
+          });
+        })(),
+      );
     }
 
     return okResponse;
@@ -467,6 +525,9 @@ export async function authRoutes(app: FastifyInstance) {
       data: { passwordHash, passwordChangedAt: new Date(), tokenVersion: { increment: 1 } },
     });
     if (updated.count === 0) return invalidLink();
+
+    // Opening the reset link proves control of the mailbox, so it also lifts a failed-login lock.
+    loginFailures.reset(normalizeEmail(user.email));
 
     notify(
       request,

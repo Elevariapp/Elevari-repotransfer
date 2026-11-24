@@ -66,13 +66,10 @@ export default function HostGate({
     return (
       <div className="elevari-card p-8 text-center">
         <p className="text-elevari-muted">
-          Tu cuenta es de huésped. Crea una cuenta de anfitrión para publicar espacios.
+          Tu cuenta es de huésped. Conviértela en cuenta de anfitrión para publicar espacios.
         </p>
-        <Link
-          href={`/auth/register?role=host&redirect=${encodeURIComponent(redirectTo)}`}
-          className="elevari-btn-primary mt-6 inline-flex min-h-[48px]"
-        >
-          Crear cuenta de anfitrión
+        <Link href="/become-host" className="elevari-btn-primary mt-6 inline-flex min-h-[48px]">
+          Activar mi cuenta de anfitrión
         </Link>
       </div>
     );

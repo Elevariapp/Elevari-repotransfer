@@ -57,6 +57,14 @@ function decodeEntities(value: string): string {
     .replace(/&amp;/g, '&');
 }
 
+/**
+ * False only in production without RESEND_API_KEY: nothing can be delivered to anyone, so a
+ * caller may say so without revealing anything about a specific recipient.
+ */
+export function isEmailDeliveryAvailable(): boolean {
+  return Boolean(process.env.RESEND_API_KEY?.trim()) || process.env.NODE_ENV !== 'production';
+}
+
 /** Plain-text alternative for clients (and spam filters) that want one; keeps link targets. */
 export function htmlToText(html: string): string {
   const text = html
