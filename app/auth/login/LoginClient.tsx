@@ -19,13 +19,14 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileUnavailable, setTurnstileUnavailable] = useState(false);
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
   const { login, loginWithGoogle } = useAuth();
 
-  const needsTurnstile = TURNSTILE_ENABLED && !turnstileToken;
+  const needsTurnstile = TURNSTILE_ENABLED && !turnstileToken && !turnstileUnavailable;
 
   const validateFields = () => {
     const next: { email?: string; password?: string } = {};
@@ -54,7 +55,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
       setError(null);
       return;
     }
-    if (TURNSTILE_ENABLED && !turnstileToken) {
+    if (needsTurnstile) {
       setError('Completa la verificación de seguridad');
       return;
     }
@@ -72,7 +73,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
 
   const handleGoogle = async (credential: string) => {
     if (loading) return;
-    if (TURNSTILE_ENABLED && !turnstileToken) {
+    if (needsTurnstile) {
       setError('Completa la verificación de seguridad antes de Google');
       return;
     }
@@ -170,6 +171,7 @@ export default function LoginPage({ redirectTo = '/' }: { redirectTo?: string })
           <TurnstileWidget
             resetKey={turnstileResetKey}
             onToken={setTurnstileToken}
+            onUnavailable={() => setTurnstileUnavailable(true)}
             onExpire={() => {
               setTurnstileToken('');
               setTurnstileResetKey((k) => k + 1);

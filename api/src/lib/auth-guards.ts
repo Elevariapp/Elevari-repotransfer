@@ -22,7 +22,14 @@ export async function requireTurnstile(
   if (!turnstileRequired()) return true;
   if (hasTrustedClientKey(request)) return true;
 
-  const result = await verifyTurnstileToken(token ?? '', clientIp(request));
+  // A browser that cannot load the challenge must not be locked out. Auth endpoints
+  // still enforce their per-IP and per-account rate limits; supplied tokens are verified.
+  if (!token) {
+    request.log.warn('Turnstile token unavailable; continuing with rate-limited authentication');
+    return true;
+  }
+
+  const result = await verifyTurnstileToken(token, clientIp(request));
   if (!result.ok) {
     request.log.warn({ turnstile: result.errorCodes }, 'Turnstile verification failed');
     const unavailable = result.errorCodes?.includes('verification-unavailable');

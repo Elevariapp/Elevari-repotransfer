@@ -30,6 +30,7 @@ export default function RegisterClient({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<'guest' | 'host'>(initialRole);
   const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileUnavailable, setTurnstileUnavailable] = useState(false);
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{
@@ -43,7 +44,7 @@ export default function RegisterClient({
   const [emailTaken, setEmailTaken] = useState(false);
   const { register, loginWithGoogle } = useAuth();
 
-  const needsTurnstile = TURNSTILE_ENABLED && !turnstileToken;
+  const needsTurnstile = TURNSTILE_ENABLED && !turnstileToken && !turnstileUnavailable;
   const loginHref = redirectTo !== '/'
     ? `/auth/login?redirect=${encodeURIComponent(redirectTo)}`
     : '/auth/login';
@@ -81,7 +82,7 @@ export default function RegisterClient({
       setError(null);
       return;
     }
-    if (TURNSTILE_ENABLED && !turnstileToken) {
+    if (needsTurnstile) {
       setError('Completa la verificación de seguridad antes de continuar');
       return;
     }
@@ -109,7 +110,7 @@ export default function RegisterClient({
 
   const handleGoogle = async (credential: string) => {
     if (loading) return;
-    if (TURNSTILE_ENABLED && !turnstileToken) {
+    if (needsTurnstile) {
       setError('Completa la verificación de seguridad antes de usar Google');
       return;
     }
@@ -304,6 +305,7 @@ export default function RegisterClient({
           <TurnstileWidget
             resetKey={turnstileResetKey}
             onToken={setTurnstileToken}
+            onUnavailable={() => setTurnstileUnavailable(true)}
             onExpire={() => {
               setTurnstileToken('');
               setTurnstileResetKey((k) => k + 1);

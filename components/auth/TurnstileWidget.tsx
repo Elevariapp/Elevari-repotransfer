@@ -51,25 +51,32 @@ function loadTurnstileScript(): Promise<void> {
 export default function TurnstileWidget({
   onToken,
   onExpire,
+  onUnavailable,
   resetKey = 0,
 }: {
   onToken: (token: string) => void;
   onExpire?: () => void;
+  onUnavailable?: () => void;
   resetKey?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const onTokenRef = useRef(onToken);
   const onExpireRef = useRef(onExpire);
+  const onUnavailableRef = useRef(onUnavailable);
   const [status, setStatus] = useState<Status>('loading');
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     onTokenRef.current = onToken;
     onExpireRef.current = onExpire;
-  }, [onToken, onExpire]);
+    onUnavailableRef.current = onUnavailable;
+  }, [onToken, onExpire, onUnavailable]);
 
   useEffect(() => {
-    if (!SITE_KEY) return;
+    if (!SITE_KEY) {
+      onUnavailableRef.current?.();
+      return;
+    }
     let cancelled = false;
     let widgetId: string | null = null;
     setStatus('loading');
@@ -95,6 +102,7 @@ export default function TurnstileWidget({
           'error-callback': () => {
             setStatus('error');
             onTokenRef.current('');
+            onUnavailableRef.current?.();
             // Handled here: stops Cloudflare from also printing the failure to the console.
             return true;
           },
@@ -102,6 +110,7 @@ export default function TurnstileWidget({
         setStatus('ready');
       } catch {
         setStatus('error');
+        onUnavailableRef.current?.();
       }
     };
 
@@ -111,7 +120,10 @@ export default function TurnstileWidget({
         else render();
       })
       .catch(() => {
-        if (!cancelled) setStatus('error');
+        if (!cancelled) {
+          setStatus('error');
+          onUnavailableRef.current?.();
+        }
       });
 
     return () => {
