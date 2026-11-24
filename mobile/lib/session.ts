@@ -75,6 +75,13 @@ export async function signUp(input: SignUpInput): Promise<User> {
   return startSession(data);
 }
 
+// Turns the signed-in guest account into a host account. The role travels inside the session, so the
+// server answers with a fresh token that replaces the saved one.
+export async function becomeHost(): Promise<User> {
+  const data = await api.post<AuthResponse>('/auth/become-host');
+  return startSession(data);
+}
+
 // Persists an updated profile (e.g. after editing it) in the app store and in SecureStore.
 export async function saveUser(user: User): Promise<void> {
   useAppStore.getState().setUser(user);
