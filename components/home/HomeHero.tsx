@@ -16,12 +16,6 @@ export default function HomeHero() {
       <div className="home-hero__dock">
         <div className="elevari-container home-hero__dock-row">
           <SceneSwitcher />
-          <a href="#coleccion" className="home-hero__scroll">
-            <span>Descubre</span>
-            <span aria-hidden className="home-hero__mouse">
-              <span className="animate-scroll-hint" />
-            </span>
-          </a>
         </div>
       </div>
     </section>

@@ -41,16 +41,24 @@
   overflow: visible;
 }
 
-/* On a tall, narrow box (a phone) only a window of the picture fits: keep the camp, the fire and the sun/moon in it */
-@container sc (max-aspect-ratio: 0.62) {
+/*
+ * On a tall, narrow box (a phone) only a window of the picture fits: keep the family, the fire and the sky orbs in it.
+ * The sun and the moon use their own "portrait" tokens so they sit in the free corner next to the headline.
+ */
+@container sc (max-aspect-ratio: 0.8) {
   .sc-s {
-    --sc-fx-auto: 0.88;
+    --sc-fx-auto: 0.76;
+    --sc-sun-x: var(--sc-sun-xp);
+    --sc-sun-y: var(--sc-sun-yp);
+    --sc-sun-k: var(--sc-sun-kp);
+    --sc-moon-x: var(--sc-moon-xp);
+    --sc-moon-y: var(--sc-moon-yp);
+    --sc-moon-k: var(--sc-moon-kp);
   }
-}
 
-@container sc (min-aspect-ratio: 0.62) and (max-aspect-ratio: 0.8) {
-  .sc-s {
-    --sc-fx-auto: 0.8;
+  /* The headline spans the whole width here, so the clouds become a faint haze: no light shape under the small eyebrow */
+  .sc-l[data-l^='clouds'] {
+    opacity: 0.22;
   }
 }
 
@@ -204,6 +212,11 @@
 .sc-s.a-skydrift {
   transform-origin: 68% 22%;
   animation: sc-skydrift var(--du, 260s) ease-in-out var(--dl, 0s) infinite alternate;
+}
+
+/* Cast shadows lengthen toward the evening (the origin is the foot of the object, set inline) */
+.sc-shd {
+  transform: scale(var(--sc-shd-len, 1));
 }
 
 /* ---- motion: single shapes ---- */

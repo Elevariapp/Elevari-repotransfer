@@ -379,6 +379,21 @@
   inherits: true;
   initial-value: 1.5;
 }
+@property --sc-sun-xp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1262;
+}
+@property --sc-sun-yp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 150;
+}
+@property --sc-sun-kp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.8;
+}
 @property --sc-o-moon {
   syntax: '<number>';
   inherits: true;
@@ -398,6 +413,21 @@
   syntax: '<number>';
   inherits: true;
   initial-value: 0.9;
+}
+@property --sc-moon-xp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1262;
+}
+@property --sc-moon-yp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 330;
+}
+@property --sc-moon-kp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.72;
 }
 @property --sc-o-stars {
   syntax: '<number>';
@@ -759,10 +789,16 @@
   --sc-sun-x: 1220;
   --sc-sun-y: 456;
   --sc-sun-k: 1.5;
+  --sc-sun-xp: 1262;
+  --sc-sun-yp: 150;
+  --sc-sun-kp: 0.8;
   --sc-o-moon: 0;
   --sc-moon-x: 1200;
   --sc-moon-y: 330;
   --sc-moon-k: 0.9;
+  --sc-moon-xp: 1262;
+  --sc-moon-yp: 330;
+  --sc-moon-kp: 0.72;
   --sc-o-stars: 0.1;
   --sc-o-mw: 0;
   --sc-o-shoot: 0;
@@ -897,12 +933,18 @@ html[data-elevari-scene='day'] .sc[data-scene='auto'] {
   --sc-o-sun: 1;
   --sc-o-rays: 0.6;
   --sc-sun-x: 1230;
-  --sc-sun-y: 172;
+  --sc-sun-y: 200;
   --sc-sun-k: 1;
+  --sc-sun-xp: 1262;
+  --sc-sun-yp: 150;
+  --sc-sun-kp: 0.66;
   --sc-o-moon: 0;
   --sc-moon-x: 1200;
   --sc-moon-y: 330;
   --sc-moon-k: 0.9;
+  --sc-moon-xp: 1262;
+  --sc-moon-yp: 330;
+  --sc-moon-kp: 0.72;
   --sc-o-stars: 0;
   --sc-o-mw: 0;
   --sc-o-shoot: 0;
@@ -1039,10 +1081,16 @@ html[data-elevari-scene='night'] .sc[data-scene='auto'] {
   --sc-sun-x: 1220;
   --sc-sun-y: 560;
   --sc-sun-k: 1.5;
+  --sc-sun-xp: 1262;
+  --sc-sun-yp: 560;
+  --sc-sun-kp: 0.8;
   --sc-o-moon: 1;
-  --sc-moon-x: 1200;
+  --sc-moon-x: 1215;
   --sc-moon-y: 190;
   --sc-moon-k: 1;
+  --sc-moon-xp: 1262;
+  --sc-moon-yp: 150;
+  --sc-moon-kp: 0.72;
   --sc-o-stars: 1;
   --sc-o-mw: 1;
   --sc-o-shoot: 1;
@@ -1180,10 +1228,16 @@ html[data-elevari-scene='night'] .sc[data-scene='auto'] {
     --sc-sun-x,
     --sc-sun-y,
     --sc-sun-k,
+    --sc-sun-xp,
+    --sc-sun-yp,
+    --sc-sun-kp,
     --sc-o-moon,
     --sc-moon-x,
     --sc-moon-y,
     --sc-moon-k,
+    --sc-moon-xp,
+    --sc-moon-yp,
+    --sc-moon-kp,
     --sc-o-stars,
     --sc-o-mw,
     --sc-o-shoot,

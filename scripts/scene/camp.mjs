@@ -218,18 +218,23 @@ export function fireside({ x, y, h, face, skin, hair, top, bottom, style }) {
   return nodes;
 }
 
-/** Broadleaf tree with a lumpy two-tone canopy; sways as one piece. */
+/** Broadleaf tree: a trunk with two limbs under a canopy of overlapping lobes in two tones. */
 export function broadleaf({ x, base, h, seed }) {
   const rand = mulberry32(seed);
-  const cy = base - h * 0.72;
-  const rx = h * 0.46;
+  const cy = base - h * 0.7;
+  const rx = h * 0.5;
   const ry = h * 0.4;
+  const lobe = (dx, dy, kx, ky, lumps = 10) => blob(rand, x + dx * rx, cy + dy * ry, rx * kx, ry * ky, { lumps, jitter: 0.1 });
+  const body = [lobe(-0.52, 0.22, 0.52, 0.62), lobe(0.55, 0.24, 0.5, 0.6), lobe(0, -0.36, 0.64, 0.62), lobe(0, 0.3, 0.76, 0.54)];
+  const light = [lobe(-0.44, -0.1, 0.34, 0.34), lobe(0.1, -0.52, 0.38, 0.32), lobe(0.52, 0.02, 0.24, 0.28)];
+  const knot = base - h * 0.42;
   return [
-    P(`M${num(x - 6)},${num(base)}Q${num(x - 3)},${num(base - h * 0.4)} ${num(x - 9)},${num(cy + ry * 0.4)}L${num(x + 9)},${num(cy + ry * 0.4)}Q${num(x + 4)},${num(base - h * 0.4)} ${num(x + 7)},${num(base)}Z`, '$trunk'),
-    P(blob(rand, x, cy, rx, ry, { lumps: 15, jitter: 0.1 }), '$leaf1'),
-    P(blob(rand, x - rx * 0.2, cy - ry * 0.2, rx * 0.68, ry * 0.64, { lumps: 11, jitter: 0.12 }), '$leaf2', { o: 0.85 }),
-    P(blob(rand, x - rx * 0.4, cy - ry * 0.42, rx * 0.3, ry * 0.26, { lumps: 8, jitter: 0.14 }), '$leaf2'),
-    P(blob(rand, x + rx * 0.34, cy + ry * 0.2, rx * 0.34, ry * 0.3, { lumps: 8, jitter: 0.14 }), '$leaf1', { o: 0.7 }),
+    P(`M${num(x - 9)},${num(base)}Q${num(x - 5)},${num(knot)} ${num(x - 12)},${num(cy + ry * 0.5)}L${num(x + 12)},${num(cy + ry * 0.5)}Q${num(x + 5)},${num(knot)} ${num(x + 9)},${num(base)}Z`, '$trunk'),
+    S(`M${num(x)},${num(knot)}Q${num(x - rx * 0.22)},${num(knot - h * 0.12)} ${num(x - rx * 0.46)},${num(cy + ry * 0.1)}`, '$trunk', 5),
+    S(`M${num(x)},${num(knot - 6)}Q${num(x + rx * 0.2)},${num(knot - h * 0.12)} ${num(x + rx * 0.5)},${num(cy + ry * 0.16)}`, '$trunk', 4),
+    ...body.map((d) => P(d, '$leaf1')),
+    P(lobe(0, 0.62, 0.7, 0.26), '$pineBack', { o: 0.3 }),
+    ...light.map((d) => P(d, '$leaf2', { o: 0.82 })),
   ];
 }
 

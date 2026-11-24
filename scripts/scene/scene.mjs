@@ -339,7 +339,7 @@ function trees() {
   row(left, [-20, 70, 170, 270], [270, 330, 230, 190], 930, '$pine');
   row(right, [1560, 1620, 1670], [310, 350, 290], 890, '$pineBack');
   row(right, [1545, 1600, 1655], [220, 270, 210], 910, '$pine');
-  const mid = broadleaf({ x: 868, base: 792, h: 150, seed: 161 });
+  const mid = broadleaf({ x: 560, base: 818, h: 190, seed: 161 });
   return {
     mid: layer('treesM', 3, mid),
     sides: [layer('treesL', 3.6, left, { a: 'sway', du: 9, dl: 0 }), layer('treesR', 3.6, right, { a: 'sway', du: 8.5, dl: 0.8 })],
