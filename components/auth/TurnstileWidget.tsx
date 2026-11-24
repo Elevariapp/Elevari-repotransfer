@@ -1,11 +1,52 @@
 'use client';
 
-import Script from 'next/script';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { cx } from '@/lib/cx';
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-const TURNSTILE_SCRIPT = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-const LOAD_TIMEOUT_MS = 15_000;
+const SCRIPT_ID = 'elevari-turnstile-api';
+const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+const LOAD_TIMEOUT_MS = 12_000;
+// The 300px widget does not fit inside the auth card on the narrowest phones.
+const COMPACT_BELOW_PX = 340;
+
+type Status = 'loading' | 'ready' | 'error';
+
+let pendingLoad: Promise<void> | null = null;
+
+/** Loads Cloudflare's script once. A failed attempt leaves nothing behind, so retrying injects a fresh tag. */
+function loadTurnstileScript(): Promise<void> {
+  if (window.turnstile?.render) return Promise.resolve();
+  if (pendingLoad) return pendingLoad;
+
+  document.getElementById(SCRIPT_ID)?.remove();
+  const attempt = new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    let timer = 0;
+    const fail = (reason: string) => {
+      window.clearTimeout(timer);
+      script.remove();
+      reject(new Error(reason));
+    };
+    timer = window.setTimeout(() => fail('timeout'), LOAD_TIMEOUT_MS);
+    script.id = SCRIPT_ID;
+    script.src = SCRIPT_SRC;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      window.clearTimeout(timer);
+      if (window.turnstile?.render) resolve();
+      else fail('unavailable');
+    };
+    script.onerror = () => fail('network');
+    document.head.appendChild(script);
+  });
+  pendingLoad = attempt;
+  attempt.catch(() => {
+    if (pendingLoad === attempt) pendingLoad = null;
+  });
+  return attempt;
+}
 
 export default function TurnstileWidget({
   onToken,
@@ -17,48 +58,34 @@ export default function TurnstileWidget({
   resetKey?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
   const onTokenRef = useRef(onToken);
   const onExpireRef = useRef(onExpire);
-  const [widgetReady, setWidgetReady] = useState(false);
-  const [loadError, setLoadError] = useState(false);
+  const [status, setStatus] = useState<Status>('loading');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     onTokenRef.current = onToken;
-  }, [onToken]);
+    onExpireRef.current = onExpire;
+  }, [onToken, onExpire]);
 
   useEffect(() => {
-    onExpireRef.current = onExpire;
-  }, [onExpire]);
-
-  const destroyWidget = useCallback(() => {
-    if (widgetIdRef.current && window.turnstile?.remove) {
-      try {
-        window.turnstile.remove(widgetIdRef.current);
-      } catch {
-        /* ignore */
-      }
-    }
-    widgetIdRef.current = null;
-    setWidgetReady(false);
+    if (!SITE_KEY) return;
+    let cancelled = false;
+    let widgetId: string | null = null;
+    setStatus('loading');
     onTokenRef.current('');
-  }, []);
 
-  const mountWidget = useCallback((): boolean => {
-    if (!SITE_KEY || !containerRef.current || widgetIdRef.current || !window.turnstile?.render) {
-      return Boolean(widgetIdRef.current);
-    }
-
-    const run = () => {
-      if (!containerRef.current || widgetIdRef.current) return;
+    const render = () => {
+      const container = containerRef.current;
+      if (cancelled || !container || !window.turnstile) return;
       try {
-        widgetIdRef.current = window.turnstile!.render(containerRef.current, {
+        widgetId = window.turnstile.render(container, {
           sitekey: SITE_KEY,
-          theme: 'light',
+          theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
           appearance: 'always',
-          size: 'normal',
+          size: window.innerWidth < COMPACT_BELOW_PX ? 'compact' : 'normal',
           callback: (token: string) => {
-            setLoadError(false);
+            setStatus('ready');
             onTokenRef.current(token);
           },
           'expired-callback': () => {
@@ -66,81 +93,69 @@ export default function TurnstileWidget({
             onTokenRef.current('');
           },
           'error-callback': () => {
-            setLoadError(true);
+            setStatus('error');
             onTokenRef.current('');
+            // Handled here: stops Cloudflare from also printing the failure to the console.
+            return true;
           },
         });
-        setWidgetReady(true);
-        setLoadError(false);
+        setStatus('ready');
       } catch {
-        setLoadError(true);
+        setStatus('error');
       }
     };
 
-    try {
-      if (typeof window.turnstile.ready === 'function') {
-        window.turnstile.ready(run);
-      } else {
-        run();
+    loadTurnstileScript()
+      .then(() => {
+        if (typeof window.turnstile?.ready === 'function') window.turnstile.ready(render);
+        else render();
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('error');
+      });
+
+    return () => {
+      cancelled = true;
+      if (widgetId && window.turnstile?.remove) {
+        try {
+          window.turnstile.remove(widgetId);
+        } catch {
+          /* the widget is already gone */
+        }
       }
-    } catch {
-      run();
-    }
-
-    return Boolean(widgetIdRef.current);
-  }, []);
-
-  useEffect(() => {
-    setLoadError(false);
-    destroyWidget();
-
-    const started = Date.now();
-    const poll = window.setInterval(() => {
-      if (mountWidget()) {
-        window.clearInterval(poll);
-        return;
-      }
-      if (Date.now() - started >= LOAD_TIMEOUT_MS) {
-        window.clearInterval(poll);
-        setLoadError(true);
-      }
-    }, 100);
-
-    return () => window.clearInterval(poll);
-  }, [resetKey, destroyWidget, mountWidget]);
-
-  useEffect(() => () => destroyWidget(), [destroyWidget]);
-
-  const handleRetry = () => {
-    setLoadError(false);
-    destroyWidget();
-    window.setTimeout(() => mountWidget(), 50);
-  };
+    };
+  }, [resetKey, attempt]);
 
   if (!SITE_KEY) return null;
 
   return (
     <div className="space-y-2">
       <p className="text-center text-xs font-medium text-elevari-muted">Verificación de seguridad</p>
-      {!widgetReady && !loadError && (
-        <p className="rounded-xl border border-elevari-border bg-elevari-ivory/60 px-3 py-2 text-center text-xs text-elevari-muted">
-          Cargando verificación…
-        </p>
-      )}
-      <Script
-        src={TURNSTILE_SCRIPT}
-        strategy="afterInteractive"
-        onLoad={() => mountWidget()}
-        onError={() => setLoadError(true)}
-      />
-      <div ref={containerRef} className="flex min-h-[65px] justify-center" />
-      {loadError && (
-        <div className="space-y-2">
-          <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-900">
-            No se pudo cargar la verificación. En Cloudflare Turnstile añade{' '}
-            <strong>elevari.live</strong> y <strong>www.elevari.live</strong>.
+      <div className={cx('relative', status !== 'error' && 'min-h-[65px]')}>
+        <div ref={containerRef} className="flex justify-center" />
+        {status === 'loading' && (
+          <p
+            role="status"
+            className="absolute inset-0 flex items-center justify-center rounded-xl border border-elevari-border bg-elevari-ivory/60 px-3 text-center text-xs text-elevari-muted"
+          >
+            Cargando verificación…
           </p>
-          <button type="button" onClick={handleRetry} className="elevari-btn-ghost w-full min-h-[44px] text-xs">
+        )}
+      </div>
+      {status === 'error' && (
+        <div className="space-y-2">
+          <p
+            role="alert"
+            className="rounded-xl border border-elevari-amber/40 bg-elevari-warning-soft px-3 py-2 text-center text-xs text-elevari-amber-ink"
+          >
+            No pudimos cargar la verificación de seguridad. Revisa tu conexión o desactiva el bloqueador de
+            contenido para este sitio y vuelve a intentarlo.
+          </p>
+          <button
+            type="button"
+            onClick={() => setAttempt((value) => value + 1)}
+            className="elevari-btn-ghost min-h-[44px] w-full text-xs"
+          >
             Reintentar verificación
           </button>
         </div>
