@@ -1,440 +1,535 @@
 /*
- * Elevari scene: layout, motion and legibility scrims for <ScenicBackground>.
- * Colours and per-theme tokens live in scene-themes.css (generated from scripts/scene).
+ * Elevari scene: placement, motion, interaction and legibility scrims for <ScenicBackground>.
+ * Colours and per-scene tokens live in scene-themes.css (generated from scripts/scene), the art in lib/scene/scene-art.ts.
  *
- * Geometry: every SVG layer uses the same viewBox with "slice" and sits in a box 6% larger than the scene
- * (3% overscan per side, so the parallax never reveals an edge). --sc-u is the size of one scene unit in px,
- * which lets the CSS-drawn sky and the pines line up with the SVG ridges at any aspect ratio.
+ * Every layer is one SVG with the same 16:9 viewBox, sized like background-size: cover (plus 5% of overscan so the
+ * parallax never reveals an edge) and pinned to the bottom of the box: the sky is what gets cropped on a wide box.
  */
 
 .sc {
-  --sc-k: 1.06;
-  --sc-vh: 900;
-  --sc-vb: 900;
-  --sc-u: calc(max(100cqw / 1600, 100cqh / var(--sc-vh)) * var(--sc-k));
-  --sc-hu: calc(100cqh / var(--sc-vh) * var(--sc-k));
-  --sc-px: 0;
-  --sc-py: 0;
-  --sc-gx: 50px;
-  --sc-gy: 50px;
-
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  container-type: size;
+  container: sc / size;
   contain: paint;
   isolation: isolate;
-  background: #7c2d12;
-}
-
-/* The lite scene shows a horizon strip of the art instead of the whole picture */
-.sc[data-variant='lite'] {
-  --sc-vh: 420;
-  --sc-vb: 760;
-}
-
-.sc-sky {
-  position: absolute;
-  left: -3%;
-  right: -3%;
-  bottom: calc(-3% - (900 - var(--sc-vb)) * var(--sc-u));
-  height: calc(900 * var(--sc-u));
-}
-
-/* ---- layers ---- */
-
-.sc-l,
-.sc-pines {
-  position: absolute;
-  transform: translate(calc(var(--sc-px) * var(--d, 0) * 1px), calc(var(--sc-py) * var(--d, 0) * 0.5px));
+  background: var(--sc-sky-0);
 }
 
 .sc-l {
-  inset: -3%;
-}
-
-.sc-svg {
   position: absolute;
   inset: 0;
+  translate: 0 0;
+}
+
+/* The parallax (scene-interactions.ts) writes a new offset on every pointer move; the transition smooths it out */
+.sc[data-par] .sc-l {
+  transition: translate 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.sc-s {
+  --w: calc(max(100cqw, 100cqh * 1.7778) * 1.05);
+  --fx: var(--sc-fx, var(--sc-fx-auto, 0.5));
+  position: absolute;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: var(--w);
+  height: calc(var(--w) * 0.5625);
+  left: calc((100cqw - var(--w)) * var(--fx));
+  top: calc((100cqh - var(--w) * 0.5625 + 24px) * var(--sc-fy, 1));
+  overflow: visible;
 }
 
-.sc-drift,
-.sc-pulse,
-.sc-shimmer {
-  position: absolute;
-  inset: 0;
-}
+/*
+ * On a tall, narrow box (a phone) only a window of the picture fits: keep the family, the fire and the sky orbs in it.
+ * The sun and the moon use their own "portrait" tokens so they sit in the free corner next to the headline.
+ */
+@container sc (max-aspect-ratio: 0.8) {
+  .sc-s {
+    --sc-fx-auto: 0.76;
+    --sc-sun-x: var(--sc-sun-xp);
+    --sc-sun-y: var(--sc-sun-yp);
+    --sc-sun-k: var(--sc-sun-kp);
+    --sc-moon-x: var(--sc-moon-xp);
+    --sc-moon-y: var(--sc-moon-yp);
+    --sc-moon-k: var(--sc-moon-kp);
+  }
 
-/* Paint the lake and everything lower on top of the mist */
-.sc-pines {
-  bottom: -3%;
-  width: calc(560 * var(--sc-ps, 0.92) * var(--sc-hu));
-  height: calc(900 * var(--sc-ps, 0.92) * var(--sc-hu));
-}
-
-.sc-pines-l {
-  left: -3%;
-}
-
-.sc-pines-r {
-  right: -3%;
-}
-
-.sc-sway {
-  position: absolute;
-  inset: 0;
-  transform-origin: 50% 100%;
-}
-
-.sc-sway svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* ---- theme-driven pieces of the art ---- */
-
-.sc-stars {
-  opacity: var(--sc-o-stars);
-}
-
-.sc-sx {
-  transform: translateX(0);
-}
-
-.sc-lift {
-  transform: translateY(calc(var(--sc-lift-sun) * 900px));
-}
-
-/* The horizon strip is only 420 units tall, so the daytime lift is scaled down to keep the whole disc inside it */
-.sc[data-variant='lite'] .sc-lift {
-  transform: translateY(calc(var(--sc-lift-sun) * 360px));
-}
-
-/* A wide screen keeps the sun clear of the centred form: it slides right and settles into the low saddle of the ridge */
-@container (min-aspect-ratio: 11/10) {
-  .sc-sx {
-    transform: translateX(192px);
+  /* The headline spans the whole width here, so the clouds become a faint haze: no light shape under the small eyebrow */
+  .sc-l[data-l^='clouds'] {
+    opacity: 0.22;
   }
 }
 
-@container (min-aspect-ratio: 3/2) {
-  .sc-sx {
-    transform: translateX(352px);
+@container sc (min-aspect-ratio: 0.8) and (max-aspect-ratio: 1.1) {
+  .sc-s {
+    --sc-fx-auto: 0.66;
   }
 }
 
-/* A horizon strip carries centred copy over its whole width: its sun always sits clear of the text column. Narrow
-   strips push it past the edge (only the glow remains); wide strips park it in the right third. */
-.sc[data-variant='lite'] .sc-sx {
-  transform: translateX(340px);
+.sc svg * {
+  pointer-events: none;
 }
 
-@container (min-aspect-ratio: 2/1) {
-  .sc[data-variant='lite'] .sc-sx {
-    transform: translateX(470px);
-  }
-}
-
-@container (max-aspect-ratio: 4/5) {
-  .sc-pines {
-    --sc-ps: 0.38;
-  }
-}
-
-/* ---- pointer glow, embers, shooting stars ---- */
-
-.sc-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 560px;
-  height: 560px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgb(255 190 110 / 0.2), rgb(255 160 70 / 0.07) 42%, transparent 68%);
-  transform: translate3d(calc(var(--sc-gx) - 50%), calc(var(--sc-gy) - 50%), 0);
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-
-.sc[data-pointer='true'] .sc-glow {
-  opacity: 1;
-}
-
-.sc-ember {
-  position: absolute;
-  left: var(--x);
-  bottom: var(--y);
-  width: var(--s);
-  height: var(--s);
-  border-radius: 50%;
-  background: var(--sc-ember);
-  box-shadow: 0 0 calc(var(--s) * 3) var(--sc-ember);
-  opacity: 0;
-  animation: sc-ember var(--t) linear var(--w) infinite;
-}
-
-.sc-shoots {
-  position: absolute;
-  inset: 0;
-  opacity: var(--sc-o-shoot);
-}
-
-.sc-shoot {
-  position: absolute;
-  top: var(--y);
-  left: var(--x);
-  width: 150px;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, transparent, var(--sc-star));
-  transform: rotate(-208deg);
-  opacity: 0;
-  animation: sc-shoot var(--t) ease-in var(--w) infinite;
-}
-
-/* ---- legibility scrims ---- */
+/* ---- legibility scrims (tinted per scene: they cross-fade with the art) ---- */
 
 .sc-scrim {
+  --c: var(--sc-scrim-r) var(--sc-scrim-g) var(--sc-scrim-b);
   position: absolute;
   inset: 0;
+}
+
+.sc[data-scrim='hero'] .sc-scrim {
+  background:
+    linear-gradient(to bottom, rgb(var(--c) / calc(var(--sc-scrim-a) * 1)) 0, transparent 20%),
+    linear-gradient(to top, rgb(var(--c) / calc(var(--sc-scrim-a) * 1.1)) 0, transparent 26%),
+    linear-gradient(
+      98deg,
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 1.75)) 0%,
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 1.45)) 40%,
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 0.45)) 68%,
+      transparent 92%
+    );
+}
+
+@container sc (max-aspect-ratio: 1.1) {
+  .sc[data-scrim='hero'] .sc-scrim {
+    background:
+      linear-gradient(to bottom, rgb(var(--c) / calc(var(--sc-scrim-a) * 1.5)) 0, rgb(var(--c) / calc(var(--sc-scrim-a) * 1.4)) 55%, rgb(var(--c) / calc(var(--sc-scrim-a) * 0.5)) 78%, transparent 100%),
+      linear-gradient(to top, rgb(var(--c) / calc(var(--sc-scrim-a) * 1.1)) 0, transparent 20%);
+  }
+}
+
+/*
+ * On a phone the sun or the moon sits under the full-height veil that protects the text, which would turn it into a
+ * grey disc. A small window in the veil (the disc plus a few pixels: the glow around it stays veiled, so the text next
+ * to it keeps its contrast) lets the disc shine. The position repeats the placement maths of .sc-s for the portrait
+ * orb tokens (x 1262, y 150 of 1600 x 900; the disc radius is 60 units times the orb scale).
+ */
+@container sc (max-aspect-ratio: 0.8) {
+  .sc[data-scrim='hero'] .sc-scrim {
+    --w: calc(max(100cqw, 100cqh * 1.7778) * 1.05);
+    --r: calc(var(--w) * 0.0375 * (var(--sc-sun-kp) * var(--sc-o-sun) + var(--sc-moon-kp) * var(--sc-o-moon)));
+    --mask: radial-gradient(
+      circle at calc((100cqw - var(--w)) * 0.76 + var(--w) * 0.78875) calc(100cqh - var(--w) * 0.5625 + 24px + var(--w) * 0.09375),
+      transparent calc(var(--r) + 2px),
+      #000 calc(var(--r) + 16px)
+    );
+    -webkit-mask-image: var(--mask);
+    mask-image: var(--mask);
+  }
 }
 
 .sc[data-scrim='auth'] .sc-scrim {
   background:
-    linear-gradient(to bottom, rgb(24 8 3 / 0.55), rgb(24 8 3 / 0) 24%),
-    linear-gradient(to top, rgb(24 8 3 / 0.84), rgb(24 8 3 / 0.66) 20%, rgb(24 8 3 / 0.54) 34%, rgb(24 8 3 / 0.2) 47%, rgb(24 8 3 / 0) 60%),
-    radial-gradient(120% 90% at 50% 46%, transparent 52%, rgb(24 8 3 / 0.42));
+    linear-gradient(to bottom, rgb(var(--c) / calc(var(--sc-scrim-a) * 1.2)), transparent 24%),
+    linear-gradient(
+      to top,
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 2.1)),
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 1.7)) 20%,
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 1.1)) 36%,
+      transparent 62%
+    ),
+    radial-gradient(120% 90% at 50% 46%, transparent 52%, rgb(var(--c) / calc(var(--sc-scrim-a) * 1)));
 }
 
-/* Tinted with the brand umber (#431407) rather than black, so the scene darkens into rust instead of going grey */
 .sc[data-scrim='center'] .sc-scrim {
   background:
     radial-gradient(
       90% 125% at 50% 50%,
-      rgb(67 20 7 / calc(0.76 * var(--sc-scrim-k))),
-      rgb(67 20 7 / calc(0.66 * var(--sc-scrim-k))) 55%,
-      rgb(67 20 7 / calc(0.38 * var(--sc-scrim-k))) 100%
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 1.9)),
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 1.6)) 55%,
+      rgb(var(--c) / calc(var(--sc-scrim-a) * 0.9)) 100%
     ),
-    linear-gradient(to top, rgb(40 12 4 / calc(0.3 * var(--sc-scrim-k))), transparent 45%);
+    linear-gradient(to top, rgb(var(--c) / calc(var(--sc-scrim-a) * 0.8)), transparent 45%);
 }
 
-/* On a wide strip the copy is a narrow column, so the darkening can fall away toward the edges and leave the sun vivid */
-@container (min-aspect-ratio: 2/1) {
-  .sc[data-scrim='center'] .sc-scrim {
-    background:
-      radial-gradient(
-        50% 150% at 50% 50%,
-        rgb(67 20 7 / calc(0.76 * var(--sc-scrim-k))),
-        rgb(67 20 7 / calc(0.66 * var(--sc-scrim-k))) 58%,
-        rgb(67 20 7 / calc(0.14 * var(--sc-scrim-k))) 100%
-      ),
-      linear-gradient(to top, rgb(40 12 4 / calc(0.3 * var(--sc-scrim-k))), transparent 45%);
-  }
-}
+/* ---- motion: whole layers ---- */
 
-/* ---- motion ---- */
-
-.sc-drift {
-  animation: sc-drift-a 80s ease-in-out infinite alternate;
-}
-
-.sc-clouds-1 .sc-drift {
-  animation-name: sc-drift-b;
-  animation-duration: 56s;
-}
-
-.sc-mist-0 .sc-drift,
-.sc-mist-1 .sc-drift {
-  animation-name: sc-drift-b;
-  animation-duration: 46s;
-}
-
-.sc-mist-1 .sc-drift {
-  animation-name: sc-drift-a;
-  animation-duration: 38s;
-}
-
-.sc-pulse {
-  animation: sc-pulse 9s ease-in-out infinite alternate;
-}
-
-.sc-shimmer {
-  animation: sc-shimmer 5.5s ease-in-out infinite alternate;
-}
-
-.sc-sway {
-  animation: sc-sway 8s ease-in-out infinite alternate;
-}
-
-.sc-pines-r .sc-sway {
-  animation-duration: 10s;
-  animation-delay: -3s;
-}
-
-.sc-tw-0 {
-  animation: sc-twinkle 3.4s ease-in-out infinite;
-}
-
-.sc-tw-1 {
-  animation: sc-twinkle 4.6s ease-in-out -1.2s infinite;
-}
-
-.sc-tw-2 {
-  animation: sc-twinkle 5.8s ease-in-out -2.9s infinite;
-}
-
-.sc-flicker {
-  animation: sc-flicker 6s linear infinite;
-}
-
-@keyframes sc-drift-a {
+@keyframes sc-drift {
   from {
-    transform: translate3d(-2.5%, 0, 0);
+    transform: translate3d(calc(var(--dx, 80px) * -0.5), 0, 0);
   }
   to {
-    transform: translate3d(2.5%, 0, 0);
+    transform: translate3d(calc(var(--dx, 80px) * 0.5), 0, 0);
   }
 }
 
-@keyframes sc-drift-b {
-  from {
-    transform: translate3d(2.5%, 0, 0);
-  }
-  to {
-    transform: translate3d(-2.5%, 0, 0);
-  }
-}
-
-@keyframes sc-pulse {
-  from {
-    opacity: 0.8;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes sc-shimmer {
-  from {
-    opacity: 0.7;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
+/* A skew about the base line, so trunks and blades lean in the wind without their feet ever leaving the ground */
 @keyframes sc-sway {
   from {
-    transform: rotate(-0.35deg);
+    transform: skewX(-0.55deg);
   }
   to {
-    transform: rotate(0.35deg);
+    transform: skewX(0.55deg);
   }
 }
+
+@keyframes sc-sway-2 {
+  from {
+    transform: skewX(-1deg);
+  }
+  to {
+    transform: skewX(1deg);
+  }
+}
+
+@keyframes sc-rays {
+  from {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes sc-skydrift {
+  from {
+    transform: rotate(-1.4deg);
+  }
+  to {
+    transform: rotate(1.4deg);
+  }
+}
+
+@keyframes sc-flick {
+  0%,
+  100% {
+    opacity: 0.86;
+  }
+  22% {
+    opacity: 1;
+  }
+  47% {
+    opacity: 0.72;
+  }
+  71% {
+    opacity: 0.96;
+  }
+}
+
+.a-drift {
+  animation: sc-drift var(--du, 120s) ease-in-out var(--dl, 0s) infinite alternate;
+}
+
+.a-sway,
+.a-sway2 {
+  transform-origin: 50% 100%;
+  animation: sc-sway var(--du, 9s) ease-in-out var(--dl, 0s) infinite alternate;
+}
+
+.a-sway2 {
+  animation-name: sc-sway-2;
+}
+
+.sc-s.a-rays {
+  transform-origin: calc(var(--sc-sun-x) / 1600 * 100%) calc(var(--sc-sun-y) / 900 * 100%);
+  animation: sc-rays var(--du, 120s) ease-in-out var(--dl, 0s) infinite alternate;
+  transition: rotate 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.sc-s.a-skydrift {
+  transform-origin: 68% 22%;
+  animation: sc-skydrift var(--du, 260s) ease-in-out var(--dl, 0s) infinite alternate;
+}
+
+/* Cast shadows lengthen toward the evening (the origin is the foot of the object, set inline) */
+.sc-shd {
+  transform: scale(var(--sc-shd-len, 1));
+}
+
+/* ---- motion: single shapes ---- */
 
 @keyframes sc-twinkle {
   0%,
   100% {
-    opacity: 0.3;
+    opacity: 0.2;
   }
   50% {
     opacity: 1;
   }
 }
 
-@keyframes sc-flicker {
+@keyframes sc-glint {
   0%,
   100% {
+    opacity: 0;
+    transform: scale(0.25);
+  }
+  50% {
     opacity: 1;
+    transform: scale(1);
   }
-  46% {
-    opacity: 0.88;
+}
+
+@keyframes sc-pollen {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
   }
-  52% {
-    opacity: 0.96;
+  18%,
+  80% {
+    opacity: 0.9;
   }
-  73% {
-    opacity: 0.8;
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 0px), var(--dy, -80px));
   }
 }
 
 @keyframes sc-ember {
   0% {
-    transform: translate3d(0, 0, 0);
     opacity: 0;
+    transform: translate(0, 0);
   }
-  15% {
-    opacity: var(--sc-o-ember);
+  10% {
+    opacity: 1;
   }
   100% {
-    transform: translate3d(var(--dx), -34cqh, 0);
     opacity: 0;
+    transform: translate(var(--dx, 0px), var(--dy, -120px));
+  }
+}
+
+@keyframes sc-fly {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: translate(0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(var(--dx, 0px), var(--dy, -20px));
+  }
+}
+
+@keyframes sc-bulb {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-flame {
+  0% {
+    transform: scale(1, 1) skewX(-2deg);
+  }
+  50% {
+    transform: scale(0.94, 1.1) skewX(2.5deg);
+  }
+  100% {
+    transform: scale(1.04, 0.93) skewX(-1.5deg);
+  }
+}
+
+@keyframes sc-flap {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(-0.55);
+  }
+}
+
+@keyframes sc-pass {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  8%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 200px), var(--dy, 0px));
   }
 }
 
 @keyframes sc-shoot {
   0%,
-  88% {
-    transform: rotate(-208deg) translateX(0);
-    opacity: 0;
-  }
   90% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  92% {
     opacity: 1;
   }
   100% {
-    transform: rotate(-208deg) translateX(260px);
     opacity: 0;
+    transform: translate(var(--dx, 300px), var(--dy, 100px));
   }
 }
 
-/* Off screen, in a background tab or when the visitor asked for calm: nothing moves */
-.sc[data-paused='true'] *,
-.sc[data-paused='true'] *::before,
-.sc[data-paused='true'] *::after {
+@keyframes sc-poke-shoot {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 300px), var(--dy, 100px));
+  }
+}
+
+@keyframes sc-spark {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(2.6);
+    opacity: 1;
+  }
+}
+
+.a-twinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-twinkle var(--du, 4s) ease-in-out var(--dl, 0s) infinite;
+}
+
+.a-glint {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-glint var(--du, 4s) ease-in-out var(--dl, 0s) infinite;
+}
+
+.a-pollen {
+  animation: sc-pollen var(--du, 14s) linear var(--dl, 0s) infinite backwards;
+}
+
+.a-ember {
+  animation: sc-ember var(--du, 3s) ease-out var(--dl, 0s) infinite backwards;
+}
+
+.a-fly {
+  animation: sc-fly var(--du, 7s) ease-in-out var(--dl, 0s) infinite;
+}
+
+.a-bulb {
+  animation: sc-bulb var(--du, 3s) ease-in-out var(--dl, 0s) infinite;
+}
+
+.a-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sc-flame var(--du, 1.4s) ease-in-out var(--dl, 0s) infinite alternate;
+}
+
+.a-flick {
+  animation: sc-flick var(--du, 3s) ease-in-out var(--dl, 0s) infinite;
+}
+
+.a-flap {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sc-flap var(--du, 0.9s) ease-in-out var(--dl, 0s) infinite;
+}
+
+.a-birds,
+.a-swoop {
+  animation: sc-pass var(--du, 60s) linear var(--dl, 0s) infinite;
+}
+
+.a-shoot,
+.a-pokeshoot {
+  opacity: 0;
+}
+
+.a-shoot {
+  animation: sc-shoot var(--du, 20s) ease-in var(--dl, 0s) infinite backwards;
+}
+
+.sc[data-poke='moon'] .a-pokeshoot,
+.sc[data-poke='stars'] .a-pokeshoot {
+  animation: sc-poke-shoot 1.2s ease-in 1;
+}
+
+/* ---- interaction: the fire flares, the sun, the moon and the stars answer ---- */
+
+.a-flare {
+  transform-origin: 0 0;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sc[data-poke='fire'] .a-flare {
+  transform: scale(1.2, 1.42);
+}
+
+.sc[data-poke='fire'] .a-ember {
+  animation-duration: calc(var(--du, 3s) * 0.55);
+}
+
+.sc [data-h='sun'],
+.sc [data-h='sunBloom'],
+.sc [data-h='moon'],
+.sc [data-h='moonHalo'] {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: scale 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sc[data-poke='sun'] [data-h='sun'],
+.sc[data-poke='moon'] [data-h='moon'] {
+  scale: 1.1;
+}
+
+.sc[data-poke='sun'] [data-h='sunBloom'],
+.sc[data-poke='moon'] [data-h='moonHalo'] {
+  scale: 1.22;
+}
+
+.sc[data-poke='stars'] [data-h='stars'],
+.sc[data-poke='moon'] [data-h='stars'] {
+  animation: sc-spark 0.9s ease-out 1;
+}
+
+[data-sc-host][data-hot] {
+  cursor: pointer;
+}
+
+/* ---- calm: pause off screen / in a hidden tab, and stay still when asked ---- */
+
+.sc[data-paused='true'] .sc-s,
+.sc[data-paused='true'] .sc-s * {
   animation-play-state: paused;
 }
 
-/* Layers only get their own compositor surface when something moves them */
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .sc-l,
-  .sc-pines {
-    will-change: transform;
-  }
-}
-
-/* Phones keep the big, cheap motion (clouds, sunlight, stars) and drop the extra full-screen animated layers */
-@media (pointer: coarse) {
-  .sc-mist-0 .sc-drift,
-  .sc-mist-1 .sc-drift,
-  .sc-shimmer,
-  .sc-sway {
+@media (max-width: 767px), (pointer: coarse) {
+  .a-sway,
+  .a-sway2 {
     animation: none;
+  }
+
+  /* Half of the small particles are enough on a phone, and spare the battery */
+  .a-pollen:nth-of-type(even),
+  .a-glint:nth-of-type(even) {
+    display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sc,
   .sc *,
-  .sc *::before,
-  .sc *::after {
+  .sc-s,
+  .sc-s * {
     animation: none !important;
     transition: none !important;
   }
 
-  .sc-glow,
-  .sc-ember,
-  .sc-shoots {
-    display: none;
-  }
-}
-
-@media (forced-colors: active), print {
-  .sc {
-    display: none;
+  /* Motion-only shapes are hidden; everything else stays as a still, complete picture */
+  .a-ember,
+  .a-glint,
+  .a-pollen {
+    opacity: 0;
   }
 }

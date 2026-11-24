@@ -142,21 +142,22 @@ import GoogleMap from '@/components/brand/GoogleMap';
 
 ## Scene Backgrounds
 
-Vector (no photographs) landscape that follows the visitor's local time of day: golden (5-6h, 16-18h), day (7-15h), night (19-4h). Full reference: `docs/design/SCENE_SYSTEM.md`.
+Vector (no photographs) landscape in three moments, **Día / Tarde / Noche** (day, golden hour, night): the same composition re-lit, so a change of moment cross-fades instead of cutting. Default = the visitor's local time (golden 5-6h and 16-18h, day 7-15h, night 19-4h). Full reference (Spanish): `docs/design/SCENE_SYSTEM.md`.
 
 ### Source and outputs
-`scripts/scene/` is the single source. `npm run scene:generate` writes `lib/scene/scene-data.ts`, `mobile/lib/scene-data.ts`, `components/scene/scene-themes.css` and `public/brand/email/banner.jpg`; commit them. `npm run scene:check` (part of `npm run ci:local`) fails when they are stale.
+`scripts/scene/` is the single source (`themes`, `geom`, `nodes`, `people`, `camp`, `scene`, `svg`, plus the flat renderers `compose` and `preview`). `npm run scene:generate` writes `lib/scene/scene-art.ts` (the SVG layers), `lib/scene/scene-data.ts` (names, Spanish labels, hours) and `components/scene/scene-themes.css` (typed per-theme variables); commit them. `npm run scene:check` (CI `web` job and `npm run ci:local`) fails when they are stale. Never edit the outputs by hand.
 
 ### Where it appears
-- **Web:** `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password` (via `components/auth/AuthShell.tsx`), the home bands (`components/home/SceneBand.tsx`) and the catalog hero. The old `/registration` placeholder was removed and now redirects to `/auth/register`.
-- **Mobile:** login and registration (`mobile/components/scene/SceneScreen.tsx`).
-- **Email:** static `banner.jpg` hero in `api/src/lib/email-templates/layout.ts` (email clients cannot run SVG or animation).
+- **Web and PWA (v2):** the home hero (`components/home/HomeHero.tsx`: full scene, interactive, with the Día · Tarde · Noche switcher; `components/search/SearchHero.tsx` keeps the headline, chips and search), `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password` (via `components/auth/AuthShell.tsx`), the home bands (`components/home/SceneBand.tsx`, lite variant) and the catalog hero. The old photo hero is gone. The old `/registration` placeholder was removed and redirects to `/auth/register`.
+- **Mobile (still v1):** login and registration (`mobile/components/scene/SceneScreen.tsx`) use `mobile/lib/scene-data.ts`, a frozen copy of the v1 data that `scene:generate` no longer rewrites. The v2 renderer, home hero and switcher are stage 2.
+- **Email (still v1):** static `public/brand/email/banner.jpg` in `api/src/lib/email-templates/layout.ts` (email clients cannot run SVG or animation). Stage 2 adds day / golden / night banners chosen by send time in America/Bogota; new files are only reachable on raw.githubusercontent.com once merged to `b-main`.
 
-### Features
-- Layered ridges, lake reflection, pines, sun/moon, clouds, mist and embers with independent parallax depth
-- Smooth cross-fade between themes; night adds stars and shooting stars
-- Pointer parallax on web (mouse/pen), touch parallax on mobile
-- Respects `prefers-reduced-motion` / reduce-motion, and pauses off screen, in hidden tabs and in the background
+### How it behaves (web)
+- Server-rendered inline SVG (no layout shift, little client JS); `sceneInitScript` (in `<head>`) sets `<html data-elevari-scene>` before first paint.
+- Which moment shows, in order: the visitor's choice with the switcher (this tab, `sessionStorage` `elevari-scene`, shared by every scene on the page), an explicitly dark site theme (header toggle) → night, the local time. Using the header toggle clears the switcher choice.
+- Interactions: pointer parallax, the fire flares on hover/tap, the sun swells, the moon and stars react (a shooting star crosses). Reactions never take clicks from the search (controls are ignored).
+- Respects `prefers-reduced-motion`; pauses off screen and in hidden tabs; only transforms and opacity are animated.
+- Safari caveat: gradient stops driven by CSS variables may not repaint mid cross-fade; the end state is correct.
 
 ## Placeholder Audit
 
