@@ -3,7 +3,8 @@ name: Site check (live)
 # Looks at the public site from GitHub's network, which is the only place the team can verify what visitors get:
 # status codes, the hero markers, whether Cloudflare Turnstile is enforced, and screenshots of the home hero
 # (Día / Tarde / Noche) on desktop and phone. Manual only; it deploys nothing and needs no secrets.
-# Download the screenshots from the run's "site-check" artifact.
+# Requests go through curl. If Cloudflare still blocks the runner, the run fails with "BLOCKED BY CLOUDFLARE" and no
+# verdict about the site. Download the screenshots from the run's "site-check" artifact.
 on:
   workflow_dispatch:
     inputs:
