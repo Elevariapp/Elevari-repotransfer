@@ -243,7 +243,7 @@ Para publicar hace falta una cuenta de Apple Developer (de pago) y los pasos de 
 
 | Tema | Estado |
 |------|--------|
-| Permisos de Android | Los mínimos. `app.json` bloquea CAMERA, RECORD_AUDIO, SYSTEM_ALERT_WINDOW y READ/WRITE_EXTERNAL_STORAGE, y el workflow lista los permisos finales del APK en el resumen. |
+| Permisos de Android | Los mínimos. `app.json` bloquea CAMERA, RECORD_AUDIO, SYSTEM_ALERT_WINDOW y READ/WRITE_EXTERNAL_STORAGE. El APK real (run 45307035094, leído del manifiesto) declara INTERNET, ACCESS_NETWORK_STATE, WAKE_LOCK, VIBRATE, RECEIVE_BOOT_COMPLETED, POST_NOTIFICATIONS, el registro FCM (`c2dm.permission.RECEIVE`), USE_BIOMETRIC y USE_FINGERPRINT (los añade `androidx.biometric`, dependencia de `expo-secure-store`; la app no pide huella) y los permisos «normales» de insignia de icono de los lanzadores (los añade ShortcutBadger, dependencia de `expo-notifications`). El único de tiempo de ejecución es POST_NOTIFICATIONS (Android 13+), y sin `extra.eas.projectId` la app no lo pide nunca. El workflow lista los permisos finales en el resumen de cada build. |
 | Tráfico HTTP en claro | Desactivado en la versión de release (solo HTTPS). |
 | Copias de seguridad | `allowBackup: false`: el token de sesión no se copia a la nube. |
 | Eliminación de cuenta | En la app: Perfil › «Eliminar mi cuenta». En la web: https://elevari.live/legal/account-deletion (la URL que pide el formulario de Play). |
