@@ -257,6 +257,7 @@ export async function sendCheckInReminderEmail(params: {
       checkIn: booking.checkIn,
       guestName: recipient.name,
       bookingUrl: siteUrl('/account'),
+      preferencesUrl: siteUrl('/account/notifications'),
     }),
   });
 }
@@ -293,6 +294,7 @@ export async function sendHostNewBookingEmail(bookingId: string): Promise<EmailS
       guests: booking.guests,
       hostReceives: typeof fees?.host_receives === 'number' ? fees.host_receives : null,
       dashboardUrl: siteUrl('/host'),
+      preferencesUrl: siteUrl('/account/notifications'),
     }),
   });
 }
@@ -316,6 +318,7 @@ export async function sendHostBookingCancelledEmail(bookingId: string): Promise<
       checkIn: booking.checkIn,
       checkOut: booking.checkOut,
       dashboardUrl: siteUrl('/host'),
+      preferencesUrl: siteUrl('/account/notifications'),
     }),
   });
 }

@@ -6,6 +6,8 @@ import {
   emailHeading,
   emailHelpLine,
   emailLayout,
+  emailPreferencesLine,
+  previewName,
 } from './layout.js';
 import { formatMoney, formatStayDate } from './format.js';
 
@@ -20,6 +22,7 @@ export function hostNewBooking({
   hostReceives,
   currency = 'COP',
   dashboardUrl,
+  preferencesUrl,
 }: {
   hostName?: string | null;
   bookingId: string;
@@ -31,6 +34,7 @@ export function hostNewBooking({
   hostReceives?: number | null;
   currency?: string;
   dashboardUrl: string;
+  preferencesUrl?: string;
 }): string {
   const facts: Array<[string, string]> = [
     ['Propiedad / Property', propertyName],
@@ -52,10 +56,16 @@ export function hostNewBooking({
     ${emailFacts(facts)}
     ${emailButton({ href: dashboardUrl, label: 'Ir a mi panel / Go to my dashboard' })}
     ${emailHelpLine()}
+    ${emailPreferencesLine({
+      url: preferencesUrl,
+      reasonEs: 'tienes activadas las alertas de reservas de tus alojamientos',
+      reasonEn: 'booking alerts for your stays are switched on',
+    })}
   `;
 
+  const stay = previewName(propertyName);
   return emailLayout({
     content,
-    previewText: `Nueva reserva en ${propertyName} · New booking at ${propertyName}`,
+    previewText: `Nueva reserva en ${stay} · New booking at ${stay}`,
   });
 }

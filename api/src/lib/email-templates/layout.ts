@@ -66,6 +66,43 @@ export function emailHelpLine(): string {
     </p>`;
 }
 
+/**
+ * Closing note of the optional emails (check-in reminder, host alerts): why this one arrived and where to
+ * switch it off. Left out when there is no link, so a template never promises a way out it cannot give.
+ */
+export function emailPreferencesLine({
+  url,
+  reasonEs,
+  reasonEn,
+}: {
+  url?: string;
+  reasonEs: string;
+  reasonEn: string;
+}): string {
+  if (!url) return '';
+  const link = (label: string) =>
+    `<a href="${esc(url)}" style="color:${EMAIL_BRAND.linkColor}; font-weight:600; white-space:nowrap;">${esc(label)}</a>`;
+  return `<p style="margin:16px 0 0 0; color:#64748B; font-size:13px; line-height:1.5;">
+      Recibes este aviso porque ${esc(reasonEs)}. ${link('Gestionar notificaciones')}<br/>
+      You get this notice because ${esc(reasonEn)}. ${link('Manage notifications')}
+    </p>`;
+}
+
+const PREVIEW_NAME_MAX = 34;
+const PREVIEW_MAX = 150;
+// Zero-width joiners and non-breaking spaces keep the inbox from filling the rest of the preview with the hero text.
+const PREVIEW_PADDING = '&#8204;&nbsp;'.repeat(60);
+
+function clip(text: string, max: number): string {
+  const chars = Array.from(text.replace(/\s+/g, ' ').trim());
+  return chars.length > max ? `${chars.slice(0, max - 1).join('').trimEnd()}…` : chars.join('');
+}
+
+/** Shortens a stay name for the preview line so a long title cannot push the English half out of view. */
+export function previewName(name: string): string {
+  return clip(name, PREVIEW_NAME_MAX);
+}
+
 export function emailLayout({ content, previewText }: { content: string; previewText: string }): string {
   return `
 <!DOCTYPE html>
@@ -84,7 +121,7 @@ export function emailLayout({ content, previewText }: { content: string; preview
   <![endif]-->
 </head>
 <body style="margin:0; padding:0; font-family:${FONT_STACK}; background-color:#FEF3C7; background-image: linear-gradient(135deg, rgba(217, 119, 6, 0.12) 0%, rgba(15, 23, 42, 0.06) 100%);">
-  <div style="display:none; max-height:0; overflow:hidden; mso-hide:all; font-size:1px; line-height:1px; color:#FEF3C7; opacity:0;">${esc(previewText)}</div>
+  <div style="display:none; max-height:0; overflow:hidden; mso-hide:all; font-size:1px; line-height:1px; color:#FEF3C7; opacity:0;">${esc(clip(previewText, PREVIEW_MAX))}${PREVIEW_PADDING}</div>
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:600px; margin:0 auto; background-color:#FFFFFF; border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(15, 23, 42, 0.12);">
     <!-- Hero: flat render of the Elevari scene (public/brand/email/banner.jpg) with live text on top.
          Email clients can't run SVG or animation, so this is the static member of the scene family.
