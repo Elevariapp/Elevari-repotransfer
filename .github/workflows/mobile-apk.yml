@@ -1,0 +1,14 @@
+name: Mobile APK
+
+# Placeholder. A workflow can only be dispatched once its file exists on the default branch;
+# registering this name lets the real APK build (on the release branch) be run with
+#   gh workflow run mobile-apk.yml --ref <branch>
+# before it is merged. The release branch replaces this file.
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Placeholder only; the real APK build is not merged yet."
