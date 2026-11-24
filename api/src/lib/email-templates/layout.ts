@@ -47,10 +47,22 @@ export function emailFacts(rows: Array<[label: string, value: string]>): string 
   return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:0 0 24px 0;">${body}</table>`;
 }
 
+/**
+ * WhatsApp as a quiet text link with a small hairline glyph (no green, no button). The glyph is decorative:
+ * the label names WhatsApp, so nothing reads twice when images are blocked. `onDark` is for the footer.
+ */
+export function emailWhatsAppLink({ onDark = false }: { onDark?: boolean } = {}): string {
+  const phone = EMAIL_BRAND.whatsappPhone;
+  const glyph = onDark ? EMAIL_BRAND.whatsappGlyphLightUrl : EMAIL_BRAND.whatsappGlyphUrl;
+  const color = onDark ? 'color:#EA9A2E; text-decoration:none;' : `color:${EMAIL_BRAND.linkColor};`;
+  return `<a href="https://wa.me/${phone.replace(/\D/g, '')}" style="${color} font-weight:600; white-space:nowrap;"><img src="${glyph}" alt="" width="18" height="18" style="display:inline-block; vertical-align:-4px; border:0; margin-right:6px;">WhatsApp ${phone}</a>`;
+}
+
 export function emailHelpLine(): string {
   return `<p style="margin-top:24px; color:#64748B; font-size:14px;">
-      ¿Necesitas ayuda? Contáctanos por WhatsApp: ${EMAIL_BRAND.whatsappPhone}<br/>
-      Need help? Contact us on WhatsApp: ${EMAIL_BRAND.whatsappPhone}
+      ¿Necesitas ayuda? Escríbenos.<br/>
+      Need help? Message us.<br/>
+      ${emailWhatsAppLink()}
     </p>`;
 }
 
@@ -126,9 +138,7 @@ export function emailLayout({ content, previewText }: { content: string; preview
         <p style="margin:0 0 16px 0;">
           <a href="mailto:${EMAIL_BRAND.supportEmail}" style="color:#EA9A2E; text-decoration:none; font-weight:600;">${EMAIL_BRAND.supportEmail}</a>
         </p>
-        <p style="margin:0;">
-          <a href="https://wa.me/${EMAIL_BRAND.whatsappPhone.replace(/\D/g, '')}" style="color:#EA9A2E; text-decoration:none; font-weight:600;">WhatsApp: ${EMAIL_BRAND.whatsappPhone}</a>
-        </p>
+        <p style="margin:0;">${emailWhatsAppLink({ onDark: true })}</p>
       </td>
     </tr>
   </table>

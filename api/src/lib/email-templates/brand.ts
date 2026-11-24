@@ -9,6 +9,9 @@ export const EMAIL_BRAND = {
   bannerUrl: 'https://raw.githubusercontent.com/Elevariapp/Elevari-repotransfer/b-main/public/brand/email/banner.jpg',
   // Shown while images are blocked and in Outlook builds without VML; white text stays above 9:1 on it.
   bannerFallbackColor: '#7C2D12',
+  // Hairline WhatsApp glyph, no green (made by scripts/email/generate-whatsapp-glyph.mjs). Same hosting rule as the logo.
+  whatsappGlyphUrl: 'https://raw.githubusercontent.com/Elevariapp/Elevari-repotransfer/b-main/public/brand/email/whatsapp-terracotta.png',
+  whatsappGlyphLightUrl: 'https://raw.githubusercontent.com/Elevariapp/Elevari-repotransfer/b-main/public/brand/email/whatsapp-amber.png',
   primaryColor: '#C2410C',
   secondaryColor: '#0F172A',
   accentColor: '#C2410C',
