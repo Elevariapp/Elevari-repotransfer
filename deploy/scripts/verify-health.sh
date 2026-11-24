@@ -31,6 +31,29 @@ check "Web properties" "$BASE_URL/properties" "200"
 check "API properties" "$BASE_URL/api/v1/properties" "200"
 check "Sitemap" "$BASE_URL/sitemap.xml" "200"
 check "Robots" "$BASE_URL/robots.txt" "200"
+check "Login page" "$BASE_URL/auth/login" "200"
+check "Register page" "$BASE_URL/auth/register" "200"
+
+# A controlled invalid request proves that Cloudflare and nginx reach the auth API.
+# It creates no account and attempts no real login.
+check_auth_endpoint() {
+  local name="$1"
+  local endpoint="$2"
+  local body code
+  body=$(mktemp)
+  code=$(curl -sS --max-time 30 -o "$body" -w "%{http_code}" \
+    -H "Content-Type: application/json" --data '{}' "$BASE_URL$endpoint" || true)
+  if [[ "$code" == "400" ]] && grep -q '"error":"Invalid body"' "$body"; then
+    echo "✓ $name — HTTP 400 validation response"
+  else
+    echo "✗ $name — expected the API validation response, got HTTP $code"
+    FAIL=1
+  fi
+  rm -f "$body"
+}
+
+check_auth_endpoint "Login API" "/api/v1/auth/login"
+check_auth_endpoint "Register API" "/api/v1/auth/register"
 
 echo ""
 if [[ $FAIL -eq 0 ]]; then

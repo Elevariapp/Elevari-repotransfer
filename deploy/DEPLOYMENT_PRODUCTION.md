@@ -6,7 +6,7 @@ Guía para desplegar el stack Docker en un VPS (Hetzner, DigitalOcean, etc.) con
 
 ## Despliegue automático (GitHub Actions + SSH)
 
-Cada push a `b-main` ejecuta `.github/workflows/ci.yml`: build API/Web, check del bot, validación de env/compose, typecheck móvil y, si todo pasa, el job **Deploy to Hetzner Production** (`appleboy/ssh-action`) entra por SSH al VPS, hace `git reset --hard origin/b-main`, valida `.env.production` y ejecuta `deploy/scripts/deploy-prod.sh` (build + `up -d` de **web, api, bot, nginx**, con health checks que fallan el job si algo no responde). También manual: **Actions → CI → Run workflow** (rama `b-main`).
+Cada push a `b-main` ejecuta `.github/workflows/ci.yml`: build API/Web, check del bot, validación de env/compose, typecheck móvil y, si todo pasa, el job **Deploy to Hetzner Production** (`appleboy/ssh-action`) entra por SSH al VPS, hace `git reset --hard origin/b-main`, valida `.env.production` y ejecuta `deploy/scripts/deploy-prod.sh` (build + `up -d` de **web, api, bot, nginx**, con health checks que fallan el job si algo no responde). Después verifica mediante `https://elevari.live` la web, las páginas `/auth/login` y `/auth/register` y las rutas API de autenticación a través de Cloudflare; un fallo marca el deploy como fallido. También manual: **Actions → CI → Run workflow** (rama `b-main`).
 
 > **Costo de minutos:** los repos públicos tienen minutos ilimitados en runners de GitHub. En repos privados el pipeline ya está optimizado (cancelación de runs obsoletos, caché npm y `.next/cache`, EAS con `--no-wait`, build móvil solo si cambia `mobile/`). El build Docker pesado corre en tu VPS, no en GitHub.
 
