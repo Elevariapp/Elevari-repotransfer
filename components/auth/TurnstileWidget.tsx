@@ -79,8 +79,14 @@ export default function TurnstileWidget({
     }
     let cancelled = false;
     let widgetId: string | null = null;
+    let availabilityTimer = 0;
     setStatus('loading');
     onTokenRef.current('');
+    availabilityTimer = window.setTimeout(() => {
+      // Rendering can remain pending indefinitely without calling error-callback.
+      // Let the rate-limited server decide rather than locking the user out.
+      onUnavailableRef.current?.();
+    }, LOAD_TIMEOUT_MS);
 
     const render = () => {
       const container = containerRef.current;
@@ -92,6 +98,7 @@ export default function TurnstileWidget({
           appearance: 'always',
           size: window.innerWidth < COMPACT_BELOW_PX ? 'compact' : 'normal',
           callback: (token: string) => {
+            window.clearTimeout(availabilityTimer);
             setStatus('ready');
             onTokenRef.current(token);
           },
@@ -127,6 +134,7 @@ export default function TurnstileWidget({
 
     return () => {
       cancelled = true;
+      window.clearTimeout(availabilityTimer);
       if (widgetId && window.turnstile?.remove) {
         try {
           window.turnstile.remove(widgetId);
