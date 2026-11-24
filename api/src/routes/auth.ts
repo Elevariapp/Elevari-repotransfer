@@ -312,6 +312,29 @@ export async function authRoutes(app: FastifyInstance) {
     return { user: serializeUser(user) };
   });
 
+  /**
+   * A guest turns their account into a host account. API role checks read the database, but the
+   * web route guard trusts the role inside the JWT, so the caller gets a fresh token. Hosts and
+   * admins keep their role and just get a token again, which makes a repeated call harmless.
+   */
+  app.post('/auth/become-host', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
+    const current = await prisma.user.findUnique({ where: { id: request.auth!.sub } });
+    if (!current || current.deletedAt) {
+      return reply.status(401).send({ error: 'Authentication required' });
+    }
+
+    const user =
+      current.role === 'guest'
+        ? await prisma.user.update({ where: { id: current.id }, data: { role: 'host' } })
+        : current;
+
+    const token = await signToken(user);
+    return { token, user: serializeUser(user) };
+  });
+
   app.post('/auth/change-password', {
     preHandler: authenticate,
     config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
