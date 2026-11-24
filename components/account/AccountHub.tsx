@@ -107,7 +107,7 @@ export default function AccountHub() {
         </Badge>
       </section>
 
-      {user.role !== 'guest' && (
+      {user.role !== 'guest' ? (
         <ul className="elevari-card divide-y divide-elevari-border overflow-hidden">
           <LinkRow
             href={isAdmin ? '/admin' : '/host'}
@@ -123,6 +123,15 @@ export default function AccountHub() {
               hint="Próximas, pasadas y canceladas"
             />
           )}
+        </ul>
+      ) : (
+        <ul className="elevari-card overflow-hidden">
+          <LinkRow
+            href="/become-host"
+            icon="home"
+            label="Publica tu espacio en Elevari"
+            hint="Convierte tu cuenta en cuenta de anfitrión"
+          />
         </ul>
       )}
 
