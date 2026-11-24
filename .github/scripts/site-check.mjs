@@ -107,9 +107,11 @@ async function serveThroughCurl(ctx) {
     let res = cacheable ? staticAssets.get(url) : undefined;
     if (!res) {
       const sent = request.headers();
-      res = curl(url, {
-        headers: { 'user-agent': sent['user-agent'] ?? UA, accept: sent.accept ?? '*/*', 'accept-language': 'es-CO,es;q=0.9' },
-      });
+      // Next's client router asks for flight data with these headers; without them it would get full HTML back.
+      const forwarded = ['user-agent', 'accept', 'accept-language', 'rsc', 'next-router-state-tree', 'next-router-prefetch', 'next-router-segment-prefetch', 'next-url'];
+      const requestHeaders = { 'user-agent': UA, accept: '*/*', 'accept-language': 'es-CO,es;q=0.9' };
+      for (const name of forwarded) if (sent[name]) requestHeaders[name] = sent[name];
+      res = curl(url, { headers: requestHeaders });
       if (cacheable && res.status === 200) staticAssets.set(url, res);
     }
     if (res.status === 0) return route.abort('failed');
