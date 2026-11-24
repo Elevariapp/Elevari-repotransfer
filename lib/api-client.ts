@@ -3,6 +3,14 @@ import { humanizeApiError } from './api-errors';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
+// A stalled connection must end in an error the user can act on instead of a spinner that never stops.
+const BROWSER_REQUEST_TIMEOUT_MS = 25_000;
+
+function defaultSignal(): AbortSignal | undefined {
+  if (typeof window === 'undefined' || typeof AbortSignal === 'undefined') return undefined;
+  return typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(BROWSER_REQUEST_TIMEOUT_MS) : undefined;
+}
+
 function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
   return getToken();
@@ -34,9 +42,13 @@ async function request<T>(path: string, options?: RequestInit & { auth?: boolean
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options?.headers,
       },
+      signal: options?.signal ?? defaultSignal(),
       next: options?.next,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      throw new ApiError(humanizeApiError('', 'timeout'), 0, undefined, 'timeout');
+    }
     throw new ApiError(humanizeApiError('Network error'), 0, undefined, 'network_error');
   }
 
@@ -48,7 +60,7 @@ async function request<T>(path: string, options?: RequestInit & { auth?: boolean
     if (res.status === 401 && token && getAuthToken() === token) clearSession();
     const raw = typeof data.error === 'string' ? data.error : 'Request failed';
     const code = typeof data.code === 'string' ? data.code : undefined;
-    throw new ApiError(humanizeApiError(raw, code), res.status, data.details, code);
+    throw new ApiError(humanizeApiError(raw, code, res.status), res.status, data.details, code);
   }
 
   return data as T;
