@@ -64,6 +64,15 @@ fi
 [ "$target_sdk" -ge 36 ] || fail "targetSdkVersion is $target_sdk; expected 36 or higher. Check for stale SDK overrides in mobile/app.json."
 if grep -q '^application-debuggable' <<< "$badging"; then fail "The APK is debuggable."; fi
 
+# app.json blocks some permissions that libraries would otherwise add: prove the final manifest honours that.
+mapfile -t permissions < <(sed -n "s/^uses-permission: name='\([^']*\)'.*/\1/p" <<< "$badging" | sort -u)
+while IFS= read -r blocked; do
+  for permission in "${permissions[@]}"; do
+    [ "$permission" != "$blocked" ] || fail "The APK still declares $blocked, which mobile/app.json blocks."
+  done
+done < <(jq -r '.expo.android.blockedPermissions[]?' app.json)
+permission_list="$(printf '%s\n' "${permissions[@]}" | sed 's/^android\.permission\.//' | paste -sd, - | sed 's/,/, /g')"
+
 signer_report="$("$build_tools/apksigner" verify --verbose --print-certs "$apk")" || fail "apksigner could not verify the APK signature."
 signer_sha256="$(sed -n 's/^Signer #1 certificate SHA-256 digest: \([0-9a-f]\{64\}\).*/\1/p' <<< "$signer_report" | head -n 1)"
 [ "$signer_sha256" = "$SIGNING_CERT_SHA256" ] || fail "Signer certificate ($signer_sha256) is not the prepared keystore ($SIGNING_CERT_SHA256)."
@@ -133,6 +142,10 @@ short_sha="${GITHUB_SHA:-unknown}"
 
 echo "APK verified: $package_name $version_name ($version_code), minSdk $min_sdk, targetSdk $target_sdk, ABIs $abis, $size_bytes bytes"
 echo "SHA-256 of the APK: $apk_sha256"
+echo "Permissions declared by the APK: ${permission_list:-none}"
+if [ "${API_KEY_CONFIGURED:-false}" != true ]; then
+  echo "::notice title=No x-api-key in this build::EXPO_PUBLIC_API_KEY is not set. If Turnstile is active on the server, sign-in and registration from the app fail with turnstile_failed. See mobile/RELEASE.md, section 'Acceso a la API desde la app'."
+fi
 echo "::group::apksigner report"
 echo "$signer_report"
 echo "::endgroup::"
@@ -158,6 +171,12 @@ size_mb="$(awk -v b="$size_bytes" 'BEGIN { printf "%.1f", b / 1048576 }')"
   echo "| Versión | $version_name (código $version_code) |"
   echo "| Android | mínimo API $min_sdk, objetivo API $target_sdk |"
   echo "| Arquitecturas | $abis |"
+  echo "| Permisos declarados | ${permission_list:-ninguno} |"
+  if [ "${API_KEY_CONFIGURED:-false}" = true ]; then
+    echo "| Clave \`x-api-key\` de la app | configurada |"
+  else
+    echo "| Clave \`x-api-key\` de la app | **no configurada**: si Turnstile está activo en producción, iniciar sesión y registrarse fallará (\`mobile/RELEASE.md\`, «Acceso a la API desde la app») |"
+  fi
   echo "| Tamaño | $size_mb MB |"
   echo "| Firma | $SIGNING_MODE |"
   echo "| SHA-256 del certificado de firma | \`$signer_sha256\` |"
