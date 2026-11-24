@@ -7,8 +7,8 @@ import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister';
 
 // Focused or dense screens where a floating card would cover controls.
 const NO_FLOATING = ['/auth', '/admin', '/host'];
-// Money and account forms: no install pitch while the person is in the middle of them.
-const NO_INSTALL = ['/checkout', '/account'];
+// Money and account forms, and the install page itself: no install pitch there.
+const NO_INSTALL = ['/checkout', '/account', '/app'];
 
 const under = (pathname: string, prefixes: readonly string[]) =>
   prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
