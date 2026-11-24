@@ -28,7 +28,7 @@ export function stringLights(x1, y1, x2, y2, sag, count, seed = 1) {
     P(dots(2.4), '$wood'),
     P(dots(8), '$bulbGlow', { o: '$oLights', ok: 0.2 }),
     P(dots(2.4), '$bulb', { o: '$oLights' }),
-    twinkle.length ? P(twinkle.map(([x, y]) => circlePath(x, y, 5)).join(''), '$bulb', { o: '$oLights', ok: 0.45, a: 'bulb', dl: rand() * 2, du: 2.6 + rand() * 1.4 }) : null,
+    twinkle.length ? G([P(twinkle.map(([x, y]) => circlePath(x, y, 5)).join(''), '$bulb', { a: 'bulb', dl: rand() * 2, du: 2.6 + rand() * 1.4 })], { o: '$oLights', ok: 0.45 }) : null,
   ];
 }
 
@@ -190,7 +190,7 @@ export function fire({ x, y }) {
   const embers = [];
   for (let i = 0; i < 12; i++) {
     const sx = x + (rand() - 0.5) * 30;
-    embers.push(C(sx, y - 40, 1.2 + rand() * 1.6, '$ember', { a: 'ember', dl: rand() * 4, du: 2.8 + rand() * 2.4, v: { dx: (rand() - 0.5) * 46, dy: -(80 + rand() * 90) }, o: '$oFire', box: [sx - 3, y - 190, 6, 150] }));
+    embers.push(C(sx, y - 40, 1.2 + rand() * 1.6, '$ember', { a: 'ember', dl: rand() * 4, du: 2.8 + rand() * 2.4, v: { dx: (rand() - 0.5) * 46, dy: -(80 + rand() * 90) }, box: [sx - 3, y - 190, 6, 150] }));
   }
   const glow = [
     rad('fireGlowBig', 0, 0, 340, [[0, '$fireGlow', 0.62], [0.35, '$fireGlow', 0.26], [1, '$fireGlow', 0]], 'scale(1 .5)'),
@@ -199,12 +199,12 @@ export function fire({ x, y }) {
   return {
     back,
     front,
-    flames: G([...flames, ...tongues], { pos: [x, y, 'fireK'], o: '$oFire' }),
-    embers,
+    flames: G([G([...flames, ...tongues], { a: 'flare' })], { pos: [x, y, 'fireK'], o: '$oFire' }),
+    embers: G(embers, { o: '$oFire' }),
     glow,
     glowNodes: [
       G([C(0, 0, 340, '@fireGlowBig')], { pos: [x, y - 26, 1], o: '$oFireGlow', a: 'flick', du: 3.1 }),
-      G([C(0, 0, 120, '@fireGlowCore')], { pos: [x, y - 34, 'fireK'], o: '$oFire', ok: 0.9, a: 'flick', du: 1.7, dl: 0.4 }),
+      G([G([C(0, 0, 120, '@fireGlowCore')], { a: 'flick', du: 1.7, dl: 0.4 })], { pos: [x, y - 34, 'fireK'], o: '$oFire', ok: 0.9 }),
     ],
   };
 }

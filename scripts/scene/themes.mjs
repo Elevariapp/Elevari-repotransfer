@@ -11,6 +11,10 @@
  */
 export const THEME_NAMES = ['golden', 'day', 'night'];
 
+/** The order and the Spanish labels of the Día · Tarde · Noche switcher ("golden" is the afternoon scene). */
+export const SCENE_ORDER = ['day', 'golden', 'night'];
+export const SCENE_LABELS = { day: 'Día', golden: 'Tarde', night: 'Noche' };
+
 /** Local-clock boundaries (24 h). Golden hour covers dawn and dusk, night wraps around midnight. */
 export const SCENE_HOURS = { dawn: 5, day: 7, dusk: 16, night: 19 };
 
@@ -394,6 +398,12 @@ export const THEMES = {
     ...graded('night'),
   },
 };
+
+// The scrim tint also exists as plain numbers, so the CSS can write rgb(r g b / alpha) and cross-fade it like any token
+const rgbOf = (hex) => [0, 1, 2].map((i) => channel(hex, i));
+for (const theme of Object.values(THEMES)) {
+  [theme.scrimR, theme.scrimG, theme.scrimB] = rgbOf(theme.scrim);
+}
 
 export function assertThemes() {
   const keys = Object.keys(THEMES.golden).sort().join();

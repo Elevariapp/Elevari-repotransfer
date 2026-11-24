@@ -20,8 +20,10 @@ export function makeRenderer(mode, theme = null) {
     if (v.startsWith('$')) return tok(v);
     return v;
   };
-  const numval = (v) => (typeof v === 'string' && v.startsWith('$') ? tok(v) : v);
-  const px = (v) => (typeof v === 'string' && v.startsWith('$') ? `calc(${tok(v)}*1px)` : `${v}px`);
+  // pos entries are either numbers or bare token names ('sunX'), resolved against the theme in flat mode
+  const posTok = (v) => `var(${cssVar(v)})`;
+  const px = (v) => (typeof v === 'string' ? `calc(${posTok(v)}*1px)` : `${v}px`);
+  const scaleOf = (k) => (typeof k === 'string' ? posTok(k) : k);
 
   function attrs(n) {
     const at = [];
@@ -42,7 +44,7 @@ export function makeRenderer(mode, theme = null) {
     if (n.tx) at.push(`transform="${n.tx}"`);
     if (n.pos) {
       const [x, y, k] = n.pos;
-      if (css) st.push(`transform:translate(${px(x)},${px(y)}) scale(${numval(k)})`);
+      if (css) st.push(`transform:translate(${px(x)},${px(y)}) scale(${scaleOf(k)})`);
       else {
         const [fx, fy, fk] = n.pos.map((v) => (typeof v === 'string' ? theme[v] : v));
         at.push(`transform="translate(${num(fx, 1)} ${num(fy, 1)}) scale(${num(fk, 3)})"`);

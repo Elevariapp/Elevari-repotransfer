@@ -19,7 +19,7 @@ const dots = (pts) => pts.map(([x, y]) => `M${num(x, 0)},${num(y, 0)}h.1`).join(
 
 function sky() {
   const stops = SKY_STOPS.map((s, i) => [s, `$sky${i}`, 1]);
-  return layer('sky', 0, [P(FULL, '@sky')], { defs: [lin('sky', 0, 0, 0, H, stops)] });
+  return layer('sky', 0.05, [P(FULL, '@sky')], { defs: [lin('sky', 0, 0, 0, H, stops)] });
 }
 
 function orbs() {
@@ -30,8 +30,8 @@ function orbs() {
     rad('moonDisc', -14, -14, 62, [[0, '$moonCore', 1], [1, '$moonEdge', 1]]),
   ];
   const craters = [[-16, -12, 9], [14, 10, 12], [-2, 22, 6], [20, -20, 5], [-26, 14, 5]].map(([x, y, r]) => circlePath(x, y, r)).join('');
-  return layer('orbs', 0.1, [
-    G([C(0, 0, 440, '@sunBloom', { o: '$haloA' }), C(0, 0, 60, '@sunDisc', { h: 'sun' })], { pos: ['sunX', 'sunY', 'sunK'], o: '$oSun' }),
+  return layer('orbs', 0.05, [
+    G([C(0, 0, 440, '@sunBloom', { o: '$haloA', h: 'sunBloom' }), C(0, 0, 60, '@sunDisc', { h: 'sun' })], { pos: ['sunX', 'sunY', 'sunK'], o: '$oSun' }),
     G([C(0, 0, 340, '@moonHalo', { o: '$haloA', h: 'moonHalo' }), C(0, 0, 54, '@moonDisc', { h: 'moon' }), P(craters, '$moonCrater', { o: 0.32 })], { pos: ['moonX', 'moonY', 'moonK'], o: '$oMoon' }),
   ], { defs });
 }
@@ -70,7 +70,7 @@ function milkyWay() {
     rad('mw2', 0, 0, 200, [[0, '$mw2', 0.3], [0.55, '$mw2', 0.09], [1, '$mw2', 0]], 'scale(1 .3)'),
   ];
   const glows = [[520, 340, 340, '@mw1'], [760, 200, 390, '@mw2'], [980, 70, 320, '@mw1']];
-  return layer('mw', 0.05, [
+  return layer('mw', 0.06, [
     G([
       ...glows.map(([x, y, r, f]) => G([C(0, 0, r, f)], { tx: `translate(${x} ${y}) rotate(-57)` })),
       S(dots(dust), '$mw1', 1.3, { o: 0.75 }),
@@ -113,7 +113,10 @@ function shoot() {
       ], { a: 'shoot', du, dl, v: { dx, dy } }),
     ], { tx: `translate(${x} ${y})`, o: '$oShoot' });
   };
-  return layer('shoot', 0.08, [wrap(1040, 80, -300, 120, 17, 4), wrap(700, 150, 320, 90, 23, 13)], {
+  // The third streak only runs when the visitor pokes the moon or the stars (see scene.css)
+  const poke = wrap(930, 60, 380, 140, 1.2, 0);
+  poke.n[0].a = 'pokeshoot';
+  return layer('shoot', 0.05, [wrap(1040, 80, -300, 120, 17, 4), wrap(700, 150, 320, 90, 23, 13), poke], {
     defs: [lin('shoot', 0, 0, -120, 0, [[0, '$star', 1], [1, '$star', 0]])],
   });
 }
@@ -134,17 +137,17 @@ function birds() {
   const sw = 'M-9,-1Q-4,-8 2,-2Q6,-6 11,-5Q8,-1 3,1L10,6L1,3L-4,7L-3,1Z';
   const swallows = [[0, 0, 1.1], [90, -28, 0.9], [-80, 24, 1], [160, 30, 0.8], [-150, -6, 0.85]].map(([x, y, s], i) =>
     G([P(sw, '$bird', { a: 'flap', du: 0.7 + i * 0.07, dl: i * 0.2 })], { tx: `translate(${x} ${y}) scale(${s})` }));
-  return layer('birds', 0.3, [
-    G([G(flock, { tx: 'translate(760 270)' })], { a: 'birds', du: 80, v: { dx: 260, dy: -26 }, o: '$oBirds' }),
-    G([G(swallows, { tx: 'translate(900 560)' })], { a: 'swoop', du: 26, v: { dx: -220, dy: 50 }, o: '$oSwallow' }),
+  return layer('birds', 0.35, [
+    G([G([G(flock, { tx: 'translate(760 270)' })], { a: 'birds', du: 80, v: { dx: 260, dy: -26 } })], { o: '$oBirds' }),
+    G([G([G(swallows, { tx: 'translate(900 560)' })], { a: 'swoop', du: 26, v: { dx: -220, dy: 50 } })], { o: '$oSwallow' }),
   ]);
 }
 
 const RIDGES = [
-  { i: 1, seed: 21, env: [[0, 505], [250, 490], [520, 455], [760, 420], [960, 436], [1100, 474], [1220, 488], [1330, 430], [1440, 372], [1520, 332], [1600, 350]], amp: 54, freq: 0.012, octaves: 4, depth: 0.3, fade: 260, haze: 0.5, facets: { minRise: 16 } },
-  { i: 2, seed: 33, env: [[0, 556], [300, 540], [600, 506], [820, 496], [1000, 508], [1180, 500], [1300, 470], [1420, 432], [1520, 420], [1600, 438]], amp: 46, freq: 0.014, octaves: 4, depth: 0.5, fade: 220, haze: 0.46, facets: { minRise: 14 } },
-  { i: 3, seed: 47, env: [[0, 602], [300, 592], [620, 562], [860, 550], [1060, 554], [1250, 530], [1420, 514], [1600, 530]], amp: 36, freq: 0.017, octaves: 4, depth: 0.8, fade: 180, haze: 0.42, facets: { minRise: 12 } },
-  { i: 4, seed: 59, env: [[0, 650], [260, 636], [560, 614], [900, 602], [1180, 598], [1400, 584], [1600, 598]], amp: 26, freq: 0.02, octaves: 3, depth: 1.2, fade: 150, haze: 0.4, trees: 'tiny' },
+  { i: 1, seed: 21, env: [[0, 505], [250, 490], [520, 455], [760, 420], [960, 436], [1100, 474], [1220, 488], [1330, 430], [1440, 372], [1520, 332], [1600, 350]], amp: 54, freq: 0.012, octaves: 4, depth: 0.9, fade: 260, haze: 0.5, facets: { minRise: 16 } },
+  { i: 2, seed: 33, env: [[0, 556], [300, 540], [600, 506], [820, 496], [1000, 508], [1180, 500], [1300, 470], [1420, 432], [1520, 420], [1600, 438]], amp: 46, freq: 0.014, octaves: 4, depth: 0.9, fade: 220, haze: 0.46, facets: { minRise: 14 } },
+  { i: 3, seed: 47, env: [[0, 602], [300, 592], [620, 562], [860, 550], [1060, 554], [1250, 530], [1420, 514], [1600, 530]], amp: 36, freq: 0.017, octaves: 4, depth: 0.9, fade: 180, haze: 0.42, facets: { minRise: 12 } },
+  { i: 4, seed: 59, env: [[0, 650], [260, 636], [560, 614], [900, 602], [1180, 598], [1400, 584], [1600, 598]], amp: 26, freq: 0.02, octaves: 3, depth: 1.6, fade: 150, haze: 0.4, trees: 'tiny' },
   { i: 5, seed: 71, env: [[0, 704], [260, 690], [520, 666], [820, 654], [1100, 650], [1350, 642], [1600, 654]], amp: 20, freq: 0.024, octaves: 3, depth: 1.6, fade: 120, haze: 0.3, trees: 'tiny' },
 ];
 
@@ -241,7 +244,7 @@ function meadow() {
   const pts = [];
   for (let x = 0; x <= W; x += 40) pts.push([x, top(x)]);
   const ground = `${polyline(pts)}V960H0Z`;
-  return layer('meadow', 1.8, [
+  return layer('meadow', 2, [
     P(ground, '@g1'),
     P(tufts, '$pineBack', { o: 0.8 }),
     ...farDome.nodes,
@@ -261,7 +264,7 @@ function bank(rg, shadows) {
     const y = 800 + rand() * 90;
     patches += `M${num(x - 60, 0)},${num(y, 0)}a60,10 0 1 1 120,0a60,10 0 1 1 -120,0Z`;
   }
-  return layer('bank', 2.4, [
+  return layer('bank', 2, [
     P(d, '@g2'),
     P(patches, '$lit', { o: 0.1 }),
     S(polyline(lower), '$grass2', 3.4, { o: 0.9 }),
@@ -315,9 +318,9 @@ function buildCamp() {
 function fireLayers(pit, domeGlowNodes, defs) {
   const [big, core] = pit.glowNodes;
   return [
-    layer('glow', 3.1, domeGlowNodes, { defs }),
+    layer('glow', 3, domeGlowNodes, { defs }),
     layer('fireglow', 3.1, [{ ...big, a: undefined, du: undefined }], { defs: pit.glow, a: 'flick', du: 3.1 }),
-    layer('fire', 3.2, [...pit.back, core, pit.flames, ...pit.embers, ...pit.front]),
+    layer('fire', 3.2, [...pit.back, core, pit.flames, pit.embers, ...pit.front]),
   ];
 }
 
@@ -338,7 +341,7 @@ function trees() {
   row(right, [1545, 1600, 1655], [220, 270, 210], 910, '$pine');
   const mid = broadleaf({ x: 868, base: 792, h: 150, seed: 161 });
   return {
-    mid: layer('treesM', 2.6, mid),
+    mid: layer('treesM', 3, mid),
     sides: [layer('treesL', 3.6, left, { a: 'sway', du: 9, dl: 0 }), layer('treesR', 3.6, right, { a: 'sway', du: 8.5, dl: 0.8 })],
   };
 }
@@ -398,12 +401,12 @@ export function buildScene() {
   const layers = [
     sky(),
     orbs(),
+    shoot(),
     rays(),
     milkyWay(),
     stars(),
-    shoot(),
-    clouds('clouds1', 0.2, [[1010, 302, 320, 66], [1490, 232, 280, 56], [300, 62, 260, 50], [1740, 110, 300, 58]], 3, 170, 120),
-    clouds('clouds2', 0.4, [[780, 52, 400, 70], [1300, 124, 400, 84], [20, 256, 300, 60]], 5, 120, -90),
+    clouds('clouds1', 0.25, [[1010, 302, 320, 66], [1490, 232, 280, 56], [300, 62, 260, 50], [1740, 110, 300, 58]], 3, 170, 120),
+    clouds('clouds2', 0.45, [[780, 52, 400, 70], [1300, 124, 400, 84], [20, 256, 300, 60]], 5, 120, -90),
     birds(),
     ...rid.slice(0, 3).map((r) => r.layer),
     mist(),
@@ -418,6 +421,32 @@ export function buildScene() {
     fx(),
     fore(),
   ];
-  const lite = ['sky', 'orbs', 'rays', 'mw', 'stars', 'shoot', 'clouds1', 'clouds2', 'birds', 'r1', 'r2', 'r3', 'mist', 'r4', 'r5'];
-  return { view: VIEW, layers, lite, crest: rid[0].crest };
+  const lite = new Set(['sky', 'orbs', 'shoot', 'rays', 'mw', 'stars', 'clouds1', 'clouds2', 'birds', 'r1', 'r2', 'r3', 'mist', 'r4', 'r5']);
+  const units = group(layers).map((u) => {
+    const inLite = u.ids.filter((id) => lite.has(id)).length;
+    if (inLite !== 0 && inLite !== u.ids.length) throw new Error(`layer group ${u.ids.join('+')} mixes lite and full layers`);
+    return { ...u, lite: inLite > 0 };
+  });
+  return { view: VIEW, layers, units, crest: rid[0].crest };
+}
+
+/**
+ * Web units: adjacent layers with the same parallax depth and the same layer-wide animation share one SVG, so the page
+ * has about 17 stacked SVGs instead of 27. Fewer layers means less compositing memory, and the animated ones (drifting
+ * clouds, swaying trees, the fire) stay on their own SVG so a frame only repaints what actually moves.
+ */
+function group(layers) {
+  const sig = (l) => JSON.stringify([l.depth, l.a ?? null, l.du ?? null, l.dl ?? null, l.v ?? null]);
+  const units = [];
+  for (const l of layers) {
+    const last = units[units.length - 1];
+    if (last && sig(last) === sig(l)) {
+      last.ids.push(l.id);
+      last.defs = [...(last.defs ?? []), ...(l.defs ?? [])];
+      last.nodes = [...last.nodes, ...l.nodes];
+    } else {
+      units.push({ ...l, ids: [l.id] });
+    }
+  }
+  return units;
 }

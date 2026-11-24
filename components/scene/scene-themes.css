@@ -2,394 +2,1106 @@
 @property --sc-sky-0 {
   syntax: '<color>';
   inherits: true;
-  initial-value: #2a0e0a;
+  initial-value: #34204f;
 }
 @property --sc-sky-1 {
   syntax: '<color>';
   inherits: true;
-  initial-value: #66210f;
+  initial-value: #7d3a68;
 }
 @property --sc-sky-2 {
   syntax: '<color>';
   inherits: true;
-  initial-value: #b23d17;
+  initial-value: #d65b62;
 }
 @property --sc-sky-3 {
   syntax: '<color>';
   inherits: true;
-  initial-value: #e8862b;
+  initial-value: #ff9a57;
 }
 @property --sc-sky-4 {
   syntax: '<color>';
   inherits: true;
-  initial-value: #fbd08a;
+  initial-value: #ffd68c;
 }
-@property --sc-halo {
+@property --sc-glow {
   syntax: '<color>';
   inherits: true;
-  initial-value: #ffa43a;
+  initial-value: #ffb457;
 }
 @property --sc-sun-core {
   syntax: '<color>';
   inherits: true;
-  initial-value: #fff7e0;
+  initial-value: #fffbe6;
 }
 @property --sc-sun-mid {
   syntax: '<color>';
   inherits: true;
-  initial-value: #ffd98a;
+  initial-value: #ffe08a;
 }
 @property --sc-sun-edge {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f7a52c;
+  initial-value: #ffae35;
 }
 @property --sc-moon-core {
   syntax: '<color>';
   inherits: true;
-  initial-value: #fef3c7;
+  initial-value: #fff6d8;
 }
 @property --sc-moon-edge {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f3d79a;
+  initial-value: #f1dca4;
 }
 @property --sc-moon-halo {
   syntax: '<color>';
   inherits: true;
-  initial-value: #fde7b0;
+  initial-value: #ffe9b8;
 }
 @property --sc-moon-crater {
   syntax: '<color>';
   inherits: true;
-  initial-value: #c9a96a;
+  initial-value: #cdb277;
 }
 @property --sc-star {
   syntax: '<color>';
   inherits: true;
-  initial-value: #fff3d6;
+  initial-value: #fff1d6;
+}
+@property --sc-mw-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d7c7ff;
+}
+@property --sc-mw-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffc9e6;
 }
 @property --sc-cloud-hi {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f2a875;
+  initial-value: #ffc9a1;
 }
 @property --sc-cloud-lo {
   syntax: '<color>';
   inherits: true;
-  initial-value: #ffd9a0;
+  initial-value: #b45a80;
+}
+@property --sc-cloud-rim {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fff0c2;
 }
 @property --sc-rim {
   syntax: '<color>';
   inherits: true;
-  initial-value: #ffc27a;
-}
-@property --sc-far-top {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #c2502a;
-}
-@property --sc-far-lo {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #e58a45;
-}
-@property --sc-mid-top {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #8e3518;
-}
-@property --sc-mid-lo {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #b9531f;
-}
-@property --sc-near-top {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #4b1a0e;
-}
-@property --sc-near-lo {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #6a2713;
-}
-@property --sc-pine {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #1f0a06;
-}
-@property --sc-pine-back {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #33100a;
-}
-@property --sc-lake-0 {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #f4a640;
-}
-@property --sc-lake-1 {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #b4481c;
-}
-@property --sc-lake-2 {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #3a130b;
-}
-@property --sc-glint {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #ffe2a6;
-}
-@property --sc-ripple {
-  syntax: '<color>';
-  inherits: true;
   initial-value: #ffd08a;
+}
+@property --sc-r-1-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d1799a;
+}
+@property --sc-r-1-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f6b88c;
+}
+@property --sc-r-2-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b4628a;
+}
+@property --sc-r-2-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e99f85;
+}
+@property --sc-r-3-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8f4c78;
+}
+@property --sc-r-3-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cf7d7a;
+}
+@property --sc-r-4-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #693a63;
+}
+@property --sc-r-4-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #a35a68;
+}
+@property --sc-r-5-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #472a4a;
+}
+@property --sc-r-5-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #7a4658;
+}
+@property --sc-lit {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffd9a0;
+}
+@property --sc-shade {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3c1d44;
 }
 @property --sc-mist {
   syntax: '<color>';
   inherits: true;
-  initial-value: #ffb36a;
+  initial-value: #ffbf86;
 }
-@property --sc-window-light {
+@property --sc-w-0 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffdc94;
+}
+@property --sc-w-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f39a5c;
+}
+@property --sc-w-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8f3d56;
+}
+@property --sc-w-bank {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d99a62;
+}
+@property --sc-glint {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fff3c2;
+}
+@property --sc-flow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffe3a8;
+}
+@property --sc-g-1-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c5ae55;
+}
+@property --sc-g-1-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #a29443;
+}
+@property --sc-g-2-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b8aa4c;
+}
+@property --sc-g-2-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #86843c;
+}
+@property --sc-g-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #566231;
+}
+@property --sc-grass-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3f4a25;
+}
+@property --sc-grass-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8c9140;
+}
+@property --sc-dirt {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e4b47c;
+}
+@property --sc-fl-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fff2d6;
+}
+@property --sc-fl-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffd66b;
+}
+@property --sc-fl-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f08a8f;
+}
+@property --sc-fl-4 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e06a2d;
+}
+@property --sc-pine {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #33302f;
+}
+@property --sc-pine-back {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4a3a42;
+}
+@property --sc-leaf-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6c7a38;
+}
+@property --sc-leaf-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d5b552;
+}
+@property --sc-glass-lit {
   syntax: '<color>';
   inherits: true;
   initial-value: #ffd27a;
 }
+@property --sc-bulb {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fff0b8;
+}
+@property --sc-bulb-glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffc65e;
+}
+@property --sc-flame-0 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e5461b;
+}
+@property --sc-flame-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ff8a1f;
+}
+@property --sc-flame-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffc23d;
+}
+@property --sc-flame-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fff3b0;
+}
+@property --sc-fire-glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ff9a3c;
+}
 @property --sc-ember {
   syntax: '<color>';
   inherits: true;
-  initial-value: #ffc46b;
+  initial-value: #ffb347;
+}
+@property --sc-smoke {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d6b3a0;
+}
+@property --sc-firefly {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffe9a0;
+}
+@property --sc-pollen {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fff0b0;
+}
+@property --sc-bird {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6b3a55;
+}
+@property --sc-shadow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4a1f3a;
+}
+@property --sc-scrim {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2a1226;
 }
 @property --sc-halo-a {
   syntax: '<number>';
   inherits: true;
   initial-value: 0.85;
 }
-@property --sc-cloud-hi-a {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0.5;
-}
-@property --sc-cloud-lo-a {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0.75;
-}
-@property --sc-rim-a {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0.55;
-}
-@property --sc-mist-a {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0.34;
-}
 @property --sc-o-sun {
   syntax: '<number>';
   inherits: true;
   initial-value: 1;
 }
-@property --sc-o-halo {
+@property --sc-o-rays {
   syntax: '<number>';
   inherits: true;
-  initial-value: 1;
+  initial-value: 0.55;
+}
+@property --sc-sun-x {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1220;
+}
+@property --sc-sun-y {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 456;
+}
+@property --sc-sun-k {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1.5;
 }
 @property --sc-o-moon {
   syntax: '<number>';
   inherits: true;
   initial-value: 0;
 }
+@property --sc-moon-x {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1200;
+}
+@property --sc-moon-y {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 330;
+}
+@property --sc-moon-k {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.9;
+}
 @property --sc-o-stars {
   syntax: '<number>';
   inherits: true;
-  initial-value: 0.22;
+  initial-value: 0.1;
+}
+@property --sc-o-mw {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
 }
 @property --sc-o-shoot {
   syntax: '<number>';
   inherits: true;
   initial-value: 0;
 }
-@property --sc-o-ember {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --sc-o-window {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0.9;
-}
-@property --sc-lift-sun {
+@property --sc-o-birds {
   syntax: '<number>';
   inherits: true;
   initial-value: 0;
 }
-@property --sc-scrim-k {
+@property --sc-o-swallow {
   syntax: '<number>';
   inherits: true;
   initial-value: 1;
+}
+@property --sc-o-pollen {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --sc-o-fly {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@property --sc-o-fire {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --sc-fire-k {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.8;
+}
+@property --sc-o-fire-glow {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.2;
+}
+@property --sc-o-window {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.7;
+}
+@property --sc-o-lights {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.6;
+}
+@property --sc-o-shadow {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.36;
+}
+@property --sc-shd-len {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --sc-o-mist {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.5;
+}
+@property --sc-o-cloud {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --sc-rim-a {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.6;
+}
+@property --sc-lit-a {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.42;
+}
+@property --sc-shade-a {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.3;
+}
+@property --sc-scrim-a {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.46;
+}
+@property --sc-dome {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e8c7a6;
+}
+@property --sc-dome-shade {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d8b188;
+}
+@property --sc-dome-line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c19768;
+}
+@property --sc-trim {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c35520;
+}
+@property --sc-deck {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #be7f4a;
+}
+@property --sc-deck-shade {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #9f6539;
+}
+@property --sc-post {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8e5732;
+}
+@property --sc-glass {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #98a29b;
+}
+@property --sc-cloth {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ebcfbd;
+}
+@property --sc-cloth-shade {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #dbb794;
+}
+@property --sc-wood {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #a97041;
+}
+@property --sc-trunk {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8b5637;
+}
+@property --sc-log {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #814c2d;
+}
+@property --sc-log-end {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c78b55;
+}
+@property --sc-stone {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #a38368;
+}
+@property --sc-skin-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #dfa477;
+}
+@property --sc-skin-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c88455;
+}
+@property --sc-skin-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #a3663f;
+}
+@property --sc-hair-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #623d25;
+}
+@property --sc-hair-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #794b2b;
+}
+@property --sc-hair-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #965d34;
+}
+@property --sc-hair-4 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #553521;
+}
+@property --sc-cl-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c35520;
+}
+@property --sc-cl-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e5c095;
+}
+@property --sc-cl-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #628571;
+}
+@property --sc-cl-4 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #db9733;
+}
+@property --sc-cl-5 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #64677b;
+}
+@property --sc-cl-6 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d87b71;
+}
+@property --sc-cl-7 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #958741;
+}
+@property --sc-pant-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6b5551;
+}
+@property --sc-pant-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #9f7048;
+}
+@property --sc-pant-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ddb78e;
+}
+@property --sc-shoe {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #62412d;
+}
+@property --sc-scrim-r {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 42;
+}
+@property --sc-scrim-g {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 18;
+}
+@property --sc-scrim-b {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 38;
 }
 
 /* golden is the default, also when JS is off */
 .sc[data-scene='golden'],
 .sc[data-scene='auto'] {
-  --sc-sky-0: #2a0e0a;
-  --sc-sky-1: #66210f;
-  --sc-sky-2: #b23d17;
-  --sc-sky-3: #e8862b;
-  --sc-sky-4: #fbd08a;
-  --sc-halo: #ffa43a;
-  --sc-sun-core: #fff7e0;
-  --sc-sun-mid: #ffd98a;
-  --sc-sun-edge: #f7a52c;
-  --sc-moon-core: #fef3c7;
-  --sc-moon-edge: #f3d79a;
-  --sc-moon-halo: #fde7b0;
-  --sc-moon-crater: #c9a96a;
-  --sc-star: #fff3d6;
-  --sc-cloud-hi: #f2a875;
-  --sc-cloud-lo: #ffd9a0;
-  --sc-rim: #ffc27a;
-  --sc-far-top: #c2502a;
-  --sc-far-lo: #e58a45;
-  --sc-mid-top: #8e3518;
-  --sc-mid-lo: #b9531f;
-  --sc-near-top: #4b1a0e;
-  --sc-near-lo: #6a2713;
-  --sc-pine: #1f0a06;
-  --sc-pine-back: #33100a;
-  --sc-lake-0: #f4a640;
-  --sc-lake-1: #b4481c;
-  --sc-lake-2: #3a130b;
-  --sc-glint: #ffe2a6;
-  --sc-ripple: #ffd08a;
-  --sc-mist: #ffb36a;
-  --sc-window-light: #ffd27a;
-  --sc-ember: #ffc46b;
+  --sc-sky-0: #34204f;
+  --sc-sky-1: #7d3a68;
+  --sc-sky-2: #d65b62;
+  --sc-sky-3: #ff9a57;
+  --sc-sky-4: #ffd68c;
+  --sc-glow: #ffb457;
+  --sc-sun-core: #fffbe6;
+  --sc-sun-mid: #ffe08a;
+  --sc-sun-edge: #ffae35;
+  --sc-moon-core: #fff6d8;
+  --sc-moon-edge: #f1dca4;
+  --sc-moon-halo: #ffe9b8;
+  --sc-moon-crater: #cdb277;
+  --sc-star: #fff1d6;
+  --sc-mw-1: #d7c7ff;
+  --sc-mw-2: #ffc9e6;
+  --sc-cloud-hi: #ffc9a1;
+  --sc-cloud-lo: #b45a80;
+  --sc-cloud-rim: #fff0c2;
+  --sc-rim: #ffd08a;
+  --sc-r-1-a: #d1799a;
+  --sc-r-1-b: #f6b88c;
+  --sc-r-2-a: #b4628a;
+  --sc-r-2-b: #e99f85;
+  --sc-r-3-a: #8f4c78;
+  --sc-r-3-b: #cf7d7a;
+  --sc-r-4-a: #693a63;
+  --sc-r-4-b: #a35a68;
+  --sc-r-5-a: #472a4a;
+  --sc-r-5-b: #7a4658;
+  --sc-lit: #ffd9a0;
+  --sc-shade: #3c1d44;
+  --sc-mist: #ffbf86;
+  --sc-w-0: #ffdc94;
+  --sc-w-1: #f39a5c;
+  --sc-w-2: #8f3d56;
+  --sc-w-bank: #d99a62;
+  --sc-glint: #fff3c2;
+  --sc-flow: #ffe3a8;
+  --sc-g-1-a: #c5ae55;
+  --sc-g-1-b: #a29443;
+  --sc-g-2-a: #b8aa4c;
+  --sc-g-2-b: #86843c;
+  --sc-g-3: #566231;
+  --sc-grass-1: #3f4a25;
+  --sc-grass-2: #8c9140;
+  --sc-dirt: #e4b47c;
+  --sc-fl-1: #fff2d6;
+  --sc-fl-2: #ffd66b;
+  --sc-fl-3: #f08a8f;
+  --sc-fl-4: #e06a2d;
+  --sc-pine: #33302f;
+  --sc-pine-back: #4a3a42;
+  --sc-leaf-1: #6c7a38;
+  --sc-leaf-2: #d5b552;
+  --sc-glass-lit: #ffd27a;
+  --sc-bulb: #fff0b8;
+  --sc-bulb-glow: #ffc65e;
+  --sc-flame-0: #e5461b;
+  --sc-flame-1: #ff8a1f;
+  --sc-flame-2: #ffc23d;
+  --sc-flame-3: #fff3b0;
+  --sc-fire-glow: #ff9a3c;
+  --sc-ember: #ffb347;
+  --sc-smoke: #d6b3a0;
+  --sc-firefly: #ffe9a0;
+  --sc-pollen: #fff0b0;
+  --sc-bird: #6b3a55;
+  --sc-shadow: #4a1f3a;
+  --sc-scrim: #2a1226;
   --sc-halo-a: 0.85;
-  --sc-cloud-hi-a: 0.5;
-  --sc-cloud-lo-a: 0.75;
-  --sc-rim-a: 0.55;
-  --sc-mist-a: 0.34;
   --sc-o-sun: 1;
-  --sc-o-halo: 1;
+  --sc-o-rays: 0.55;
+  --sc-sun-x: 1220;
+  --sc-sun-y: 456;
+  --sc-sun-k: 1.5;
   --sc-o-moon: 0;
-  --sc-o-stars: 0.22;
+  --sc-moon-x: 1200;
+  --sc-moon-y: 330;
+  --sc-moon-k: 0.9;
+  --sc-o-stars: 0.1;
+  --sc-o-mw: 0;
   --sc-o-shoot: 0;
-  --sc-o-ember: 1;
-  --sc-o-window: 0.9;
-  --sc-lift-sun: 0;
-  --sc-scrim-k: 1;
+  --sc-o-birds: 0;
+  --sc-o-swallow: 1;
+  --sc-o-pollen: 1;
+  --sc-o-fly: 0;
+  --sc-o-fire: 1;
+  --sc-fire-k: 0.8;
+  --sc-o-fire-glow: 0.2;
+  --sc-o-window: 0.7;
+  --sc-o-lights: 0.6;
+  --sc-o-shadow: 0.36;
+  --sc-shd-len: 1;
+  --sc-o-mist: 0.5;
+  --sc-o-cloud: 1;
+  --sc-rim-a: 0.6;
+  --sc-lit-a: 0.42;
+  --sc-shade-a: 0.3;
+  --sc-scrim-a: 0.46;
+  --sc-dome: #e8c7a6;
+  --sc-dome-shade: #d8b188;
+  --sc-dome-line: #c19768;
+  --sc-trim: #c35520;
+  --sc-deck: #be7f4a;
+  --sc-deck-shade: #9f6539;
+  --sc-post: #8e5732;
+  --sc-glass: #98a29b;
+  --sc-cloth: #ebcfbd;
+  --sc-cloth-shade: #dbb794;
+  --sc-wood: #a97041;
+  --sc-trunk: #8b5637;
+  --sc-log: #814c2d;
+  --sc-log-end: #c78b55;
+  --sc-stone: #a38368;
+  --sc-skin-1: #dfa477;
+  --sc-skin-2: #c88455;
+  --sc-skin-3: #a3663f;
+  --sc-hair-1: #623d25;
+  --sc-hair-2: #794b2b;
+  --sc-hair-3: #965d34;
+  --sc-hair-4: #553521;
+  --sc-cl-1: #c35520;
+  --sc-cl-2: #e5c095;
+  --sc-cl-3: #628571;
+  --sc-cl-4: #db9733;
+  --sc-cl-5: #64677b;
+  --sc-cl-6: #d87b71;
+  --sc-cl-7: #958741;
+  --sc-pant-1: #6b5551;
+  --sc-pant-2: #9f7048;
+  --sc-pant-3: #ddb78e;
+  --sc-shoe: #62412d;
+  --sc-scrim-r: 42;
+  --sc-scrim-g: 18;
+  --sc-scrim-b: 38;
 }
 
 .sc[data-scene='day'],
 html[data-elevari-scene='day'] .sc[data-scene='auto'] {
-  --sc-sky-0: #8f4424;
-  --sc-sky-1: #c7733a;
-  --sc-sky-2: #e9a463;
-  --sc-sky-3: #f7cf94;
-  --sc-sky-4: #fff0d2;
-  --sc-halo: #ffe2a8;
-  --sc-sun-core: #fff8e6;
-  --sc-sun-mid: #ffe6ad;
-  --sc-sun-edge: #ffc971;
-  --sc-moon-core: #fef3c7;
-  --sc-moon-edge: #f3d79a;
-  --sc-moon-halo: #fde7b0;
-  --sc-moon-crater: #c9a96a;
-  --sc-star: #fff3d6;
-  --sc-cloud-hi: #fff1d6;
-  --sc-cloud-lo: #fff8e8;
-  --sc-rim: #fff0c8;
-  --sc-far-top: #dfa27a;
-  --sc-far-lo: #f0c79a;
-  --sc-mid-top: #c47a50;
-  --sc-mid-lo: #dc9a6c;
-  --sc-near-top: #8c4528;
-  --sc-near-lo: #a85c38;
-  --sc-pine: #3a1a10;
-  --sc-pine-back: #5a2c1a;
-  --sc-lake-0: #f8d9a8;
-  --sc-lake-1: #d9955f;
-  --sc-lake-2: #7a3a20;
-  --sc-glint: #fff6dc;
-  --sc-ripple: #fff0c8;
-  --sc-mist: #fff0d2;
-  --sc-window-light: #ffd27a;
-  --sc-ember: #fff0c8;
-  --sc-halo-a: 0.55;
-  --sc-cloud-hi-a: 0.55;
-  --sc-cloud-lo-a: 0.7;
-  --sc-rim-a: 0.5;
-  --sc-mist-a: 0.42;
+  --sc-sky-0: #1a5a9a;
+  --sc-sky-1: #2b78b8;
+  --sc-sky-2: #5aa3d5;
+  --sc-sky-3: #a9d8ea;
+  --sc-sky-4: #fff1cd;
+  --sc-glow: #fff2c4;
+  --sc-sun-core: #fffdf0;
+  --sc-sun-mid: #ffeeb2;
+  --sc-sun-edge: #ffcf63;
+  --sc-moon-core: #fff6d8;
+  --sc-moon-edge: #f1dca4;
+  --sc-moon-halo: #ffe9b8;
+  --sc-moon-crater: #cdb277;
+  --sc-star: #ffffff;
+  --sc-mw-1: #d7c7ff;
+  --sc-mw-2: #ffc9e6;
+  --sc-cloud-hi: #ffffff;
+  --sc-cloud-lo: #c9e0ef;
+  --sc-cloud-rim: #ffffff;
+  --sc-rim: #fff6d6;
+  --sc-r-1-a: #a6bedb;
+  --sc-r-1-b: #dbe9f1;
+  --sc-r-2-a: #8eb0c8;
+  --sc-r-2-b: #cbdfe6;
+  --sc-r-3-a: #6f9ca3;
+  --sc-r-3-b: #b6d2cd;
+  --sc-r-4-a: #4f8a6e;
+  --sc-r-4-b: #9cc4a4;
+  --sc-r-5-a: #3d7a50;
+  --sc-r-5-b: #7db078;
+  --sc-lit: #fbf6d8;
+  --sc-shade: #2f5c86;
+  --sc-mist: #ffffff;
+  --sc-w-0: #bfe7ef;
+  --sc-w-1: #6dbad4;
+  --sc-w-2: #2f86ae;
+  --sc-w-bank: #ead8a4;
+  --sc-glint: #ffffff;
+  --sc-flow: #e8f8fb;
+  --sc-g-1-a: #90c05b;
+  --sc-g-1-b: #71a44c;
+  --sc-g-2-a: #7fb250;
+  --sc-g-2-b: #609640;
+  --sc-g-3: #4c8139;
+  --sc-grass-1: #3d7633;
+  --sc-grass-2: #68a845;
+  --sc-dirt: #dbb97b;
+  --sc-fl-1: #ffffff;
+  --sc-fl-2: #ffd23f;
+  --sc-fl-3: #e85d75;
+  --sc-fl-4: #d9531a;
+  --sc-pine: #26583b;
+  --sc-pine-back: #3b7c4a;
+  --sc-leaf-1: #3f8a45;
+  --sc-leaf-2: #7fc25b;
+  --sc-glass-lit: #ffd27a;
+  --sc-bulb: #fff2c4;
+  --sc-bulb-glow: #ffd27a;
+  --sc-flame-0: #e5461b;
+  --sc-flame-1: #ff8a1f;
+  --sc-flame-2: #ffc23d;
+  --sc-flame-3: #fff3b0;
+  --sc-fire-glow: #ff9a3c;
+  --sc-ember: #ffb347;
+  --sc-smoke: #e6e0d6;
+  --sc-firefly: #ffe9a0;
+  --sc-pollen: #fff6c2;
+  --sc-bird: #2c4258;
+  --sc-shadow: #24405a;
+  --sc-scrim: #0f2f4f;
+  --sc-halo-a: 0.6;
   --sc-o-sun: 1;
-  --sc-o-halo: 1;
+  --sc-o-rays: 0.6;
+  --sc-sun-x: 1230;
+  --sc-sun-y: 172;
+  --sc-sun-k: 1;
   --sc-o-moon: 0;
+  --sc-moon-x: 1200;
+  --sc-moon-y: 330;
+  --sc-moon-k: 0.9;
   --sc-o-stars: 0;
+  --sc-o-mw: 0;
   --sc-o-shoot: 0;
-  --sc-o-ember: 0.55;
-  --sc-o-window: 0.35;
-  --sc-lift-sun: -0.3;
-  --sc-scrim-k: 1;
+  --sc-o-birds: 1;
+  --sc-o-swallow: 0;
+  --sc-o-pollen: 0.35;
+  --sc-o-fly: 0;
+  --sc-o-fire: 0;
+  --sc-fire-k: 0.45;
+  --sc-o-fire-glow: 0;
+  --sc-o-window: 0;
+  --sc-o-lights: 0.1;
+  --sc-o-shadow: 0.2;
+  --sc-shd-len: 0.22;
+  --sc-o-mist: 0.4;
+  --sc-o-cloud: 1;
+  --sc-rim-a: 0.35;
+  --sc-lit-a: 0.34;
+  --sc-shade-a: 0.14;
+  --sc-scrim-a: 0.34;
+  --sc-dome: #fbf1dc;
+  --sc-dome-shade: #e4d1b0;
+  --sc-dome-line: #c2aa80;
+  --sc-trim: #c44814;
+  --sc-deck: #bc8752;
+  --sc-deck-shade: #8f603a;
+  --sc-post: #754c2e;
+  --sc-glass: #84bacd;
+  --sc-cloth: #fffffe;
+  --sc-cloth-shade: #e8dbc1;
+  --sc-wood: #9e7045;
+  --sc-trunk: #714b37;
+  --sc-log: #613c28;
+  --sc-log-end: #c99963;
+  --sc-stone: #938c80;
+  --sc-skin-1: #eebd96;
+  --sc-skin-2: #cb8e63;
+  --sc-skin-3: #936241;
+  --sc-hair-1: #33241c;
+  --sc-hair-2: #563926;
+  --sc-hair-3: #815431;
+  --sc-hair-4: #1f1915;
+  --sc-cl-1: #c44814;
+  --sc-cl-2: #f6e8c2;
+  --sc-cl-3: #33908d;
+  --sc-cl-4: #e8ab30;
+  --sc-cl-5: #37639d;
+  --sc-cl-6: #e3828d;
+  --sc-cl-7: #7f9345;
+  --sc-pant-1: #41475d;
+  --sc-pant-2: #8f7050;
+  --sc-pant-3: #eadab8;
+  --sc-shoe: #332a28;
+  --sc-scrim-r: 15;
+  --sc-scrim-g: 47;
+  --sc-scrim-b: 79;
 }
 
 .sc[data-scene='night'],
 html[data-elevari-scene='night'] .sc[data-scene='auto'] {
-  --sc-sky-0: #09060e;
-  --sc-sky-1: #170b1a;
-  --sc-sky-2: #33142a;
-  --sc-sky-3: #6e2b2a;
-  --sc-sky-4: #b5612f;
-  --sc-halo: #e7a15c;
-  --sc-sun-core: #fff7e0;
-  --sc-sun-mid: #ffd98a;
-  --sc-sun-edge: #f7a52c;
-  --sc-moon-core: #fef3c7;
-  --sc-moon-edge: #efd49a;
-  --sc-moon-halo: #fde7b0;
-  --sc-moon-crater: #c9a96a;
-  --sc-star: #fff3d6;
-  --sc-cloud-hi: #5a2a3a;
-  --sc-cloud-lo: #8a4030;
-  --sc-rim: #e08a4a;
-  --sc-far-top: #3a1d2c;
-  --sc-far-lo: #5a2b38;
-  --sc-mid-top: #2d1722;
-  --sc-mid-lo: #3f1f2a;
-  --sc-near-top: #1d0f17;
-  --sc-near-lo: #25121b;
-  --sc-pine: #09040a;
-  --sc-pine-back: #140912;
-  --sc-lake-0: #7a3a2a;
-  --sc-lake-1: #2a1220;
-  --sc-lake-2: #0d0610;
-  --sc-glint: #fde7b0;
-  --sc-ripple: #e7a15c;
-  --sc-mist: #8a4a42;
-  --sc-window-light: #ffd27a;
-  --sc-ember: #ffd98a;
-  --sc-halo-a: 0.4;
-  --sc-cloud-hi-a: 0.45;
-  --sc-cloud-lo-a: 0.5;
-  --sc-rim-a: 0.3;
-  --sc-mist-a: 0.22;
+  --sc-sky-0: #060a20;
+  --sc-sky-1: #0d1740;
+  --sc-sky-2: #182763;
+  --sc-sky-3: #2c3a7c;
+  --sc-sky-4: #5a5da2;
+  --sc-glow: #a9b8ff;
+  --sc-sun-core: #fffbe6;
+  --sc-sun-mid: #ffe08a;
+  --sc-sun-edge: #ffae35;
+  --sc-moon-core: #fffbe9;
+  --sc-moon-edge: #eadcb4;
+  --sc-moon-halo: #c9d5ff;
+  --sc-moon-crater: #c3b58f;
+  --sc-star: #ffffff;
+  --sc-mw-1: #b9bdff;
+  --sc-mw-2: #f2c4ff;
+  --sc-cloud-hi: #51609d;
+  --sc-cloud-lo: #1a2457;
+  --sc-cloud-rim: #cfd9ff;
+  --sc-rim: #a9bdff;
+  --sc-r-1-a: #2a367a;
+  --sc-r-1-b: #4d5a9a;
+  --sc-r-2-a: #212d66;
+  --sc-r-2-b: #3f4a8a;
+  --sc-r-3-a: #19234f;
+  --sc-r-3-b: #303c75;
+  --sc-r-4-a: #121a3f;
+  --sc-r-4-b: #232e61;
+  --sc-r-5-a: #0b1230;
+  --sc-r-5-b: #19234f;
+  --sc-lit: #7f93e6;
+  --sc-shade: #05081c;
+  --sc-mist: #7e8ed0;
+  --sc-w-0: #4b5cab;
+  --sc-w-1: #27357a;
+  --sc-w-2: #0d1542;
+  --sc-w-bank: #2a3774;
+  --sc-glint: #eef2ff;
+  --sc-flow: #8fa0e6;
+  --sc-g-1-a: #1d3a4c;
+  --sc-g-1-b: #152f3d;
+  --sc-g-2-a: #173340;
+  --sc-g-2-b: #0f2631;
+  --sc-g-3: #0a1d27;
+  --sc-grass-1: #08181f;
+  --sc-grass-2: #15414d;
+  --sc-dirt: #2a3b4b;
+  --sc-fl-1: #8ea3c4;
+  --sc-fl-2: #9a9a62;
+  --sc-fl-3: #8a5a7a;
+  --sc-fl-4: #8a4a3a;
+  --sc-pine: #060f1c;
+  --sc-pine-back: #0c1a33;
+  --sc-leaf-1: #0e2831;
+  --sc-leaf-2: #1f4b52;
+  --sc-glass-lit: #ffc857;
+  --sc-bulb: #fff0b8;
+  --sc-bulb-glow: #ffc65e;
+  --sc-flame-0: #e5461b;
+  --sc-flame-1: #ff8a1f;
+  --sc-flame-2: #ffc23d;
+  --sc-flame-3: #fff3b0;
+  --sc-fire-glow: #ff9a3c;
+  --sc-ember: #ffb347;
+  --sc-smoke: #6b73a8;
+  --sc-firefly: #e9ff9a;
+  --sc-pollen: #fff0b0;
+  --sc-bird: #0b1230;
+  --sc-shadow: #050a1c;
+  --sc-scrim: #050818;
+  --sc-halo-a: 0.55;
   --sc-o-sun: 0;
-  --sc-o-halo: 0.55;
+  --sc-o-rays: 0;
+  --sc-sun-x: 1220;
+  --sc-sun-y: 560;
+  --sc-sun-k: 1.5;
   --sc-o-moon: 1;
+  --sc-moon-x: 1200;
+  --sc-moon-y: 190;
+  --sc-moon-k: 1;
   --sc-o-stars: 1;
+  --sc-o-mw: 1;
   --sc-o-shoot: 1;
-  --sc-o-ember: 1;
+  --sc-o-birds: 0;
+  --sc-o-swallow: 0;
+  --sc-o-pollen: 0;
+  --sc-o-fly: 1;
+  --sc-o-fire: 1;
+  --sc-fire-k: 1.25;
+  --sc-o-fire-glow: 0.6;
   --sc-o-window: 1;
-  --sc-lift-sun: 0;
-  --sc-scrim-k: 0.55;
+  --sc-o-lights: 1;
+  --sc-o-shadow: 0;
+  --sc-shd-len: 0.4;
+  --sc-o-mist: 0.34;
+  --sc-o-cloud: 0.5;
+  --sc-rim-a: 0.5;
+  --sc-lit-a: 0.2;
+  --sc-shade-a: 0.5;
+  --sc-scrim-a: 0.22;
+  --sc-dome: #424661;
+  --sc-dome-shade: #3c3e56;
+  --sc-dome-line: #34354b;
+  --sc-trim: #351e32;
+  --sc-deck: #322d40;
+  --sc-deck-shade: #28243a;
+  --sc-post: #221f38;
+  --sc-glass: #26395d;
+  --sc-cloth: #424968;
+  --sc-cloth-shade: #3d405a;
+  --sc-wood: #2c273e;
+  --sc-trunk: #211e3a;
+  --sc-log: #1e1b36;
+  --sc-log-end: #363144;
+  --sc-stone: #2a2e4b;
+  --sc-skin-1: #3e3a50;
+  --sc-skin-2: #362e44;
+  --sc-skin-3: #2a243d;
+  --sc-hair-1: #131634;
+  --sc-hair-2: #1b1a36;
+  --sc-hair-3: #252139;
+  --sc-hair-4: #0e1332;
+  --sc-cl-1: #351e32;
+  --sc-cl-2: #40435a;
+  --sc-cl-3: #132f4e;
+  --sc-cl-4: #3d3539;
+  --sc-cl-5: #142452;
+  --sc-cl-6: #3c2b4e;
+  --sc-cl-7: #252f3e;
+  --sc-pant-1: #161e43;
+  --sc-pant-2: #282740;
+  --sc-pant-3: #3e4058;
+  --sc-shoe: #131736;
+  --sc-scrim-r: 5;
+  --sc-scrim-g: 8;
+  --sc-scrim-b: 24;
 }
 
-/* The registered variables interpolate, so a change of time of day cross-fades every gradient and fill */
+/* The registered variables interpolate, so a change of time of day cross-fades every gradient, fill and light */
 .sc {
   transition-property:
     --sc-sky-0,
@@ -397,7 +1109,7 @@ html[data-elevari-scene='night'] .sc[data-scene='auto'] {
     --sc-sky-2,
     --sc-sky-3,
     --sc-sky-4,
-    --sc-halo,
+    --sc-glow,
     --sc-sun-core,
     --sc-sun-mid,
     --sc-sun-edge,
@@ -406,39 +1118,128 @@ html[data-elevari-scene='night'] .sc[data-scene='auto'] {
     --sc-moon-halo,
     --sc-moon-crater,
     --sc-star,
+    --sc-mw-1,
+    --sc-mw-2,
     --sc-cloud-hi,
     --sc-cloud-lo,
+    --sc-cloud-rim,
     --sc-rim,
-    --sc-far-top,
-    --sc-far-lo,
-    --sc-mid-top,
-    --sc-mid-lo,
-    --sc-near-top,
-    --sc-near-lo,
+    --sc-r-1-a,
+    --sc-r-1-b,
+    --sc-r-2-a,
+    --sc-r-2-b,
+    --sc-r-3-a,
+    --sc-r-3-b,
+    --sc-r-4-a,
+    --sc-r-4-b,
+    --sc-r-5-a,
+    --sc-r-5-b,
+    --sc-lit,
+    --sc-shade,
+    --sc-mist,
+    --sc-w-0,
+    --sc-w-1,
+    --sc-w-2,
+    --sc-w-bank,
+    --sc-glint,
+    --sc-flow,
+    --sc-g-1-a,
+    --sc-g-1-b,
+    --sc-g-2-a,
+    --sc-g-2-b,
+    --sc-g-3,
+    --sc-grass-1,
+    --sc-grass-2,
+    --sc-dirt,
+    --sc-fl-1,
+    --sc-fl-2,
+    --sc-fl-3,
+    --sc-fl-4,
     --sc-pine,
     --sc-pine-back,
-    --sc-lake-0,
-    --sc-lake-1,
-    --sc-lake-2,
-    --sc-glint,
-    --sc-ripple,
-    --sc-mist,
-    --sc-window-light,
+    --sc-leaf-1,
+    --sc-leaf-2,
+    --sc-glass-lit,
+    --sc-bulb,
+    --sc-bulb-glow,
+    --sc-flame-0,
+    --sc-flame-1,
+    --sc-flame-2,
+    --sc-flame-3,
+    --sc-fire-glow,
     --sc-ember,
+    --sc-smoke,
+    --sc-firefly,
+    --sc-pollen,
+    --sc-bird,
+    --sc-shadow,
+    --sc-scrim,
     --sc-halo-a,
-    --sc-cloud-hi-a,
-    --sc-cloud-lo-a,
-    --sc-rim-a,
-    --sc-mist-a,
     --sc-o-sun,
-    --sc-o-halo,
+    --sc-o-rays,
+    --sc-sun-x,
+    --sc-sun-y,
+    --sc-sun-k,
     --sc-o-moon,
+    --sc-moon-x,
+    --sc-moon-y,
+    --sc-moon-k,
     --sc-o-stars,
+    --sc-o-mw,
     --sc-o-shoot,
-    --sc-o-ember,
+    --sc-o-birds,
+    --sc-o-swallow,
+    --sc-o-pollen,
+    --sc-o-fly,
+    --sc-o-fire,
+    --sc-fire-k,
+    --sc-o-fire-glow,
     --sc-o-window,
-    --sc-lift-sun,
-    --sc-scrim-k;
+    --sc-o-lights,
+    --sc-o-shadow,
+    --sc-shd-len,
+    --sc-o-mist,
+    --sc-o-cloud,
+    --sc-rim-a,
+    --sc-lit-a,
+    --sc-shade-a,
+    --sc-scrim-a,
+    --sc-dome,
+    --sc-dome-shade,
+    --sc-dome-line,
+    --sc-trim,
+    --sc-deck,
+    --sc-deck-shade,
+    --sc-post,
+    --sc-glass,
+    --sc-cloth,
+    --sc-cloth-shade,
+    --sc-wood,
+    --sc-trunk,
+    --sc-log,
+    --sc-log-end,
+    --sc-stone,
+    --sc-skin-1,
+    --sc-skin-2,
+    --sc-skin-3,
+    --sc-hair-1,
+    --sc-hair-2,
+    --sc-hair-3,
+    --sc-hair-4,
+    --sc-cl-1,
+    --sc-cl-2,
+    --sc-cl-3,
+    --sc-cl-4,
+    --sc-cl-5,
+    --sc-cl-6,
+    --sc-cl-7,
+    --sc-pant-1,
+    --sc-pant-2,
+    --sc-pant-3,
+    --sc-shoe,
+    --sc-scrim-r,
+    --sc-scrim-g,
+    --sc-scrim-b;
   transition-duration: 1.8s;
   transition-timing-function: ease;
 }
@@ -447,10 +1248,4 @@ html[data-elevari-scene='night'] .sc[data-scene='auto'] {
   .sc {
     transition: none;
   }
-}
-
-/* The sky is a CSS gradient (not an SVG one) so every browser repaints it while the variables interpolate. Its stops
-   come from SKY_STOPS, which keeps the horizon colour aligned with the ridges. */
-.sc-sky {
-  background: linear-gradient(to bottom, var(--sc-sky-0) 0%, var(--sc-sky-1) 30%, var(--sc-sky-2) 50%, var(--sc-sky-3) 62%, var(--sc-sky-4) 70%, var(--sc-sky-4));
 }
