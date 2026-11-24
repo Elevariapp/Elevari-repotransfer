@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Logo from '@/components/Logo';
-import ThemeToggle from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
+import LanguageSwitch from '@/components/i18n/LanguageSwitch';
 import NotificationBell from '@/components/notifications/NotificationBell';
 import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
 import { whatsappContext } from '@/lib/whatsapp';
@@ -106,7 +106,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
         </nav>
 
         <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
-          <ThemeToggle className="hidden sm:inline-flex" />
+          <LanguageSwitch className="hidden sm:inline-flex" />
           {whatsapp && <WhatsAppLink variant="icon" tone="onDark" label={whatsapp.label} message={whatsapp.message} />}
           {!loading && user ? (
             <>
@@ -156,8 +156,8 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
         <div ref={mobilePanelRef} id="elevari-mobile-menu" className="elevari-header-mobile-panel lg:hidden">
           <nav className="elevari-container flex max-h-[calc(100dvh-3.5rem)] flex-col gap-1 overflow-y-auto py-4 sm:max-h-[calc(100dvh-4rem)]">
             <div className="mb-2 flex items-center justify-between px-1">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Apariencia</span>
-              <ThemeToggle />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Idioma</span>
+              <LanguageSwitch className="w-full" />
             </div>
             {navLinks.map((link) => (
               <Link
