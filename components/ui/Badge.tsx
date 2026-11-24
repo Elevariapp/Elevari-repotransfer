@@ -5,8 +5,9 @@ type Tone = 'neutral' | 'success' | 'warning' | 'error' | 'accent' | 'brand';
 
 const tones: Record<Tone, string> = {
   neutral: 'border-elevari-border bg-elevari-surface text-elevari-slate',
-  success: 'border-elevari-success/25 bg-elevari-success-soft text-elevari-success',
-  warning: 'border-elevari-warning/25 bg-elevari-warning-soft text-elevari-warning',
+  // The success/warning hues (#ea9a2e, #f59e0b) are only ~2:1 on their soft background: keep the hue in the border, the text deep enough for AA.
+  success: 'border-elevari-success/25 bg-elevari-success-soft text-elevari-forest-deep',
+  warning: 'border-elevari-warning/25 bg-elevari-warning-soft text-elevari-forest-deep',
   error: 'border-elevari-error/25 bg-elevari-error-soft text-elevari-error',
   accent: 'border-elevari-amber/40 bg-elevari-amber-soft text-elevari-amber-ink',
   brand: 'border-elevari-forest/25 bg-elevari-fresh-soft text-elevari-forest-deep',
