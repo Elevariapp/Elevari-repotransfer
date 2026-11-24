@@ -60,8 +60,8 @@ export function makeRenderer(mode, theme = null) {
     if (css) {
       if (n.a) {
         cls.push(`a-${n.a}`);
-        if (n.dl) st.push(`--dl:${n.dl}s`);
-        if (n.du) st.push(`--du:${n.du}s`);
+        if (n.dl) st.push(`--dl:${num(n.dl, 2)}s`);
+        if (n.du) st.push(`--du:${num(n.du, 2)}s`);
         if (n.v) for (const [k, v] of Object.entries(n.v)) st.push(`--${k}:${num(v, 1)}px`);
       }
       if (n.shd) {

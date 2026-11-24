@@ -1,31 +1,26 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { SCENE_ATTR, sceneForHour } from '@/lib/scene/time-of-day';
+import { startSceneSync } from '@/lib/scene/scene-state';
 
-const SYNC_MS = 60_000;
-const EASE = 0.08;
+// requestIdleCallback is missing in Safari
+type IdleWindow = Window & {
+  requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
 
 /**
- * Brings a server-rendered <ScenicBackground> to life: keeps the time of day current, drives the pointer parallax and
- * pauses everything while the scene is off screen. It renders only a hidden marker and finds its scene through it.
+ * Brings a server-rendered <ScenicBackground> to life. It keeps the scene current (time of day, site theme, the
+ * visitor's choice), pauses every animation while the scene is off screen or the tab is hidden, and lazily loads the
+ * pointer interactions. It renders only a hidden marker and finds its scene through it.
  */
-export default function SceneController() {
+export default function SceneController({ interactive = false }: { interactive?: boolean }) {
   const marker = useRef<HTMLSpanElement>(null);
 
-  // Before paint, so a soft navigation never flashes a stale time of day
+  // Before paint, so a soft navigation never flashes a stale scene
   useLayoutEffect(() => {
     const root = marker.current?.closest<HTMLElement>('.sc');
-    if (!root || root.dataset.scene !== 'auto') return;
-    const sync = () => {
-      const scene = sceneForHour(new Date().getHours());
-      if (document.documentElement.getAttribute(SCENE_ATTR) !== scene) {
-        document.documentElement.setAttribute(SCENE_ATTR, scene);
-      }
-    };
-    sync();
-    const timer = window.setInterval(sync, SYNC_MS);
-    return () => window.clearInterval(timer);
+    if (root?.dataset.scene === 'auto') startSceneSync();
   }, []);
 
   useEffect(() => {
@@ -46,49 +41,36 @@ export default function SceneController() {
     reduced.addEventListener('change', applyPause);
     applyPause();
 
-    // Parallax follows mouse and pen only; touch scrolls the page and would fight the gesture
-    let target = { x: 0, y: 0 };
-    let current = { x: 0, y: 0 };
-    let frame = 0;
-    const tick = () => {
-      current = { x: current.x + (target.x - current.x) * EASE, y: current.y + (target.y - current.y) * EASE };
-      const settled = Math.abs(target.x - current.x) < 0.002 && Math.abs(target.y - current.y) < 0.002;
-      if (settled) current = target;
-      root.style.setProperty('--sc-px', current.x.toFixed(3));
-      root.style.setProperty('--sc-py', current.y.toFixed(3));
-      frame = settled ? 0 : requestAnimationFrame(tick);
-    };
-    const onMove = (event: PointerEvent) => {
-      if (event.pointerType === 'touch' || reduced.matches || root.dataset.paused === 'true') return;
-      const rect = root.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return;
-      // Smaller screens get a calmer drift
-      const amplitude = Math.min(1, rect.width / 1280);
-      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      const y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
-      target = { x: Math.max(-1, Math.min(1, x)) * amplitude, y: Math.max(-1, Math.min(1, y)) * amplitude };
-      root.style.setProperty('--sc-gx', `${event.clientX - rect.left}px`);
-      root.style.setProperty('--sc-gy', `${event.clientY - rect.top}px`);
-      root.dataset.pointer = 'true';
-      if (!frame) frame = requestAnimationFrame(tick);
-    };
-    const onLeave = () => {
-      target = { x: 0, y: 0 };
-      delete root.dataset.pointer;
-      if (!frame) frame = requestAnimationFrame(tick);
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    document.documentElement.addEventListener('pointerleave', onLeave);
+    // Mouse and pen get the parallax; touch only gets the taps of the interactive hero. The code loads once idle.
+    let detach: (() => void) | undefined;
+    let cancelled = false;
+    let cancelLoad = () => {};
+    const wantsPointer = interactive || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (wantsPointer) {
+      const load = () => {
+        import('./scene-interactions').then((mod) => {
+          if (!cancelled) detach = mod.attachSceneInteractions(root, { hotspots: interactive });
+        });
+      };
+      const idle = window as IdleWindow;
+      if (idle.requestIdleCallback) {
+        const handle = idle.requestIdleCallback(load, { timeout: 1500 });
+        cancelLoad = () => idle.cancelIdleCallback?.(handle);
+      } else {
+        const handle = window.setTimeout(load, 400);
+        cancelLoad = () => window.clearTimeout(handle);
+      }
+    }
 
     return () => {
+      cancelled = true;
+      cancelLoad();
+      detach?.();
       observer.disconnect();
       document.removeEventListener('visibilitychange', applyPause);
       reduced.removeEventListener('change', applyPause);
-      window.removeEventListener('pointermove', onMove);
-      document.documentElement.removeEventListener('pointerleave', onLeave);
-      if (frame) cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [interactive]);
 
   return <span ref={marker} hidden />;
 }
