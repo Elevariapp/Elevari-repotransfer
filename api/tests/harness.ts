@@ -58,8 +58,24 @@ export interface TestStack {
     options?: { token?: string; body?: unknown; ip?: string },
   ): Promise<{ status: number; body: T; headers: Record<string, unknown>; ms: number }>;
   registerUser(options?: { role?: 'guest' | 'host'; name?: string; password?: string }): Promise<TestUser>;
+  createProperty(hostId: string, title?: string): Promise<{ id: string; title: string }>;
+  createBooking(fixture: BookingFixture): Promise<{ id: string }>;
   waitForEmail(predicate: (email: CapturedEmail) => boolean, timeoutMs?: number): Promise<CapturedEmail>;
   stop(): Promise<void>;
+}
+
+export interface BookingFixture {
+  propertyId: string;
+  guestId: string;
+  status?: 'pending_payment' | 'confirmed' | 'checked_in' | 'completed' | 'cancelled';
+  checkIn: Date;
+  nights?: number;
+}
+
+/** A calendar date (UTC midnight) `offset` days from today in Colombia, which is how the API reads dates. */
+export function day(offset: number): Date {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+  return new Date(new Date(`${today}T00:00:00.000Z`).getTime() + offset * 86_400_000);
 }
 
 let ipCounter = 1;
@@ -153,6 +169,45 @@ export async function startStack(): Promise<TestStack> {
     return { id: response.body.user.id, email, password: chosenPassword, token: response.body.token, role };
   };
 
+  const createProperty: TestStack['createProperty'] = async (hostId, title = 'Domo Aurora') => {
+    const property = await prisma.property.create({
+      data: {
+        slug: `it-${randomUUID()}`,
+        title,
+        pricePerNight: 250000,
+        maxGuests: 4,
+        status: 'published',
+        city: 'Guatavita',
+        hostId,
+      },
+    });
+    return { id: property.id, title: property.title };
+  };
+
+  const createBooking: TestStack['createBooking'] = async ({
+    propertyId,
+    guestId,
+    status = 'confirmed',
+    checkIn,
+    nights = 2,
+  }) => {
+    const guest = await prisma.user.findUniqueOrThrow({ where: { id: guestId } });
+    const booking = await prisma.booking.create({
+      data: {
+        propertyId,
+        guestId,
+        status,
+        checkIn,
+        checkOut: new Date(checkIn.getTime() + nights * 86_400_000),
+        guests: 2,
+        guestName: guest.name,
+        guestEmail: guest.email,
+        feesBreakdown: { host_receives: 425000, total_charge_to_guest: 575000 },
+      },
+    });
+    return { id: booking.id };
+  };
+
   return {
     app,
     prisma,
@@ -162,6 +217,8 @@ export async function startStack(): Promise<TestStack> {
     },
     call,
     registerUser,
+    createProperty,
+    createBooking,
     waitForEmail,
     async stop() {
       await app.close();

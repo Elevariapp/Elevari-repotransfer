@@ -11,6 +11,7 @@ import { welcome } from './email-templates/welcome.js';
 import { EMAIL_BRAND } from './email-templates/brand.js';
 import { deliverEmail, siteUrl, type EmailSendResult } from './email.js';
 import type { WanaFees } from './fees.js';
+import { resolveNotificationPreferences } from './notification-prefs.js';
 import { prisma } from './prisma.js';
 
 export type { EmailSendResult };
@@ -67,11 +68,11 @@ async function loadBooking(bookingId: string) {
       guestEmail: true,
       guestName: true,
       feesBreakdown: true,
-      guest: { select: { email: true, name: true, deletedAt: true } },
+      guest: { select: { email: true, name: true, deletedAt: true, notificationPrefs: true } },
       property: {
         select: {
           title: true,
-          host: { select: { email: true, name: true, deletedAt: true } },
+          host: { select: { email: true, name: true, deletedAt: true, notificationPrefs: true } },
         },
       },
       payments: {
@@ -242,6 +243,9 @@ export async function sendCheckInReminderEmail(params: {
   if (!booking) return { sent: false, reason: 'booking_not_found' };
   const recipient = guestRecipient(booking);
   if (!recipient) return { sent: false, reason: 'no_recipient' };
+  if (!resolveNotificationPreferences(booking.guest?.notificationPrefs).email.reminders) {
+    return { sent: false, reason: 'opted_out' };
+  }
 
   return deliverEmail({
     to: recipient.email,
@@ -263,11 +267,16 @@ function hostRecipient(booking: LoadedBooking): { email: string; name: string | 
   return { email: host.email.trim(), name: host.name?.trim() || null };
 }
 
+function hostWantsBookingEmails(booking: LoadedBooking): boolean {
+  return resolveNotificationPreferences(booking.property.host.notificationPrefs).email.host_bookings;
+}
+
 export async function sendHostNewBookingEmail(bookingId: string): Promise<EmailSendResult> {
   const booking = await loadBooking(bookingId);
   if (!booking) return { sent: false, reason: 'booking_not_found' };
   const host = hostRecipient(booking);
   if (!host) return { sent: false, reason: 'no_recipient' };
+  if (!hostWantsBookingEmails(booking)) return { sent: false, reason: 'opted_out' };
 
   const fees = booking.feesBreakdown as Partial<WanaFees> | null;
   return deliverEmail({
@@ -293,6 +302,7 @@ export async function sendHostBookingCancelledEmail(bookingId: string): Promise<
   if (!booking) return { sent: false, reason: 'booking_not_found' };
   const host = hostRecipient(booking);
   if (!host) return { sent: false, reason: 'no_recipient' };
+  if (!hostWantsBookingEmails(booking)) return { sent: false, reason: 'opted_out' };
 
   return deliverEmail({
     to: host.email,
@@ -343,7 +353,7 @@ export async function sendCheckInReminderEmails(): Promise<{
     try {
       const result = await sendCheckInReminderEmail({ bookingId: booking.id });
       if (result.sent && !result.deduped) sent++;
-      else if (result.deduped || result.reason === 'no_recipient') skipped++;
+      else if (result.deduped || result.reason === 'no_recipient' || result.reason === 'opted_out') skipped++;
       else errors++;
     } catch {
       errors++;

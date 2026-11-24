@@ -3,6 +3,11 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { authenticate } from '../plugins/auth.js';
 import { colombiaToday } from '../lib/colombia-time.js';
+import {
+  applyPreferencesPatch,
+  preferencesPatchSchema,
+  resolveNotificationPreferences,
+} from '../lib/notification-prefs.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const FEED_WINDOW_DAYS = 30;
@@ -164,6 +169,34 @@ export async function notificationRoutes(app: FastifyInstance) {
 
     items.sort((a, b) => b.created_at.localeCompare(a.created_at));
     return { data: items.slice(0, FEED_LIMIT) };
+  });
+
+  /** Which optional e-mails and push notifications the signed-in user receives. */
+  app.get('/notifications/preferences', { preHandler: authenticate }, async (request, reply) => {
+    const user = await prisma.user.findUnique({
+      where: { id: request.auth!.sub },
+      select: { notificationPrefs: true },
+    });
+    reply.header('Cache-Control', 'private, no-store');
+    return { preferences: resolveNotificationPreferences(user?.notificationPrefs) };
+  });
+
+  app.patch('/notifications/preferences', {
+    preHandler: authenticate,
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
+    const body = preferencesPatchSchema.safeParse(request.body);
+    if (!body.success) {
+      return reply.status(400).send({ error: 'Invalid body', details: body.error.flatten() });
+    }
+
+    const userId = request.auth!.sub;
+    const existing = await prisma.user.findUnique({ where: { id: userId }, select: { notificationPrefs: true } });
+    const preferences = applyPreferencesPatch(resolveNotificationPreferences(existing?.notificationPrefs), body.data);
+    await prisma.user.update({ where: { id: userId }, data: { notificationPrefs: preferences } });
+
+    reply.header('Cache-Control', 'private, no-store');
+    return { preferences };
   });
 
   /** Registers (or re-assigns) a device for push notifications. */
