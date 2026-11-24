@@ -37,6 +37,11 @@ function parseDateUTC(dateStr: string): Date {
   return new Date(`${dateStr}T00:00:00.000Z`);
 }
 
+const IDEMPOTENCY_KEY_IN_USE = {
+  error: 'Idempotency key already in use',
+  code: 'idempotency_key_in_use',
+} as const;
+
 export async function bookingRoutes(app: FastifyInstance) {
   app.post('/bookings/quote', async (request, reply) => {
     const body = quoteSchema.safeParse(request.body);
@@ -99,6 +104,10 @@ export async function bookingRoutes(app: FastifyInstance) {
       where: { idempotencyKey: data.idempotency_key },
     });
     if (existing) {
+      // Keys are global: another guest's booking must never be handed back (it carries their e-mail).
+      if (existing.guestId !== guestId) {
+        return reply.status(409).send(IDEMPOTENCY_KEY_IN_USE);
+      }
       return reply.status(200).send({ booking: existing, reused: true });
     }
 
@@ -143,6 +152,9 @@ export async function bookingRoutes(app: FastifyInstance) {
           where: { idempotencyKey: data.idempotency_key },
         });
         if (reused) {
+          if (reused.guestId !== guestId) {
+            return reply.status(409).send(IDEMPOTENCY_KEY_IN_USE);
+          }
           return reply.status(200).send({ booking: reused, reused: true });
         }
       }
