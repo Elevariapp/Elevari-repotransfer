@@ -100,6 +100,10 @@ const nextConfig: NextConfig = {
   turbopack: {},
   webpack(config) {
     config.plugins.push(avoidModuleIdZero);
+    // Webpack resolves an absolute request as a server-relative URL under `resolve.roots` (the project dir) before
+    // trying it as a real path. The Docker image builds in /app, so the root page /app/app/page.tsx resolved to
+    // /app/app/app/page.tsx (the /app install page) and `/` served that page in production.
+    config.resolve.preferAbsolute = true;
     return config;
   },
   // Optional build concurrency cap (useful on memory-constrained CI runners).
