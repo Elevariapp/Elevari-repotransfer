@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma.js';
+import { sendCheckInReminderPushes } from '../lib/booking-push.js';
 import { sendCheckInReminderEmails } from '../lib/transactional-emails.js';
 
 export function startCheckInReminderJob(log: {
@@ -12,6 +13,10 @@ export function startCheckInReminderJob(log: {
       const result = await sendCheckInReminderEmails();
       if (result.sent > 0 || result.errors > 0) {
         log.info(result, 'Check-in reminder job completed');
+      }
+      const pushes = await sendCheckInReminderPushes();
+      if (pushes.sent > 0) {
+        log.info(pushes, 'Check-in reminder pushes sent');
       }
     } catch (err) {
       log.error(err, 'Check-in reminder job failed');

@@ -16,6 +16,7 @@ import {
   sendBookingCancellationEmail,
   sendHostBookingCancelledEmail,
 } from '../lib/transactional-emails.js';
+import { pushBookingCancelled, pushHostBookingCancelled } from '../lib/booking-push.js';
 import { authenticate } from '../plugins/auth.js';
 
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -300,6 +301,12 @@ export async function bookingRoutes(app: FastifyInstance) {
       sendHostBookingCancelledEmail(id).catch((err) => {
         request.log.warn({ err, bookingId: id }, 'Host cancellation email not sent');
       });
+      void pushHostBookingCancelled(id);
+    }
+
+    // Guests know when they cancel themselves; a cancellation by an admin is news to them.
+    if (booking.guestId !== request.auth!.sub) {
+      void pushBookingCancelled(id);
     }
 
     return {

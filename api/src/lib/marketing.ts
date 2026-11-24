@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { prisma } from './prisma.js';
 import { issueBookingInvoice } from './invoicing.js';
+import { pushBookingConfirmed, pushHostNewBooking } from './booking-push.js';
 import {
   sendBookingConfirmationEmail,
   sendHostNewBookingEmail,
@@ -70,6 +71,8 @@ export async function onBookingConfirmed(bookingId: string): Promise<void> {
   await Promise.allSettled([
     sendBookingConfirmationEmail(bookingId),
     sendHostNewBookingEmail(bookingId),
+    pushBookingConfirmed(bookingId),
+    pushHostNewBooking(bookingId),
     sendMetaPurchaseEvent(bookingId),
     issueBookingInvoice(bookingId),
   ]);
