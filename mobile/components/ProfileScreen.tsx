@@ -77,6 +77,11 @@ export function ProfileScreen({ area }: { area: Area }) {
           onPress={() => open('/change-password')}
         />
         <SettingsRow title="Notificaciones" badge={unread} onPress={() => open('/notifications')} />
+        <SettingsRow
+          title="Preferencias de avisos"
+          subtitle="Elige qué recibes por correo y en el celular"
+          onPress={() => open('/notification-settings')}
+        />
         {area === 'guest' ? (
           <SettingsRow title="Mis reservas" onPress={() => router.push('/(guest)/my-bookings')} last />
         ) : (

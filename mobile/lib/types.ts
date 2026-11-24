@@ -234,6 +234,16 @@ export interface NotificationsResponse {
   data: AppNotification[];
 }
 
+export interface NotificationPreferences {
+  email: { reminders: boolean; host_bookings: boolean };
+  push: { bookings: boolean; reminders: boolean; host_bookings: boolean };
+}
+
+export type NotificationPreferencesPatch = {
+  email?: Partial<NotificationPreferences['email']>;
+  push?: Partial<NotificationPreferences['push']>;
+};
+
 export type HostBookingScope = 'upcoming' | 'past' | 'cancelled';
 
 export interface HostBookingRow {

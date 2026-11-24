@@ -1,5 +1,6 @@
 import { api, runTokenRotation, setSessionExpiredHandler } from './api';
 import { authStorage, normalizeEmail } from './auth';
+import { unregisterPushToken } from './notifications';
 import { useAppStore } from './store';
 import type {
   AuthResponse,
@@ -25,8 +26,10 @@ async function endSession(): Promise<void> {
   useAppStore.getState().logout();
 }
 
-// Manual sign-out (profile screen, after deleting the account).
-export async function signOut(): Promise<void> {
+// Manual sign-out (profile screen, after deleting the account). The device stops receiving pushes
+// for the account first, while the token is still valid.
+export async function signOut(options: { skipPushUnregister?: boolean } = {}): Promise<void> {
+  if (!options.skipPushUnregister) await unregisterPushToken();
   useAppStore.getState().setSessionNotice(null);
   await endSession();
 }
@@ -116,7 +119,8 @@ export async function deleteAccount(confirmation: { password: string } | { email
       ? { password: confirmation.password }
       : { confirm_email: normalizeEmail(confirmation.email) };
   await api.post<SuccessResponse>('/auth/delete-account', body);
-  await signOut();
+  // The server already removed this account's push tokens and revoked the session.
+  await signOut({ skipPushUnregister: true });
   useAppStore.getState().setSessionNotice(SESSION_NOTICES.deleted);
 }
 
