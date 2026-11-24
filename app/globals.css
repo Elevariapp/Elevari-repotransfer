@@ -614,7 +614,6 @@
   .elevari-header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     background: linear-gradient(180deg, rgba(154, 52, 14, 0.98) 0%, rgba(194, 65, 12, 0.97) 100%);
-    backdrop-filter: blur(18px);
     box-shadow: 0 8px 32px rgba(22, 34, 44, 0.24);
   }
 
@@ -730,7 +729,6 @@
     box-shadow:
       0 8px 40px rgba(0, 0, 0, 0.18),
       0 24px 64px rgba(0, 0, 0, 0.12);
-    backdrop-filter: blur(14px);
   }
 
   @media (width >= 640px) {
@@ -1000,7 +998,6 @@
       0 4px 6px rgba(0, 0, 0, 0.04),
       0 24px 48px rgba(0, 0, 0, 0.12),
       0 0 0 1px rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(20px);
   }
 
   .elevari-search-field {
