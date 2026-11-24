@@ -63,7 +63,7 @@ export default function ScenicBackground({
       {layers.map((layer) => (
         <div key={layer.id} className="sc-l" data-l={layer.id} data-d={layer.depth}>
           <svg
-            className={`sc-s${layer.anim ? ` a-${layer.anim}` : ''}`}
+            className={`sc-s${layer.anim ? ` a-${layer.anim}` : ''}${layer.vis ? ` ov-${layer.vis}` : ''}`}
             viewBox={VIEW}
             focusable="false"
             style={layerStyle(layer)}

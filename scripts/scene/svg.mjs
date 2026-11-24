@@ -10,6 +10,13 @@ import { num } from './geom.mjs';
 export const kebab = (k) => k.replace(/([a-z])([A-Z0-9])/g, '$1-$2').replace(/([0-9])([a-z])/g, '$1-$2').toLowerCase();
 export const cssVar = (k) => `--sc-${kebab(k)}`;
 
+/**
+ * A group whose opacity is a theme token ('$oPollen') gets the class `ov-pollen`. The generated CSS hides it for real
+ * (visibility) in the scenes where the token is 0, so the browser neither animates nor composites what nobody sees.
+ */
+export const visName = (token) => kebab(token.replace(/^\$/, '').replace(/^o(?=[A-Z0-9])/, ''));
+export const visVar = (token) => `--sc-v-${visName(token)}`;
+
 export function makeRenderer(mode, theme = null) {
   const css = mode === 'css';
   const tok = (v) => (css ? `var(${cssVar(v.slice(1))})` : String(theme[v.slice(1)]));
@@ -69,6 +76,7 @@ export function makeRenderer(mode, theme = null) {
         st.push(`transform-origin:${num(n.shd[0], 0)}px ${num(n.shd[1], 0)}px`);
       }
       if (n.h) at.push(`data-h="${n.h}"`);
+      if (typeof n.o === 'string') cls.push(`ov-${visName(n.o)}`);
     } else if (n.shd) {
       const [ox, oy] = n.shd;
       at.push(`transform="translate(${num(ox, 1)} ${num(oy, 1)}) scale(${theme.shdLen}) translate(${num(-ox, 1)} ${num(-oy, 1)})"`);

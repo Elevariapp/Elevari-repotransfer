@@ -50,7 +50,7 @@ function rays() {
   };
   return layer('rays', 0.15, [
     G([P(fan(8, 0.05, 0.05, 1000), '@rays', { o: 0.5 }), P(fan(13, 0.012, 0.02, 1100), '@rays')], { pos: ['sunX', 'sunY', 'sunK'], o: '$oRays' }),
-  ], { defs: [rad('rays', 0, 0, 1000, [[0, '$glow', 0.45], [0.45, '$glow', 0.14], [1, '$glow', 0]])], a: 'rays', du: 120 });
+  ], { defs: [rad('rays', 0, 0, 1000, [[0, '$glow', 0.45], [0.45, '$glow', 0.14], [1, '$glow', 0]])], a: 'rays', du: 11, vis: '$oRays' });
 }
 
 function milkyWay() {
@@ -319,7 +319,7 @@ function fireLayers(pit, domeGlowNodes, defs) {
   const [big, core] = pit.glowNodes;
   return [
     layer('glow', 3, domeGlowNodes, { defs }),
-    layer('fireglow', 3.1, [{ ...big, a: undefined, du: undefined }], { defs: pit.glow, a: 'flick', du: 3.1 }),
+    layer('fireglow', 3.1, [{ ...big, a: undefined, du: undefined }], { defs: pit.glow, a: 'flick', du: 3.1, vis: '$oFireGlow' }),
     layer('fire', 3.2, [...pit.back, core, pit.flames, pit.embers, ...pit.front]),
   ];
 }
@@ -436,7 +436,7 @@ export function buildScene() {
  * clouds, swaying trees, the fire) stay on their own SVG so a frame only repaints what actually moves.
  */
 function group(layers) {
-  const sig = (l) => JSON.stringify([l.depth, l.a ?? null, l.du ?? null, l.dl ?? null, l.v ?? null]);
+  const sig = (l) => JSON.stringify([l.depth, l.a ?? null, l.du ?? null, l.dl ?? null, l.v ?? null, l.vis ?? null]);
   const units = [];
   for (const l of layers) {
     const last = units[units.length - 1];
