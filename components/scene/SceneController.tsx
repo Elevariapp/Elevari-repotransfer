@@ -12,7 +12,8 @@ type IdleWindow = Window & {
 /**
  * Brings a server-rendered <ScenicBackground> to life. It keeps the scene current (time of day, site theme, the
  * visitor's choice), pauses every animation while the scene is off screen or the tab is hidden, and lazily loads the
- * pointer interactions. It renders only a hidden marker and finds its scene through it.
+ * pointer interactions and, for the full scenes, the quality governor (lib/scene/scene-quality.ts). It renders only a
+ * hidden marker and finds its scene through it.
  */
 export default function SceneController({ interactive = false }: { interactive?: boolean }) {
   const marker = useRef<HTMLSpanElement>(null);
@@ -44,27 +45,37 @@ export default function SceneController({ interactive = false }: { interactive?:
     // Mouse and pen get the parallax; touch only gets the taps of the interactive hero. The code loads once idle.
     let detach: (() => void) | undefined;
     let cancelled = false;
-    let cancelLoad = () => {};
-    const wantsPointer = interactive || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    if (wantsPointer) {
-      const load = () => {
-        import('./scene-interactions').then((mod) => {
-          if (!cancelled) detach = mod.attachSceneInteractions(root, { hotspots: interactive });
-        });
-      };
+    const cancels: Array<() => void> = [];
+    const whenIdle = (load: () => void) => {
       const idle = window as IdleWindow;
       if (idle.requestIdleCallback) {
         const handle = idle.requestIdleCallback(load, { timeout: 1500 });
-        cancelLoad = () => idle.cancelIdleCallback?.(handle);
+        cancels.push(() => idle.cancelIdleCallback?.(handle));
       } else {
         const handle = window.setTimeout(load, 400);
-        cancelLoad = () => window.clearTimeout(handle);
+        cancels.push(() => window.clearTimeout(handle));
       }
+    };
+    const wantsPointer = interactive || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (wantsPointer) {
+      whenIdle(() => {
+        import('./scene-interactions').then((mod) => {
+          if (!cancelled) detach = mod.attachSceneInteractions(root, { hotspots: interactive });
+        });
+      });
+    }
+    // The governor measures the real frame rate of the full scenes (the strips are too small to matter)
+    if (root.dataset.variant === 'full') {
+      whenIdle(() => {
+        import('@/lib/scene/scene-quality').then((mod) => {
+          if (!cancelled) mod.startSceneQuality(root);
+        });
+      });
     }
 
     return () => {
       cancelled = true;
-      cancelLoad();
+      cancels.forEach((cancel) => cancel());
       detach?.();
       observer.disconnect();
       document.removeEventListener('visibilitychange', applyPause);

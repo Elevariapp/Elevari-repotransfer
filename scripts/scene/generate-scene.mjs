@@ -16,8 +16,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { walk } from './nodes.mjs';
 import { buildScene } from './scene.mjs';
-import { cssVar, makeRenderer } from './svg.mjs';
+import { cssVar, makeRenderer, visName, visVar } from './svg.mjs';
 import { assertThemes, SCENE_HOURS, SCENE_LABELS, SCENE_ORDER, THEMES, THEME_NAMES } from './themes.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -37,6 +38,7 @@ function renderArt(scene) {
   const rows = scene.units.map((u) => {
     const f = [`id: '${u.ids[0]}'`, `depth: ${u.depth}`];
     if (u.lite) f.push('lite: true');
+    if (u.vis) f.push(`vis: '${visName(u.vis)}'`);
     if (u.a) {
       f.push(`anim: '${u.a}'`);
       if (u.du) f.push(`du: ${u.du}`);
@@ -55,6 +57,8 @@ export interface SceneLayer {
   readonly depth: number;
   /** Part of the lite variant (horizon strips). */
   readonly lite?: true;
+  /** The whole layer is hidden in the scenes where its opacity token is 0: the SVG gets the class \`ov-<vis>\`. */
+  readonly vis?: string;
   /** Layer-wide animation: the SVG gets the class \`a-<anim>\`, with --du / --dl in seconds and vars in px. */
   readonly anim?: string;
   readonly du?: number;
@@ -98,9 +102,31 @@ export function sceneForHour(hour: number): SceneThemeName {
 `;
 }
 
-function renderCss() {
+const THEMES_LIST = Object.keys(THEMES);
+
+/** Every opacity token that is 0 in some scene, so it decides whether a group, or a whole layer, is shown at all. */
+function visibilityTokens(scene) {
+  const tokens = new Set();
+  for (const l of scene.layers) {
+    if (l.vis) tokens.add(l.vis);
+    walk(l.nodes, (n) => {
+      if (typeof n.o === 'string') tokens.add(n.o);
+    });
+  }
+  const list = [...tokens].sort();
+  for (const t of list) if (typeof THEMES.golden[t.slice(1)] !== 'number') throw new Error(`unknown opacity token ${t}`);
+  // A token that is never 0 never hides anything
+  return list.filter((t) => THEMES_LIST.some((name) => THEMES[name][t.slice(1)] === 0));
+}
+
+function renderCss(scene) {
   const keys = Object.keys(THEMES.golden);
-  const vars = (name) => keys.map((k) => `  ${cssVar(k)}: ${THEMES[name][k]};`).join('\n');
+  const tokens = visibilityTokens(scene);
+  const vars = (name) =>
+    [
+      ...keys.map((k) => `  ${cssVar(k)}: ${THEMES[name][k]};`),
+      ...tokens.map((t) => `  ${visVar(t)}: ${THEMES[name][t.slice(1)] === 0 ? 'hidden' : 'visible'};`),
+    ].join('\n');
   const props = keys
     .map(
       (k) => `@property ${cssVar(k)} {
@@ -111,6 +137,10 @@ function renderCss() {
     )
     .join('\n');
   const transition = keys.map((k) => cssVar(k)).join(',\n    ');
+  const hideRules = tokens
+    .map((t) => `.sc .ov-${visName(t)} {\n  visibility: var(${visVar(t)});\n}`)
+    .join('\n\n');
+  const hideList = tokens.map((t) => `.ov-${visName(t)}`).join(',\n  ');
   return `/* ${HEADER} */
 ${props}
 
@@ -138,6 +168,16 @@ ${vars('night')}
   transition-timing-function: ease;
 }
 
+/* A group that is fully transparent in a scene is hidden too, so the browser stops animating and compositing what
+   nobody sees. It stays visible while it fades out (a visibility transition flips at the end of its duration). */
+.sc :is(
+  ${hideList}
+) {
+  transition: visibility 1.8s linear;
+}
+
+${hideRules}
+
 @media (prefers-reduced-motion: reduce) {
   .sc {
     transition: none;
@@ -152,7 +192,7 @@ async function main() {
   const outputs = {
     'lib/scene/scene-art.ts': renderArt(scene),
     'lib/scene/scene-data.ts': renderData(),
-    'components/scene/scene-themes.css': renderCss(),
+    'components/scene/scene-themes.css': renderCss(scene),
   };
 
   if (CHECK) {

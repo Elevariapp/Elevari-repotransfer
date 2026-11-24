@@ -229,13 +229,13 @@ export default function SearchHero() {
           <span className="hidden sm:inline"> Precio total antes de pagar y confirmación clara.</span>
         </p>
         <ul className="mt-5 hidden flex-wrap gap-2 text-xs font-semibold text-white sm:flex sm:gap-3 sm:text-sm">
-          <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+          <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5">
             ✓ Anfitriones verificados
           </li>
-          <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+          <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5">
             ✓ Precio transparente
           </li>
-          <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+          <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5">
             ✓ Reserva segura
           </li>
         </ul>

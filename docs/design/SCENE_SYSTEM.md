@@ -45,14 +45,16 @@ npm run scene:generate   # tras cambiar el arte o los tokens; commitear las sali
 npm run scene:check      # falla si las salidas están desactualizadas (corre en CI y en ci:local)
 ```
 
+Visibilidad: los tokens de opacidad que valen 0 en algún tema (`oSun`, `oRays`, `oMoon`…) generan además `--sc-v-<nombre>: hidden|visible` por tema y la clase `ov-<nombre>` en los grupos (y capas con `vis`) que los usan; ver §5.
+
 Tokens «portrait» (`sunXp/Yp/Kp`, `moonXp/Yp/Kp`): en una caja alta y estrecha (teléfono, `aspect-ratio ≤ 0.8`) el sol y la luna pasan a la esquina libre junto al titular.
 
-Peso del arte: 131,8 KB sin comprimir (gzip ≈ 33 KB, brotli ≈ 30 KB); la variante `lite` (cielo y cordilleras: 9 de las 17 unidades) pesa 40,5 KB (gzip ≈ 9 KB). `scene-themes.css` pesa ≈ 25 KB (se comprime bien).
+Peso del arte: ≈ 135 KB sin comprimir (gzip ≈ 34 KB, brotli ≈ 24 KB); la variante `lite` (cielo y cordilleras: 9 de las 17 unidades) pesa ≈ 41,6 KB (gzip ≈ 10 KB). `scene-themes.css` pesa ≈ 27,7 KB (gzip ≈ 5 KB).
 
 ## 3. Web (`components/scene/`, `components/home/`, `lib/scene/`)
 
 - `ScenicBackground.tsx` (servidor) pinta el SVG en línea: sin salto de maquetación y con muy poco JS. Props: `variant` (`full` | `lite`), `theme` (`auto` | `day` | `golden` | `night`), `scrim` (`hero` | `auth` | `center` | `none`), `idPrefix` (único por escena en la página), `focus` y `interactive`.
-- `SceneController.tsx` (cliente, mínimo): mantiene el tema al día, pausa las animaciones fuera de pantalla, con la pestaña oculta o con movimiento reducido (`data-paused`), y carga bajo demanda `scene-interactions.ts`.
+- `SceneController.tsx` (cliente, mínimo): mantiene el tema al día, pausa las animaciones fuera de pantalla, con la pestaña oculta o con movimiento reducido (`data-paused`), y carga bajo demanda `scene-interactions.ts` y, en las escenas completas, el gobernador de calidad (`lib/scene/scene-quality.ts`, ver §5).
 - `scene-interactions.ts`: parallax con ratón/lápiz y reacciones del héroe (ver §4).
 - `SceneSwitcher.tsx`: selector **Día · Tarde · Noche** (`radiogroup`).
 - `lib/scene/scene-state.ts`: estado de la página. `lib/scene/time-of-day.ts` define `sceneInitScript`, que corre en `<head>` (`app/layout.tsx`) y fija `data-elevari-scene` en `<html>` **antes del primer pintado**, de modo que el HTML del servidor nunca muestra un tema equivocado.
@@ -85,7 +87,10 @@ Las zonas sensibles ignoran los controles (`a`, `button`, `input`, `[role=radio]
 - Decorativo: `aria-hidden`, sin foco ni eventos. El selector es un `radiogroup` con `aria-label` en español, un solo punto de tabulación (tabindex itinerante), foco visible y objetivos de ≥ 44 px.
 - Contraste AA: el texto del héroe se midió muestreando píxeles tras el texto real en los tres temas (percentil 95: 1440×900 ≥ 5,7:1; 390×844 y 360×640 ≥ 4,9:1). Cada tema tiene su scrim; en teléfono una pequeña ventana en el scrim deja brillar el sol o la luna sin tocar el brillo junto al texto. Si cambias nubes, rayos o posiciones de sol/luna, vuelve a medir.
 - `prefers-reduced-motion`: sin animaciones ni parallax (el cuadro queda quieto y completo). También se pausa fuera de pantalla y con la pestaña oculta.
-- Solo `transform`/`opacity` en el compositor y recuentos de partículas acotados; sin canvas ni bucles de JS.
+- Solo `translate`/`scale`/`opacity` en el compositor y recuentos de partículas acotados; sin canvas ni bucles de JS. **No hay giros de capas a pantalla completa** (rotar una capa del tamaño del viewport era lo más caro de componer: los rayos respiran con opacidad y el cielo se desplaza, solo el puntero inclina los rayos unos grados).
+- **Lo invisible no cuesta:** cada grupo cuya opacidad vale 0 en algún tema (sol, rayos, luna, estrellas, Vía Láctea, fugaces, aves, golondrinas, polen, luciérnagas, fogata, resplandor, ventanas, sombras) recibe una clase `ov-<nombre>` y el generador emite `--sc-v-<nombre>: hidden|visible` por tema. `visibility` se anima con `linear` en 1,8 s: se queda visible durante el fundido y pasa a `hidden` al final.
+- **Sin `backdrop-filter` sobre la escena:** desenfocar arte animado se recalcula en cada fotograma (la cabecera, la tarjeta de acceso, el buscador, los chips y el selector tenían desenfoques sin efecto visible y se quitaron).
+- **Gobernador de calidad** (`lib/scene/scene-quality.ts`): con la página asentada (carga + 1,5 s) mide durante ≈ 2,4 s los fotogramas reales de una escena completa. Si la mediana pasa de 38 ms (< 26 fps; un tope de 30 Hz por ahorro de batería pasa) baja de nivel: `data-scene-q="calm"` en `<html>` (solo se mueven nubes, bruma y fuego) y, si sigue lento, `"still"` (imagen fija, como con movimiento reducido). El veredicto se guarda en `sessionStorage` (`elevari-scene-q`) y `sceneInitScript` lo aplica antes del primer pintado; `Save-Data` arranca en `calm`. Mide solo con la pestaña visible y la escena en pantalla. Para depurar: `sessionStorage.setItem('elevari-scene-q','still')` y recargar, o quitar la clave.
 - Presupuesto (`PERFORMANCE_BASELINE.md`): la escena es HTML del servidor; el cliente solo carga el buscador, el selector y el controlador. La foto del héroe anterior ya no se descarga.
 - Limitación conocida: en WebKit (Safari) los degradados cuyos puntos dependen de variables CSS pueden no repintarse a mitad del fundido y saltar al valor final; el resultado final es el correcto.
 

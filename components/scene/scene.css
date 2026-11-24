@@ -175,21 +175,23 @@
   }
 }
 
+/* Layer-wide motion stays to translations and opacity: rotating a viewport-sized layer made the compositor of weak
+   GPUs (and of software renderers) drop to ~20 fps. The rays still turn with the pointer (see below). */
 @keyframes sc-rays {
   from {
-    transform: rotate(-4deg);
+    opacity: 0.7;
   }
   to {
-    transform: rotate(4deg);
+    opacity: 1;
   }
 }
 
 @keyframes sc-skydrift {
   from {
-    transform: rotate(-1.4deg);
+    transform: translate3d(-22px, -6px, 0);
   }
   to {
-    transform: rotate(1.4deg);
+    transform: translate3d(22px, 6px, 0);
   }
 }
 
@@ -225,12 +227,13 @@
 
 .sc-s.a-rays {
   transform-origin: calc(var(--sc-sun-x) / 1600 * 100%) calc(var(--sc-sun-y) / 900 * 100%);
-  animation: sc-rays var(--du, 120s) ease-in-out var(--dl, 0s) infinite alternate;
-  transition: rotate 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  animation: sc-rays var(--du, 11s) ease-in-out var(--dl, 0s) infinite alternate;
+  transition:
+    rotate 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    visibility 1.8s linear;
 }
 
 .sc-s.a-skydrift {
-  transform-origin: 68% 22%;
   animation: sc-skydrift var(--du, 260s) ease-in-out var(--dl, 0s) infinite alternate;
 }
 
@@ -515,6 +518,28 @@
   .a-glint:nth-of-type(even) {
     display: none;
   }
+}
+
+/* ---- quality governor (lib/scene/scene-quality.ts) ----
+   A device that cannot keep the scene at a smooth frame rate gets a calmer one: first only the clouds, the mist and the
+   fire keep moving ("calm"), then nothing ("still", as with prefers-reduced-motion). The pointer reactions stay. */
+
+html[data-scene-q='calm'] :is(.sc-s, .sc-s *):not(.a-drift, .a-flame, .a-flare, .a-flick, .a-ember, .a-pokeshoot, [data-h]) {
+  animation: none;
+}
+
+html[data-scene-q='still'] :is(.sc-s, .sc-s *):not(.a-pokeshoot, [data-h]) {
+  animation: none;
+}
+
+html[data-scene-q='still'] .sc {
+  transition: none;
+}
+
+html[data-scene-q] .a-glint,
+html[data-scene-q] .a-pollen,
+html[data-scene-q='still'] .a-ember {
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

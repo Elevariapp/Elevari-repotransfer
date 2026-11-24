@@ -156,7 +156,8 @@ Vector (no photographs) landscape in three moments, **Día / Tarde / Noche** (da
 - Server-rendered inline SVG (no layout shift, little client JS); `sceneInitScript` (in `<head>`) sets `<html data-elevari-scene>` before first paint.
 - Which moment shows, in order: the visitor's choice with the switcher (this tab, `sessionStorage` `elevari-scene`, shared by every scene on the page), an explicitly dark site theme (header toggle) → night, the local time. Using the header toggle clears the switcher choice.
 - Interactions: pointer parallax, the fire flares on hover/tap, the sun swells, the moon and stars react (a shooting star crosses). Reactions never take clicks from the search (controls are ignored).
-- Respects `prefers-reduced-motion`; pauses off screen and in hidden tabs; only transforms and opacity are animated.
+- Respects `prefers-reduced-motion`; pauses off screen and in hidden tabs; only translate/scale/opacity are animated (no rotation of full-screen layers: it was the most expensive thing to composite), and every group that is invisible in the current moment gets `visibility: hidden` (`ov-*` classes, `--sc-v-*` variables generated per theme) so it costs nothing.
+- Quality governor (`lib/scene/scene-quality.ts`): after load it measures the real frame rate of a full scene for ~2.4 s; if the median frame is slower than ~26 fps it steps down to `data-scene-q="calm"` (only clouds, mist and fire move) and then `"still"` (a static picture). The verdict lives in `sessionStorage` `elevari-scene-q` (applied before first paint by `sceneInitScript`); `Save-Data` starts in `calm`. Do not put `backdrop-filter` over the scene: blur over animated art is recomputed every frame (the header, the login card, the search card, the chips and the switcher had no-op blurs that were removed).
 - Safari caveat: gradient stops driven by CSS variables may not repaint mid cross-fade; the end state is correct.
 
 ## Placeholder Audit

@@ -855,6 +855,20 @@
   --sc-scrim-r: 42;
   --sc-scrim-g: 18;
   --sc-scrim-b: 38;
+  --sc-v-birds: hidden;
+  --sc-v-fire: visible;
+  --sc-v-fire-glow: visible;
+  --sc-v-fly: hidden;
+  --sc-v-moon: hidden;
+  --sc-v-mw: hidden;
+  --sc-v-pollen: visible;
+  --sc-v-rays: visible;
+  --sc-v-shadow: visible;
+  --sc-v-shoot: hidden;
+  --sc-v-stars: visible;
+  --sc-v-sun: visible;
+  --sc-v-swallow: visible;
+  --sc-v-window: visible;
 }
 
 .sc[data-scene='day'],
@@ -1001,6 +1015,20 @@ html[data-elevari-scene='day'] .sc[data-scene='auto'] {
   --sc-scrim-r: 15;
   --sc-scrim-g: 47;
   --sc-scrim-b: 79;
+  --sc-v-birds: visible;
+  --sc-v-fire: hidden;
+  --sc-v-fire-glow: hidden;
+  --sc-v-fly: hidden;
+  --sc-v-moon: hidden;
+  --sc-v-mw: hidden;
+  --sc-v-pollen: visible;
+  --sc-v-rays: visible;
+  --sc-v-shadow: visible;
+  --sc-v-shoot: hidden;
+  --sc-v-stars: hidden;
+  --sc-v-sun: visible;
+  --sc-v-swallow: hidden;
+  --sc-v-window: hidden;
 }
 
 .sc[data-scene='night'],
@@ -1147,6 +1175,20 @@ html[data-elevari-scene='night'] .sc[data-scene='auto'] {
   --sc-scrim-r: 5;
   --sc-scrim-g: 8;
   --sc-scrim-b: 24;
+  --sc-v-birds: hidden;
+  --sc-v-fire: visible;
+  --sc-v-fire-glow: visible;
+  --sc-v-fly: visible;
+  --sc-v-moon: visible;
+  --sc-v-mw: visible;
+  --sc-v-pollen: hidden;
+  --sc-v-rays: hidden;
+  --sc-v-shadow: hidden;
+  --sc-v-shoot: visible;
+  --sc-v-stars: visible;
+  --sc-v-sun: hidden;
+  --sc-v-swallow: hidden;
+  --sc-v-window: visible;
 }
 
 /* The registered variables interpolate, so a change of time of day cross-fades every gradient, fill and light */
@@ -1296,6 +1338,83 @@ html[data-elevari-scene='night'] .sc[data-scene='auto'] {
     --sc-scrim-b;
   transition-duration: 1.8s;
   transition-timing-function: ease;
+}
+
+/* A group that is fully transparent in a scene is hidden too, so the browser stops animating and compositing what
+   nobody sees. It stays visible while it fades out (a visibility transition flips at the end of its duration). */
+.sc :is(
+  .ov-birds,
+  .ov-fire,
+  .ov-fire-glow,
+  .ov-fly,
+  .ov-moon,
+  .ov-mw,
+  .ov-pollen,
+  .ov-rays,
+  .ov-shadow,
+  .ov-shoot,
+  .ov-stars,
+  .ov-sun,
+  .ov-swallow,
+  .ov-window
+) {
+  transition: visibility 1.8s linear;
+}
+
+.sc .ov-birds {
+  visibility: var(--sc-v-birds);
+}
+
+.sc .ov-fire {
+  visibility: var(--sc-v-fire);
+}
+
+.sc .ov-fire-glow {
+  visibility: var(--sc-v-fire-glow);
+}
+
+.sc .ov-fly {
+  visibility: var(--sc-v-fly);
+}
+
+.sc .ov-moon {
+  visibility: var(--sc-v-moon);
+}
+
+.sc .ov-mw {
+  visibility: var(--sc-v-mw);
+}
+
+.sc .ov-pollen {
+  visibility: var(--sc-v-pollen);
+}
+
+.sc .ov-rays {
+  visibility: var(--sc-v-rays);
+}
+
+.sc .ov-shadow {
+  visibility: var(--sc-v-shadow);
+}
+
+.sc .ov-shoot {
+  visibility: var(--sc-v-shoot);
+}
+
+.sc .ov-stars {
+  visibility: var(--sc-v-stars);
+}
+
+.sc .ov-sun {
+  visibility: var(--sc-v-sun);
+}
+
+.sc .ov-swallow {
+  visibility: var(--sc-v-swallow);
+}
+
+.sc .ov-window {
+  visibility: var(--sc-v-window);
 }
 
 @media (prefers-reduced-motion: reduce) {
