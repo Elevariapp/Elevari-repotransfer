@@ -43,12 +43,15 @@
 | `brand.ts` | Brand colors, logo URL, company info |
 | `layout.ts` | Email shell/layout with header/footer branding |
 | `index.ts` | Template exports |
-| `booking-confirmation.ts` | Booking confirmation email |
-| `booking-cancellation.ts` | Booking cancellation email |
-| `check-in-reminder.ts` | Check-in reminder email |
+| `booking-confirmation.ts` | Booking confirmation email (guest) |
+| `booking-cancellation.ts` | Booking cancellation email (guest) |
+| `host-new-booking.ts` | New paid booking on a host's property (host) |
+| `host-booking-cancelled.ts` | A guest cancelled a paid booking (host) |
+| `check-in-reminder.ts` | Check-in reminder email (guest, the day before) |
 | `invoice-receipt.ts` | Invoice/receipt email |
 | `password-changed.ts` | Password changed notification |
 | `password-reset.ts` | Password reset email |
+| `account-deleted.ts` | Account deleted confirmation (sent to the address held before erasure) |
 | `welcome.ts` | Welcome email |
 
 ### Sender
@@ -60,6 +63,34 @@ RESEND_API_KEY=your_resend_api_key
 RESEND_FROM_EMAIL=reserve@elevari.live
 RESEND_FROM_NAME=Elevari S.A.S
 ```
+
+## Accounts, notifications and push
+
+### What fires when (API)
+| Event | E-mail | Push (Expo) | In-app feed |
+|-------|--------|-------------|-------------|
+| Sign up (e-mail or Google) | `welcome` | - | - |
+| Password reset requested | `password-reset` (link `…/auth/reset-password#token=…`; answer is identical for unknown addresses) | - | - |
+| Password changed / reset | `password-changed` | - | guest/host (bell: "Contraseña actualizada") |
+| Booking paid | `booking-confirmation` (guest), `host-new-booking` (host) | guest + host | guest + host |
+| Booking cancelled | `booking-cancellation` (guest), `host-booking-cancelled` (host) | guest + host | guest + host |
+| Unpaid booking expired | `booking-cancellation` (guest) | guest | guest |
+| Day before check-in (job every few hours) | `check-in-reminder` | guest | guest (shown from 07:00 Colombia time) |
+| Invoice issued | `invoice-receipt` | - | - |
+| Account deleted | `account-deleted` | - | - |
+
+Guests can switch off: reminder e-mails, and push for bookings / reminders. Hosts can also switch off the e-mails and push for new and cancelled bookings of their properties (`GET/PATCH /notifications/preferences`, web `/account/notifications`, mobile Perfil > Preferencias de avisos). Booking confirmations, cancellations, receipts and every security e-mail are always sent. WhatsApp has no preference: the API sends no WhatsApp messages.
+
+### Push
+- Expo push (`api/src/lib/push.ts`), no secret needed unless Expo "enhanced security" is enabled (`EXPO_ACCESS_TOKEN`). Tokens are registered with `POST /notifications/push-token` and removed with `/notifications/push-token/unregister` (mobile does it on sign-out) or on account deletion. Tokens Expo reports as `DeviceNotRegistered` are deleted.
+- Push only works once the EAS project exists: `eas init` (see the Expo account row in `mobile/RELEASE.md`) writes `extra.eas.projectId` into `app.json`. Until then the app skips registration silently (no crash, no error).
+- The web app / PWA has no web push (`public/sw.js` has no push handler); its channels are the bell and e-mail.
+
+### Host bookings
+`GET /host/bookings?scope=upcoming|past|cancelled&page=` lists the bookings of the caller's own properties (paginated, 20 per page; the host never sees the guest's e-mail or phone). Web: `/host/bookings`. Mobile: Reservas tab of the host area. A guest account can become a host with `POST /auth/become-host` (web `/become-host`, mobile Perfil > Publica tu espacio).
+
+### Tests
+`cd api && TEST_DATABASE_URL=postgresql://postgres@127.0.0.1:5432/elevari_test npm test` runs the integration suites against a real, local PostgreSQL (migrations applied, Resend and Expo replaced by local mock servers; see `api/tests/harness.ts`). Without `TEST_DATABASE_URL` they are skipped. `npx vitest run tests/` (repo root) covers the web and mobile pure logic. CI does not run these yet.
 
 ## WhatsApp Business Integration
 
