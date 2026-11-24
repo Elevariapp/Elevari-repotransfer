@@ -34,13 +34,33 @@ badging="$("$build_tools/aapt2" dump badging "$apk")"
 package_name="$(sed -n "s/^package: name='\([^']*\)'.*/\1/p" <<< "$badging" | head -n 1)"
 version_code="$(sed -n "s/^package: .* versionCode='\([0-9]*\)'.*/\1/p" <<< "$badging" | head -n 1)"
 version_name="$(sed -n "s/^package: .* versionName='\([^']*\)'.*/\1/p" <<< "$badging" | head -n 1)"
-min_sdk="$(sed -n "s/^sdkVersion:'\([0-9]*\)'.*/\1/p" <<< "$badging" | head -n 1)"
+# aapt2 names the minimum SDK "sdkVersion" or "minSdkVersion" depending on the build-tools release.
+min_sdk="$(sed -n "s/^\(sdkVersion\|minSdkVersion\):'\([0-9]*\)'.*/\2/p" <<< "$badging" | head -n 1)"
 target_sdk="$(sed -n "s/^targetSdkVersion:'\([0-9]*\)'.*/\1/p" <<< "$badging" | head -n 1)"
+
+# Reads one integer attribute (decimal or 0x hex, with or without a "(type 0x10)" prefix) from `aapt2 dump xmltree`.
+manifest_int() {
+  local raw
+  raw="$(sed -n "s/.*[:.]$1(0x[0-9a-fA-F]*)=\(([^)]*)\)\{0,1\}\(0x[0-9a-fA-F]\{1,\}\|[0-9]\{1,\}\).*/\2/p" <<< "$manifest_dump" | head -n 1)"
+  if [ -n "$raw" ]; then printf '%d' "$raw"; fi
+}
+manifest_dump=""
+if ! [[ "$min_sdk" =~ ^[0-9]+$ && "$target_sdk" =~ ^[0-9]+$ ]]; then
+  manifest_dump="$("$build_tools/aapt2" dump xmltree --file AndroidManifest.xml "$apk" || true)"
+  min_sdk="$(manifest_int minSdkVersion)"
+  target_sdk="$(manifest_int targetSdkVersion)"
+fi
 
 expected_package="$(jq -r '.expo.android.package' app.json)"
 [ "$package_name" = "$expected_package" ] || fail "Package is '$package_name', app.json says '$expected_package'."
 [[ "$version_code" =~ ^[0-9]+$ ]] || fail "Could not read versionCode from the APK."
-[[ "$min_sdk" =~ ^[0-9]+$ && "$target_sdk" =~ ^[0-9]+$ ]] || fail "Could not read minSdk/targetSdk from the APK."
+if ! [[ "$min_sdk" =~ ^[0-9]+$ && "$target_sdk" =~ ^[0-9]+$ ]]; then
+  echo "::group::aapt2 output (for diagnosing the SDK lookup)"
+  { grep -i 'sdk' <<< "$badging" || true; } | head -n 20
+  head -n 30 <<< "$manifest_dump"
+  echo "::endgroup::"
+  fail "Could not read minSdk/targetSdk from the APK."
+fi
 [ "$target_sdk" -ge 36 ] || fail "targetSdkVersion is $target_sdk; expected 36 or higher. Check for stale SDK overrides in mobile/app.json."
 if grep -q '^application-debuggable' <<< "$badging"; then fail "The APK is debuggable."; fi
 
