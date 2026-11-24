@@ -1,7 +1,7 @@
 // Looks at the PUBLIC site the way a visitor does: status codes, the hero markers, whether Cloudflare Turnstile
-// is enforced on the API, and screenshots of the home hero (Día / Tarde / Noche) on desktop and phone.
-// Run by .github/workflows/site-check.yml. It reads public pages only; the single POST is a login with a made-up
-// account (no token), which is how we learn whether the mobile app needs API_CLIENT_KEY.
+// is enforced on the API (read from the public /health), and screenshots of the home hero (Día / Tarde / Noche) on
+// desktop and phone.
+// Run by .github/workflows/site-check.yml. It only sends GET requests to public pages and needs no credentials.
 //
 // Cloudflare fronts the site and can answer 403 to GitHub-hosted runners (it did for Node's fetch and for headless
 // Chromium). So every request goes through plain curl, and the browser only renders the responses curl fetched:
@@ -89,6 +89,8 @@ function probePage(path) {
     cache: res.headers['cf-cache-status'] ?? null,
     blocked: isCloudflareBlock(res),
     error: res.error,
+    title: /<title[^>]*>([^<]*)<\/title>/i.exec(res.body.subarray(0, 60_000).toString('utf8'))?.[1] ?? null,
+    headers: Object.fromEntries(Object.entries(res.headers).filter(([name]) => name !== 'set-cookie')),
     body: res.body.toString('utf8'),
   };
 }
@@ -141,6 +143,9 @@ for (const path of paths) {
   bodies[path] = page.body;
   const { body, ...rest } = page;
   report.pages.push(rest);
+  // Public HTML, kept in the artifact so a surprising page can be read instead of guessed at.
+  mkdirSync(`${out}/raw`, { recursive: true });
+  writeFileSync(`${out}/raw/${path === '/' ? 'home' : path.slice(1).replaceAll('/', '_')}.html`, page.body);
   say(
     `| \`${path}\` | ${page.status || 'error'}${page.blocked ? ' (Cloudflare block page)' : ''}${page.location ? ` → ${page.location}` : ''} | ${page.ms} ms | ${Math.round(page.bytes / 1024)} KB |`,
   );
@@ -167,8 +172,10 @@ const homeStatus = report.pages.find((page) => page.path === '/')?.status ?? 0;
 const home = homeStatus === 200 ? bodies['/'] : '';
 const hero = {
   readable: homeStatus === 200,
+  // data-elevari-scene is also in the root layout, so every page has it; the switcher exists only in the home hero.
   sceneInitScript: home.includes('data-elevari-scene'),
-  sceneSwitcher: home.includes('sc-sw'),
+  sceneSwitcher: home.includes('sc-sw') && home.includes('data-scene="night"'),
+  title: report.pages.find((page) => page.path === '/')?.title ?? null,
 };
 report.hero = hero;
 say();
@@ -176,9 +183,11 @@ say('**Hero markers in the home HTML**');
 if (!hero.readable) {
   say(`- Could not read the home page (HTTP ${homeStatus || 'error'}), so nothing can be said about the hero.`);
 } else {
-  say(`- Scene system present (data-elevari-scene): ${hero.sceneInitScript ? 'yes' : 'NO'}`);
-  say(`- Día · Tarde · Noche switcher present: ${hero.sceneSwitcher ? 'yes' : 'NO'}`);
-  if (!hero.sceneInitScript) report.problems.push('The home HTML does not contain the scene system: the old hero is still being served');
+  say(`- Page title: ${hero.title ?? 'none'}`);
+  say(`- Scene system in the layout (data-elevari-scene): ${hero.sceneInitScript ? 'yes' : 'NO'}`);
+  say(`- Día · Tarde · Noche hero in the home page: ${hero.sceneSwitcher ? 'yes' : 'NO'}`);
+  if (!hero.sceneSwitcher) report.problems.push('The home page does not contain the Día · Tarde · Noche hero: the new hero is NOT what visitors get');
+  if (!hero.sceneInitScript) report.problems.push('No page carries the scene system: the new build is not live');
 }
 
 const appStatus = report.pages.find((page) => page.path === '/app')?.status ?? 0;
@@ -197,37 +206,34 @@ say(
     : `- Could not read the page (HTTP ${appStatus || 'error'}).`,
 );
 
-// Is Turnstile enforced? One login with a made-up account and no challenge token.
+// Is Turnstile enforced? The API reports it in /health (turnstile_required), which nginx exposes publicly.
 const loginHtml = bodies['/auth/login'] || '';
 const widgetInHtml = /challenges\.cloudflare\.com|cf-turnstile|turnstile/i.test(loginHtml);
-const login = curl(`${base}/api/v1/auth/login`, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json', 'user-agent': UA, accept: 'application/json' },
-  body: Buffer.from(JSON.stringify({ email: 'site-check@example.invalid', password: 'not-a-real-password-1' })),
-});
-let apiCode = null;
+let health = null;
 try {
-  const json = JSON.parse(login.body.toString('utf8'));
-  apiCode = typeof json?.code === 'string' ? json.code : null;
+  const json = JSON.parse(bodies['/health'] || '');
+  if (json && typeof json === 'object' && 'turnstile_required' in json) health = json;
 } catch {
-  // not JSON (for example a Cloudflare block page)
+  // not the API's JSON (for example a block page or a 404)
 }
-const apiProbe = { status: login.status, code: apiCode };
-const enforced = apiProbe.code === 'turnstile_failed';
-report.turnstile = { widgetInLoginHtml: widgetInHtml, apiStatus: apiProbe.status, apiCode: apiProbe.code, enforcedForNativeApps: enforced };
+report.turnstile = {
+  widgetInLoginHtml: widgetInHtml,
+  apiStatus: health?.status ?? null,
+  database: health?.database ?? null,
+  enforced: typeof health?.turnstile_required === 'boolean' ? health.turnstile_required : null,
+};
 say();
-say('**Turnstile (decides whether the Android app can sign in without API_CLIENT_KEY)**');
+say('**API health and Turnstile (decides whether the Android app can sign in without API_CLIENT_KEY)**');
+say(`- /health: ${health ? `status \`${health.status}\`, database \`${health.database}\`, turnstile_required \`${health.turnstile_required}\`` : 'did not return the API health JSON'}`);
 say(`- Widget referenced by the login page: ${widgetInHtml ? 'yes' : 'no'}`);
-say(`- Login without a challenge token: HTTP ${apiProbe.status || 'error'}, code \`${apiProbe.code ?? 'none'}\``);
 say(
-  enforced
-    ? '- Result: ENFORCED. The app needs API_CLIENT_KEY on the server and the same value in the EXPO_PUBLIC_API_KEY repository secret, or app sign-in fails.'
-    : isCloudflareBlock(login)
-      ? '- Result: inconclusive. Cloudflare blocked this request before it reached the API.'
-      : apiProbe.status === 401 || apiProbe.status === 429
-        ? '- Result: NOT enforced for this request. The app can sign in without a key.'
-        : '- Result: inconclusive (see status above).',
+  report.turnstile.enforced === true
+    ? '- Result: ENFORCED. The app needs API_CLIENT_KEY on the server and the same value in the EXPO_PUBLIC_API_KEY repository secret, or app sign-in and registration fail with turnstile_failed.'
+    : report.turnstile.enforced === false
+      ? '- Result: NOT enforced. The app can sign in without a key.'
+      : '- Result: unknown (/health did not answer with the API JSON).',
 );
+if (health && health.status !== 'ok') report.problems.push(`API /health reports status ${health.status}, database ${health.database}`);
 
 // Screenshots of the real thing.
 const browser = await chromium.launch({
@@ -268,6 +274,8 @@ for (const vp of viewports) {
   const response = await page.goto(`${base}/`, { waitUntil: 'load', timeout: 45_000 }).catch(() => null);
   await page.waitForTimeout(2500);
   const title = await page.title();
+  report[`${vp.name}HomeLanded`] = { url: page.url(), title, status: response?.status() ?? null };
+  say(`- ${vp.name}: opening / landed on ${page.url()} (title "${title}")`);
   if (!response || response.status() >= 400 || /just a moment|attention required/i.test(title)) {
     report.problems.push(`${vp.name}: the browser did not get the real page (status ${response?.status() ?? 'none'}, title "${title}")`);
   }
