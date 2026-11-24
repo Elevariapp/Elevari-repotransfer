@@ -101,6 +101,26 @@
   }
 }
 
+/*
+ * On a phone the sun or the moon sits under the full-height veil that protects the text, which would turn it into a
+ * grey disc. A small window in the veil (the disc plus a few pixels: the glow around it stays veiled, so the text next
+ * to it keeps its contrast) lets the disc shine. The position repeats the placement maths of .sc-s for the portrait
+ * orb tokens (x 1262, y 150 of 1600 x 900; the disc radius is 60 units times the orb scale).
+ */
+@container sc (max-aspect-ratio: 0.8) {
+  .sc[data-scrim='hero'] .sc-scrim {
+    --w: calc(max(100cqw, 100cqh * 1.7778) * 1.05);
+    --r: calc(var(--w) * 0.0375 * (var(--sc-sun-kp) * var(--sc-o-sun) + var(--sc-moon-kp) * var(--sc-o-moon)));
+    --mask: radial-gradient(
+      circle at calc((100cqw - var(--w)) * 0.76 + var(--w) * 0.78875) calc(100cqh - var(--w) * 0.5625 + 24px + var(--w) * 0.09375),
+      transparent calc(var(--r) + 2px),
+      #000 calc(var(--r) + 16px)
+    );
+    -webkit-mask-image: var(--mask);
+    mask-image: var(--mask);
+  }
+}
+
 .sc[data-scrim='auth'] .sc-scrim {
   background:
     linear-gradient(to bottom, rgb(var(--c) / calc(var(--sc-scrim-a) * 1.2)), transparent 24%),

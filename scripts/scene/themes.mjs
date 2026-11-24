@@ -165,7 +165,7 @@ export const THEMES = {
     sunK: 1.5,
     sunXp: 1262,
     sunYp: 150,
-    sunKp: 0.8,
+    sunKp: 0.7,
     oMoon: 0,
     moonX: 1200,
     moonY: 330,

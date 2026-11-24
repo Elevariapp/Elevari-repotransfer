@@ -392,7 +392,7 @@
 @property --sc-sun-kp {
   syntax: '<number>';
   inherits: true;
-  initial-value: 0.8;
+  initial-value: 0.7;
 }
 @property --sc-o-moon {
   syntax: '<number>';
@@ -791,7 +791,7 @@
   --sc-sun-k: 1.5;
   --sc-sun-xp: 1262;
   --sc-sun-yp: 150;
-  --sc-sun-kp: 0.8;
+  --sc-sun-kp: 0.7;
   --sc-o-moon: 0;
   --sc-moon-x: 1200;
   --sc-moon-y: 330;
