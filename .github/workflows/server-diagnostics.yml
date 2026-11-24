@@ -245,9 +245,14 @@ jobs:
           on_server python3 - "$TAG" < .github/scripts/whatsapp-diagnostics/server-report.py 2>&1 | mask > "$out"
           rc=${PIPESTATUS[0]}
           echo >> "$out"
-          # shellcheck disable=SC2016  # the $(...) must run on the server, not here
-          on_server 'cd /opt/elevari && bot=$(docker compose -f docker-compose.prod.yml --env-file .env.production ps -q bot 2>/dev/null) && [ -n "$bot" ] && docker exec -i "$bot" node - || echo "== Meta check skipped: the bot container is not running"' \
-            < .github/scripts/whatsapp-diagnostics/meta-check.js 2>&1 | mask >> "$out"
+          # Runs on the server. The app id (not a secret) is the one value the bot container does not have.
+          # shellcheck disable=SC2016
+          in_bot_container='cd /opt/elevari || exit 1
+            bot=$(docker compose -f docker-compose.prod.yml --env-file .env.production ps -q bot 2>/dev/null)
+            [ -n "$bot" ] || { echo "== Meta check skipped: the bot container is not running"; exit 0; }
+            app_id=$(sed -n "s/^META_APP_ID=//p" .env.production | tr -cd "0-9\n" | head -n 1)
+            docker exec -i -e META_APP_ID="$app_id" "$bot" node -'
+          on_server "$in_bot_container" < .github/scripts/whatsapp-diagnostics/meta-check.js 2>&1 | mask >> "$out"
           rm -f ~/.ssh/bot_key
           cat "$out"
           [ "$rc" -eq 0 ] || echo "::error::SSH step ended with exit code $rc"

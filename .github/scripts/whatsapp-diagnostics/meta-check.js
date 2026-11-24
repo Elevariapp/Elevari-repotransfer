@@ -11,6 +11,8 @@ const token = clean(process.env.WHATSAPP_TOKEN);
 const phoneNumberId = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
 const appSecret = clean(process.env.WHATSAPP_APP_SECRET);
 const configuredWaba = clean(process.env.WHATSAPP_BUSINESS_ACCOUNT_ID);
+// The app id is not a secret and not part of the bot's environment: the workflow passes the server's META_APP_ID.
+const configuredAppId = /^\d{5,20}$/.test(clean(process.env.META_APP_ID)) ? clean(process.env.META_APP_ID) : '';
 const version = /^v\d+\.\d+$/.test(clean(process.env.GRAPH_API_VERSION)) ? clean(process.env.GRAPH_API_VERSION) : 'v21.0';
 const WEBHOOK_PATH = '/webhook/whatsapp';
 
@@ -20,8 +22,11 @@ const problem = (subject, text) => {
 };
 const say = (line = '') => console.log(line);
 const tail = (value) => `…${String(value ?? '').replace(/\D/g, '').slice(-4)}`;
-const describe = (error) =>
-  `code ${error?.code ?? '?'}${error?.error_subcode ? `/${error.error_subcode}` : ''}${error?.type ? ` ${error.type}` : ''}`;
+// Meta's numeric code and subcode only (debug_token calls the subcode "subcode", errors call it "error_subcode").
+const describe = (error) => {
+  const subcode = error?.error_subcode ?? error?.subcode;
+  return `code ${error?.code ?? '?'}${subcode ? `/${subcode}` : ''}${error?.type ? ` ${error.type}` : ''}`;
+};
 
 async function graph(path, params = {}, bearer = token) {
   const url = new URL(`https://graph.facebook.com/${version}/${path}`);
@@ -48,6 +53,28 @@ function callback(value) {
   }
 }
 
+const NEW_TOKEN =
+  'Create a permanent System User token (Meta Business settings -> System users -> Generate token, with the ' +
+  'whatsapp_business_messaging and whatsapp_business_management permissions), save it as the WHATSAPP_TOKEN secret and redeploy.';
+
+// A rejected token cannot describe itself, but its app (app id + app secret) can still ask Meta what is wrong with it.
+async function whyRejected() {
+  if (!configuredAppId || !appSecret) return 'is expired or invalid';
+  const asApp = await graph('debug_token', { input_token: token, access_token: `${configuredAppId}|${appSecret}` }, '');
+  const data = asApp.json?.data;
+  if (!asApp.ok || !data) {
+    say(`   asked as app ${tail(configuredAppId)}: HTTP ${asApp.status}, ${describe(asApp.error)}`);
+    return asApp.error?.code === 100 ? `does not belong to Meta app ${tail(configuredAppId)}, or is not an access token at all` : 'is expired or invalid';
+  }
+  const expired = data.expires_at ? new Date(data.expires_at * 1000) : null;
+  say(`   asked as app ${tail(configuredAppId)}: valid ${data.is_valid === true ? 'yes' : 'NO'}, type ${data.type ?? '?'}, ${describe(data.error)}${expired ? `, expiry ${expired.toISOString().slice(0, 16)}Z` : ''}`);
+  if (expired && expired.getTime() < Date.now()) {
+    return `expired on ${expired.toISOString().slice(0, 16).replace('T', ' ')} UTC (the token shown on the API Setup page only lasts a day)`;
+  }
+  if (!data.type && !data.app_id) return 'is not something Meta recognises as an access token (check the whole token was pasted into the secret)';
+  return 'was invalidated (its user logged out, changed password or lost access)';
+}
+
 async function checkToken() {
   say('== The access token (WHATSAPP_TOKEN)');
   const result = await graph('debug_token', { input_token: token });
@@ -58,17 +85,13 @@ async function checkToken() {
     return null;
   }
   if (!result.ok || !data) {
-    say(`   Meta would not describe it: HTTP ${result.status}, ${describe(result.error)}`);
+    say(`   Meta rejects it: HTTP ${result.status}, ${describe(result.error)}`);
     if (result.error?.code !== 190) {
       const app = await graph('app', { fields: 'id' });
-      return { appId: app.ok && app.json.id ? String(app.json.id) : '', wabas: configuredWaba ? [configuredWaba] : [] };
+      return { works: true, appId: app.ok && app.json.id ? String(app.json.id) : configuredAppId, wabas: configuredWaba ? [configuredWaba] : [] };
     }
-    problem(
-      'token',
-      'WHATSAPP_TOKEN is expired or invalid, so the bot cannot send any reply. Create a permanent System User token ' +
-        '(Business settings -> System users -> Generate token, permission whatsapp_business_messaging) and update the secret.',
-    );
-    return null;
+    problem('token', `WHATSAPP_TOKEN ${await whyRejected()}. Meta refuses every reply the bot tries to send, so customers get no answer. ${NEW_TOKEN}`);
+    return { works: false, appId: configuredAppId, wabas: [] };
   }
 
   const scopes = Array.isArray(data.scopes) ? data.scopes : [];
@@ -79,9 +102,9 @@ async function checkToken() {
   say(`   permissions: messaging ${scopes.includes('whatsapp_business_messaging') ? 'yes' : 'NO'}, management ${scopes.includes('whatsapp_business_management') ? 'yes' : 'NO'}`);
 
   if (data.is_valid !== true) {
-    problem('token', `WHATSAPP_TOKEN is no longer valid (${describe(data.error)}): the bot cannot send any reply. Create a permanent System User token and update the secret.`);
+    problem('token', `WHATSAPP_TOKEN is no longer valid (${describe(data.error)}): Meta refuses every reply the bot tries to send. ${NEW_TOKEN}`);
   } else if (expires && hoursLeft < 72) {
-    problem('token', `WHATSAPP_TOKEN is a temporary token that expires in ${hoursLeft} h; replies stop then. Replace it with a permanent System User token.`);
+    problem('token', `WHATSAPP_TOKEN is a temporary token that expires in ${hoursLeft} h; replies stop then. ${NEW_TOKEN}`);
   }
   if (!scopes.includes('whatsapp_business_messaging')) {
     problem('token_scope', 'WHATSAPP_TOKEN lacks the whatsapp_business_messaging permission: Meta will refuse every reply.');
@@ -92,7 +115,7 @@ async function checkToken() {
     if (!String(grant?.scope).startsWith('whatsapp_business_')) continue;
     for (const id of Array.isArray(grant.target_ids) ? grant.target_ids : []) wabas.add(String(id));
   }
-  return { appId: data.app_id ? String(data.app_id) : '', wabas: [...wabas].slice(0, 3) };
+  return { works: data.is_valid === true, appId: data.app_id ? String(data.app_id) : configuredAppId, wabas: [...wabas].slice(0, 3) };
 }
 
 async function checkPhoneNumber() {
@@ -220,8 +243,8 @@ async function checkAppWebhook(appId) {
     if (result.error?.code === 190) {
       problem(
         'app_secret',
-        `WHATSAPP_APP_SECRET is not the App Secret of Meta app ${tail(appId)} (the app the token belongs to). The bot checks every ` +
-          'incoming message against it, so it would reject all of them (401). Copy it from the app -> App settings -> Basic -> App secret.',
+        `Meta does not accept WHATSAPP_APP_SECRET as the App Secret of app ${tail(appId)}. If that is the app connected to WhatsApp, the bot ` +
+          'rejects every incoming message (401). Copy the secret from the app -> App settings -> Basic -> App secret, update it and redeploy.',
       );
     }
     return;
@@ -258,11 +281,15 @@ async function main() {
   }
   say();
   const identity = await checkToken();
-  if (identity) {
+  if (identity?.works) {
     await checkPhoneNumber();
     await checkAccount(identity.appId, identity.wabas);
-    await checkAppWebhook(identity.appId);
+  } else if (identity) {
+    say();
+    say('== The phone number and the WhatsApp Business Account');
+    say('   not checked: Meta only answers these questions to a valid access token');
   }
+  if (identity) await checkAppWebhook(identity.appId);
   say();
   for (const text of problems.size ? problems.values() : ["nothing wrong seen on Meta's side."]) say(`RESULT: ${text}`);
 }
