@@ -99,6 +99,16 @@ jobs:
           NEXT_PUBLIC_API_URL: http://localhost:4000
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
           JWT_SECRET: ci_jwt_secret_min_32_chars_for_build_only
+      # The Dockerfile ships `next build --webpack` with type errors ignored (small VPS), while the build
+      # above is Turbopack. Without this step a webpack-only failure only shows up on the server, mid-deploy.
+      - name: Production build (webpack, as in the Dockerfile)
+        run: npx next build --webpack
+        env:
+          NEXT_IGNORE_TYPE_ERRORS: '1'
+          NODE_OPTIONS: --max-old-space-size=1536
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          JWT_SECRET: ci_jwt_secret_min_32_chars_for_build_only
 
   bot:
     name: WhatsApp bot check

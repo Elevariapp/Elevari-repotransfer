@@ -51,10 +51,57 @@ const cspDirectives = [
   'upgrade-insecure-requests',
 ].join('; ');
 
+interface ModuleIdCompilation {
+  chunkGraph: {
+    getModuleId(module: unknown): string | number | null;
+    setModuleId(module: unknown, id: string | number): void;
+  };
+  hooks: { afterOptimizeModuleIds: { tap(name: string, fn: (modules: Iterable<unknown>) => void): void } };
+}
+interface ModuleIdCompiler {
+  hooks: { compilation: { tap(name: string, fn: (compilation: ModuleIdCompilation) => void): void } };
+}
+
+/**
+ * Never lets webpack give a module the id 0.
+ *
+ * Next 16.2.x skips a client component whose concatenated module has id 0 (`if (concatenatedModId)` in
+ * flight-manifest-plugin), so it is missing from the client reference manifest and `next build --webpack`
+ * dies prerendering /_not-found: "Could not find the module … in the React Client Manifest". The ids are
+ * hashes of the module graph, so an unrelated edit can land one on 0; Turbopack builds never hit it.
+ * Fixed on Next canary (vercel/next.js#97936): delete this once the pinned stable release has the fix.
+ */
+const avoidModuleIdZero = {
+  apply(compiler: ModuleIdCompiler) {
+    compiler.hooks.compilation.tap('ElevariAvoidModuleIdZero', (compilation) => {
+      compilation.hooks.afterOptimizeModuleIds.tap('ElevariAvoidModuleIdZero', (modules) => {
+        const { chunkGraph } = compilation;
+        const all = Array.from(modules);
+        const zeroIdModules = all.filter((mod) => chunkGraph.getModuleId(mod) === 0);
+        if (zeroIdModules.length === 0) return;
+        const used = new Set(all.map((mod) => chunkGraph.getModuleId(mod)));
+        let next = 1;
+        for (const mod of zeroIdModules) {
+          while (used.has(next)) next += 1;
+          chunkGraph.setModuleId(mod, next);
+          used.add(next);
+        }
+      });
+    });
+  },
+};
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   compress: true,
   poweredByHeader: false,
+  // Production images are built with `next build --webpack` (Dockerfile). The empty turbopack block
+  // tells Next 16 that `next dev` and default builds are meant to run on Turbopack without these hooks.
+  turbopack: {},
+  webpack(config) {
+    config.plugins.push(avoidModuleIdZero);
+    return config;
+  },
   // Optional build concurrency cap (useful on memory-constrained CI runners).
   experimental: process.env.NEXT_BUILD_CPUS
     ? { cpus: Number(process.env.NEXT_BUILD_CPUS) }
