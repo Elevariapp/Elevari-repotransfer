@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { PLAY_STORE_LIVE, PLAY_STORE_URL } from '@/lib/app-links';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -21,7 +22,8 @@ const INSTALLED_KEY = 'elevari:install-done';
 const DISMISS_FOR_MS = 14 * 24 * 60 * 60 * 1000;
 const SHOW_AFTER_MS = 12_000;
 
-export const ANDROID_APP_URL = process.env.NEXT_PUBLIC_ANDROID_APP_URL || '';
+// An explicit URL wins; otherwise the Play listing, but only once NEXT_PUBLIC_PLAY_STORE_LIVE=1 says it is public.
+export const ANDROID_APP_URL = process.env.NEXT_PUBLIC_ANDROID_APP_URL || (PLAY_STORE_LIVE ? PLAY_STORE_URL : '');
 
 interface Environment {
   isAndroid: boolean;
@@ -44,19 +46,28 @@ function writeFlag(key: string, value: string) {
   }
 }
 
-function detectEnvironment(): Environment | null {
-  const ua = navigator.userAgent;
-  const standalone =
+function isStandalone(): boolean {
+  return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    (navigator as Navigator & { standalone?: boolean }).standalone === true;
-  if (standalone) return null;
+    (navigator as Navigator & { standalone?: boolean }).standalone === true
+  );
+}
 
+function detectDevice() {
+  const ua = navigator.userAgent;
   const isIos = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   return {
     isAndroid: /Android/i.test(ua),
+    isIos,
     // Other iOS browsers cannot offer "Add to Home Screen" with these steps.
     isIosSafari: isIos && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(ua),
   };
+}
+
+function detectEnvironment(): Environment | null {
+  if (isStandalone()) return null;
+  const { isAndroid, isIosSafari } = detectDevice();
+  return { isAndroid, isIosSafari };
 }
 
 /**
@@ -126,4 +137,58 @@ export function useInstallPrompt() {
   }
 
   return { mode, install, dismiss };
+}
+
+export type PwaPlatform = 'android' | 'ios' | 'other';
+
+/**
+ * For the /app page, where the person asked to install: the same capture of the browser's install
+ * event as the banner, but immediate and without the dismissal memory. `platform` stays null until
+ * the page is mounted, so the server-rendered HTML and the first client render match.
+ */
+export function usePwaInstall() {
+  const [platform, setPlatform] = useState<PwaPlatform | null>(null);
+  const [standalone, setStandalone] = useState(false);
+  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    const { isAndroid, isIos } = detectDevice();
+    setPlatform(isIos ? 'ios' : isAndroid ? 'android' : 'other');
+    setStandalone(isStandalone());
+    setDeferred(window.__elevariInstallPrompt ?? null);
+
+    const onPrompt = (event: Event) => {
+      event.preventDefault();
+      window.__elevariInstallPrompt = event as BeforeInstallPromptEvent;
+      setDeferred(event as BeforeInstallPromptEvent);
+    };
+    const onInstalled = () => {
+      writeFlag(INSTALLED_KEY, '1');
+      window.__elevariInstallPrompt = undefined;
+      setDeferred(null);
+      setStandalone(true);
+    };
+    window.addEventListener('beforeinstallprompt', onPrompt);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onPrompt);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
+
+  const promptInstall = useCallback(async () => {
+    if (!deferred) return;
+    // A captured event can only be prompted once.
+    window.__elevariInstallPrompt = undefined;
+    setDeferred(null);
+    try {
+      await deferred.prompt();
+      const { outcome } = await deferred.userChoice;
+      if (outcome === 'accepted') writeFlag(INSTALLED_KEY, '1');
+    } catch {
+      // The browser refused to show its dialog; the written steps on the page still apply.
+    }
+  }, [deferred]);
+
+  return { platform, standalone, canPrompt: deferred !== null, promptInstall };
 }

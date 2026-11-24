@@ -8,6 +8,7 @@ const exploreLinks = [
   { href: '/properties/glamping-wana', label: 'Glamping destacado' },
   { href: '/#buscar', label: 'Buscar fechas' },
   { href: '/legal/faq', label: 'Preguntas frecuentes' },
+  { href: '/app', label: 'Instalar la app' },
 ] as const;
 
 const hostLinks = [

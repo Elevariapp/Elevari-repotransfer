@@ -2,7 +2,7 @@
 
 import { ANDROID_APP_URL, type InstallMode } from '@/hooks/useInstallPrompt';
 
-function ShareIcon() {
+export function ShareIcon() {
   return (
     <svg
       width="18"
@@ -41,7 +41,7 @@ export default function InstallPrompt({
         <img src="/brand/icons/icon-128.png" alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl" />
         <div className="min-w-0 flex-1">
           <h2 id="install-title" className="font-display text-base font-semibold text-elevari-slate">
-            {mode === 'play' ? 'Descarga la app de Elevari' : 'Lleva Elevari en tu celular'}
+            {mode === 'play' ? 'Descarga la app para Android' : 'Lleva Elevari en tu celular'}
           </h2>
           <p className="mt-1 text-sm leading-snug text-elevari-muted">
             {mode === 'ios' ? (
