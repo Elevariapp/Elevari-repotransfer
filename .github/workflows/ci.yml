@@ -40,15 +40,19 @@ jobs:
               - '.github/workflows/ci.yml'
 
   workflow-lint:
-    name: Lint workflows (actionlint)
+    name: Lint workflows (actionlint + yamllint)
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
       - name: actionlint
         run: |
           bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash) 1.7.7
           ./actionlint -color
+      - name: yamllint
+        run: |
+          pip install yamllint
+          yamllint .github/workflows/
 
   api:
     name: API build
