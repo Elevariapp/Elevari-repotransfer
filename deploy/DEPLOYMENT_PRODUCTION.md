@@ -18,6 +18,8 @@ Cada push a `b-main` ejecuta `.github/workflows/ci.yml`: build API/Web, check de
 | `HETZNER_USER` | Usuario SSH (ej. `root`) |
 | `HETZNER_SSH_KEY` | Clave **privada** completa (incluye `-----BEGIN/END-----`) |
 | `EXPO_TOKEN` | Token de expo.dev → Account Settings → Access Tokens (opcional: sin él se omite el build Android) |
+| `CLOUDFLARE_API_TOKEN` | Token de Cloudflare con permisos `Zone:Cache` (purge) + `Zone:DNS:Read` + `Zone:SSL:Read` (obténlo en My Profile → API Tokens → Create Token → plantilla "Edit zone cache") |
+| `CLOUDFLARE_ZONE_ID` | Zone ID de `elevari.live` (Cloudflare → elevari.live → Overview → Zone ID, barra lateral derecha) |
 
 Crear una clave dedicada al deploy:
 

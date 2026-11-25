@@ -362,3 +362,21 @@ jobs:
             echo "→ Building and deploying Docker stack (web, api, bot, nginx)..."
             ./deploy/scripts/deploy-prod.sh
             echo "✓ Deploy to elevari.live completed successfully"
+
+      # -----------------------------------------------------------------------
+      # NEW: Purge Cloudflare cache after a successful production deploy so
+      # visitors never get stale HTML/assets from the edge.
+      # -----------------------------------------------------------------------
+      - name: Purge Cloudflare cache (post-deploy)
+        if: always()
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] || [ -z "${{ secrets.CLOUDFLARE_ZONE_ID }}" ]; then
+            echo "::notice title=Cloudflare cache purge skipped::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ZONE_ID not set. Add them in Settings → Secrets and variables → Actions to auto-purge after deploy."
+            exit 0
+          fi
+          chmod +x deploy/scripts/cloudflare-purge.sh
+          ./deploy/scripts/cloudflare-purge.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_DOMAIN: elevari.live
