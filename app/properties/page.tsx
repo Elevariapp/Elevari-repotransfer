@@ -11,6 +11,7 @@ import ScenicBackground from '@/components/scene/ScenicBackground';
 import { wanaApi } from '@/lib/api-client';
 import { humanizeApiError } from '@/lib/api-errors';
 import { activeFilterCount, parseCatalogParams } from '@/lib/catalog-params';
+import { getServerLanguage, tServer } from '@/lib/i18n-server';
 
 export const revalidate = 60;
 
@@ -33,6 +34,7 @@ export default async function PropertiesPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
+  const language = await getServerLanguage();
   const params = parseCatalogParams(sp);
   const active = activeFilterCount(params);
   const hasFilters = active > 0;
@@ -57,7 +59,7 @@ export default async function PropertiesPage({
     properties = data;
     total = typeof meta?.total === 'number' ? meta.total : null;
   } catch (e) {
-    error = e instanceof Error ? e.message : 'No se pudo conectar con la API';
+    error = e instanceof Error ? e.message : tServer('Common', 'apiError', language);
   }
 
   const fromApi = !error;
@@ -76,18 +78,20 @@ export default async function PropertiesPage({
           <ScenicBackground variant="lite" idPrefix="catalog-hero" scrim="center" />
           <div className="elevari-container relative z-10">
             <header className="max-w-2xl mx-auto text-center">
-              <p className="elevari-eyebrow-lux !text-elevari-amber-soft">Colección</p>
+              <p className="elevari-eyebrow-lux !text-elevari-amber-soft">
+                {tServer('Common', 'collection', language)}
+              </p>
               <h1 className="elevari-display-hero elevari-display-hero--light mt-3 mb-6">
-                Espacios únicos en Colombia
+                {tServer('Common', 'uniqueSpacesColombia', language)}
               </h1>
               <div className="elevari-divider-gold mx-auto mt-5 mb-8" />
               <p className="text-lg text-white/90 leading-relaxed max-w-2xl mx-auto">
-                Selecciona fechas en cada propiedad para ver el precio total antes de reservar.
+                {tServer('Common', 'selectDatesTotalPrice', language)}
               </p>
               {fromApi && (
                 <span className="mt-8 inline-flex items-center gap-2 rounded-full border border-elevari-amber/30 bg-elevari-surface/95 px-4 py-1.5 text-xs font-medium text-elevari-forest backdrop-blur-sm">
                   <span className="h-1.5 w-1.5 rounded-full bg-elevari-amber" aria-hidden />
-                  Disponibilidad en tiempo real
+                  {tServer('Common', 'realTimeAvailability', language)}
                 </span>
               )}
             </header>
@@ -97,7 +101,7 @@ export default async function PropertiesPage({
             {hasFilters && (
               <p className="mt-4 text-sm text-white/85">
                 {params.city && <span className="font-medium text-white">{params.city}</span>}
-                {params.guests && <span className="ml-2">· {params.guests} huéspedes</span>}
+                {params.guests && <span className="ml-2">· {params.guests} {tServer('Common', 'guests', language)}</span>}
                 {params.checkIn && params.checkOut && (
                   <span className="ml-2">
                     · {params.checkIn} → {params.checkOut}
@@ -120,24 +124,24 @@ export default async function PropertiesPage({
               role="alert"
               className="rounded-2xl border border-elevari-amber/40 bg-elevari-warning-soft p-6 text-elevari-warning"
             >
-              <p className="font-semibold">No pudimos cargar la colección</p>
+              <p className="font-semibold">{tServer('Common', 'collectionLoadError', language)}</p>
               <p className="mt-2 text-sm leading-relaxed">{humanizeApiError(error)}</p>
               {hasFilters && (
                 <Link href="/properties" className="elevari-link mt-4 inline-block text-sm font-medium">
-                  Ver todas las propiedades
+                  {tServer('Common', 'viewAllProperties', language)}
                 </Link>
               )}
             </div>
           ) : properties.length === 0 ? (
             <EmptyState
               emoji={hasFilters ? '🔍' : '🏕️'}
-              title={hasFilters ? 'Sin resultados' : 'Próximamente más espacios'}
+              title={hasFilters ? tServer('Common', 'noResults', language) : tServer('Common', 'comingSoon', language)}
               description={
                 hasFilters
-                  ? 'No encontramos propiedades con esos filtros. Ajusta el precio o las comodidades, o explora toda la colección.'
-                  : 'Estamos incorporando nuevos glampings. Vuelve pronto o publica tu espacio como anfitrión.'
+                  ? tServer('Common', 'noResultsDescription', language)
+                  : tServer('Common', 'comingSoonDescription', language)
               }
-              actionLabel={hasFilters ? 'Ver todas las propiedades' : 'Explorar anfitrión'}
+              actionLabel={hasFilters ? tServer('Common', 'viewAllProperties', language) : tServer('Common', 'exploreHost', language)}
               actionHref={hasFilters ? '/properties' : '/become-host'}
             />
           ) : (
@@ -146,6 +150,7 @@ export default async function PropertiesPage({
                 {properties.map((property, index) => (
                   <PropertyCard
                     key={property.id}
+                    language={language}
                     position={params.offset + index + 1}
                     sort={params.sort}
                     activeFilters={active}

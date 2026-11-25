@@ -26,6 +26,7 @@ const MESSAGES: Record<string, Messages> = {
 
 const DEFAULT_LANGUAGE = 'es';
 const STORAGE_KEY = 'elevari-language';
+const COOKIE_KEY = 'elevari-language';
 
 export type I18nContextType = {
   language: string;
@@ -36,20 +37,29 @@ export type I18nContextType = {
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<string>(DEFAULT_LANGUAGE);
+export function I18nProvider({ children, initialLanguage }: { children: ReactNode; initialLanguage?: string }) {
+  const [language, setLanguageState] = useState<string>(initialLanguage ?? DEFAULT_LANGUAGE);
 
-  // Restore preferred language from localStorage on mount
+  // Restore preferred language from cookie (SSR) then localStorage (client) on mount,
+  // only when no initialLanguage was provided by the server.
   useEffect(() => {
+    if (initialLanguage) return;
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored && MESSAGES[stored]) {
-        setLanguageState(stored);
+      const cookieMatch = document.cookie.match(
+        new RegExp(`(?:^|; )${COOKIE_KEY}=([^;]+)`)
+      );
+      if (cookieMatch && MESSAGES[cookieMatch[1]]) {
+        setLanguageState(cookieMatch[1]);
+      } else {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && MESSAGES[stored]) {
+          setLanguageState(stored);
+        }
       }
     } catch {
-      // localStorage unavailable; keep default
+      // localStorage/cookie unavailable; keep default
     }
-  }, []);
+  }, [initialLanguage]);
 
   // Persist language and update <html lang> whenever it changes
   useEffect(() => {
@@ -66,6 +76,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const setLanguage = useCallback((code: string) => {
     if (!MESSAGES[code]) return;
     setLanguageState(code);
+    // Persist to cookie for SSR so the server knows the user's language
+    try {
+      document.cookie = `${COOKIE_KEY}=${code}; path=/; max-age=31536000; SameSite=Lax`;
+    } catch {
+      // cookie unavailable
+    }
   }, []);
 
   const t = useCallback((section: 'Common' | 'Legal', key: string): string => {

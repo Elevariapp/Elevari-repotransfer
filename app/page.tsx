@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import HomeHero from '@/components/home/HomeHero';
 import PropertyCard from '@/components/PropertyCard';
 import { wanaApi } from '@/lib/api-client';
-import { tServer } from '@/lib/i18n-server';
+import { getServerLanguage, tServer } from '@/lib/i18n-server';
 import ExperiencePillars from '@/components/home/ExperiencePillars';
 import TrustStrip from '@/components/home/TrustStrip';
 import CategoryStrip from '@/components/home/CategoryStrip';
@@ -13,6 +13,7 @@ import { ButtonLink } from '@/components/ui';
 export const revalidate = 60;
 
 export default async function HomePage() {
+  const language = await getServerLanguage();
   let featured: Awaited<ReturnType<typeof wanaApi.listProperties>>['data'] = [];
   try {
     const res = await wanaApi.listProperties({ limit: 4 });
@@ -28,33 +29,34 @@ export default async function HomePage() {
         <HomeHero />
         <CategoryStrip />
 
-        <TrustStrip />
+        <TrustStrip language={language} />
 
         {featured.length > 0 && (
           <section id="coleccion" className="relative py-14 lg:py-20">
             <div className="elevari-container relative">
               <div className="mb-10 flex items-end justify-between gap-4">
                 <div>
-                  <p className="elevari-eyebrow">{tServer('Common', 'collection')}</p>
+                  <p className="elevari-eyebrow">{tServer('Common', 'collection', language)}</p>
                   <h2 className="elevari-display-section mt-3 text-elevari-slate">
-                    {tServer('Common', 'featuredThisWeek')}
+                    {tServer('Common', 'featuredThisWeek', language)}
                   </h2>
-                  <p className="mt-3 text-elevari-muted">{tServer('Common', 'bestRatedByGuests')}</p>
+                  <p className="mt-3 text-elevari-muted">{tServer('Common', 'bestRatedByGuests', language)}</p>
                 </div>
                 <Link
                   href="/properties"
                   className="hidden text-sm font-semibold text-elevari-forest hover:text-elevari-forest-deep sm:inline-flex sm:items-center sm:gap-1"
                 >
-                  {tServer('Common', 'viewCollection')} <span aria-hidden>→</span>
+                  {tServer('Common', 'viewCollection', language)} <span aria-hidden>→</span>
                 </Link>
               </div>
               <Link href="/properties" className="elevari-btn-ghost mt-4 text-sm sm:hidden">
-                {tServer('Common', 'viewCollection')}
+                {tServer('Common', 'viewCollection', language)}
               </Link>
               <div className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
                 {featured.map((p) => (
                   <PropertyCard
                     key={p.id}
+                    language={language}
                     property={{
                       id: p.id,
                       slug: p.slug,
@@ -76,13 +78,13 @@ export default async function HomePage() {
         <SceneBand idPrefix="band-sabana">
           <div className="elevari-container py-16 sm:py-20 text-center text-white">
             <p className="elevari-eyebrow elevari-eyebrow-lux !text-elevari-amber-soft">
-              {tServer('Common', 'sabanaBogota')}
+              {tServer('Common', 'sabanaBogota', language)}
             </p>
             <h2 className="elevari-display-section elevari-display-section--light mt-4 max-w-2xl mx-auto">
-              {tServer('Common', 'mountainSunrises')}
+              {tServer('Common', 'mountainSunrises', language)}
             </h2>
             <p className="mt-4 max-w-lg mx-auto text-white/80 leading-relaxed">
-              {tServer('Common', 'exclusiveSpaces')}
+              {tServer('Common', 'exclusiveSpaces', language)}
             </p>
             <ButtonLink
               href="/properties/glamping-wana"
@@ -90,12 +92,12 @@ export default async function HomePage() {
               size="lg"
               className="mt-8"
             >
-              {tServer('Common', 'viewFeaturedSpace')}
+              {tServer('Common', 'viewFeaturedSpace', language)}
             </ButtonLink>
           </div>
         </SceneBand>
 
-        <ExperiencePillars />
+        <ExperiencePillars language={language} />
 
         <section className="elevari-container pb-20">
           <SceneBand
@@ -104,16 +106,16 @@ export default async function HomePage() {
           >
             <div className="px-8 py-14 text-center text-white sm:px-14 sm:py-16">
               <p className="elevari-eyebrow !text-elevari-amber-soft">
-                {tServer('Common', 'nextEscape')}
+                {tServer('Common', 'nextEscape', language)}
               </p>
               <h2 className="elevari-display-section elevari-display-section--light mt-4">
-                {tServer('Common', 'readyToDisconnect')}
+                {tServer('Common', 'readyToDisconnect', language)}
               </h2>
               <p className="mt-4 max-w-lg mx-auto text-white/80 leading-relaxed">
-                {tServer('Common', 'bookWithClearPrices')}
+                {tServer('Common', 'bookWithClearPrices', language)}
               </p>
               <ButtonLink href="/properties" variant="accent" size="lg" className="mt-8">
-                {tServer('Common', 'viewEntireCollection')}
+                {tServer('Common', 'viewEntireCollection', language)}
               </ButtonLink>
             </div>
           </SceneBand>

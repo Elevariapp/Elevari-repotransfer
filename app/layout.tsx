@@ -13,6 +13,7 @@ import { I18nProvider } from '@/components/i18n/I18nProvider';
 import { siteUrl } from '@/lib/site-url';
 import { installCaptureScript } from '@/lib/pwa-install-script';
 import { buildOrganizationSchema, buildWebSiteSchema } from '@/lib/seo/schema';
+import { getServerLanguage } from '@/lib/i18n-server';
 
 const SITE_URL = siteUrl();
 
@@ -45,21 +46,17 @@ const plusJakarta = localFont({
   display: 'swap',
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const language = await getServerLanguage();
   const orgSchema = buildOrganizationSchema();
   const webSchema = buildWebSiteSchema();
   return (
-    <html lang="es" suppressHydrationWarning className={`${inter.variable} ${plusJakarta.variable}`}>
+    <html lang={language} suppressHydrationWarning className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: sceneInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: installCaptureScript }} />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var l=localStorage.getItem('elevari-language');if(l&&(l==='es'||l==='en')){document.documentElement.lang=l;}}catch(e){}})()`,
-          }}
-        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSchema) }} />
       </head>
@@ -69,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <MarketingScripts />
         <ObservabilityProvider />
-        <I18nProvider>{children}</I18nProvider>
+        <I18nProvider initialLanguage={language}>{children}</I18nProvider>
         <ConditionalFooter />
         <FloatingActions />
         <Toaster

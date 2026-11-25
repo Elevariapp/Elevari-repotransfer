@@ -20,7 +20,7 @@ const pillars = [
   },
 ];
 
-export default function ExperiencePillars() {
+export default function ExperiencePillars({ language }: { language: string }) {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.06]" aria-hidden>
@@ -36,13 +36,13 @@ export default function ExperiencePillars() {
       </div>
       <div className="elevari-container relative py-16 lg:py-24">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="elevari-eyebrow">{tServer('Common', 'whyElevari')}</p>
+          <p className="elevari-eyebrow">{tServer('Common', 'whyElevari', language)}</p>
           <h2 className="elevari-display-section mt-4 text-elevari-slate">
-            {tServer('Common', 'moreThanAccommodation')}
+            {tServer('Common', 'moreThanAccommodation', language)}
           </h2>
           <div className="elevari-divider-gold mx-auto mt-5" />
           <p className="mt-5 text-elevari-muted leading-relaxed">
-            {tServer('Common', 'glampingCare')}
+            {tServer('Common', 'glampingCare', language)}
           </p>
         </div>
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
@@ -57,14 +57,14 @@ export default function ExperiencePillars() {
               >
                 {p.icon}
               </span>
-              <h3 className="mt-5 font-semibold text-elevari-slate">{tServer('Common', p.titleKey)}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-elevari-muted">{tServer('Common', p.descKey)}</p>
+              <h3 className="mt-5 font-semibold text-elevari-slate">{tServer('Common', p.titleKey, language)}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-elevari-muted">{tServer('Common', p.descKey, language)}</p>
             </div>
           ))}
         </div>
         <div className="mt-12 text-center">
           <Link href="/properties/glamping-wana" className="elevari-btn-primary inline-flex min-h-[48px] !px-8">
-            {tServer('Common', 'bookNow')}
+            {tServer('Common', 'bookNow', language)}
           </Link>
         </div>
       </div>
