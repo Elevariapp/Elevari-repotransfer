@@ -54,6 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={language} suppressHydrationWarning className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/app/apple-icon.png" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: sceneInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: installCaptureScript }} />

@@ -44,16 +44,12 @@ export default function PlatformInstallActions({
 }) {
   const { platform } = usePwaInstall();
 
-  const iosAction = (
-    <a href="#ios" className={buttonPrimary}>
-      Instalar en iPhone o iPad
-    </a>
-  );
-
   if (platform === 'ios') {
     return (
       <div className="mt-8">
-        {iosAction}
+        <a href="#ios" className={buttonPrimary}>
+          Instalar en iPhone o iPad
+        </a>
         <p className="mt-4 max-w-md text-sm leading-relaxed text-white/85">
           iOS no permite instalar archivos APK. Abre esta página en Safari y elige «Añadir a pantalla de inicio».
         </p>
@@ -75,9 +71,9 @@ export default function PlatformInstallActions({
         </a>
       )}
       {!playStoreLive && !apkAvailable && (
-        <a href="#android" className={buttonSecondary}>
+        <span className={`${buttonBase} border border-white/40 text-white/60`}>
           Android · Disponible muy pronto
-        </a>
+        </span>
       )}
     </>
   );
@@ -85,14 +81,6 @@ export default function PlatformInstallActions({
   return (
     <div className="mt-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">{androidActions}</div>
-      {platform !== 'android' && (
-        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          {iosAction}
-          <p className="flex max-w-md items-center text-sm leading-relaxed text-white/85">
-            En iPhone y iPad, la instalación se hace desde Safari; no se descarga ningún APK.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
