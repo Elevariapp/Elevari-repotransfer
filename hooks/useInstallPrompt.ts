@@ -27,7 +27,7 @@ export const ANDROID_APP_URL = process.env.NEXT_PUBLIC_ANDROID_APP_URL || (PLAY_
 
 interface Environment {
   isAndroid: boolean;
-  isIosSafari: boolean;
+  isIos: boolean;
 }
 
 function readFlag(key: string): string | null {
@@ -59,15 +59,13 @@ function detectDevice() {
   return {
     isAndroid: /Android/i.test(ua),
     isIos,
-    // Other iOS browsers cannot offer "Add to Home Screen" with these steps.
-    isIosSafari: isIos && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(ua),
   };
 }
 
 function detectEnvironment(): Environment | null {
   if (isStandalone()) return null;
-  const { isAndroid, isIosSafari } = detectDevice();
-  return { isAndroid, isIosSafari };
+  const { isAndroid, isIos } = detectDevice();
+  return { isAndroid, isIos };
 }
 
 /**
@@ -83,7 +81,7 @@ export function useInstallPrompt() {
   useEffect(() => {
     if (readFlag(INSTALLED_KEY) || Number(readFlag(DISMISSED_UNTIL_KEY) ?? 0) > Date.now()) return;
     const detected = detectEnvironment();
-    if (!detected || (!detected.isAndroid && !detected.isIosSafari)) return;
+    if (!detected || (!detected.isAndroid && !detected.isIos)) return;
 
     setEnv(detected);
     setDeferred(window.__elevariInstallPrompt ?? null);
@@ -133,7 +131,7 @@ export function useInstallPrompt() {
   if (ready && env && !hidden) {
     if (env.isAndroid && ANDROID_APP_URL) mode = 'play';
     else if (env.isAndroid && deferred) mode = 'native';
-    else if (env.isIosSafari) mode = 'ios';
+    else if (env.isIos) mode = 'ios';
   }
 
   return { mode, install, dismiss };

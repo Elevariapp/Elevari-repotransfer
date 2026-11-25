@@ -198,15 +198,22 @@ report.install = {
   readable: appStatus === 200,
   pageRenders: appPage.includes('Instalar la app'),
   downloadButton: /Descargar (para Android|el APK)/.test(appPage),
+  iosInstructions:
+    appPage.includes('iPhone y iPad') &&
+    appPage.includes('Añadir a pantalla de inicio') &&
+    appPage.includes('iOS no permite instalar archivos APK'),
   comingSoon: appPage.includes('Disponible muy pronto'),
 };
 say();
 say('**Install page (/app)**');
 say(
   report.install.readable
-    ? `- Renders: ${report.install.pageRenders ? 'yes' : 'NO'}; APK button: ${report.install.downloadButton ? 'yes' : 'not yet'}; "Disponible muy pronto": ${report.install.comingSoon ? 'shown' : 'no'}`
+    ? `- Renders: ${report.install.pageRenders ? 'yes' : 'NO'}; APK button: ${report.install.downloadButton ? 'yes' : 'not yet'}; iOS instructions: ${report.install.iosInstructions ? 'yes' : 'NO'}; "Disponible muy pronto": ${report.install.comingSoon ? 'shown' : 'no'}`
     : `- Could not read the page (HTTP ${appStatus || 'error'}).`,
 );
+if (report.install.readable && !report.install.iosInstructions) {
+  report.problems.push('The install page does not contain the complete iPhone/iPad installation instructions');
+}
 
 // Is Turnstile enforced? The API reports it in /health (turnstile_required), which nginx exposes publicly.
 const loginHtml = bodies['/auth/login'] || '';

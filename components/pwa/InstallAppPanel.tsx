@@ -9,9 +9,17 @@ export function PlatformNote({ className = 'text-elevari-muted' }: { className?:
   if (standalone || platform === null || platform === 'android') return null;
   return (
     <p className={`mt-4 max-w-md text-sm leading-relaxed ${className}`}>
-      {platform === 'ios'
-        ? 'El archivo APK es solo para Android. En iPhone y iPad usa «Añadir a pantalla de inicio» (más abajo).'
-        : '¿Estás en un computador? Escanea el código QR con tu celular Android para abrir esta página allí.'}
+      {platform === 'ios' ? (
+        <>
+          El archivo APK es solo para Android y no se puede instalar en iPhone o iPad.{' '}
+          <a href="#ios" className="font-semibold underline underline-offset-4 hover:text-elevari-forest">
+            Ver las instrucciones para iPhone
+          </a>
+          .
+        </>
+      ) : (
+        '¿Estás en un computador? Escanea el código QR con tu celular Android para abrir esta página allí.'
+      )}
     </p>
   );
 }
@@ -42,17 +50,20 @@ function DeviceCard({
   title,
   steps,
   footnote,
+  anchorId,
 }: {
   id: PwaPlatform;
   current: PwaPlatform | null;
   title: string;
   steps: readonly React.ReactNode[];
   footnote?: string;
+  anchorId?: string;
 }) {
   const isCurrent = current === id;
   return (
     <article
-      className={`elevari-card p-6 ${isCurrent ? 'ring-2 ring-elevari-forest/50' : ''}`}
+      id={anchorId}
+      className={`elevari-card scroll-mt-24 p-6 ${isCurrent ? 'ring-2 ring-elevari-forest/50' : ''}`}
       aria-label={title}
     >
       <div className="flex items-center justify-between gap-3">
@@ -93,6 +104,7 @@ export default function InstallAppPanel() {
           id="android"
           current={platform}
           title="Android · Chrome"
+          anchorId="android-web"
           steps={[
             <>Abre esta página en Chrome y toca el menú {strong('⋮')} (arriba a la derecha).</>,
             <>Elige {strong('Instalar app')} o {strong('Añadir a la pantalla de inicio')}.</>,
@@ -103,6 +115,7 @@ export default function InstallAppPanel() {
           id="ios"
           current={platform}
           title="iPhone y iPad · Safari"
+          anchorId="ios"
           steps={[
             <>Abre esta página en Safari.</>,
             <>
@@ -113,7 +126,7 @@ export default function InstallAppPanel() {
               Elige {strong('Añadir a pantalla de inicio')} y confirma con {strong('Añadir')}.
             </>,
           ]}
-          footnote="Si usas otro navegador en iPhone o iPad, abre primero esta página en Safari."
+          footnote="iOS no permite instalar archivos APK. Esta es la forma de instalar Elevari en iPhone y iPad; la versión web se actualiza automáticamente. Si usas otro navegador, abre primero esta página en Safari."
         />
       </div>
     </div>

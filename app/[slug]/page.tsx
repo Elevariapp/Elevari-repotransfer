@@ -5,8 +5,9 @@ import { siteUrl } from '@/lib/site-url';
 import { wanaApi } from '@/lib/api-client';
 import { buildBreadcrumbListSchema, buildFAQPageSchema, buildItemListSchema } from '@/lib/seo/schema';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const collection = getCollection(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const collection = getCollection(slug);
   if (!collection) return {};
   return {
     title: collection.title,
@@ -24,8 +25,9 @@ export async function generateStaticParams() {
   return COLLECTIONS.map(c => ({ slug: c.slug }));
 }
 
-export default async function CollectionPage({ params }: { params: { slug: string } }) {
-  const collection = getCollection(params.slug);
+export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const collection = getCollection(slug);
   if (!collection) return notFound();
 
   // Fetch properties matching predicate

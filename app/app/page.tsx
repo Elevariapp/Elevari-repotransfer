@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import CopyChecksum from '@/components/pwa/CopyChecksum';
 import InstallAppPanel, { PlatformNote } from '@/components/pwa/InstallAppPanel';
+import PlatformInstallActions from '@/components/pwa/PlatformInstallActions';
 import { APK_URL, INSTALL_PAGE_PATH, PLAY_STORE_LIVE, PLAY_STORE_URL } from '@/lib/app-links';
 import { androidReleaseForSdk, getApkInfo, type ApkInfo } from '@/lib/apk-info';
 import { formatInstantDate } from '@/lib/format';
@@ -14,91 +15,19 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: 'Instalar la app de Elevari',
   description:
-    'Descarga la app de Elevari para Android o añádela a la pantalla de inicio de tu celular. Instalación paso a paso.',
+    'Instala Elevari en Android o iPhone: descarga el APK para Android o añade la app a tu pantalla de inicio desde Safari. Instrucciones paso a paso.',
   alternates: { canonical: siteUrl(INSTALL_PAGE_PATH) },
   openGraph: {
     title: 'Instalar la app de Elevari',
-    description: 'Elevari en tu celular: app para Android o acceso directo desde la pantalla de inicio.',
+    description: 'Elevari en tu celular: APK para Android o instalación desde Safari en iPhone y iPad.',
     url: siteUrl(INSTALL_PAGE_PATH),
   },
 };
 
 const formatSize = (bytes: number) => `${(bytes / (1024 * 1024)).toFixed(1).replace('.', ',')} MB`;
 
-function DownloadIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M12 3v12M7 11l5 5 5-5M5 20h14" />
-    </svg>
-  );
-}
-
-const chip = 'rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm';
+const chip = 'rounded-full border border-elevari-border bg-elevari-sand/50 px-3 py-1.5';
 const apkLabel = PLAY_STORE_LIVE ? 'Descargar el APK' : 'Descargar para Android';
-const buttonBase =
-  'inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full px-8 text-base font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-elevari-forest-deep sm:w-auto';
-const buttonPrimary = `${buttonBase} bg-white text-elevari-forest-deep shadow-lg hover:bg-elevari-amber-soft`;
-const buttonSecondary = `${buttonBase} border border-white/40 text-white hover:bg-white/10`;
-
-function DownloadBlock({ info }: { info: ApkInfo | null }) {
-  const release = info ? androidReleaseForSdk(info.minSdk) : null;
-
-  return (
-    <div className="mt-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        {PLAY_STORE_LIVE && (
-          <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" className={buttonPrimary}>
-            Descarga la app para Android
-          </a>
-        )}
-        {info && (
-          <a href={APK_URL} className={PLAY_STORE_LIVE ? buttonSecondary : buttonPrimary}>
-            <DownloadIcon />
-            {apkLabel}
-          </a>
-        )}
-      </div>
-
-      {info && (
-        <>
-          <ul className="mt-5 flex flex-wrap gap-2 text-xs font-medium text-white/90">
-            <li className={chip}>Versión {info.versionName}</li>
-            <li className={chip}>{formatSize(info.sizeBytes)}</li>
-            <li className={chip}>Publicada el {formatInstantDate(info.builtAt)}</li>
-            {release && <li className={chip}>Android {release} o superior</li>}
-          </ul>
-          <PlatformNote className="text-white/85" />
-        </>
-      )}
-
-      {!info && !PLAY_STORE_LIVE && (
-        <div className="max-w-md rounded-2xl border border-white/25 bg-white/10 p-5 backdrop-blur-sm">
-          <p className="font-display text-lg text-white">Disponible muy pronto</p>
-          <p className="mt-1 text-sm leading-relaxed text-white/85">
-            Estamos publicando la primera versión para Android. Mientras tanto puedes añadir Elevari a la pantalla de
-            inicio de tu celular.
-          </p>
-          <a
-            href="#app-web"
-            className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-elevari-amber-soft underline underline-offset-4 hover:text-white"
-          >
-            Ver cómo hacerlo
-          </a>
-        </div>
-      )}
-    </div>
-  );
-}
 
 const installSteps = [
   {
@@ -131,29 +60,57 @@ function TestSignatureNotice() {
   );
 }
 
-function InstallSteps({ info }: { info: ApkInfo }) {
+function InstallSteps({ info }: { info: ApkInfo | null }) {
+  const release = info ? androidReleaseForSdk(info.minSdk) : null;
+
   return (
-    <section aria-labelledby="pasos" className="elevari-container pt-12 lg:pt-16">
-      <p className="elevari-eyebrow">Instalación</p>
+    <section id="android" aria-labelledby="pasos" className="elevari-container scroll-mt-24 pt-12 lg:pt-16">
+      <p className="elevari-eyebrow">Android · APK</p>
       <h2 id="pasos" className="elevari-section-title mt-2">
-        Instálala en tres pasos
+        Instala el APK en Android
       </h2>
       <div className="elevari-divider-gold mt-4" />
-      <ol className="mt-8 grid gap-5 md:grid-cols-3">
-        {installSteps.map((step, index) => (
-          <li key={step.title} className="elevari-card-premium p-6">
-            <span
-              aria-hidden
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-elevari-amber-soft font-display text-lg font-semibold text-elevari-amber-ink"
-            >
-              {index + 1}
-            </span>
-            <h3 className="mt-4 font-display text-lg text-elevari-slate">{step.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-elevari-muted">{step.body}</p>
-          </li>
-        ))}
-      </ol>
-      {info.signing === 'test' && <TestSignatureNotice />}
+
+      {info ? (
+        <>
+          <ul className="mt-6 flex flex-wrap gap-2 text-xs font-medium text-elevari-muted">
+            <li className={chip}>Versión {info.versionName}</li>
+            <li className={chip}>{formatSize(info.sizeBytes)}</li>
+            <li className={chip}>Publicada el {formatInstantDate(info.builtAt)}</li>
+            {release && <li className={chip}>Android {release} o superior</li>}
+          </ul>
+          <PlatformNote />
+          <ol className="mt-8 grid gap-5 md:grid-cols-3">
+            {installSteps.map((step, index) => (
+              <li key={step.title} className="elevari-card-premium p-6">
+                <span
+                  aria-hidden
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-elevari-amber-soft font-display text-lg font-semibold text-elevari-amber-ink"
+                >
+                  {index + 1}
+                </span>
+                <h3 className="mt-4 font-display text-lg text-elevari-slate">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-elevari-muted">{step.body}</p>
+              </li>
+            ))}
+          </ol>
+          {info.signing === 'test' && <TestSignatureNotice />}
+        </>
+      ) : (
+        <div className="mt-6 max-w-2xl rounded-2xl border border-elevari-border bg-elevari-sand/40 p-6">
+          <p className="font-display text-lg text-elevari-slate">Disponible muy pronto</p>
+          <p className="mt-2 text-sm leading-relaxed text-elevari-muted">
+            Estamos publicando la primera versión para Android. Mientras tanto puedes instalar Elevari en iPhone o iPad
+            desde Safari o añadirla a tu pantalla de inicio en Android.
+          </p>
+          <a
+            href="#ios"
+            className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-elevari-forest underline underline-offset-4 hover:text-elevari-forest-light"
+          >
+            Ver instrucciones para iPhone
+          </a>
+        </div>
+      )}
     </section>
   );
 }
@@ -162,9 +119,9 @@ function Verification({ info }: { info: ApkInfo }) {
   return (
     <section aria-labelledby="verificar" className="elevari-container pt-12 lg:pt-16">
       <div className="elevari-card-premium p-6 sm:p-8">
-        <p className="elevari-eyebrow">Seguridad</p>
+        <p className="elevari-eyebrow">Seguridad · Android</p>
         <h2 id="verificar" className="elevari-section-title mt-2">
-          Comprueba tu descarga
+          Comprueba la descarga del APK
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-elevari-muted">
           Cada versión publica su huella SHA-256. Si la de tu archivo coincide con esta, es exactamente el que compilamos.
@@ -198,8 +155,13 @@ function Questions({ info }: { info: ApkInfo | null }) {
       question: '¿Cómo la actualizo?',
       answer:
         info?.signing === 'test'
-          ? 'Descarga la versión nueva desde esta página. Como es una versión de prueba, desinstala antes la anterior.'
-          : 'Descarga la versión nueva desde esta página e instálala encima de la actual: conserva tus datos.',
+          ? 'En Android, descarga la versión nueva desde esta página. Como es una versión de prueba, desinstala antes la anterior. En iPhone, la app web se actualiza automáticamente.'
+          : 'En Android, descarga la versión nueva desde esta página e instálala encima de la actual: conserva tus datos. En iPhone, la app web se actualiza automáticamente.',
+    },
+    {
+      question: '¿Cómo instalo Elevari en iPhone?',
+      answer:
+        'iOS no permite instalar archivos APK. Abre esta página en Safari, toca «Compartir», elige «Añadir a pantalla de inicio» y confirma con «Añadir».',
     },
     {
       question: '¿Qué pasa con mis datos?',
@@ -253,14 +215,20 @@ export default async function InstallAppPage() {
             <div className="relative grid gap-10 lg:grid-cols-12 lg:items-center">
               <div className="lg:col-span-7">
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-elevari-amber-soft">
-                  App para Android
+                  Android e iPhone
                 </p>
                 <h1 className="elevari-display-page mt-3 text-white">Elevari en tu celular</h1>
                 <p className="mt-4 max-w-xl text-base leading-relaxed text-white/85">
                   Reserva glamping en Colombia, sigue tus estadías y habla con nosotros desde una app hecha para tu
-                  mano.
+                  mano. Elige la instalación correcta para tu dispositivo.
                 </p>
-                <DownloadBlock info={info} />
+                <PlatformInstallActions
+                  apkAvailable={Boolean(info)}
+                  apkLabel={apkLabel}
+                  apkUrl={APK_URL}
+                  playStoreLive={PLAY_STORE_LIVE}
+                  playStoreUrl={PLAY_STORE_URL}
+                />
               </div>
 
               {/* The code is for a desktop visitor handing the page over to a phone, so phones don't get it. */}
@@ -283,7 +251,7 @@ export default async function InstallAppPage() {
           </div>
         </section>
 
-        {info && <InstallSteps info={info} />}
+        <InstallSteps info={info} />
         {info && <Verification info={info} />}
 
         <section
@@ -291,14 +259,14 @@ export default async function InstallAppPage() {
           aria-labelledby="app-web-titulo"
           className="elevari-container scroll-mt-24 pt-12 lg:pt-16"
         >
-          <p className="elevari-eyebrow">Sin instalar archivos</p>
+          <p className="elevari-eyebrow">Android e iPhone · Sin archivos</p>
           <h2 id="app-web-titulo" className="elevari-section-title mt-2">
             Añade Elevari a tu pantalla de inicio
           </h2>
           <div className="elevari-divider-gold mt-4" />
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-elevari-muted">
-            Funciona en Android y en iPhone: Elevari se abre como una app, sin descargar archivos y siempre en su última
-            versión.
+            Elige la opción de tu dispositivo. En iPhone y iPad, la instalación se hace desde Safari; en Android también
+            puedes usar Chrome. Esta versión se abre como una app y siempre está actualizada.
           </p>
           <div className="mt-8">
             <InstallAppPanel />
