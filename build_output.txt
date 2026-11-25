@@ -1,0 +1,77 @@
+﻿Γû▓ Next.js 16.2.6 (Turbopack)
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 6.1s
+  Running TypeScript ...
+  Finished TypeScript in 5.8s ...
+  Collecting page data using 13 workers ...
+  Generating static pages using 13 workers (0/60) ...
+  Generating static pages using 13 workers (15/60) 
+  Generating static pages using 13 workers (30/60) 
+  Generating static pages using 13 workers (45/60) 
+Γ£ô Generating static pages using 13 workers (60/60) in 1239ms
+  Finalizing page optimization ...
+
+Route (app)                        Revalidate  Expire
+Γöî ╞Æ /
+Γö£ ╞Æ /_not-found
+Γö£ ╞Æ /[slug]
+Γö£ ╞Æ /account
+Γö£ ╞Æ /account/billing
+Γö£ ╞Æ /account/delete
+Γö£ ╞Æ /account/notifications
+Γö£ ╞Æ /account/payments
+Γö£ ╞Æ /account/profile
+Γö£ ╞Æ /account/security
+Γö£ ╞Æ /admin
+Γö£ ╞Æ /admin/analytics
+Γö£ ╞Æ /admin/audit
+Γö£ ╞Æ /admin/bookings
+Γö£ ╞Æ /admin/content
+Γö£ ╞Æ /admin/debug
+Γö£ ╞Æ /admin/invoices
+Γö£ ╞Æ /admin/moderation
+Γö£ ╞Æ /admin/properties
+Γö£ ╞Æ /admin/user
+Γö£ ╞Æ /api/observability
+Γö£ ╞Æ /app
+Γö£ Γùï /apple-icon.png
+Γö£ ╞Æ /auth/forgot-password
+Γö£ ╞Æ /auth/login
+Γö£ ╞Æ /auth/register
+Γö£ ╞Æ /auth/reset-password
+Γö£ ╞Æ /become-host
+Γö£ ╞Æ /checkout/[bookingId]
+Γö£ ╞Æ /checkout/[bookingId]/success
+Γö£ ╞Æ /guides
+Γö£ ╞Æ /guides/[slug]
+Γö£ ╞Æ /health
+Γö£ ╞Æ /heartbeat
+Γö£ ╞Æ /host
+Γö£ ╞Æ /host/add-property
+Γö£ ╞Æ /host/analytics
+Γö£ ╞Æ /host/bookings
+Γö£ ╞Æ /host/properties/[id]/media
+Γö£ Γùï /icon.svg
+Γö£ ╞Æ /legal/[type]
+Γö£ ╞Æ /legal/accessibility
+Γö£ ╞Æ /legal/account-deletion
+Γö£ ╞Æ /legal/contact
+Γö£ ╞Æ /legal/content-moderation
+Γö£ ╞Æ /legal/faq
+Γö£ ╞Æ /legal/privacy
+Γö£ ╞Æ /legal/refund
+Γö£ ╞Æ /legal/terms
+Γö£ Γùï /manifest.webmanifest
+Γö£ ╞Æ /properties
+Γö£ ╞Æ /properties/[slug]
+Γö£ ╞Æ /properties/-/opengraph-image
+Γö£ Γùï /robots.txt
+Γöö Γùï /sitemap.xml                           1m      1y
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
