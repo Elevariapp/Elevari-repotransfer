@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import HomeHero from '@/components/home/HomeHero';
 import PropertyCard from '@/components/PropertyCard';
 import { wanaApi } from '@/lib/api-client';
+import { tServer } from '@/lib/i18n-server';
 import ExperiencePillars from '@/components/home/ExperiencePillars';
 import TrustStrip from '@/components/home/TrustStrip';
 import CategoryStrip from '@/components/home/CategoryStrip';
@@ -34,21 +35,21 @@ export default async function HomePage() {
             <div className="elevari-container relative">
               <div className="mb-10 flex items-end justify-between gap-4">
                 <div>
-                  <p className="elevari-eyebrow">Selección</p>
+                  <p className="elevari-eyebrow">{tServer('Common', 'collection')}</p>
                   <h2 className="elevari-display-section mt-3 text-elevari-slate">
-                    Destacados esta semana
+                    {tServer('Common', 'featuredThisWeek')}
                   </h2>
-                  <p className="mt-3 text-elevari-muted">Espacios con la mejor valoración de huéspedes</p>
+                  <p className="mt-3 text-elevari-muted">{tServer('Common', 'bestRatedByGuests')}</p>
                 </div>
                 <Link
                   href="/properties"
                   className="hidden text-sm font-semibold text-elevari-forest hover:text-elevari-forest-deep sm:inline-flex sm:items-center sm:gap-1"
                 >
-                  Ver colección <span aria-hidden>→</span>
+                  {tServer('Common', 'viewCollection')} <span aria-hidden>→</span>
                 </Link>
               </div>
               <Link href="/properties" className="elevari-btn-ghost mt-4 text-sm sm:hidden">
-                Ver colección
+                {tServer('Common', 'viewCollection')}
               </Link>
               <div className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
                 {featured.map((p) => (
@@ -74,13 +75,14 @@ export default async function HomePage() {
 
         <SceneBand idPrefix="band-sabana">
           <div className="elevari-container py-16 sm:py-20 text-center text-white">
-            <p className="elevari-eyebrow elevari-eyebrow-lux !text-elevari-amber-soft">Sabana de Bogotá</p>
+            <p className="elevari-eyebrow elevari-eyebrow-lux !text-elevari-amber-soft">
+              {tServer('Common', 'sabanaBogota')}
+            </p>
             <h2 className="elevari-display-section elevari-display-section--light mt-4 max-w-2xl mx-auto">
-              Amaneceres en la montaña, noches bajo las estrellas
+              {tServer('Common', 'mountainSunrises')}
             </h2>
             <p className="mt-4 max-w-lg mx-auto text-white/80 leading-relaxed">
-              Espacios exclusivos en Sutatausa y Cucunubá — silencio, naturaleza y confort a poca distancia
-              de la ciudad.
+              {tServer('Common', 'exclusiveSpaces')}
             </p>
             <ButtonLink
               href="/properties/glamping-wana"
@@ -88,7 +90,7 @@ export default async function HomePage() {
               size="lg"
               className="mt-8"
             >
-              Ver espacio destacado
+              {tServer('Common', 'viewFeaturedSpace')}
             </ButtonLink>
           </div>
         </SceneBand>
@@ -101,15 +103,17 @@ export default async function HomePage() {
             className="rounded-[1.75rem] shadow-elevari-lg ring-1 ring-elevari-amber/20"
           >
             <div className="px-8 py-14 text-center text-white sm:px-14 sm:py-16">
-              <p className="elevari-eyebrow !text-elevari-amber-soft">Tu próximo escape</p>
+              <p className="elevari-eyebrow !text-elevari-amber-soft">
+                {tServer('Common', 'nextEscape')}
+              </p>
               <h2 className="elevari-display-section elevari-display-section--light mt-4">
-                ¿Listo para desconectar?
+                {tServer('Common', 'readyToDisconnect')}
               </h2>
               <p className="mt-4 max-w-lg mx-auto text-white/80 leading-relaxed">
-                Reserva con precios claros. Pago seguro y confirmación al instante.
+                {tServer('Common', 'bookWithClearPrices')}
               </p>
               <ButtonLink href="/properties" variant="accent" size="lg" className="mt-8">
-                Ver toda la colección
+                {tServer('Common', 'viewEntireCollection')}
               </ButtonLink>
             </div>
           </SceneBand>

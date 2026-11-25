@@ -2,16 +2,12 @@
 
 import { useState } from 'react';
 
-type Language = { code: string; label: string; native: string };
-
-const LANGUAGES: Language[] = [
-  { code: 'es', label: 'Español', native: 'Español' },
-  { code: 'en', label: 'English', native: 'English' },
-];
+import { useI18n } from '@/components/i18n/useI18n';
 
 export default function LanguageSwitch({ className = '' }: { className?: string }) {
+  const { language, setLanguage, availableLanguages } = useI18n();
   const [open, setOpen] = useState(false);
-  const [current, setCurrent] = useState<Language>(LANGUAGES[0]);
+  const current = availableLanguages.find((l) => l.code === language) ?? availableLanguages[0];
 
   return (
     <div className={`relative inline-block ${className}`}>
@@ -38,20 +34,20 @@ export default function LanguageSwitch({ className = '' }: { className?: string 
           className="absolute right-0 mt-2 w-32 rounded-xl border border-white/20 bg-white/10 p-1 text-white shadow-lg"
           onMouseLeave={() => setOpen(false)}
         >
-          {LANGUAGES.map((lang) => (
+          {availableLanguages.map((lang) => (
             <button
               key={lang.code}
               type="button"
               onClick={() => {
-                setCurrent(lang);
+                setLanguage(lang.code);
                 setOpen(false);
               }}
               className={`flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg transition ${
-                lang.code === current.code ? 'bg-white/20' : 'hover:bg-white/20'
+                lang.code === language ? 'bg-white/20' : 'hover:bg-white/20'
               }`}
             >
               <span className="font-medium">{lang.native}</span>
-              {lang.code === current.code && (
+              {lang.code === language && (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-auto">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>

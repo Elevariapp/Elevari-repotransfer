@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Logo from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
+import { useI18n } from '@/components/i18n/useI18n';
 import LanguageSwitch from '@/components/i18n/LanguageSwitch';
 import NotificationBell from '@/components/notifications/NotificationBell';
 import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
@@ -12,13 +13,14 @@ import { whatsappContext } from '@/lib/whatsapp';
 
 /** Cada enlace va a un destino distinto — sin duplicar /properties */
 const navLinks = [
-  { href: '/properties', label: 'Colección', shortLabel: 'Colección', match: (p: string) => p === '/properties' || (p.startsWith('/properties') && !p.includes('glamping-wana')) },
-  { href: '/properties/glamping-wana', label: 'Glamping destacado', shortLabel: 'Destacado', match: (p: string) => p.startsWith('/properties/glamping-wana') },
-  { href: '/host/add-property', label: 'Publicar', shortLabel: 'Publicar', match: (p: string) => p.startsWith('/host/add-property') },
-  { href: '/legal/faq', label: 'FAQ', shortLabel: 'FAQ', match: (p: string) => p.startsWith('/legal/faq') },
+  { href: '/properties', shortLabel: 'collection', match: (p: string) => p === '/properties' || (p.startsWith('/properties') && !p.includes('glamping-wana')) },
+  { href: '/properties/glamping-wana', shortLabel: 'featured', match: (p: string) => p.startsWith('/properties/glamping-wana') },
+  { href: '/host/add-property', shortLabel: 'publish', match: (p: string) => p.startsWith('/host/add-property') },
+  { href: '/legal/faq', shortLabel: 'faq', match: (p: string) => p.startsWith('/legal/faq') },
 ] as const;
 
 export default function Header({ sticky = true }: { sticky?: boolean }) {
+  const { t } = useI18n();
   const { user, logout, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -60,6 +62,9 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
   const closeMenu = () => setMenuOpen(false);
   // Support channel for visitors and hosts; the internal admin screens have no use for it.
   const whatsapp = pathname.startsWith('/admin') ? null : whatsappContext(pathname);
+  const navLabel = (key: string) => t('Common', key);
+  const isHost = user?.role === 'host';
+  const isAdmin = user?.role === 'admin';
 
   return (
     <header className={`elevari-header z-50 overflow-x-clip ${sticky ? 'sticky top-0' : 'relative'}`}>
@@ -82,25 +87,25 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
                 href={link.href}
                 className={`elevari-header-nav-link ${active ? 'elevari-header-nav-link-active' : ''}`}
               >
-                <span className="xl:hidden">{link.shortLabel}</span>
-                <span className="hidden xl:inline">{link.label}</span>
+                <span className="xl:hidden">{navLabel(link.shortLabel)}</span>
+                <span className="hidden xl:inline">{navLabel(link.shortLabel)}</span>
               </Link>
             );
           })}
-          {user?.role === 'host' && (
+          {isHost && (
             <Link
               href="/host"
               className={`elevari-header-nav-link ${pathname.startsWith('/host') && !pathname.startsWith('/host/add-property') ? 'elevari-header-nav-link-active' : ''}`}
             >
-              Mi panel
+              {navLabel('hostDashboard')}
             </Link>
           )}
-          {user?.role === 'admin' && (
+          {isAdmin && (
             <Link
               href="/admin"
               className={`elevari-header-nav-link ${pathname.startsWith('/admin') ? 'elevari-header-nav-link-active' : ''}`}
             >
-              Admin
+              {navLabel('admin')}
             </Link>
           )}
         </nav>
@@ -118,7 +123,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
                 onClick={handleLogout}
                 className="elevari-btn-ghost hidden !px-3 !py-2 text-sm lg:inline-flex xl:!px-4"
               >
-                Salir
+                {navLabel('logout')}
               </button>
             </>
           ) : (
@@ -126,7 +131,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
               href="/auth/login"
               className="elevari-btn-ghost hidden !px-3 !py-2 text-sm lg:inline-flex xl:!px-4"
             >
-              Iniciar sesión
+              {navLabel('signIn')}
             </Link>
           )}
 
@@ -138,7 +143,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
             className="elevari-header-menu-btn lg:hidden"
             aria-expanded={menuOpen}
             aria-controls="elevari-mobile-menu"
-            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-label={menuOpen ? navLabel('closeMenu') : navLabel('openMenu')}
             onClick={() => setMenuOpen((o) => !o)}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -156,7 +161,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
         <div ref={mobilePanelRef} id="elevari-mobile-menu" className="elevari-header-mobile-panel lg:hidden">
           <nav className="elevari-container flex max-h-[calc(100dvh-3.5rem)] flex-col gap-1 overflow-y-auto py-4 sm:max-h-[calc(100dvh-4rem)]">
             <div className="mb-2 flex items-center justify-between px-1">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Idioma</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">{navLabel('language')}</span>
               <LanguageSwitch className="w-full" />
             </div>
             {navLinks.map((link) => (
@@ -170,25 +175,25 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
                     : 'text-white/85 hover:bg-white/10 hover:text-white'
                 }`}
               >
-                {link.label}
+                {navLabel(link.shortLabel)}
               </Link>
             ))}
-            {user?.role === 'host' && (
+            {isHost && (
               <Link
                 href="/host"
                 onClick={closeMenu}
                 className="rounded-xl px-4 py-3 text-sm font-medium text-white/85 min-h-[44px] hover:bg-white/10"
               >
-                Mi panel
+                {navLabel('hostDashboard')}
               </Link>
             )}
-            {user?.role === 'admin' && (
+            {isAdmin && (
               <Link
                 href="/admin"
                 onClick={closeMenu}
                 className="rounded-xl px-4 py-3 text-sm font-medium text-white/85 min-h-[44px] hover:bg-white/10"
               >
-                Admin
+                {navLabel('admin')}
               </Link>
             )}
             {!loading && user ? (
@@ -198,14 +203,14 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
                   onClick={closeMenu}
                   className="rounded-xl px-4 py-3 text-sm text-white/85 min-h-[44px] hover:bg-white/10"
                 >
-                  Mi cuenta{user.name ? ` · ${user.name}` : ''}
+                  {navLabel('myAccount')}{user.name ? ` · ${user.name}` : ''}
                 </Link>
                 <button
                   type="button"
                   onClick={handleLogout}
                   className="elevari-btn-ghost mt-1 justify-center min-h-[44px]"
                 >
-                  Salir
+                  {navLabel('logout')}
                 </button>
               </>
             ) : (
@@ -214,7 +219,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
                 onClick={closeMenu}
                 className="elevari-btn-ghost mt-1 justify-center min-h-[44px]"
               >
-                Iniciar sesión
+                {navLabel('signIn')}
               </Link>
             )}
           </nav>

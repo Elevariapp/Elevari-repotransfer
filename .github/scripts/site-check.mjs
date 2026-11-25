@@ -172,6 +172,17 @@ for (const page of report.pages) {
 
 const homeStatus = report.pages.find((page) => page.path === '/')?.status ?? 0;
 const home = homeStatus === 200 ? bodies['/'] : '';
+
+// Validate the <html lang> attribute is one of the supported locales (es or en).
+const langMatch = home.match(/<html[^>]*\blang=["']([a-z]{2})["']/i);
+const htmlLang = langMatch ? langMatch[1] : null;
+report.htmlLang = htmlLang;
+if (htmlLang && !['es', 'en'].includes(htmlLang)) {
+  report.problems.push(`<html lang="${htmlLang}"> is not a supported locale (expected es or en)`);
+} else if (!htmlLang) {
+  report.problems.push('<html> is missing a lang attribute');
+}
+
 const hero = {
   readable: homeStatus === 200,
   // data-elevari-scene is also in the root layout, so every page has it; the switcher exists only in the home hero.

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import PropertyLink from '@/components/catalog/PropertyLink';
 import { formatPropertyLocation } from '@/lib/property-location';
+import { tServer } from '@/lib/i18n-server';
 import EmptyMedia from '@/components/ui/EmptyMedia';
 
 type Property = {
@@ -59,7 +60,7 @@ export default function PropertyCard({
             <>
               <Image
                 src={image}
-                alt={property.title ?? 'Propiedad'}
+                alt={property.title ?? tServer('Common', 'property')}
                 width={640}
                 height={480}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -72,14 +73,14 @@ export default function PropertyCard({
               />
             </>
           ) : (
-            <EmptyMedia label="Sin imagen" className="aspect-[4/3]" />
+            <EmptyMedia label={tServer('Common', 'noImage')} className="aspect-[4/3]" />
           )}
 
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             {isFeatured && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-elevari-forest-deep/95 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-elevari-amber-soft shadow-[var(--elevari-shadow-soft)] ring-1 ring-white/20 backdrop-blur-sm">
                 <span className="h-1.5 w-1.5 rounded-full bg-elevari-amber" aria-hidden />
-                Destacado
+                {tServer('Common', 'featured')}
               </span>
             )}
             {property.rating != null && (
@@ -93,7 +94,7 @@ export default function PropertyCard({
             <div className="absolute bottom-3 left-3 right-3">
               <p className="text-sm font-semibold text-white drop-shadow-md">
                 {formatPrice(property.price_per_night)}
-                <span className="font-normal text-white/85"> / noche</span>
+                <span className="font-normal text-white/85">{tServer('Common', 'perNight')}</span>
               </p>
             </div>
           )}
@@ -101,11 +102,11 @@ export default function PropertyCard({
 
         <div className="mt-3.5 space-y-1 px-0.5">
           <h3 className="font-semibold text-elevari-slate line-clamp-1 transition group-hover:text-elevari-ink">
-            {property.title ?? 'Propiedad sin título'}
+            {property.title ?? tServer('Common', 'propertyNoTitle')}
           </h3>
-          <p className="text-sm text-elevari-muted line-clamp-1">{location ?? 'Colombia'}</p>
+          <p className="text-sm text-elevari-muted line-clamp-1">{location ?? tServer('Common', 'colombia')}</p>
           {property.review_count != null && property.review_count > 0 && (
-            <p className="text-xs text-elevari-muted/80">{property.review_count} reseñas</p>
+            <p className="text-xs text-elevari-muted/80">{property.review_count} {tServer('Common', 'reviews')}</p>
           )}
         </div>
       </article>

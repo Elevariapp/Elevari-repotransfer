@@ -1,18 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/components/i18n/useI18n';
 
 /** Ubicaciones + destacado — sin duplicados confusos */
 const REGIONS = [
-  { label: 'Toda la colección', city: '', detail: 'Colombia' },
-  { label: 'Sutatausa', city: 'Sutatausa', detail: 'Montañas y domos' },
-  { label: 'Cucunubá', city: 'Cucunubá', detail: 'Sabana rural' },
-  { label: 'Sabana de Bogotá', city: 'Sabana', detail: 'Cerca de la capital' },
+  { labelKey: 'regionAll', city: '', detailKey: 'regionColombia' },
+  { labelKey: 'regionSutatausa', city: 'Sutatausa', detailKey: 'regionSutatausaDetail' },
+  { labelKey: 'regionCucunuba', city: 'Cucunubá', detailKey: 'regionCucunubaDetail' },
+  { labelKey: 'regionSabana', city: 'Sabana', detailKey: 'regionSabanaDetail' },
 ] as const;
 
-const HIGHLIGHT = { label: 'Destacado', slug: 'glamping-wana', detail: 'Mejor valorado' } as const;
+const HIGHLIGHT = { labelKey: 'highlightFeatured', slug: 'glamping-wana', detailKey: 'highlightFeaturedDetail' } as const;
 
 export default function CategoryStrip({ activeCity }: { activeCity?: string }) {
+  const { t } = useI18n();
   const router = useRouter();
 
   const goCity = (city: string) => {
@@ -21,17 +23,19 @@ export default function CategoryStrip({ activeCity }: { activeCity?: string }) {
     router.push(`/properties${params.toString() ? `?${params}` : ''}`);
   };
 
+  const label = (key: string) => t('Common', key);
+
   return (
     <section className="relative z-10 border-b border-elevari-border/70 bg-elevari-surface/95 shadow-[0_4px_24px_rgba(0,0,0,0.04)] backdrop-blur-md">
       <div className="elevari-container py-3 sm:py-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
           <p className="shrink-0 text-[11px] font-bold uppercase tracking-[0.2em] text-elevari-muted">
-            Explorar
+            {label('explore')}
           </p>
 
           <div className="min-w-0 flex-1">
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-elevari-muted/80 lg:sr-only">
-              Por región
+              {label('byRegion')}
             </p>
             <div className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {REGIONS.map((item) => {
@@ -39,19 +43,19 @@ export default function CategoryStrip({ activeCity }: { activeCity?: string }) {
                   activeCity === item.city || (!activeCity && !item.city);
                 return (
                   <button
-                    key={item.label}
+                    key={item.labelKey}
                     type="button"
                     onClick={() => goCity(item.city)}
                     className={`elevari-category-chip shrink-0 ${active ? 'elevari-category-chip-active' : ''}`}
                   >
                     <span className="text-left">
-                      <span className="block leading-tight">{item.label}</span>
+                      <span className="block leading-tight">{label(item.labelKey)}</span>
                       <span
                         className={`mt-0.5 block text-[10px] font-normal sm:hidden ${
                           active ? 'text-white' : 'text-elevari-muted'
                         }`}
                       >
-                        {item.detail}
+                        {label(item.detailKey)}
                       </span>
                     </span>
                   </button>
@@ -71,8 +75,8 @@ export default function CategoryStrip({ activeCity }: { activeCity?: string }) {
               ★
             </span>
             <span>
-              {HIGHLIGHT.label}
-              <span className="hidden text-elevari-muted lg:inline"> · {HIGHLIGHT.detail}</span>
+              {label(HIGHLIGHT.labelKey)}
+              <span className="hidden text-elevari-muted lg:inline"> · {label(HIGHLIGHT.detailKey)}</span>
             </span>
           </button>
         </div>

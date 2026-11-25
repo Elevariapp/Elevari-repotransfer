@@ -8,6 +8,7 @@ import MarketingScripts from '@/components/analytics/MarketingScripts';
 import ObservabilityProvider from '@/components/observability/ObservabilityProvider';
 import { themeInitScript } from '@/components/theme/ThemeToggle';
 import { sceneInitScript } from '@/lib/scene/time-of-day';
+import { I18nProvider } from '@/components/i18n/I18nProvider';
 
 import { siteUrl } from '@/lib/site-url';
 import { installCaptureScript } from '@/lib/pwa-install-script';
@@ -54,6 +55,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: sceneInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: installCaptureScript }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var l=localStorage.getItem('elevari-language');if(l&&(l==='es'||l==='en')){document.documentElement.lang=l;}}catch(e){}})()`,
+          }}
+        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webSchema) }} />
       </head>
@@ -63,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <MarketingScripts />
         <ObservabilityProvider />
-        {children}
+        <I18nProvider>{children}</I18nProvider>
         <ConditionalFooter />
         <FloatingActions />
         <Toaster
