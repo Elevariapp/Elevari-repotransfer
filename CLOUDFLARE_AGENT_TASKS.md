@@ -28,7 +28,7 @@ This document lists concrete tasks for a **Cloudflare Agent** (an AI agent or ru
 
 ### 1.3 Cache behavior
 
-- **Caching → Configuration → Browser Cache TTL:** currently **14400 (4 hours)** — agent recommends lowering to **300 (5 min)** for HTML so deploys propagate quickly without a manual purge.
+- **Caching → Configuration → Browser Cache TTL:** **300 (5 minutes)** — cambiado de 14400 (4 h) el 2026-11-25. Verificado con lectura posterior al cambio. Motivo: con 4 h de caché, un deploy tardaba horas en verse y los usuarios recibían bundles antiguos (incluido sitekey viejo de Turnstile).
 - **Caching → Configuration → Cache Level:** "Standard" (cache static assets; HTML is cacheable only if you add an Edge Cache TTL rule).
 - **Caching → Configuration → Development Mode:** keep **off** in production (it bypasses cache for 3 hours — useful only during debugging).
 - **Page Rules / Cache Rules:** add a rule to cache HTML for `elevari.live/*` with Edge Cache TTL = 0 (bypass cache) **or** a short TTL (e.g. 5 min) so deploys propagate quickly without a manual purge.
@@ -45,24 +45,30 @@ This document lists concrete tasks for a **Cloudflare Agent** (an AI agent or ru
 
 - **Turnstile → Site keys:** verify `NEXT_PUBLIC_TURNSTILE_SITE_KEY` matches the widget on `/auth/login` and `/auth/register`.
 - **Turnstile → Site keys → Secret key:** must match `TURNSTILE_SECRET_KEY` on the API server.
-- **⚠️ Dominios permitidos:** actualmente solo `elevari.live`. Faltan `www.elevari.live` y `app.elevari.live` — si un usuario entra por `www.elevari.live/login` o `app.elevari.live/login`, el widget de Turnstile falla. **El agente no puede editar Turnstile (403).** Hazlo tú en el dashboard: Turnstile → Site keys → edit → añadir dominios.
+- **Dominios permitidos:** `app.elevari.live`, `elevari.live`, `www.elevari.live` — todos añadidos el 2026-11-25T13:08:00Z vía dashboard por el usuario. Incidente de login/registro cerrado. **No reabrir cambiando el widget.**
 - If you rotate the site key, update `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in `.env.production` and redeploy.
 
 ### 1.6 Workers (optional — NOT production)
 
 - The `elevari-repotransfer` Worker on `*.workers.dev` is a **copy only**. `elevari.live` is served by the Hetzner stack behind Cloudflare proxy.
-- **Rutas y dominios vacíos:** el Worker no recibe tráfico (rutas `[]`, dominios `[]`). Todo el pipeline despliega código que ningún usuario alcanza a través del Worker.
-- **Do not** add custom domains or routes to the Worker — it would capture traffic meant for the VPS.
+- **Rutas y dominios vacíos:** el Worker no recibe tráfico en producción (rutas `[]`, dominios `[]`). Todo el pipeline despliega código que ningún usuario alcanza a través del Worker.
+- **Traces activados:** `traces.enabled: true`, `traces.persist: true`, `traces.head_sampling_rate: 1`, `issues.enabled: true`, `logs.enabled: true`, `logs.invocation_logs: true`, `logs.persist: true`. Cambiado el 2026-11-25 para depurar deploys rotos.
+- **DNS staging creado:** `staging.elevari.live` → AAAA `100::`, proxied: true, TTL auto. ID: `0f9167e14ca1559e1d6f76f982bbf7eb`. `100::` es el prefijo discard de IPv6: no apunta a ningún origen. Su única función es que el hostname exista y esté proxied, requisito para que una ruta de Worker se active. **No lo borres y no lo "corrijas" a una IP real.**
+- **Tarea pendiente:** desplegar el Worker de staging con `npx wrangler deploy --env staging` y verificar `https://staging.elevari.live/` devuelve 200. Requisito previo: `CLOUDFLARE_ACCOUNT_ID=629b67e6b675276daa6a4ca9eee4d806` en los secrets de GitHub.
+- **Do not** add custom domains or routes to the production Worker — it would capture traffic meant for the VPS.
 - If you don't need it: Workers & Pages → Builds → Disconnect.
 
-### 1.7 Secrets in GitHub (Settings → Secrets and variables → Actions) — ✅ DONE
+### 1.7 Secrets in GitHub (Settings → Secrets and variables → Actions) — ✅ DONE (parcial)
 
 | Secret | Value | Where to get it | Status |
 |--------|-------|-----------------|--------|
 | `CLOUDFLARE_API_TOKEN` | Cloudflare API token with `Zone:Cache` purge + `Zone:DNS:Read` + `Zone:SSL:Read` permissions | Cloudflare → My Profile → API Tokens → Create Token → "Edit zone cache" template | ✅ Added |
 | `CLOUDFLARE_ZONE_ID` | Zone ID for `elevari.live` | Cloudflare → elevari.live → Overview → Zone ID (right sidebar) | ✅ Added |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account ID (needed by `wrangler` for staging Worker deploy) | Cloudflare → elevari.live → Overview → Account ID (right sidebar) | ❌ **Falta** — valor: `629b67e6b675276daa6a4ca9eee4d806` |
 
-Both secrets are now configured in the `elevari-repotransfer` repo. The CI/CD pipeline is unblocked — `cloudflare.yml` and the post-deploy purge step in `ci.yml` will run on the next push to `b-main`.
+`CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ZONE_ID` ya están configurados en el repo `elevari-repotransfer`. El CI/CD pipeline está desbloqueado para purge y validación.
+
+`CLOUDFLARE_ACCOUNT_ID` **falta** y es requisito previo para desplegar el Worker de staging con `wrangler`. Añádelo antes de ejecutar `npx wrangler deploy --env staging`.
 
 ---
 
@@ -177,34 +183,34 @@ curl -sS -H "Authorization: Bearer {TOKEN}" \
 
 ## 5. Estado actual del agente Cloudflare (informe del agente)
 
-### 5.1 Lo que el agente confirmó (estado verificado)
+### 5.1 Lo que el agente confirmó (estado verificado — actualizado 2026-11-25)
 
 | Área | Estado | Detalle |
 |------|--------|---------|
-| Turnstile | ⚠️ Incompleto | Sitekey `0x4AAAAAAGL6Nkc1KmMspy5d`, modo managed. Dominios: solo `elevari.live`. Faltan `www.elevari.live` y `app.elevari.live`. Modificado hoy 19:38 vía dashboard. |
-| SSL/TLS | ⚠️ Flexible | Sin cambios desde el 23. Tramo Cloudflare→origen en texto plano. |
-| Cache | ⚠️ Agresivo | `browser_cache_ttl: 14400` (4 h), dev mode off. |
-| Worker | ⚠️ Sin tráfico | Rutas `[]`, dominios `[]`. 0 invocaciones. No recibe tráfico de usuarios. |
+| Turnstile | ✅ Completo | Sitekey `0x4AAAAAAGL6Nkc1KmMspy5d`, modo managed. Dominios: `app.elevari.live`, `elevari.live`, `www.elevari.live`. Modificado 2026-11-25T13:08:00Z vía dashboard por el usuario. Incidente de login/registro cerrado. |
+| SSL/TLS | ⚠️ Flexible | Sin cambios desde el 23. Tramo Cloudflare→origen en texto plano. No cambiar a Full/strict sin certificado en el origen. |
+| Cache | ✅ Ajustado | `browser_cache_ttl: 300` (5 min), cambiado de 14400 el 2026-11-25. Verificado con lectura posterior. |
+| Worker | ⚠️ Sin tráfico | Rutas `[]`, dominios `[]`. 0 invocaciones en 24 h. Traces activados (`traces.enabled: true`, `issues.enabled: true`). DNS staging `staging.elevari.live` → AAAA `100::` (ID: `0f9167e14ca1559e1d6f76f982bbf7eb`) creado, no borrar. |
 | WAF / Rate limiting | ⚠️ Vacío | Ruleset custom versión 1 sin reglas. `/login` y `/register` sin límite de intentos. |
 | Alertas | ❌ Cero | Ninguna notificación para 5xx o deploys rotos. |
 
 ### 5.2 Lo que el agente PUEDE hacer (ejecución bajo petición)
 
-- **Purge de caché** — todo el zone o URLs concretas (`POST /zones/{zone_id}/purge_cache`).
-- **Zone settings** — cambiar `browser_cache_ttl`, `cache_level`, development mode, Always Use HTTPS, min TLS.
-- **Activar traces en el Worker** — para depurar el próximo deploy.
-- **Leer y verificar** — analytics de requests/5xx/cache hit ratio, eventos de firewall, historial de deployments y versiones.
-- **Purgas puntuales** (tareas #1 y #8 de la sección 2).
+- **Leer y verificar** — analytics de requests/5xx/cache hit ratio, eventos de firewall, historial de deployments y versiones, DNS records, SSL edge cert.
+- **Activar traces en el Worker** — ya activado (`traces.enabled: true`, `issues.enabled: true`).
+- **Leer zona settings** — `browser_cache_ttl`, `cache_level`, development mode, etc.
+
+> ⚠️ **Purge de caché: HTTP 401, sin permiso de purga.** El agente no puede ejecutar `POST /zones/{zone_id}/purge_cache`. Requiere token del usuario con permiso de purga. No reintentar.
 
 ### 5.3 Lo que el agente NO puede hacer (403 o sin acceso)
 
 | Acción | Motivo | Quién debe hacerlo |
 |--------|--------|-------------------|
-| Editar Turnstile (añadir `www.elevari.live`, `app.elevari.live`) | 403 confirmado | Tú en el dashboard: Turnstile → Site keys → edit → añadir dominios |
+| Purge de caché del zone | HTTP 401, sin permiso de purga | Usuario (dashboard o token propio) |
+| Políticas de alerta (5xx / deploy roto) | HTTP 403 | Usuario (Dashboard → Notifications / Monitors) |
+| Escritura en Turnstile | HTTP 403 | Usuario (ya hecho — dominios añadidos) |
 | Crear o editar API tokens | Solo My Profile → API Tokens | Tú en Cloudflare dashboard |
 | Conectar repo a Workers Builds | Workers CI es solo lectura para el agente | N/A (no necesario) |
-| Crear políticas de alerta | 403 confirmado | Tú en Dashboard → Notifications |
-| Escribir en Turnstile | 403 confirmado | Tú en el dashboard |
 | Leer Bot Fight Mode | 403 | Tú en el dashboard |
 | Health checks / Load Balancing | No están en tu plan | N/A |
 | Escribir commits / secrets de GitHub | Sin acceso | Tú en GitHub |
@@ -215,28 +221,58 @@ curl -sS -H "Authorization: Bearer {TOKEN}" \
 
 | Tarea | ¿Puede el agente? | Notas |
 |-------|-------------------|-------|
-| #1 Purge cache en deploy | ✅ Sí | Ejecuta purgas puntuales bajo petición |
+| #1 Purge cache en deploy | ❌ No | HTTP 401 — requiere token del usuario con permiso de purga |
 | #2 Validar DNS + SSL + origen | ✅ Consultar | Puede leer, no programar |
 | #3 Verificar deploy coincide con commit | ❌ No | No tiene acceso a commits de GitHub |
 | #4 Monitorear WAF false positives | ✅ Consultar | Puede leer eventos de firewall bajo petición |
 | #5 Salud del origen desde fuera | ❌ No | Sin red saliente a la IP del VPS |
 | #6 Reporte de estado de caché | ✅ Consultar | Puede leer analytics bajo petición |
 | #7 Watch de expiración SSL | ⚠️ Parcial | Puede leer edge cert (sí), no origin cert (no) |
-| #8 Remediación de contenido obsoleto | ✅ Sí | Ejecuta purgas puntuales bajo petición |
+| #8 Remediación de contenido obsoleto | ❌ No | HTTP 401 en purge — requiere usuario |
 
-### 5.5 Cuatro acciones seguras, reversibles y de efecto inmediato (agente ofrece ejecutar)
+### 5.5 Acciones pendientes (requieren intervención del usuario)
 
-1. **Bajar `browser_cache_ttl` de 14400 a 300** — zone setting, reversible.
-2. **Purgar la caché del zone** — `purge_everything`, efecto inmediato.
-3. **Activar traces en el Worker** — para depurar el próximo deploy.
-4. *(No puede)* Reponer `www.elevari.live` en Turnstile — **tú debes hacerlo en el dashboard**.
+1. **Añadir `CLOUDFLARE_ACCOUNT_ID` a GitHub secrets** — valor: `629b67e6b675276daa6a4ca9eee4d806`. Requisito para `wrangler deploy --env staging`.
+2. **Desplegar Worker de staging** — `npx wrangler deploy --env staging`, luego `curl https://staging.elevari.live/` → esperar 200.
+3. **Purge de caché del zone** — HTTP 401 para el agente. Usuario debe hacerlo desde dashboard o con token propio.
+4. **Crear políticas de alerta** — HTTP 403 para el agente. Usuario desde Dashboard → Notifications.
 
-> ⚠️ El agente advierte: su conexión con la API de Cloudflare es intermitente. Algunas escrituras pueden fallar. Te lo dirá sin adornos si no se completa.
+### 5.7 Lo que tu verificación actual no detecta (y causó el incidente)
 
-### 5.6 Las cinco brechas reales de tu CI/CD hoy
+Tu último informe decía: "login and registration pages return 200, APIs respond correctly, sitemap and robots pass". Todo cierto — y el usuario no podía entrar.
 
-1. **El Worker no recibe tráfico** — rutas y dominios vacíos. Es el hueco más grande; es de arquitectura, no de CI.
-2. **SSL flexible** — Cloudflare→origen en texto plano. Debe pasar a Full (strict) solo después de instalar certificado en el origen.
-3. **`browser_cache_ttl: 14400`** — 4 horas de caché de navegador. Un deploy puede tardar 4 h en verse. Bájalo a 300 para HTML.
-4. **WAF y rate limiting vacíos** — `/login` y `/register` sin límite de intentos. Con Turnstile activo, falta un rate limit en esas rutas.
-5. **Cero alertas** — un deploy roto o un 5xx no avisa a nadie.
+Un 200 prueba que el HTML se sirve. No prueba que la página funcione.
+
+Añade al smoke test, como mínimo:
+
+```js
+const SITEKEY = "0x4AAAAAAGL6Nkc1KmMspy5d";
+for (const path of ["/login", "/register"]) {
+  const html = await (await fetch(`${baseUrl}${path}`)).text();
+  assert(html.includes(SITEKEY), `sitekey ausente en ${path}`);
+  assert(!/data-sitekey=""/.test(html), `sitekey vacío en ${path}`);
+}
+```
+
+Y un test de navegador real (Playwright) que complete un login. Es el único tipo de test que habría atrapado este fallo.
+
+Además, para que "está desplegado" sea verificable y no una afirmación: inyecta el `GITHUB_SHA` corto en un endpoint `/version` y compáralo tras el deploy.
+
+### 5.8 Decisión pendiente que bloquea el resto
+
+El Worker tiene rutas `[]` y dominios `[]`: **0 invocaciones**. El pipeline despliega código que ningún usuario alcanza.
+
+Antes de añadir más gates, decide: ¿el Worker sirve tráfico en producción o no?
+- **Sí** → adjuntar ruta o custom domain, y verificar con `curl` antes de retirar los registros A del origen.
+- **No** → el pipeline no debe desplegar el Worker, y el trabajo de `wrangler.toml` es prematuro.
+
+No sigas construyendo sobre esta ambigüedad.
+
+### 5.9 Reglas que sigues sin poder romper
+
+1. **No toques DNS, SSL ni Turnstile.** El correo de la zona depende de registros que no son tuyos.
+2. **No cambies SSL de flexible a Full (strict)** sin certificado válido en el origen `2.29.165.225`. Resultado: 526 y sitio caído.
+3. **No borres `staging.elevari.live`.** Es intencionalmente `100::` (prefijo discard IPv6). Un segundo POST con el mismo nombre devolverá error de registro duplicado.
+4. **No cambies `compatibility_date`.**
+5. **No añadas bindings de Durable Objects** a código que no los usa, ni dejes código que los usa sin binding. Un DO sin binding falla en runtime, no en deploy.
+6. **No mezcles cambios de aplicación con cambios de configuración de Cloudflare** en el mismo PR.

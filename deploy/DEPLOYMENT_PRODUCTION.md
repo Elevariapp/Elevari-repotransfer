@@ -20,6 +20,7 @@ Cada push a `b-main` ejecuta `.github/workflows/ci.yml`: build API/Web, check de
 | `EXPO_TOKEN` | Token de expo.dev → Account Settings → Access Tokens (opcional: sin él se omite el build Android) |
 | `CLOUDFLARE_API_TOKEN` | Token de Cloudflare con permisos `Zone:Cache` (purge) + `Zone:DNS:Read` + `Zone:SSL:Read` (obténlo en My Profile → API Tokens → Create Token → plantilla "Edit zone cache") |
 | `CLOUDFLARE_ZONE_ID` | Zone ID de `elevari.live` (Cloudflare → elevari.live → Overview → Zone ID, barra lateral derecha) |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account ID (necesario por `wrangler` para desplegar el Worker de staging). **Falta** — valor: `629b67e6b675276daa6a4ca9eee4d806`. Añádelo antes de ejecutar `npx wrangler deploy --env staging`. |
 
 Crear una clave dedicada al deploy:
 
@@ -139,6 +140,16 @@ Actions → **Server diagnostics** → Run workflow (solo lectura; el repo es p�
 ### Cloudflare Workers Builds (opcional; no es producción)
 
 Producción es el stack Docker del VPS detrás del proxy de Cloudflare. El Worker `elevari-repotransfer` (Workers & Pages → conectado a Git) solo publica una copia en `*.workers.dev`; `elevari.live` **no depende de él**. No le añadas rutas ni dominios personalizados: capturaría el tráfico que hoy va al VPS.
+
+**Staging Worker:** existe un DNS `staging.elevari.live` → AAAA `100::` (proxied, ID: `0f9167e14ca1559e1d6f76f982bbf7eb`) creado intencionalmente como prefijo discard IPv6. **No lo borres ni lo cambies a una IP real.** Su única función es que el hostname exista y esté proxied, requisito para que una ruta de Worker se active.
+
+Para desplegar el Worker de staging se requiere el secreto `CLOUDFLARE_ACCOUNT_ID` en GitHub (Settings → Secrets and variables → Actions). Valor: `629b67e6b675276daa6a4ca9eee4d806`. Luego ejecutar:
+
+```bash
+npx wrangler deploy --env staging
+```
+
+y verificar `https://staging.elevari.live/` devuelve HTTP 200.
 
 - El `name` de `package.json` debe ser exactamente el nombre del Worker (`elevari-repotransfer`). La autoconfiguración de Next.js crea el binding `WORKER_SELF_REFERENCE` apuntando a ese `name`; si no coincide, el build falla con *Service binding 'WORKER_SELF_REFERENCE' references Worker '…' which was not found [code: 10143]*.
 - La copia necesita sus propias variables: `NEXT_PUBLIC_API_URL` y `NEXT_PUBLIC_SITE_URL` como variables de build, y las de runtime en Settings → Variables and Secrets.
