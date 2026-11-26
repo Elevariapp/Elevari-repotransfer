@@ -1,16 +1,21 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/i18n/useI18n';
+import { wanaApi } from '@/lib/api-client';
 
-const LOCATIONS = [
-  { label: 'Cualquier lugar en Colombia', value: '', detail: 'Toda la colección Elevari' },
-  { label: 'Sutatausa', value: 'Sutatausa', detail: 'Sabana, montañas y domos' },
-  { label: 'Cucunubá', value: 'Cucunubá', detail: 'Paisaje rural y cielo abierto' },
-  { label: 'Cundinamarca', value: 'Cundinamarca', detail: 'Cerca de Bogotá' },
-  { label: 'Sabana de Bogotá', value: 'Sabana', detail: 'Escapadas de fin de semana' },
-];
+interface CityOption {
+  label: string;
+  value: string;
+  detail: string;
+}
+
+const ANYWHERE: CityOption = {
+  label: 'Cualquier lugar en Colombia',
+  value: '',
+  detail: 'Toda la colección Elevari',
+};
 
 export default function GlobalSearchBar({ className = '' }: { className?: string }) {
   const { t } = useI18n();
@@ -18,6 +23,34 @@ export default function GlobalSearchBar({ className = '' }: { className?: string
   const [city, setCity] = useState('');
   const [cityLabel, setCityLabel] = useState(t('Common', 'search.destinationPlaceholder'));
   const [open, setOpen] = useState(false);
+  const [locations, setLocations] = useState<CityOption[]>([ANYWHERE]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    wanaApi
+      .getCities()
+      .then(({ data }) => {
+        if (cancelled) return;
+        const options: CityOption[] = [
+          ANYWHERE,
+          ...data.map((cityName) => ({
+            label: cityName,
+            value: cityName,
+            detail: 'Propiedades disponibles',
+          })),
+        ];
+        setLocations(options);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSelect = (value: string, label: string) => {
     setCity(value);
@@ -44,8 +77,11 @@ export default function GlobalSearchBar({ className = '' }: { className?: string
           onChange={(e) => {
             const typed = e.target.value;
             setCityLabel(typed);
-            // Match typed value against known locations
-            const match = LOCATIONS.find((l) => l.label.toLowerCase().includes(typed.toLowerCase()) || typed.toLowerCase().includes(l.label.toLowerCase()));
+            const match = locations.find(
+              (l) =>
+                l.label.toLowerCase().includes(typed.toLowerCase()) ||
+                typed.toLowerCase().includes(l.label.toLowerCase()),
+            );
             if (match) {
               setCity(match.value);
             } else if (!typed) {
@@ -63,14 +99,15 @@ export default function GlobalSearchBar({ className = '' }: { className?: string
           }}
           className="w-full min-h-[44px] px-4 py-2 text-left text-white bg-white/10 border border-white/20 rounded-xl placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft focus:border-transparent transition-all"
           placeholder={t('Common', 'search.destinationPlaceholder')}
+          disabled={loading}
         />
-        {open && (
+        {open && !loading && (
           <ul
             id="elevari-global-search-location-list"
             role="listbox"
             className="absolute z-50 mt-1 w-full max-h-[240px] overflow-y-auto rounded-xl border border-white/20 bg-white/10 shadow-xl text-white"
           >
-            {LOCATIONS.map((loc) => (
+            {locations.map((loc) => (
               <li key={loc.value || 'all'} role="option">
                 <button
                   type="button"
@@ -98,10 +135,20 @@ export default function GlobalSearchBar({ className = '' }: { className?: string
             </li>
           </ul>
         )}
+        {loading && open && (
+          <div
+            className="absolute z-50 mt-1 w-full max-h-[240px] overflow-y-auto rounded-xl border border-white/20 bg-white/10 shadow-xl text-white p-4 animate-pulse"
+            role="status"
+            aria-label="Cargando destinos"
+          >
+            <p className="text-xs text-white/70">Cargando destinos disponibles…</p>
+          </div>
+        )}
       </div>
       <button
         type="button"
         onClick={handleSearch}
+        disabled={loading}
         className="mt-2 w-full min-h-[44px] rounded-xl bg-elevari-amber-soft px-4 py-2 text-sm font-semibold text-elevari-slate hover:bg-elevari-amber focus:outline-none focus:ring-2 focus:ring-elevari-amber focus:ring-offset-2 focus:ring-offset-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {t('Common', 'search.search')}

@@ -170,6 +170,21 @@ export async function propertyRoutes(app: FastifyInstance) {
     };
   });
 
+  app.get('/properties/cities', async (_request, reply) => {
+    const cities = await prisma.property.findMany({
+      where: { status: 'published' },
+      select: { city: true },
+      distinct: ['city'],
+      orderBy: { city: 'asc' },
+    });
+
+    return {
+      data: cities
+        .map((c) => c.city)
+        .filter((city): city is string => Boolean(city) && city.trim().length > 0),
+    };
+  });
+
   app.get('/properties/:slug', async (request, reply) => {
     const { slug } = request.params as { slug: string };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import type { DateRange } from 'react-day-picker';
@@ -9,7 +9,20 @@ import { es } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 import SearchDropdown from '@/components/ui/SearchDropdown';
 import { stayRangeError } from '@/lib/booking-dates';
+import { wanaApi } from '@/lib/api-client';
 import 'react-day-picker/dist/style.css';
+
+interface CityOption {
+  label: string;
+  value: string;
+  detail: string;
+}
+
+const ANYWHERE: CityOption = {
+  label: 'Cualquier lugar en Colombia',
+  value: '',
+  detail: 'Toda la colección Elevari',
+};
 
 function DestinationChip({ city, cityLabel, onClear, onSelect }: { city: string; cityLabel: string; onClear: () => void; onSelect: (value: string, label: string) => void }) {
   return (
@@ -35,14 +48,6 @@ const DayPicker = dynamic(() => import('react-day-picker').then((mod) => mod.Day
   ssr: false,
   loading: () => <div className="h-[320px] w-[300px] animate-pulse rounded-xl bg-elevari-sand" aria-hidden />,
 });
-
-const LOCATIONS = [
-  { label: 'Cualquier lugar en Colombia', value: '', detail: 'Toda la colección Elevari' },
-  { label: 'Sutatausa', value: 'Sutatausa', detail: 'Sabana, montañas y domos' },
-  { label: 'Cucunubá', value: 'Cucunubá', detail: 'Paisaje rural y cielo abierto' },
-  { label: 'Cundinamarca', value: 'Cundinamarca', detail: 'Cerca de Bogotá' },
-  { label: 'Sabana de Bogotá', value: 'Sabana', detail: 'Escapadas de fin de semana' },
-];
 
 type Panel = 'location' | 'guests' | 'dates' | null;
 
@@ -83,16 +88,31 @@ function GuestStepper({
 
 function LocationPanel({
   city,
+  locations,
+  loading,
   onSelect,
 }: {
   city: string;
+  locations: CityOption[];
+  loading: boolean;
   onSelect: (value: string, label: string) => void;
 }) {
+  if (loading) {
+    return (
+      <>
+        <p className="elevari-dropdown-title">¿Dónde quieres ir?</p>
+        <div className="mt-3 max-h-[240px] overflow-y-auto sm:max-h-[280px] p-2 animate-pulse">
+          <p className="text-xs text-elevari-muted">Cargando destinos disponibles…</p>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <p className="elevari-dropdown-title">¿Dónde quieres ir?</p>
       <ul className="mt-3 max-h-[240px] space-y-1 overflow-y-auto sm:max-h-[280px]">
-        {LOCATIONS.map((loc) => (
+        {locations.map((loc) => (
           <li key={loc.value || 'all'}>
             <button
               type="button"
@@ -192,6 +212,34 @@ export default function SearchHero() {
   const [guests, setGuests] = useState(2);
   const [range, setRange] = useState<DateRange | undefined>();
   const [panel, setPanel] = useState<Panel>(null);
+  const [locations, setLocations] = useState<CityOption[]>([ANYWHERE]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    wanaApi
+      .getCities()
+      .then(({ data }) => {
+        if (cancelled) return;
+        const options: CityOption[] = [
+          ANYWHERE,
+          ...data.map((cityName) => ({
+            label: cityName,
+            value: cityName,
+            detail: 'Propiedades disponibles',
+          })),
+        ];
+        setLocations(options);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const closePanel = useCallback(() => setPanel(null), []);
   const openPanel = useCallback((p: Panel) => setPanel((cur) => (cur === p ? null : p)), []);
@@ -294,6 +342,8 @@ export default function SearchHero() {
               >
                 <LocationPanel
                   city={city}
+                  locations={locations}
+                  loading={loading}
                   onSelect={(value, label) => {
                     setCity(value);
                     setCityLabel(label);
@@ -367,6 +417,8 @@ export default function SearchHero() {
               <SearchDropdown open={panel === 'location'} onClose={closePanel} className="w-[min(100vw-3rem,360px)]">
                 <LocationPanel
                   city={city}
+                  locations={locations}
+                  loading={loading}
                   onSelect={(value, label) => {
                     setCity(value);
                     setCityLabel(label);

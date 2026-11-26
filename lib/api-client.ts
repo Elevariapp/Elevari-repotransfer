@@ -358,6 +358,9 @@ export const wanaApi = {
       auth: true,
     }),
 
+  getCities: () =>
+    request<{ data: string[] }>('/api/v1/properties/cities', { next: { revalidate: 300 } }),
+
   listProperties: (params?: {
     city?: string;
     guests?: number;
