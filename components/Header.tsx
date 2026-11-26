@@ -7,6 +7,7 @@ import Logo from '@/components/Logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useI18n } from '@/components/i18n/useI18n';
 import LanguageSwitch from '@/components/i18n/LanguageSwitch';
+import GlobalSearchBar from '@/components/search/GlobalSearchBar';
 import NotificationBell from '@/components/notifications/NotificationBell';
 import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
 import { whatsappContext } from '@/lib/whatsapp';
@@ -78,6 +79,9 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
           </span>
         </div>
 
+        <div className="hidden min-w-0 lg:flex items-center justify-center">
+          <GlobalSearchBar className="w-[320px] lg:w-[420px]" />
+        </div>
         <nav className="hidden min-w-0 items-center justify-center gap-0.5 lg:flex xl:gap-1">
           {navLinks.map((link) => {
             const active = link.match(pathname);

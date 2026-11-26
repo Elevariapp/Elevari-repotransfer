@@ -11,6 +11,25 @@ import SearchDropdown from '@/components/ui/SearchDropdown';
 import { stayRangeError } from '@/lib/booking-dates';
 import 'react-day-picker/dist/style.css';
 
+function DestinationChip({ city, cityLabel, onClear, onSelect }: { city: string; cityLabel: string; onClear: () => void; onSelect: (value: string, label: string) => void }) {
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-sm font-medium text-white">
+      <span className="font-semibold">{cityLabel}</span>
+      <button
+        type="button"
+        onClick={onClear}
+        className="p-1 text-white/60 hover:text-white transition-colors"
+        aria-label="Borrar destino"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
 /** Calendar is loaded only when the guest opens the dates panel (keeps home JS small). */
 const DayPicker = dynamic(() => import('react-day-picker').then((mod) => mod.DayPicker), {
   ssr: false,
@@ -252,6 +271,22 @@ export default function SearchHero() {
               </span>
               <Chevron open={panel === 'location'} />
             </button>
+            {city && (
+              <DestinationChip
+                city={city}
+                cityLabel={cityLabel}
+                onClear={() => {
+                  setCity('');
+                  setCityLabel('Cualquier lugar');
+                  closePanel();
+                }}
+                onSelect={(value, label) => {
+                  setCity(value);
+                  setCityLabel(label);
+                  closePanel();
+                }}
+              />
+            )}
             {panel === 'location' && (
               <div
                 id="elevari-search-location-panel"
@@ -340,6 +375,25 @@ export default function SearchHero() {
                 />
               </SearchDropdown>
             </div>
+
+            {city && (
+              <div className="flex items-center p-2 pl-1">
+                <DestinationChip
+                  city={city}
+                  cityLabel={cityLabel}
+                  onClear={() => {
+                    setCity('');
+                    setCityLabel('Cualquier lugar');
+                    closePanel();
+                  }}
+                  onSelect={(value, label) => {
+                    setCity(value);
+                    setCityLabel(label);
+                    closePanel();
+                  }}
+                />
+              </div>
+            )}
 
             <div className="relative">
               <button type="button" onClick={() => openPanel('dates')} className={fieldClass(panel === 'dates')} {...panelButtonA11y('dates')}>

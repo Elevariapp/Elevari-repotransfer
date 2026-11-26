@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useI18n } from '@/components/i18n/useI18n';
 
 export default function LanguageSwitch({ className = '' }: { className?: string }) {
-  const { language, setLanguage, availableLanguages } = useI18n();
+  const { language, setLanguage, availableLanguages, t } = useI18n();
   const [open, setOpen] = useState(false);
   const current = availableLanguages.find((l) => l.code === language) ?? availableLanguages[0];
 
@@ -14,7 +14,7 @@ export default function LanguageSwitch({ className = '' }: { className?: string 
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Cambiar idioma / Change language"
+        aria-label={t('Common', 'common.languageSwitch')}
         aria-expanded={open}
         className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 text-white hover:bg-white/20 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-elevari-amber-soft"
       >

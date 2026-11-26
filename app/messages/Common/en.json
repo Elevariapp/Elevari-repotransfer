@@ -30,6 +30,7 @@
     "country": "Country",
     "language": "Language",
     "selectLanguage": "Select language",
+    "languageSwitch": "Change language",
     "spanish": "Spanish",
     "portuguese": "Portuguese",
     "french": "French",
@@ -197,5 +198,11 @@
     "feePercent": "Elevari service fee (15%)",
     "noSurprise": "We don't add surprise charges at checkout",
     "finalPrice": "The price you see is the final price"
+  },
+  "search": {
+    "destinationPlaceholder": "Where do you want to go?",
+    "anywhere": "Anywhere",
+    "clearSelection": "Clear selection",
+    "search": "Search"
   }
 }

@@ -30,6 +30,7 @@
     "country": "País",
     "language": "Idioma",
     "selectLanguage": "Seleccionar idioma",
+    "languageSwitch": "Cambiar idioma",
     "spanish": "Español",
     "portuguese": "Portugués",
     "french": "Francés",
@@ -197,5 +198,11 @@
     "feePercent": "Tarifa de servicio Elevari (15%)",
     "noSurprise": "No añadimos cargos sorpresa en el checkout",
     "finalPrice": "El precio que ves es el precio final"
+  },
+  "search": {
+    "destinationPlaceholder": "¿Adónde quieres ir?",
+    "anywhere": "Cualquier lugar",
+    "clearSelection": "Borrar selección",
+    "search": "Buscar"
   }
 }
