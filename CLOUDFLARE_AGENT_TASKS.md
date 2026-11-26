@@ -177,7 +177,8 @@ curl -sS -H "Authorization: Bearer {TOKEN}" \
 | `.github/workflows/ci.yml` | Added "Purge Cloudflare cache (post-deploy)" step to `deploy-production` |
 | `deploy/scripts/cloudflare-purge.sh` | **New** — Reusable script to purge Cloudflare cache via API (purge_everything + per-URL fallback) |
 | `CLOUDFLARE_AGENT_TASKS.md` | **New** — This document |
-| `deploy/DEPLOYMENT_PRODUCTION.md` | Document the two new secrets (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`) |
+| `deploy/DEPLOYMENT_PRODUCTION.md` | Document the two new secrets (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`); updated "Bloqueos conocidos del CD" row 1 to reflect the `verify-deploy` / `purge-cache` fix |
+| `CI_CD_RUNBOOK.md` | Added subsection 3.5 documenting the Cloudflare fix (continue-on-error + `verify-deploy` independence from `purge-cache`) |
 
 ---
 

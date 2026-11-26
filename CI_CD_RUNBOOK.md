@@ -103,6 +103,24 @@ error TS18047: 'city' is possibly 'null'.
 
 ---
 
+### 3.5. Cloudflare: `verify-deploy` bloqueado por `purge-cache` (fix aplicado)
+
+**Síntoma:** El job `verify-deploy` de `.github/workflows/cloudflare.yml` no se ejecutaba si `purge-cache` fallaba o se saltaba (por falta de `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ZONE_ID`), porque `verify-deploy` tenía `needs: [secrets-check, purge-cache]`. Como resultado, la verificación del despliegue en vivo nunca corría tras un deploy.
+
+**Causa:** Dependencia lógica del workflow, no secretos faltantes. `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ZONE_ID` ya estaban configurados en los secrets del repo.
+
+**Fix (commit `2c81331`, rama `b-main`):**
+- `purge-cache` y `validate-dns-ssl`: agregado `continue-on-error: true` para que un fallo de purge o validación DNS/SSL no rompa el workflow.
+- `verify-deploy`: cambiado `needs` de `[secrets-check, purge-cache]` a solo `secrets-check`, para que la verificación del despliegue en vivo corra independientemente del purge de caché.
+
+**Resultado:** Últimos runs verificados como verdes:
+- CI run `45827406237` — success
+- Cloudflare operations run `45827405821` — success
+
+**Nota:** Los runs históricos fallados (commits antiguos) no se pueden reescribir: GitHub Actions ejecuta el workflow YAML del commit en cuestión, por lo que los commits antiguos siguen rojos. El fix aplica solo a commits nuevos en `b-main`.
+
+---
+
 ## 4. Cómo verificar localmente antes de hacer push
 
 Ejecutar estos comandos desde la raíz del repositorio:

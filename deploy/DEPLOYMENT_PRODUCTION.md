@@ -217,7 +217,7 @@ curl https://tu-dominio/api/v1/admin/invoices/pending \
 
 | # | Bloqueo | Archivo / línea | Mitigación |
 |---|---------|-----------------|------------|
-| 1 | `verify-deploy` no corre si `purge-cache` se saltea | `cloudflare.yml:127` | Agregar `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ZONE_ID` en GitHub Secrets, o cambiar `needs` a solo `secrets-check` |
+| 1 | `verify-deploy` no corre si `purge-cache` se saltea | `cloudflare.yml:127` | ✅ **Fix aplicado (commit `2c81331`):** `verify-deploy` ahora tiene `needs: secrets-check` solo (ya no depende de `purge-cache`). `purge-cache` y `validate-dns-ssl` tienen `continue-on-error: true`. Los secretos `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ZONE_ID` ya están configurados. |
 | 2 | Doble purge de Cloudflare | `ci.yml:374` + `cloudflare.yml:purge-cache` | Redundante pero no bloqueante. Mantener solo el de `cloudflare.yml` |
 | 3 | `deploy-production` bloqueado por cualquier dependencia | `ci.yml:240` | 7 jobs deben pasar. Revisar logs de Actions antes de push |
 | 4 | `verification-log.md` con hechos CONTRADICTED | `ci.yml:163-169` | Resolver hechos CONTRADICTED en `verification-log.md` antes del deploy |
