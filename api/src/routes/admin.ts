@@ -4,6 +4,11 @@ import { prisma } from '../lib/prisma.js';
 import { retryPendingInvoice } from '../lib/invoicing.js';
 import { syncAllEnabledCalendarFeeds } from '../lib/ical/sync-feed.js';
 import { authenticate, requireRoles } from '../plugins/auth.js';
+import {
+  sendMediaApprovedEmail,
+  sendMediaRejectedEmail,
+} from '../lib/transactional-emails.js';
+import { deliverEmail } from '../lib/email.js';
 
 const statusSchema = z.object({
   status: z.enum(['draft', 'published', 'unavailable', 'maintenance']),
@@ -145,9 +150,25 @@ export async function adminRoutes(app: FastifyInstance) {
       const media = await prisma.propertyMedia.update({
         where: { id },
         data: { status: 'approved' },
+        include: {
+          property: { select: { title: true, hostId: true } },
+        },
       });
+      const host = await prisma.user.findUnique({
+        where: { id: media.property.hostId },
+        select: { email: true, name: true },
+      });
+      if (host?.email) {
+        void sendMediaApprovedEmail({
+          email: host.email,
+          name: host.name,
+          propertyName: media.property.title,
+          mediaType: media.type,
+          mediaUrl: media.url,
+        });
+      }
       return { media: { id: media.id, status: media.status } };
-    },
+    }
   );
 
   app.post(
@@ -158,9 +179,24 @@ export async function adminRoutes(app: FastifyInstance) {
       const media = await prisma.propertyMedia.update({
         where: { id },
         data: { status: 'rejected' },
+        include: {
+          property: { select: { title: true, hostId: true } },
+        },
       });
+      const host = await prisma.user.findUnique({
+        where: { id: media.property.hostId },
+        select: { email: true, name: true },
+      });
+      if (host?.email) {
+        void sendMediaRejectedEmail({
+          email: host.email,
+          name: host.name,
+          propertyName: media.property.title,
+          mediaType: media.type,
+        });
+      }
       return { media: { id: media.id, status: media.status } };
-    },
+    }
   );
 
   app.get(
@@ -185,6 +221,70 @@ export async function adminRoutes(app: FastifyInstance) {
 
       return reply.send({ data: invoices });
     },
+  );
+
+  /**
+   * Admin reviews a host's identity verification: approve or reject.
+   */
+  app.post(
+    '/admin/verification/:id/approve',
+    { preHandler: [authenticate, requireRoles(['admin'])] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const user = await prisma.user.update({
+        where: { id },
+        data: {
+          idVerified: true,
+          idVerifiedAt: new Date(),
+          verificationStatus: 'verified',
+        },
+        select: { email: true, name: true, id: true },
+      });
+      if (user.email) {
+        void deliverEmail({
+          to: user.email,
+          subject: 'Identidad verificada / Identity verified',
+          html: `
+            <h2>Tu identidad ha sido verificada / Your identity has been verified</h2>
+            <p>Ya puedes publicar propiedades y recibir reservas en Elevari.</p>
+            <p>Your identity has been verified. You can now list properties and receive bookings on Elevari.</p>
+          `,
+        });
+      }
+      return { user: { id: user.id, idVerified: true, verificationStatus: 'verified' } };
+    }
+  );
+
+  app.post(
+    '/admin/verification/:id/reject',
+    { preHandler: [authenticate, requireRoles(['admin'])] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const body = z.object({ reason: z.string().trim().min(1).max(500) }).safeParse(request.body);
+      if (!body.success) {
+        return reply.status(400).send({ error: 'Invalid body' });
+      }
+      const user = await prisma.user.update({
+        where: { id },
+        data: {
+          verificationStatus: 'rejected',
+        },
+        select: { email: true, name: true, id: true },
+      });
+      if (user.email) {
+        void deliverEmail({
+          to: user.email,
+          subject: 'Verificación de identidad rechazada / Identity verification rejected',
+          html: `
+            <h2>Verificación de identidad rechazada / Identity verification rejected</h2>
+            <p>${body.data.reason}</p>
+            <p>Puedes volver a enviar tus documentos para intentar nuevamente.</p>
+            <p>You may resubmit your documents to try again.</p>
+          `,
+        });
+      }
+      return { user: { id: user.id, verificationStatus: 'rejected' } };
+    }
   );
 
   app.post(

@@ -90,6 +90,11 @@ model User {
   deletedAt    DateTime? @map("deleted_at")
   /// Opt-outs per channel; null or missing keys mean the defaults (see lib/notification-prefs.ts).
   notificationPrefs Json? @map("notification_prefs")
+  /// Host identity verification (Airbnb-style): government ID + selfie match.
+  idVerified       Boolean      @default(false) @map("id_verified")
+  idVerifiedAt     DateTime?    @map("id_verified_at")
+  verificationId   String?      @map("verification_id")
+  verificationStatus String?    @map("verification_status") // 'pending' | 'verified' | 'rejected' | 'expired'
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 

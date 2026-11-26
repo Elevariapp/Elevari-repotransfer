@@ -49,7 +49,7 @@ export async function notificationRoutes(app: FastifyInstance) {
     const today = colombiaToday(now);
     const tomorrow = new Date(today.getTime() + DAY_MS);
 
-    const [events, upcoming, failedPayments, account] = await Promise.all([
+    const [events, upcoming, failedPayments, account, media] = await Promise.all([
       prisma.bookingEvent.findMany({
         where: {
           createdAt: { gte: since },
@@ -95,6 +95,23 @@ export async function notificationRoutes(app: FastifyInstance) {
         },
       }),
       prisma.user.findUnique({ where: { id: userId }, select: { passwordChangedAt: true } }),
+      prisma.propertyMedia.findMany({
+        where: {
+          createdAt: { gte: since },
+          status: { in: ['approved', 'rejected'] },
+          property: { hostId: userId },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+        select: {
+          id: true,
+          type: true,
+          status: true,
+          url: true,
+          createdAt: true,
+          property: { select: { title: true } },
+        },
+      }),
     ]);
 
     const items: FeedItem[] = [];
@@ -167,6 +184,19 @@ export async function notificationRoutes(app: FastifyInstance) {
         body: 'Si no fuiste tú, restablécela de inmediato desde “Olvidé mi contraseña”.',
         booking_id: null,
         created_at: account.passwordChangedAt.toISOString(),
+      });
+    }
+
+    for (const m of media) {
+      items.push({
+        id: `media:${m.id}`,
+        type: m.status === 'approved' ? 'media_approved' : 'media_rejected',
+        title: m.status === 'approved' ? 'Contenido aprobado / Content approved' : 'Contenido rechazado / Content rejected',
+        body: m.status === 'approved'
+          ? `Tu ${m.type} de "${m.property.title}" fue aprobada y ya es pública.`
+          : `Tu ${m.type} de "${m.property.title}" no pasó la revisión de moderación.`,
+        booking_id: null,
+        created_at: m.createdAt.toISOString(),
       });
     }
 

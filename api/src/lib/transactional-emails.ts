@@ -5,6 +5,8 @@ import { checkInReminder } from './email-templates/check-in-reminder.js';
 import { hostBookingCancelled } from './email-templates/host-booking-cancelled.js';
 import { hostNewBooking } from './email-templates/host-new-booking.js';
 import { invoiceReceipt } from './email-templates/invoice-receipt.js';
+import { mediaApproved } from './email-templates/media-approved.js';
+import { mediaRejected } from './email-templates/media-rejected.js';
 import { passwordChanged } from './email-templates/password-changed.js';
 import { passwordReset } from './email-templates/password-reset.js';
 import { welcome } from './email-templates/welcome.js';
@@ -25,6 +27,8 @@ export const TRANSACTIONAL_EMAILS = {
   hostBookingCancelled,
   hostNewBooking,
   invoiceReceipt,
+  mediaApproved,
+  mediaRejected,
   passwordChanged,
   passwordReset,
   welcome,
@@ -320,6 +324,46 @@ export async function sendHostBookingCancelledEmail(bookingId: string): Promise<
       checkOut: booking.checkOut,
       dashboardUrl: siteUrl('/host'),
       preferencesUrl: siteUrl('/account/notifications'),
+    }),
+  });
+}
+
+export async function sendMediaApprovedEmail(params: {
+  email: string;
+  name: string | null;
+  propertyName: string;
+  mediaType: 'image' | 'video';
+  mediaUrl?: string;
+}): Promise<EmailSendResult> {
+  return deliverEmail({
+    to: params.email,
+    subject: `Tu contenido fue aprobado · Your content was approved`,
+    html: mediaApproved({
+      hostName: params.name,
+      propertyName: params.propertyName,
+      mediaType: params.mediaType,
+      mediaUrl: params.mediaUrl,
+      dashboardUrl: siteUrl('/host'),
+    }),
+  });
+}
+
+export async function sendMediaRejectedEmail(params: {
+  email: string;
+  name: string | null;
+  propertyName: string;
+  mediaType: 'image' | 'video';
+  reason?: string | null;
+}): Promise<EmailSendResult> {
+  return deliverEmail({
+    to: params.email,
+    subject: `Tu contenido fue rechazado · Your content was rejected`,
+    html: mediaRejected({
+      hostName: params.name,
+      propertyName: params.propertyName,
+      mediaType: params.mediaType,
+      reason: params.reason,
+      dashboardUrl: siteUrl('/host'),
     }),
   });
 }

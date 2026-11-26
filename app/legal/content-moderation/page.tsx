@@ -51,7 +51,7 @@ export default function ContentModerationPage() {
             <li>Verificación de identidad y propiedad para anfitriones.</li>
           </ul>
           <p className="mt-2">
-            El tiempo de revisión es de hasta 48 horas hábiles. Recibirás una notificación cuando tu
+            El tiempo de revisión es de hasta 1 hora. Recibirás una notificación cuando tu
             contenido sea aprobado o rechazado.
           </p>
         </section>

@@ -181,7 +181,7 @@ export async function propertyRoutes(app: FastifyInstance) {
     return {
       data: cities
         .map((c) => c.city)
-        .filter((city): city is string => Boolean(city) && city.trim().length > 0),
+        .filter((city): city is string => city !== null && city.trim().length > 0),
     };
   });
 

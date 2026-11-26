@@ -84,6 +84,25 @@ export default function Footer() {
           </div>
 
           <div className="lg:col-span-2">
+            <p className="elevari-footer-heading">Moderación</p>
+            <ul className="mt-4 space-y-3 text-sm text-white/80">
+              <li className="space-y-1">
+                <p className="font-medium text-white">Fotos y videos</p>
+                <p className="text-xs text-white/60">Revisados y aprobados en hasta 1 hora.</p>
+              </li>
+              <li className="space-y-1">
+                <p className="font-medium text-white">Descripciones y propiedades</p>
+                <p className="text-xs text-white/60">Revisadas antes de publicarse públicamente.</p>
+              </li>
+              <li>
+                <Link href="/legal/content-moderation" className="elevari-footer-link text-xs">
+                  Ver política completa
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="lg:col-span-2">
             <p className="elevari-footer-heading">Legal</p>
             <ul className="mt-4 space-y-3">
               {legalLinks.map((link) => (

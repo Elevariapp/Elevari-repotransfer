@@ -115,6 +115,11 @@ export interface AuthUser {
   role: 'guest' | 'host' | 'admin';
   /** False for accounts created with Google that never set a password. */
   has_password: boolean;
+  /** Host identity verification (Airbnb-style). */
+  id_verified: boolean;
+  id_verified_at: string | null;
+  verification_id: string | null;
+  verification_status: string | null;
 }
 
 export interface AccountPayment {
@@ -150,7 +155,9 @@ export type AppNotificationType =
   | 'host_booking_cancelled'
   | 'check_in_soon'
   | 'payment_failed'
-  | 'password_changed';
+  | 'password_changed'
+  | 'media_approved'
+  | 'media_rejected';
 
 export interface AppNotification {
   id: string;
@@ -268,6 +275,26 @@ export const wanaApi = {
 
   /** Returns a fresh token: the role travels inside the session, so the old one would still say "guest". */
   becomeHost: () => request<{ token: string; user: AuthUser }>('/api/v1/auth/become-host', { method: 'POST', auth: true }),
+
+  verifyHost: (body: {
+    id_document_url: string;
+    selfie_url: string;
+    id_number: string;
+    full_name: string;
+  }) =>
+    request<{ verification_id: string; status: string; message: string }>('/api/v1/auth/verify-host', {
+      method: 'POST',
+      auth: true,
+      body: JSON.stringify(body),
+    }),
+
+  verificationStatus: () =>
+    request<{
+      id_verified: boolean;
+      id_verified_at: string | null;
+      verification_id: string | null;
+      verification_status: string | null;
+    }>('/api/v1/auth/verification-status', { auth: true }),
 
   forgotPassword: (email: string) =>
     request<{ success: boolean; message: string }>('/api/v1/auth/forgot-password', {

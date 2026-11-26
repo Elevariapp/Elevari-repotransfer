@@ -133,6 +133,10 @@ export function serializeUser(user: {
   phone?: string | null;
   role: UserRole;
   passwordHash?: string | null;
+  idVerified?: boolean;
+  idVerifiedAt?: Date | null;
+  verificationId?: string | null;
+  verificationStatus?: string | null;
 }) {
   return {
     id: user.id,
@@ -142,5 +146,10 @@ export function serializeUser(user: {
     role: user.role,
     // Lets clients ask for the right confirmation (password vs. typing the e-mail) before deleting.
     has_password: Boolean(user.passwordHash),
+    // Host identity verification (Airbnb-style).
+    id_verified: Boolean(user.idVerified),
+    id_verified_at: user.idVerifiedAt?.toISOString() ?? null,
+    verification_id: user.verificationId ?? null,
+    verification_status: user.verificationStatus ?? null,
   };
 }

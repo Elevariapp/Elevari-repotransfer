@@ -8,6 +8,14 @@ import { hostErrorMessage, isUnauthorized } from './errors';
 import HostGate, { SessionExpiredNotice } from './HostGate';
 import { propertyStatusMeta } from './property-status';
 
+type VerificationState =
+  | { kind: 'loading' }
+  | { kind: 'verified' }
+  | { kind: 'pending' }
+  | { kind: 'rejected'; reason?: string }
+  | { kind: 'not_started' }
+  | { kind: 'error'; message: string };
+
 type LoadState =
   | { kind: 'loading' }
   | { kind: 'ready'; properties: HostPropertySummary[] }

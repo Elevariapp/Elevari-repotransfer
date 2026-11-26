@@ -1,14 +1,42 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import HostDashboard from '@/components/host/HostDashboard';
+import { wanaApi } from '@/lib/api-client';
 
 export const metadata: Metadata = {
   title: 'Tus propiedades',
   robots: { index: false, follow: false },
 };
 
+type VerificationStatus = {
+  id_verified: boolean;
+  id_verified_at: string | null;
+  verification_id: string | null;
+  verification_status: string | null;
+};
+
 export default function HostPage() {
+  const [verification, setVerification] = useState<VerificationStatus | null>(null);
+  const [verificationLoading, setVerificationLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    wanaApi
+      .verificationStatus()
+      .then((s) => {
+        if (active) {
+          setVerification(s);
+          setVerificationLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) setVerificationLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
+
   return (
     <>
       <Header />
@@ -22,6 +50,14 @@ export default function HostPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            {!verificationLoading && verification && !verification.id_verified && (
+              <Link
+                href="/host/verify"
+                className="elevari-btn-ghost inline-flex min-h-[44px] shrink-0"
+              >
+                Verificar identidad
+              </Link>
+            )}
             <Link href="/host/bookings" className="elevari-btn-ghost inline-flex min-h-[44px] shrink-0">
               Reservas
             </Link>

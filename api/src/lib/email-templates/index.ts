@@ -10,3 +10,5 @@ export { invoiceReceipt } from './invoice-receipt.js';
 export { passwordChanged } from './password-changed.js';
 export { passwordReset } from './password-reset.js';
 export { welcome } from './welcome.js';
+export { mediaApproved } from './media-approved.js';
+export { mediaRejected } from './media-rejected.js';
