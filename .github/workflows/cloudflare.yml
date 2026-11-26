@@ -72,6 +72,10 @@ jobs:
     timeout-minutes: 5
     continue-on-error: true
     steps:
+      # cloudflare-purge.sh lives in the repository, so the repo must be checked
+      # out first. Without this the runner workspace is empty and `chmod +x` fails
+      # with "No such file or directory" — which silently broke every run.
+      - uses: actions/checkout@v7
       - name: Purge cache via API
         run: |
           chmod +x deploy/scripts/cloudflare-purge.sh
@@ -94,6 +98,9 @@ jobs:
     timeout-minutes: 5
     continue-on-error: true
     steps:
+      # cloudflare-dns-list.sh is a repository script — checkout is required or
+      # the step fails with "No such file or directory".
+      - uses: actions/checkout@v7
       - name: DNS records via Cloudflare API
         id: dns
         run: |
