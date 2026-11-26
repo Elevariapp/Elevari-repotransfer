@@ -138,7 +138,7 @@ jobs:
           echo "→ Verifying live site through Cloudflare edge"
           headers=$(curl -sS -D - -o /tmp/body.html --max-time 30 "https://${CLOUDFLARE_DOMAIN}/")
           echo "$headers" | grep -iE '^(cf-cache-status|cf-ray):' | sed 's/^/   /'
-          lang=$(grep -oiE '<html[^>]*\blang=["\']([a-z]{2})["\']' /tmp/body.html | head -1 | grep -oiE '[a-z]{2}' || echo 'none')
+          lang=$(grep -oiE '<html[^>]*\blang=[a-z]{2}' /tmp/body.html | head -1 | grep -oiE '[a-z]{2}' || echo 'none')
           echo "   <html lang> = ${lang}"
           if [ "$lang" != "es" ] && [ "$lang" != "en" ]; then
             echo "::warning::Unexpected or missing <html lang> (${lang}) — new i18n build may not be live"
