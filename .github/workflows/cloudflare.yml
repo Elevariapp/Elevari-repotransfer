@@ -40,6 +40,7 @@ jobs:
       ready: ${{ steps.check.outputs.ready }}
       account_ready: ${{ steps.check.outputs.account_ready }}
     steps:
+      - uses: actions/checkout@v7
       - id: check
         run: |
           missing=""
@@ -49,7 +50,15 @@ jobs:
             echo "::notice title=Cloudflare secrets not configured::$missing"
             echo "ready=false" >> "$GITHUB_OUTPUT"
           else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
+            # Validate that the token actually works before proceeding
+            chmod +x deploy/scripts/cloudflare-validate-token.sh
+            if ./deploy/scripts/cloudflare-validate-token.sh; then
+              echo "ready=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "::error title=Cloudflare API token invalid::Token validation failed. Check CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID secrets."
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 1
+            fi
           fi
           # CLOUDFLARE_ACCOUNT_ID es opcional para purge/validate, pero obligatorio para wrangler deploy --env staging
           if [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
