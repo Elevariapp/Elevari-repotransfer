@@ -1,3 +1,4 @@
+---
 name: Mobile APK
 
 # Builds an installable Android APK without an Expo account: `expo prebuild` + Gradle on a GitHub runner.
