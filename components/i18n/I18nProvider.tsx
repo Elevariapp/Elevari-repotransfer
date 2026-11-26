@@ -113,7 +113,14 @@ export function I18nProvider({ children, initialLanguage }: { children: ReactNod
 export function useI18n(): I18nContextType {
   const ctx = useContext(I18nContext);
   if (!ctx) {
-    throw new Error('useI18n must be used within an I18nProvider');
+    // Fallback for SSR outside I18nProvider (e.g., _global-error prerendering).
+    // Returns the key unchanged so components can still render server-side.
+    return {
+      language: DEFAULT_LANGUAGE,
+      setLanguage: () => {},
+      t: (_section: 'Common' | 'Legal', key: string) => key,
+      availableLanguages: LANGUAGES,
+    };
   }
   return ctx;
 }
