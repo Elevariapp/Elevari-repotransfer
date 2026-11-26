@@ -17,6 +17,23 @@ ZONE_ID="${CLOUDFLARE_ZONE_ID:?CLOUDFLARE_ZONE_ID is required}"
 
 echo "-> Validating Cloudflare API token for zone ${ZONE_ID}"
 
+# Step 1: is the token itself active? This endpoint works for any API token,
+# whatever its permissions, so it separates "bad token" from "bad zone/scope".
+verify=$(curl -sS --max-time 30 \
+  -H "Authorization: Bearer ${TOKEN}" \
+  "https://api.cloudflare.com/client/v4/user/tokens/verify" 2>&1)
+token_status=$(printf '%s' "$verify" | python3 -c "import sys,json; d=json.load(sys.stdin); print((d.get('result') or {}).get('status') or 'invalid')" 2>/dev/null || echo "invalid")
+
+if [ "$token_status" = "active" ]; then
+  echo "OK token is active; checking access to the zone"
+  echo "   If the next check fails, the token is fine but CLOUDFLARE_ZONE_ID is"
+  echo "   wrong or the token lacks Zone permissions for that zone."
+else
+  echo "FAIL CLOUDFLARE_API_TOKEN is not an active API token (status: ${token_status})"
+  echo "   Create a new API token in Cloudflare -> My Profile -> API Tokens."
+  echo "   It must be an API Token, not the Global API Key."
+fi
+
 # Make a simple API call to get zone info - this will fail with auth error if token is invalid
 response=$(curl -sS --max-time 30 \
   -H "Authorization: Bearer ${TOKEN}" \

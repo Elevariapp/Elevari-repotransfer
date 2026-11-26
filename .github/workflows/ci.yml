@@ -373,6 +373,10 @@ jobs:
       # NEW: Purge Cloudflare cache after a successful production deploy so
       # visitors never get stale HTML/assets from the edge.
       # -----------------------------------------------------------------------
+      # cloudflare-purge.sh lives in the repository. This job had no checkout, so
+      # the purge step below always failed with "No such file or directory" and
+      # continue-on-error hid it.
+      - uses: actions/checkout@v7
       - name: Purge Cloudflare cache (post-deploy)
         if: always()
         continue-on-error: true
