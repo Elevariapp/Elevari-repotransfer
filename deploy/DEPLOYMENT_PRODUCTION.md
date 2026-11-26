@@ -213,4 +213,34 @@ curl https://tu-dominio/api/v1/admin/invoices/pending \
 | Facturas no emiten | Verificar Alegra keys; revisar `pending_invoices` |
 | Build del web falla en `next/font` (`Cannot read properties of null (reading '1')`) | Google devolvió URLs de fuente sin extensión y Next 16.2 no lo soporta. Las fuentes ya se sirven desde `app/fonts` con `next/font/local` (sin red en el build) y CI bloquea `next/font/google`. |
 
+## Bloqueos conocidos del CD (y mitigación)
+
+| # | Bloqueo | Archivo / línea | Mitigación |
+|---|---------|-----------------|------------|
+| 1 | `verify-deploy` no corre si `purge-cache` se saltea | `cloudflare.yml:127` | Agregar `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ZONE_ID` en GitHub Secrets, o cambiar `needs` a solo `secrets-check` |
+| 2 | Doble purge de Cloudflare | `ci.yml:374` + `cloudflare.yml:purge-cache` | Redundante pero no bloqueante. Mantener solo el de `cloudflare.yml` |
+| 3 | `deploy-production` bloqueado por cualquier dependencia | `ci.yml:240` | 7 jobs deben pasar. Revisar logs de Actions antes de push |
+| 4 | `verification-log.md` con hechos CONTRADICTED | `ci.yml:163-169` | Resolver hechos CONTRADICTED en `verification-log.md` antes del deploy |
+| 5 | `validate-staging-env` / `docker compose config` falla | `ci.yml:158-161` | Validar localmente: `docker compose -f docker-compose.prod.yml --env-file .env.production config -q` |
+| 6 | `scene:check` o `next/font/google` falla el web build | `ci.yml:93-100` | Usar `next/font/local` (ya aplicado); CI bloquea `next/font/google` |
+| 7 | Doble build (Turbopack + webpack) | `ci.yml:101` + `ci.yml:108-115` | Asegurar que ambos builds pasen localmente |
+| 8 | `next build` falla por memoria en Windows (código 3221226505) | Local | Ejecutar con `NODE_OPTIONS="--max-old-space-size=4096" npm run build` |
+
+## Verificación post-deploy del endpoint de ciudades
+
+Después de un despliegue exitoso, verificar que el nuevo endpoint de ciudades esté activo:
+
+```bash
+# Health check general
+curl -sf https://elevari.live/health
+
+# Endpoint de ciudades (nuevo — GET /api/v1/properties/cities)
+curl -sf https://elevari.live/api/v1/properties/cities
+
+# Debe retornar JSON con lista de ciudades, ej.:
+# [{"city":"Sutatausa"},{"city":"Cucunubá"},{"city":"Sabana de Bogotá"}]
+```
+
+Si el endpoint retorna 404, el despliegue aún no se ha completado o el commit no llegó a `b-main`. Revisar GitHub Actions → CI → `deploy-production`.
+
 Ver también: `INFRASTRUCTURE.md`, `ROADMAP.md`
