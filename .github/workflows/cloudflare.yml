@@ -70,7 +70,10 @@ jobs:
       (github.event_name == 'push' || github.event.inputs.purge_cache == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    continue-on-error: true
+    # No continue-on-error here: a failed cache purge after a deploy is a real
+    # problem (visitors keep receiving stale HTML). The secrets-check gate above
+    # already skips this job entirely when the secrets are absent, so masking
+    # failures only hid genuine breakage.
     steps:
       # cloudflare-purge.sh lives in the repository, so the repo must be checked
       # out first. Without this the runner workspace is empty and `chmod +x` fails
@@ -96,7 +99,10 @@ jobs:
       (github.event_name == 'push' || github.event.inputs.validate_dns == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    continue-on-error: true
+    # No job-level continue-on-error: the DNS step below must fail the run when
+    # Cloudflare rejects the token, otherwise an expired secret stays invisible.
+    # The three diagnostic steps are individually marked continue-on-error so a
+    # transient TLS/network hiccup does not red the build.
     steps:
       # cloudflare-dns-list.sh is a repository script — checkout is required or
       # the step fails with "No such file or directory".
@@ -110,16 +116,19 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       - name: SSL/TLS certificate edge dates
+        continue-on-error: true
         run: |
           echo "→ Edge certificate presented by Cloudflare"
           echo | openssl s_client -connect "${CLOUDFLARE_DOMAIN}:443" -servername "${CLOUDFLARE_DOMAIN}" 2>/dev/null \
             | openssl x509 -noout -issuer -subject -dates 2>&1 | sed 's/^/   /'
       - name: cf-cache-status on home page
+        continue-on-error: true
         run: |
           echo "→ Edge cache status for https://${CLOUDFLARE_DOMAIN}/"
           curl -sS -I --max-time 30 "https://${CLOUDFLARE_DOMAIN}/" \
             | grep -iE '^(cf-cache-status|cf-ray|server|age):' | sed 's/^/   /'
       - name: Origin reachability through Cloudflare
+        continue-on-error: true
         run: |
           TAG="ci-$(date +%s)"
           code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 30 \
