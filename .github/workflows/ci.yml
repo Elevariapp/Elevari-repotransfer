@@ -375,6 +375,7 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Purge Cloudflare cache (post-deploy)
         if: always()
+        continue-on-error: true
         run: |
           if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] || [ -z "${{ secrets.CLOUDFLARE_ZONE_ID }}" ]; then
             echo "::notice title=Cloudflare cache purge skipped::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ZONE_ID not set. Add them in Settings → Secrets and variables → Actions to auto-purge after deploy."
