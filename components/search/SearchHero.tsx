@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 import SearchDropdown from '@/components/ui/SearchDropdown';
+import { useI18n } from '@/components/i18n/useI18n';
 import { stayRangeError } from '@/lib/booking-dates';
 import { wanaApi } from '@/lib/api-client';
 import 'react-day-picker/dist/style.css';
@@ -206,6 +207,7 @@ function GuestsPanel({
 }
 
 export default function SearchHero() {
+  const { t } = useI18n();
   const router = useRouter();
   const [city, setCity] = useState('');
   const [cityLabel, setCityLabel] = useState('Cualquier lugar');
@@ -287,23 +289,25 @@ export default function SearchHero() {
   return (
     <div className="home-hero__content elevari-container">
       <div className="home-hero__copy max-w-3xl animate-slide-up">
-        <p className="elevari-eyebrow elevari-eyebrow-lux !text-elevari-amber-soft">Colección curada · Sabana de Bogotá</p>
+        <p className="elevari-eyebrow elevari-eyebrow-lux !text-elevari-amber-soft">
+          {t('Common', 'hero.eyebrow')}
+        </p>
         <h1 className="elevari-display-hero elevari-display-hero--light mt-3 sm:mt-4">
-          Escapes naturales, sin complicaciones
+          {t('Common', 'hero.title')}
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/95 sm:mt-5 sm:text-lg">
-          Domos, cabañas y refugios elegidos uno a uno en Sutatausa, Cucunubá y la sabana.
-          <span className="hidden sm:inline"> Precio total antes de pagar y confirmación clara.</span>
+          {t('Common', 'hero.subtitle')}
+          <span className="hidden sm:inline"> {t('Common', 'hero.subtitleExtra')}</span>
         </p>
         <ul className="mt-5 hidden flex-wrap gap-2 text-xs font-semibold text-white sm:flex sm:gap-3 sm:text-sm">
           <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
-            ✓ Anfitriones verificados
+            ✓ {t('Common', 'hero.badgeVerified')}
           </li>
           <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
-            ✓ Precio transparente
+            ✓ {t('Common', 'hero.badgeTransparent')}
           </li>
           <li className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 backdrop-blur-sm">
-            ✓ Reserva segura
+            ✓ {t('Common', 'hero.badgeSecure')}
           </li>
         </ul>
       </div>

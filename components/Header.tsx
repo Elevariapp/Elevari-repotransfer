@@ -80,7 +80,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
         </div>
 
         <div className="hidden min-w-0 lg:flex items-center justify-center">
-          <GlobalSearchBar className="w-[320px] lg:w-[420px]" />
+          <GlobalSearchBar variant="compact" className="w-[300px] xl:w-[360px]" />
         </div>
         <nav className="hidden min-w-0 items-center justify-center gap-0.5 lg:flex xl:gap-1">
           {navLinks.map((link) => {

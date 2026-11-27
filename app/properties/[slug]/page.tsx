@@ -20,6 +20,7 @@ import { siteUrl } from '@/lib/site-url';
 import { whatsappContext } from '@/lib/whatsapp';
 import { AMENITY_LABELS, normalizeAmenity } from '@/lib/seo/similarity';
 import { findSimilar } from '@/lib/conversion/similar-properties';
+import { getServerLanguage, tServer } from '@/lib/i18n-server';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -55,6 +56,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function PropertyDetailPage({ params }: PageProps) {
   const { slug } = await params;
+  const language = await getServerLanguage();
 
   let property: Awaited<ReturnType<typeof wanaApi.getProperty>>;
   try {
@@ -121,7 +123,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <ExclusiveBadge />
               {property.rating != null && property.rating >= 4.5 && (
                 <span className="rounded-full border border-elevari-amber/35 bg-elevari-amber-soft/50 px-3 py-1 text-xs font-semibold text-elevari-slate">
-                  Huéspedes lo recomiendan
+                  {tServer('Common', 'listing.recommendedByGuests', language)}
                 </span>
               )}
             </div>
@@ -143,7 +145,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   {formatPropertyLocation(property.city, property.country)}
                 </span>
               )}
-              <span>· {property.max_guests} huéspedes max.</span>
+              <span>· {property.max_guests} {tServer('Common', 'listing.guestsMaxSuffix', language)}</span>
             </div>
           </header>
 
@@ -160,55 +162,60 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   </div>
                   <div>
                     <p className="flex flex-wrap items-center gap-2 font-semibold text-elevari-slate">
-                      {property.host?.name?.trim() || 'Anfitrión Elevari'}
+                      {property.host?.name?.trim() || tServer('Common', 'listing.hostFallback', language)}
                       <VerifiedBadge verified={property.host?.verified} />
                     </p>
                     <p className="text-sm text-elevari-muted">
                       {property.host?.verified
-                        ? 'Identidad verificada por Elevari · insignia azul activa'
-                        : 'Anfitrión Elevari · respuesta rápida'}
+                        ? tServer('Common', 'listing.verifiedIdentity', language)
+                        : tServer('Common', 'listing.hostFastResponse', language)}
                     </p>
                   </div>
                 </div>
               </section>
 
               <section>
-                <h2 className="elevari-section-title">Sobre este espacio</h2>
+                <h2 className="elevari-section-title">{tServer('Common', 'listing.aboutSpace', language)}</h2>
                 <p className="mt-4 leading-relaxed text-elevari-slate">
-                  {property.description ?? 'Sin descripción.'}
+                  {property.description ?? tServer('Common', 'listing.noDescription', language)}
                 </p>
               </section>
 
               <section className="rounded-2xl border border-elevari-border bg-elevari-surface p-5 shadow-[var(--elevari-shadow-soft)]">
                 <h2 className="font-display text-lg font-semibold text-elevari-ink">
-                  Precio y transparencia
+                  {tServer('Common', 'listing.priceTransparency', language)}
                 </h2>
                 <dl className="mt-3 space-y-2 text-sm">
                   <div className="flex justify-between gap-4">
-                    <dt className="text-elevari-muted">Desde</dt>
+                    <dt className="text-elevari-muted">{tServer('Common', 'listing.from', language)}</dt>
                     <dd className="font-semibold text-elevari-ink">
                       {formatCop(property.price_per_night)}{' '}
-                      <span className="font-normal text-elevari-muted">/ noche</span>
+                      <span className="font-normal text-elevari-muted">
+                        {tServer('Common', 'perNight', language)}
+                      </span>
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-elevari-muted">Tarifa de Servicio Elevari</dt>
-                    <dd className="text-elevari-slate">15% · incluida en el total</dd>
+                    <dt className="text-elevari-muted">{tServer('Common', 'listing.serviceFee', language)}</dt>
+                    <dd className="text-elevari-slate">
+                      15% · {tServer('Common', 'listing.includedInTotal', language)}
+                    </dd>
                   </div>
                   <div className="flex justify-between gap-4 border-t border-elevari-border pt-2">
-                    <dt className="text-elevari-muted">Total</dt>
-                    <dd className="text-elevari-slate">Se calcula con tus fechas antes de pagar</dd>
+                    <dt className="text-elevari-muted">{tServer('Common', 'listing.total', language)}</dt>
+                    <dd className="text-elevari-slate">
+                      {tServer('Common', 'listing.totalCalculated', language)}
+                    </dd>
                   </div>
                 </dl>
                 <p className="mt-3 text-xs leading-relaxed text-elevari-muted">
-                  Verás el desglose completo (noches + tarifa de servicio) antes de confirmar. El cobro se
-                  procesa en pesos colombianos (COP) con Wompi.
+                  {tServer('Common', 'listing.pricingNote', language)}
                 </p>
               </section>
 
               {amenities.length > 0 && (
                 <section className="border-t border-elevari-border pt-8">
-                  <h2 className="elevari-section-title">Lo que ofrece este lugar</h2>
+                  <h2 className="elevari-section-title">{tServer('Common', 'listing.amenitiesTitle', language)}</h2>
                   <ul className="mt-6 grid gap-4 sm:grid-cols-2">
                     {amenities.map((item: string) => {
                       const normalized = normalizeAmenity(item);
@@ -226,62 +233,76 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               )}
 
               <section className="border-t border-elevari-border pt-8">
-                <h2 className="wana-section-title">Políticas de la estancia</h2>
+                <h2 className="wana-section-title">{tServer('Common', 'listing.policiesTitle', language)}</h2>
                 <div className="mt-6 grid gap-6 sm:grid-cols-2">
                   <div>
-                    <h3 className="text-sm font-semibold text-elevari-ink">Llegada y salida</h3>
+                    <h3 className="text-sm font-semibold text-elevari-ink">
+                      {tServer('Common', 'listing.arrivalDeparture', language)}
+                    </h3>
                     <ul className="mt-2 space-y-1 text-sm text-elevari-slate">
-                      <li>Check-in desde las 15:00</li>
-                      <li>Check-out hasta las 12:00</li>
-                      <li>Máximo {property.max_guests} huéspedes</li>
+                      <li>{tServer('Common', 'listing.checkInFrom', language)}</li>
+                      <li>{tServer('Common', 'listing.checkOutUntil', language)}</li>
+                      <li>
+                        {tServer('Common', 'listing.maxGuestsCount', language).replace(
+                          '{count}',
+                          String(property.max_guests),
+                        )}
+                      </li>
                     </ul>
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-elevari-ink">Cancelación</h3>
+                    <h3 className="text-sm font-semibold text-elevari-ink">
+                      {tServer('Common', 'listing.cancellation', language)}
+                    </h3>
                     <ul className="mt-2 space-y-1 text-sm text-elevari-slate">
-                      <li>Reembolso total con 5 días o más</li>
-                      <li>50% entre 2 y 4 días antes</li>
-                      <li>Sin reembolso con menos de 48 horas</li>
+                      <li>{tServer('Common', 'listing.refundFull', language)}</li>
+                      <li>{tServer('Common', 'listing.refundHalf', language)}</li>
+                      <li>{tServer('Common', 'listing.refundNone', language)}</li>
                     </ul>
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-elevari-ink">Normas de la casa</h3>
+                    <h3 className="text-sm font-semibold text-elevari-ink">
+                      {tServer('Common', 'listing.houseRules', language)}
+                    </h3>
                     <ul className="mt-2 space-y-1 text-sm text-elevari-slate">
-                      <li>No se permiten fiestas ni eventos</li>
-                      <li>Prohibido fumar en espacios interiores</li>
-                      <li>Mascotas: consultar con el anfitrión</li>
+                      <li>{tServer('Common', 'listing.noParties', language)}</li>
+                      <li>{tServer('Common', 'listing.noSmoking', language)}</li>
+                      <li>{tServer('Common', 'listing.petsAsk', language)}</li>
                     </ul>
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-elevari-ink">Pago</h3>
+                    <h3 className="text-sm font-semibold text-elevari-ink">
+                      {tServer('Common', 'listing.payment', language)}
+                    </h3>
                     <ul className="mt-2 space-y-1 text-sm text-elevari-slate">
-                      <li>Cobro en COP con Wompi</li>
-                      <li>Tarjetas, PSE, Nequi y Bancolombia</li>
-                      <li>Confirmación por correo al pagar</li>
+                      <li>{tServer('Common', 'listing.payCop', language)}</li>
+                      <li>{tServer('Common', 'listing.payMethods', language)}</li>
+                      <li>{tServer('Common', 'listing.confirmationEmail', language)}</li>
                     </ul>
                   </div>
                 </div>
                 <p className="mt-4 text-xs text-elevari-muted">
-                  ¿Dudas? Consulta las{' '}
+                  {tServer('Common', 'listing.doubt', language)}{' '}
                   <a href="/legal/faq" className="font-semibold text-elevari-forest underline underline-offset-2">
-                    preguntas frecuentes
+                    {tServer('Common', 'listing.faqLink', language)}
                   </a>{' '}
-                  o{' '}
+                  {tServer('Common', 'listing.or', language)}{' '}
                   <WhatsAppLink
                     variant="flow"
-                    label="escríbenos por WhatsApp"
+                    label={tServer('Common', 'listing.writeWhatsapp', language)}
                     message={whatsappContext(`/properties/${property.slug}`).message}
                   />
                   .
                 </p>
               </section>
 
-              <TrustSignals />
+              <TrustSignals language={language} />
 
               <PropertyReviews
                 reviews={reviews}
                 rating={property.rating}
                 reviewCount={property.review_count}
+                language={language}
               />
 
               <PropertyLocation

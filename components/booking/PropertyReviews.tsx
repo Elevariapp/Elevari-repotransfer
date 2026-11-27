@@ -1,3 +1,5 @@
+import { tServer } from '@/lib/i18n-server';
+
 type Review = {
   id: string;
   rating: number;
@@ -9,10 +11,12 @@ export default function PropertyReviews({
   reviews,
   rating,
   reviewCount,
+  language = 'es',
 }: {
   reviews: Review[];
   rating: number | null;
   reviewCount: number;
+  language?: string;
 }) {
   if (reviewCount === 0 && reviews.length === 0) return null;
 
@@ -22,7 +26,10 @@ export default function PropertyReviews({
         <span className="text-elevari-forest text-xl">★</span>
         <h2 className="elevari-section-title">
           {rating != null ? `${rating}` : '—'}
-          <span className="font-normal text-elevari-muted"> · {reviewCount} reseñas</span>
+          <span className="font-normal text-elevari-muted">
+            {' '}
+            · {reviewCount} {tServer('Common', 'reviews', language)}
+          </span>
         </h2>
       </div>
 
@@ -30,11 +37,13 @@ export default function PropertyReviews({
         {reviews.slice(0, 4).map((review) => (
           <div key={review.id} className="rounded-2xl border border-elevari-border bg-elevari-surface p-5 shadow-sm">
             <div className="flex items-center gap-2 text-sm">
-              <span className="font-semibold text-elevari-slate">Huésped verificado</span>
+              <span className="font-semibold text-elevari-slate">
+                {tServer('Common', 'listing.verifiedGuest', language)}
+              </span>
               <span className="text-elevari-forest">★ {review.rating}</span>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-elevari-slate line-clamp-4">
-              {review.comment ?? 'Sin comentario.'}
+              {review.comment ?? tServer('Common', 'listing.noComment', language)}
             </p>
           </div>
         ))}

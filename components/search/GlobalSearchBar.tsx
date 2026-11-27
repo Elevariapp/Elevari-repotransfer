@@ -11,7 +11,19 @@ interface CityOption {
   detail: string;
 }
 
-export default function GlobalSearchBar({ className = '' }: { className?: string }) {
+/**
+ * Two layouts:
+ *  - `compact` for the header slot (320-420px): destination + keyword + submit, one row, no overflow.
+ *  - `full` for hero/landing surfaces: destination + keyword + dates + guests.
+ * Dates and guests live in the hero search (`SearchHero`), so the header never needs them.
+ */
+export default function GlobalSearchBar({
+  className = '',
+  variant = 'full',
+}: {
+  className?: string;
+  variant?: 'compact' | 'full';
+}) {
   const { t } = useI18n();
   const router = useRouter();
   const [city, setCity] = useState('');
@@ -72,6 +84,93 @@ export default function GlobalSearchBar({ className = '' }: { className?: string
     setCheckOut('');
     setGuests('');
   };
+
+  if (variant === 'compact') {
+    return (
+      <div className={`relative flex w-full items-center gap-2 ${className}`}>
+        <div className="relative min-w-0 flex-1">
+          <input
+            type="text"
+            role="combobox"
+            aria-expanded={open}
+            aria-controls="elevari-header-search-list"
+            aria-label={t('Common', 'search.destinationPlaceholder')}
+            autoComplete="off"
+            value={open ? city : cityLabel}
+            placeholder={t('Common', 'search.destinationPlaceholder')}
+            disabled={loading}
+            onChange={(e) => {
+              setCity(e.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 200)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
+            className="min-h-[40px] w-full truncate rounded-full border border-white/20 bg-white/10 py-2 pl-3 pr-3 text-sm text-white placeholder-white/55 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft"
+          />
+          {open && !loading && (
+            <ul
+              id="elevari-header-search-list"
+              role="listbox"
+              className="absolute left-0 top-full z-[70] mt-1 max-h-[260px] w-[260px] overflow-y-auto rounded-xl border border-white/20 bg-elevari-slate/95 text-white shadow-2xl backdrop-blur"
+            >
+              <li role="option" aria-selected={!city}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCity('');
+                    setOpen(false);
+                  }}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-white/20 focus:bg-white/20 focus:outline-none"
+                >
+                  {anywhere.label}
+                </button>
+              </li>
+              {locations.map((loc) => (
+                <li key={loc.value} role="option" aria-selected={city === loc.value}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCity(loc.value);
+                      setOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-white/20 focus:bg-white/20 focus:outline-none"
+                  >
+                    {loc.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={handleSearch}
+          aria-label={t('Common', 'search.search')}
+          className="shrink-0 rounded-full bg-elevari-amber-soft p-2.5 text-elevari-slate transition hover:bg-elevari-amber focus:outline-none focus:ring-2 focus:ring-elevari-amber"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-3.5-3.5" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative w-full ${className}`}>
