@@ -19,6 +19,15 @@ import { authenticate, requireRoles } from '../plugins/auth.js';
 import { requireTurnstile } from '../lib/auth-guards.js';
 import { verifyGoogleIdToken } from '../lib/google-auth.js';
 import {
+  moderateIdentityBuffers,
+  reviewDeadline,
+  type IdentityModerationResult,
+} from '../lib/ai-moderation.js';
+import { IMAGE_TYPES, MAX_IMAGE_BYTES } from '../lib/media-process.js';
+import { uploadPrivateBuffer } from '../lib/minio.js';
+import { sendPushToUser } from '../lib/push.js';
+import { deliverEmail } from '../lib/email.js';
+import {
   sendAccountDeletedEmail,
   sendPasswordChangedEmail,
   sendPasswordResetEmail,
@@ -338,22 +347,18 @@ export async function authRoutes(app: FastifyInstance) {
 
   /**
    * Host submits identity verification (Airbnb-style): government ID document + selfie.
-   * Creates a pending verification record; an admin reviews and approves/rejects.
+   *
+   * Accepts multipart/form-data (`document` + `selfie` files — preferred: the bytes are read
+   * straight into Google Vision and only the private bucket ever stores them) or JSON with URLs
+   * (legacy path, always reviewed by a person).
+   *
+   * Vision decides in seconds. Anything it is unsure about is queued with a one-hour deadline
+   * (`REVIEW_SLA_MS`), which replaces the old 48-hour manual queue.
    */
   app.post('/auth/verify-host', {
     preHandler: [authenticate, requireRoles(['host'])],
     config: { rateLimit: { max: 3, timeWindow: '1 hour' } },
   }, async (request, reply) => {
-    const body = z.object({
-      id_document_url: z.string().url('URL del documento de identidad inválida'),
-      selfie_url: z.string().url('URL de la selfie inválida'),
-      id_number: z.string().trim().min(5, 'Número de identificación demasiado corto'),
-      full_name: z.string().trim().min(2, 'Nombre completo requerido'),
-    }).safeParse(request.body);
-    if (!body.success) {
-      return reply.status(400).send({ error: 'Invalid body', details: body.error.flatten() });
-    }
-
     const userId = request.auth!.sub;
     const existing = await prisma.user.findUnique({
       where: { id: userId },
@@ -369,32 +374,173 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.status(409).send({ error: 'Ya tienes una verificación pendiente', code: 'verification_pending' });
     }
 
-    const verificationId = randomUUID();
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        verificationId,
-        verificationStatus: 'pending',
-      },
-    });
+    let idNumber = '';
+    let fullName = '';
+    let documentBuffer: Buffer | null = null;
+    let selfieBuffer: Buffer | null = null;
+    let documentRef: string | null = null;
+    let selfieRef: string | null = null;
 
-    // Store verification details (in a production system these would link to stored documents)
+    if (request.isMultipart()) {
+      try {
+        for await (const part of request.parts()) {
+          if (part.type === 'field') {
+            const value = typeof part.value === 'string' ? part.value.trim() : '';
+            if (part.fieldname === 'id_number') idNumber = value;
+            if (part.fieldname === 'full_name') fullName = value;
+            continue;
+          }
+          if (part.fieldname !== 'document' && part.fieldname !== 'selfie') {
+            part.file.resume();
+            continue;
+          }
+          const mimeType = (part.mimetype || '').split(';')[0].trim().toLowerCase();
+          if (!IMAGE_TYPES.has(mimeType)) {
+            part.file.resume();
+            return reply.status(415).send({
+              error: 'El documento y la selfie deben ser imágenes JPG, PNG o WebP.',
+              code: 'unsupported_file_type',
+            });
+          }
+          const chunks: Buffer[] = [];
+          let size = 0;
+          let tooBig = false;
+          for await (const chunk of part.file) {
+            size += chunk.length;
+            if (size > MAX_IMAGE_BYTES) {
+              tooBig = true;
+              continue;
+            }
+            chunks.push(chunk as Buffer);
+          }
+          if (tooBig) {
+            return reply.status(413).send({ error: 'Cada archivo debe pesar máximo 10 MB.', code: 'file_too_large' });
+          }
+          const buffer = Buffer.concat(chunks, size);
+          if (part.fieldname === 'document') documentBuffer = buffer;
+          else selfieBuffer = buffer;
+        }
+      } catch {
+        return reply.status(400).send({ error: 'La subida no es válida. Inténtalo de nuevo.', code: 'invalid_upload' });
+      }
+    } else {
+      const body = z
+        .object({
+          id_document_url: z.string().url('URL del documento de identidad inválida'),
+          selfie_url: z.string().url('URL de la selfie inválida'),
+          id_number: z.string().trim().min(5, 'Número de identificación demasiado corto'),
+          full_name: z.string().trim().min(2, 'Nombre completo requerido'),
+        })
+        .safeParse(request.body);
+      if (!body.success) {
+        return reply.status(400).send({ error: 'Invalid body', details: body.error.flatten() });
+      }
+      idNumber = body.data.id_number;
+      fullName = body.data.full_name;
+      documentRef = body.data.id_document_url;
+      selfieRef = body.data.selfie_url;
+    }
+
+    idNumber = idNumber.trim();
+    fullName = fullName.trim();
+    if (idNumber.length < 5 || fullName.length < 2) {
+      return reply
+        .status(400)
+        .send({ error: 'Indica tu nombre completo y número de identificación.', code: 'invalid_identity_data' });
+    }
+    if ((!documentBuffer || !selfieBuffer) && (!documentRef || !selfieRef)) {
+      return reply
+        .status(400)
+        .send({ error: 'Adjunta el documento de identidad y la selfie.', code: 'documents_required' });
+    }
+
+    const now = new Date();
+    const verificationId = randomUUID();
+
+    // Identity documents live in the private bucket (`MINIO_PRIVATE_BUCKET`), never the media one.
+    if (documentBuffer && selfieBuffer) {
+      const base = `verifications/${userId}/${verificationId}`;
+      [documentRef, selfieRef] = await Promise.all([
+        uploadPrivateBuffer(`${base}-document`, documentBuffer, 'application/octet-stream'),
+        uploadPrivateBuffer(`${base}-selfie`, selfieBuffer, 'application/octet-stream'),
+      ]);
+    }
+
+    const moderation: IdentityModerationResult =
+      documentBuffer && selfieBuffer
+        ? await moderateIdentityBuffers(documentBuffer, selfieBuffer, { idNumber, fullName })
+        : {
+            verdict: 'review',
+            score: 0,
+            labels: [],
+            reason: 'document_urls_require_manual_review',
+            provider: 'rules',
+            documentsMatch: false,
+          };
+
+    const approved = moderation.verdict === 'approved';
+    const rejected = moderation.verdict === 'rejected';
+    const status = approved ? 'verified' : rejected ? 'rejected' : 'pending';
+    const reviewBy = approved || rejected ? null : reviewDeadline(now);
+
     await prisma.user.update({
       where: { id: userId },
       data: {
-        // We store references; actual document files go to MinIO/S3 in a full implementation
+        verificationId,
+        verificationStatus: status,
+        verificationDocUrl: documentRef,
+        verificationSelfieUrl: selfieRef,
+        verificationIdNumber: idNumber,
+        verificationSubmittedAt: now,
+        verificationReviewedAt: approved || rejected ? now : null,
+        verificationVerdict: moderation.verdict,
+        verificationScore: moderation.score,
+        verificationReason: moderation.reason,
+        idVerified: approved,
+        idVerifiedAt: approved ? now : null,
       },
     });
 
+    if (approved) {
+      const verifiedUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+      void sendPushToUser(userId, 'host_bookings', {
+        title: 'Identidad verificada / Identity verified',
+        body: 'Tu insignia azul ya está activa. / Your blue badge is now active.',
+        data: { type: 'verification_approved' },
+      });
+      if (verifiedUser?.email) {
+        void deliverEmail({
+          to: verifiedUser.email,
+          subject: 'Identidad verificada / Identity verified',
+          html: `
+            <h2>Tu identidad ha sido verificada / Your identity has been verified</h2>
+            <p>Tu insignia azul ya está activa y puedes publicar propiedades en Elevari.</p>
+            <p>Your blue verified badge is active and you can publish properties on Elevari.</p>
+          `,
+        });
+      }
+    }
+
     return {
       verification_id: verificationId,
-      status: 'pending',
-      message: 'Verificación enviada. Un administrador revisará tu identidad en breve.',
+      status,
+      verdict: moderation.verdict,
+      id_verified: approved,
+      sla_minutes: approved || rejected ? 0 : 60,
+      review_by: reviewBy?.toISOString() ?? null,
+      message: approved
+        ? '¡Verificado! Tu insignia azul ya está activa.'
+        : rejected
+          ? 'No pudimos validar el documento. Revisa tu nombre y número de identificación, y vuelve a intentarlo.'
+          : 'Verificación recibida. La revisamos en máximo 1 hora y te avisamos por correo y notificación.',
     };
   });
 
   /**
    * Host checks their identity verification status.
+   *
+   * Never returns the document keys or the ID number: only the state, the machine verdict and the
+   * deadline the host was promised.
    */
   app.get('/auth/verification-status', {
     preHandler: [authenticate, requireRoles(['host'])],
@@ -406,16 +552,29 @@ export async function authRoutes(app: FastifyInstance) {
         idVerifiedAt: true,
         verificationId: true,
         verificationStatus: true,
+        verificationSubmittedAt: true,
+        verificationReviewedAt: true,
+        verificationVerdict: true,
+        verificationReason: true,
       },
     });
     if (!user) {
       return reply.status(404).send({ error: 'User not found' });
     }
+
+    const pending = user.verificationStatus === 'pending';
     return {
       id_verified: user.idVerified,
       id_verified_at: user.idVerifiedAt?.toISOString() ?? null,
       verification_id: user.verificationId,
       verification_status: user.verificationStatus,
+      verdict: user.verificationVerdict,
+      submitted_at: user.verificationSubmittedAt?.toISOString() ?? null,
+      reviewed_at: user.verificationReviewedAt?.toISOString() ?? null,
+      sla_minutes: pending ? 60 : 0,
+      review_by: pending && user.verificationSubmittedAt
+        ? new Date(user.verificationSubmittedAt.getTime() + 60 * 60 * 1000).toISOString()
+        : null,
     };
   });
 

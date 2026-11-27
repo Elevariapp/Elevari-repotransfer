@@ -32,6 +32,15 @@ yarn-error.log*
 .env.production
 .env.staging
 
+# Private credentials that must never be committed
+# (Firebase service accounts, Play upload keys, generated google-services.json, APK keystores)
+/.secrets/
+.secrets/
+*-firebase-adminsdk-*.json
+google-services.json
+*.keystore
+*.jks
+
 # IDE
 .idea/
 .vscode/

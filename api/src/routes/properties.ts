@@ -5,6 +5,8 @@ import { prisma } from '../lib/prisma.js';
 import { apiErrorBody, ApiErrorCode } from '../lib/api-errors.js';
 
 const listQuerySchema = z.object({
+  /** Free-text search across title, description and city (Airbnb-style "where/what"). */
+  q: z.string().trim().max(120).optional(),
   city: z.string().optional(),
   guests: z.coerce.number().int().positive().optional(),
   check_in: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -51,6 +53,7 @@ function serializeProperty(property: {
     sortOrder: number;
   }>;
   reviews: Array<{ id?: string; rating: number; comment?: string | null; createdAt?: Date }>;
+  host?: { name?: string | null; idVerified?: boolean } | null;
 }) {
   const ratings = property.reviews.map((r) => r.rating);
   const avgRating =
@@ -83,6 +86,10 @@ function serializeProperty(property: {
     media: property.media,
     rating: avgRating ? Math.round(avgRating * 10) / 10 : null,
     review_count: ratings.length,
+    // Drives the blue verified badge on the card and the property page.
+    host: property.host
+      ? { name: property.host.name ?? null, verified: Boolean(property.host.idVerified) }
+      : null,
     ...(serializedReviews ? { reviews: serializedReviews } : {}),
   };
 }
@@ -94,7 +101,7 @@ export async function propertyRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'Invalid query', details: query.error.flatten() });
     }
 
-    const { city, guests, check_in, check_out, sort, min_price, max_price, amenities, limit, offset } =
+    const { q, city, guests, check_in, check_out, sort, min_price, max_price, amenities, limit, offset } =
       query.data;
 
     let dateFilter: Record<string, unknown> = {};
@@ -140,6 +147,16 @@ export async function propertyRoutes(app: FastifyInstance) {
     const where: Prisma.PropertyWhereInput = {
       status: 'published',
       ...(city ? { city: { contains: city, mode: 'insensitive' } } : {}),
+      // Free text: "domo", "Guatavita", "glamping con fogata" all match something meaningful.
+      ...(q
+        ? {
+            OR: [
+              { title: { contains: q, mode: 'insensitive' } },
+              { description: { contains: q, mode: 'insensitive' } },
+              { city: { contains: q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
       ...(guests ? { maxGuests: { gte: guests } } : {}),
       ...priceFilter,
       ...dateFilter,
@@ -156,6 +173,7 @@ export async function propertyRoutes(app: FastifyInstance) {
             take: 5,
           },
           reviews: { where: { isVisible: true }, select: { rating: true } },
+          host: { select: { name: true, idVerified: true } },
         },
         orderBy: ORDER_BY[sort] ?? ORDER_BY.recommended,
         take: limit,
@@ -200,6 +218,7 @@ export async function propertyRoutes(app: FastifyInstance) {
           orderBy: { createdAt: 'desc' },
           take: 20,
         },
+        host: { select: { name: true, idVerified: true } },
       },
     });
 

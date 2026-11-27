@@ -92,6 +92,8 @@ jobs:
           restore-keys: |
             nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
       - run: npm ci --no-audit --no-fund
+      - name: Every i18n key exists in ES and EN
+        run: node scripts/check-i18n-keys.mjs
       - name: Scene outputs are up to date
         run: npm run scene:check
       - name: Fonts are self-hosted
@@ -214,11 +216,24 @@ jobs:
           if [ -z "$EXPO_TOKEN" ]; then
             echo "::warning::EXPO_TOKEN secret not set — skipping EAS build"
             echo "present=false" >> "$GITHUB_OUTPUT"
+            reason="EXPO_TOKEN is not configured"
           elif ! grep -qE '"projectId": *"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"' app.json; then
             echo "::warning::mobile/app.json extra.eas.projectId is not an EAS UUID — run 'npx eas-cli init' in mobile/ and commit it. Skipping EAS build"
             echo "present=false" >> "$GITHUB_OUTPUT"
+            reason="mobile/app.json has no extra.eas.projectId (run 'npx eas-cli init')"
           else
             echo "present=true" >> "$GITHUB_OUTPUT"
+            reason=""
+          fi
+          # A skipped store build must be visible, not silent: it is why an APK/AAB never appeared.
+          if [ "${reason:-}" != "" ]; then
+            {
+              echo "### EAS store build SKIPPED"
+              echo
+              echo "Reason: $reason"
+              echo
+              echo "The sideloadable APK is still built by the **Mobile APK** workflow (no Expo account needed)."
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Setup Node.js
         if: steps.token.outputs.present == 'true'
@@ -234,6 +249,69 @@ jobs:
       - name: Queue Android APK (preview, sideload/internal testing)
         if: steps.token.outputs.present == 'true'
         run: eas build --platform android --profile preview --non-interactive --no-wait
+
+  mobile-build-aab:
+    name: Mobile Android AAB for Play (Gradle)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: [mobile-typecheck, changes]
+    # Manual only, and only when the repo variable BUILD_AAB=true: a store bundle is a release
+    # action, not a side effect of every push (the sideloadable APK has its own workflow).
+    if: github.event_name == 'workflow_dispatch' && vars.BUILD_AAB == 'true'
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Resolve the upload key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/android-apk-sign.sh"
+      - name: Compute the version code
+        run: echo "ANDROID_VERSION_CODE=$(( $(date -u +%s) / 60 ))" >> "$GITHUB_ENV"
+      - name: Generate the native Android project
+        env:
+          CI: '1'
+          GOOGLE_SERVICES_JSON_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON_CONTENT" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON_CONTENT" > "$RUNNER_TEMP/google-services.json"
+            export GOOGLE_SERVICES_JSON="$RUNNER_TEMP/google-services.json"
+            echo "Firebase config found: Android push registration is enabled in this bundle."
+          else
+            echo "::warning title=Firebase not configured::GOOGLE_SERVICES_JSON is not set. The AAB builds but Android push stays inactive."
+          fi
+          npx expo prebuild --platform android --no-install
+      - name: Build the release AAB (Gradle)
+        working-directory: mobile/android
+        timeout-minutes: 45
+        env:
+          EXPO_PUBLIC_API_KEY: ${{ secrets.EXPO_PUBLIC_API_KEY }}
+        run: >-
+          ./gradlew bundleRelease --stacktrace
+          "-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g"
+      - name: Upload the AAB artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: elevari-aab
+          path: mobile/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
 
   deploy-production:
     name: Deploy to Hetzner Production (web + api + bot)
@@ -258,6 +336,10 @@ jobs:
       WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
       WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET || secrets.facebook_Key }}
       WHATSAPP_BUSINESS_ACCOUNT_ID: ${{ secrets.WHATSAPP_BUSINESS_ACCOUNT_ID }}
+      # AI moderation (Google Vision) for host documents/photos and the <1h verification SLA.
+      AI_MODERATION_VISION_KEY: ${{ secrets.AI_MODERATION_VISION_KEY }}
+      # Firebase Admin SDK (base64) for FCM HTTP v1 push on the bare Android APK/AAB.
+      FIREBASE_SERVICE_ACCOUNT_BASE64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
     steps:
       - name: Check deploy secrets
         id: secrets
@@ -289,7 +371,7 @@ jobs:
           host: ${{ env.HETZNER_IP }}
           username: ${{ env.HETZNER_USER }}
           key: ${{ env.HETZNER_SSH_KEY }}
-          envs: RESEND_API_KEY,META_APP_ID,META_APP_SECRET,META_ACCESS_TOKEN,WHATSAPP_TOKEN,WHATSAPP_PHONE_NUMBER_ID,WHATSAPP_VERIFY_TOKEN,WHATSAPP_APP_SECRET,WHATSAPP_BUSINESS_ACCOUNT_ID
+          envs: RESEND_API_KEY,META_APP_ID,META_APP_SECRET,META_ACCESS_TOKEN,WHATSAPP_TOKEN,WHATSAPP_PHONE_NUMBER_ID,WHATSAPP_VERIFY_TOKEN,WHATSAPP_APP_SECRET,WHATSAPP_BUSINESS_ACCOUNT_ID,AI_MODERATION_VISION_KEY,FIREBASE_SERVICE_ACCOUNT_BASE64
           command_timeout: 30m
           script: |
             set -euo pipefail
@@ -316,6 +398,8 @@ jobs:
                 "WHATSAPP_VERIFY_TOKEN",
                 "WHATSAPP_APP_SECRET",
                 "WHATSAPP_BUSINESS_ACCOUNT_ID",
+                "AI_MODERATION_VISION_KEY",
+                "FIREBASE_SERVICE_ACCOUNT_BASE64",
             )
             managed_values = {
                 key: os.environ.get(key, "").strip()

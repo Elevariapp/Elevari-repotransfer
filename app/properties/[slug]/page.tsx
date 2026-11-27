@@ -7,6 +7,7 @@ import PropertyViewTracker from '@/components/conversion/PropertyViewTracker';
 import ExclusiveBadge from '@/components/ExclusiveBadge';
 import FavoriteButton from '@/components/conversion/FavoriteButton';
 import TrustSignals from '@/components/conversion/TrustSignals';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import SimilarProperties from '@/components/conversion/SimilarProperties';
 import PropertyLocation from '@/components/booking/PropertyLocation';
 import ElevariMark from '@/components/brand/ElevariMark';
@@ -158,8 +159,15 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                     <ElevariMark plain decorative className="h-full w-full" />
                   </div>
                   <div>
-                    <p className="font-semibold text-elevari-slate">Anfitrión Elevari verificado</p>
-                    <p className="text-sm text-elevari-muted">Experiencia glamping curada · respuesta rápida</p>
+                    <p className="flex flex-wrap items-center gap-2 font-semibold text-elevari-slate">
+                      {property.host?.name?.trim() || 'Anfitrión Elevari'}
+                      <VerifiedBadge verified={property.host?.verified} />
+                    </p>
+                    <p className="text-sm text-elevari-muted">
+                      {property.host?.verified
+                        ? 'Identidad verificada por Elevari · insignia azul activa'
+                        : 'Anfitrión Elevari · respuesta rápida'}
+                    </p>
                   </div>
                 </div>
               </section>

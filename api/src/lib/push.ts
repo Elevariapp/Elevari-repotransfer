@@ -1,8 +1,15 @@
 import { prisma } from './prisma.js';
 import { resolveNotificationPreferences, type PushPreferenceKey } from './notification-prefs.js';
+import { fcmConfigured, sendFcm } from './fcm.js';
 
 /** Tokens the mobile app gets from Expo: ExponentPushToken[...] on older SDKs, ExpoPushToken[...] on newer ones. */
 export const EXPO_PUSH_TOKEN_PATTERN = /^Expo(?:nent)?PushToken\[[A-Za-z0-9_-]{10,}\]$/;
+
+/**
+ * Native FCM registration tokens (`getDevicePushTokenAsync` on Android in a bare/prebuild APK).
+ * They are long and contain `:` separators, which the Expo pattern never does.
+ */
+export const FCM_TOKEN_PATTERN = /^[A-Za-z0-9_:\-]{100,}$/;
 
 const DEFAULT_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const MAX_MESSAGES_PER_REQUEST = 100;
@@ -44,10 +51,28 @@ export async function sendPushToUser(
       return { sent: 0, reason: 'opted_out' };
     }
 
-    const tokens = user.pushTokens.map((entry) => entry.token).filter((token) => EXPO_PUSH_TOKEN_PATTERN.test(token));
-    if (tokens.length === 0) return { sent: 0, reason: 'no_devices' };
+    const allTokens = user.pushTokens.map((entry) => entry.token);
+    const expoTokens = allTokens.filter((token) => EXPO_PUSH_TOKEN_PATTERN.test(token));
+    const nativeTokens = allTokens.filter((token) => FCM_TOKEN_PATTERN.test(token));
+    if (expoTokens.length === 0 && nativeTokens.length === 0) return { sent: 0, reason: 'no_devices' };
 
-    return await deliver(tokens, message);
+    // Expo covers Expo Go and store builds; FCM covers the bare Android APK/AAB built in CI.
+    const [expoResult, fcmResult] = await Promise.all([
+      expoTokens.length > 0 ? deliver(expoTokens, message) : Promise.resolve<PushResult>({ sent: 0 }),
+      nativeTokens.length > 0 && fcmConfigured()
+        ? sendFcm(nativeTokens, message)
+        : Promise.resolve({ sent: 0, gone: [] as string[], failed: false }),
+    ]);
+
+    if (fcmResult.gone.length > 0) {
+      await prisma.pushToken.deleteMany({ where: { token: { in: fcmResult.gone } } });
+    }
+
+    const sent = expoResult.sent + fcmResult.sent;
+    if (sent === 0 && (expoResult.reason === 'provider_error' || fcmResult.failed)) {
+      return { sent: 0, reason: 'provider_error' };
+    }
+    return { sent };
   } catch (err) {
     console.error('[push] unexpected failure', { error: err instanceof Error ? err.name : 'unknown' });
     return { sent: 0, reason: 'provider_error' };

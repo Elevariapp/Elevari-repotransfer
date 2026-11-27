@@ -8,6 +8,9 @@ export interface User {
   phone: string | null;
   // false for accounts created with Google: they confirm sensitive actions by typing their e-mail.
   has_password: boolean;
+  /** True once the host passed identity verification (blue badge). */
+  id_verified?: boolean;
+  verification_status?: string | null;
 }
 
 export interface AuthResponse {

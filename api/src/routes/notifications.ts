@@ -13,7 +13,7 @@ import {
   stayRange,
   type BookingNotificationType,
 } from '../lib/notification-copy.js';
-import { EXPO_PUSH_TOKEN_PATTERN } from '../lib/push.js';
+import { EXPO_PUSH_TOKEN_PATTERN, FCM_TOKEN_PATTERN } from '../lib/push.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const FEED_WINDOW_DAYS = 30;
@@ -31,7 +31,14 @@ interface FeedItem {
 const MAX_DEVICES_PER_USER = 10;
 
 const pushTokenSchema = z.object({
-  token: z.string().trim().max(300).regex(EXPO_PUSH_TOKEN_PATTERN, 'Invalid push token'),
+  token: z
+    .string()
+    .trim()
+    .max(4096)
+    .refine(
+      (value) => EXPO_PUSH_TOKEN_PATTERN.test(value) || FCM_TOKEN_PATTERN.test(value),
+      'Invalid push token',
+    ),
   platform: z.enum(['ios', 'android']),
 });
 
@@ -94,7 +101,18 @@ export async function notificationRoutes(app: FastifyInstance) {
           booking: { select: { property: { select: { title: true } } } },
         },
       }),
-      prisma.user.findUnique({ where: { id: userId }, select: { passwordChangedAt: true } }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          passwordChangedAt: true,
+          idVerified: true,
+          idVerifiedAt: true,
+          verificationStatus: true,
+          verificationSubmittedAt: true,
+          verificationReviewedAt: true,
+          verificationReason: true,
+        },
+      }),
       prisma.propertyMedia.findMany({
         where: {
           createdAt: { gte: since },
@@ -184,6 +202,50 @@ export async function notificationRoutes(app: FastifyInstance) {
         body: 'Si no fuiste tú, restablécela de inmediato desde “Olvidé mi contraseña”.',
         booking_id: null,
         created_at: account.passwordChangedAt.toISOString(),
+      });
+    }
+
+    if (account?.idVerified && account.idVerifiedAt && account.idVerifiedAt >= since) {
+      items.push({
+        id: `verification-approved:${account.idVerifiedAt.getTime()}`,
+        type: 'verification_approved',
+        title: 'Identidad verificada / Identity verified',
+        body: 'Tu insignia azul ya está activa. / Your blue verified badge is active.',
+        booking_id: null,
+        created_at: account.idVerifiedAt.toISOString(),
+      });
+    }
+
+    if (account?.verificationStatus === 'pending' && account.verificationSubmittedAt && account.verificationSubmittedAt >= since) {
+      items.push({
+        id: `verification-pending:${account.verificationSubmittedAt.getTime()}`,
+        type: 'verification_pending',
+        title: 'Verificación en revisión / Verification under review',
+        body: 'La revisamos en máximo 1 hora. / We review it within one hour.',
+        booking_id: null,
+        created_at: account.verificationSubmittedAt.toISOString(),
+      });
+    }
+
+    if (
+      account?.verificationStatus === 'rejected' &&
+      account.verificationReviewedAt &&
+      account.verificationReviewedAt >= since
+    ) {
+      // Internal machine reasons (id_number_mismatch, vision_error_403…) are not for the host.
+      const reason = account.verificationReason ?? '';
+      const humanReason = /^(manual_|identity_|id_number|name_|document_|vision_|ai_|provider_|no_face|multiple_faces|rules_)/.test(
+        reason,
+      )
+        ? 'Revisa que el documento sea legible y que el número coincida. / Check that the document is readable and the number matches.'
+        : reason;
+      items.push({
+        id: `verification-rejected:${account.verificationReviewedAt.getTime()}`,
+        type: 'verification_rejected',
+        title: 'Verificación rechazada / Verification rejected',
+        body: humanReason,
+        booking_id: null,
+        created_at: account.verificationReviewedAt.toISOString(),
       });
     }
 

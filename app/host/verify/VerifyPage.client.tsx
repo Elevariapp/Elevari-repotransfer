@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { wanaApi } from '@/lib/api-client';
 
 export default function VerifyPageClient() {
   const [status, setStatus] = useState<{
     id_verified: boolean;
     verification_status: string | null;
+    review_by?: string | null;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -20,7 +22,7 @@ export default function VerifyPageClient() {
       .verificationStatus()
       .then((s) => {
         if (active) {
-          setStatus({ id_verified: s.id_verified, verification_status: s.verification_status });
+          setStatus({ id_verified: s.id_verified, verification_status: s.verification_status, review_by: s.review_by ?? null });
           setLoading(false);
         }
       })
@@ -48,6 +50,9 @@ export default function VerifyPageClient() {
         <main className="elevari-container py-12">
           <div className="elevari-card p-8 text-center">
             <p className="font-semibold text-elevari-forest">✓ Identidad ya verificada</p>
+            <div className="mt-2 flex justify-center">
+              <VerifiedBadge verified />
+            </div>
             <p className="mt-2 text-elevari-muted">
               Tu identidad ha sido verificada. Ya puedes publicar propiedades.
             </p>
@@ -71,15 +76,18 @@ export default function VerifyPageClient() {
               Verifica tu identidad como anfitrión
             </h1>
             <p className="mt-2 text-elevari-muted">
-              Sube tu documento de identidad y una selfie para que podamos verificar quién eres. Este
-              proceso ayuda a mantener segura la comunidad de Elevari.
+              Sube tu documento de identidad y una selfie. La revisión es automática y toma segundos;
+              si necesita una mirada humana, la tienes en{' '}
+              <strong className="text-elevari-slate">máximo 1 hora</strong>.
             </p>
 
             {status?.verification_status === 'pending' && (
               <div className="mt-6 p-4 rounded bg-elevari-sand border border-elevari-muted/20">
                 <p className="text-sm text-elevari-muted">
-                  Tu verificación está pendiente de revisión. Te notificaremos por correo cuando se
-                  complete.
+                  Tu verificación está pendiente de revisión.
+                  {status.review_by
+                    ? ` Compromiso de respuesta: antes de ${new Date(status.review_by).toLocaleString('es-CO')}.`
+                    : ' Te notificaremos por correo cuando se complete.'}
                 </p>
               </div>
             )}
@@ -87,7 +95,8 @@ export default function VerifyPageClient() {
             {status?.verification_status === 'rejected' && (
               <div className="mt-6 p-4 rounded bg-elevari-error/10 border border-elevari-error/20">
                 <p className="text-sm text-elevari-error">
-                  Tu verificación anterior fue rechazada. Puedes volver a enviar tus documentos.
+                  Tu verificación anterior fue rechazada. Revisa que el documento sea legible y que el
+                  número coincida, y vuelve a enviarlo.
                 </p>
               </div>
             )}
@@ -112,16 +121,26 @@ export default function VerifyPageClient() {
                 setSubmitting(true);
                 setMessage(null);
                 const formData = new FormData(e.currentTarget);
-                const body = {
-                  id_document_url: formData.get('id_document_url') as string,
-                  selfie_url: formData.get('selfie_url') as string,
-                  id_number: formData.get('id_number') as string,
-                  full_name: formData.get('full_name') as string,
-                };
+                const document = formData.get('document');
+                const selfie = formData.get('selfie');
+                if (!(document instanceof File) || !(selfie instanceof File) || !document.size || !selfie.size) {
+                  setMessage({ kind: 'error', text: 'Adjunta el documento de identidad y la selfie.' });
+                  setSubmitting(false);
+                  return;
+                }
                 try {
-                  await wanaApi.verifyHost(body);
-                  setMessage({ kind: 'success', text: 'Verificación enviada. Te notificaremos por correo.' });
-                  setStatus((s) => (s ? { ...s, verification_status: 'pending' } : s));
+                  const result = await wanaApi.verifyHost({
+                    document,
+                    selfie,
+                    id_number: String(formData.get('id_number') ?? ''),
+                    full_name: String(formData.get('full_name') ?? ''),
+                  });
+                  setStatus({
+                    id_verified: result.id_verified,
+                    verification_status: result.status,
+                    review_by: result.review_by,
+                  });
+                  setMessage({ kind: 'success', text: result.message });
                 } catch (err: any) {
                   setMessage({
                     kind: 'error',
@@ -135,27 +154,29 @@ export default function VerifyPageClient() {
             >
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-elevari-slate">
-                    Documento de identidad (URL)
+                  <label htmlFor="document" className="block text-xs font-medium text-elevari-slate">
+                    Documento de identidad
                   </label>
                   <input
-                    name="id_document_url"
-                    type="url"
-                    placeholder="https://ejemplo.com/documento.jpg"
+                    id="document"
+                    name="document"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
                     required
-                    className="w-full rounded border border-elevari-muted bg-elevari-slate/5 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-elevari-forest"
+                    className="w-full rounded border border-elevari-muted bg-elevari-slate/5 px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-elevari-forest file:px-3 file:py-1.5 file:text-white focus:outline-none focus:ring-2 focus:ring-elevari-forest"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-elevari-slate">
-                    Selfie (URL)
+                  <label htmlFor="selfie" className="block text-xs font-medium text-elevari-slate">
+                    Selfie
                   </label>
                   <input
-                    name="selfie_url"
-                    type="url"
-                    placeholder="https://ejemplo.com/selfie.jpg"
+                    id="selfie"
+                    name="selfie"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
                     required
-                    className="w-full rounded border border-elevari-muted bg-elevari-slate/5 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-elevari-forest"
+                    className="w-full rounded border border-elevari-muted bg-elevari-slate/5 px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-elevari-forest file:px-3 file:py-1.5 file:text-white focus:outline-none focus:ring-2 focus:ring-elevari-forest"
                   />
                 </div>
               </div>
@@ -184,8 +205,8 @@ export default function VerifyPageClient() {
                 />
               </div>
               <p className="text-xs text-elevari-muted">
-                Sube una foto clara de tu documento de identidad y una selfie. Un administrador revisará
-                tu identidad y te notificará por correo electrónico.
+                Los archivos se guardan en almacenamiento privado y solo los usa la revisión de
+                identidad. Máximo 10 MB por imagen (JPG, PNG o WebP).
               </p>
               <button
                 type="submit"

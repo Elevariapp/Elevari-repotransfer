@@ -9,6 +9,9 @@ import {
   sendMediaRejectedEmail,
 } from '../lib/transactional-emails.js';
 import { deliverEmail } from '../lib/email.js';
+import { REVIEW_SLA_MS } from '../lib/ai-moderation.js';
+import { downloadPrivateObject } from '../lib/minio.js';
+import { sendPushToUser } from '../lib/push.js';
 
 const statusSchema = z.object({
   status: z.enum(['draft', 'published', 'unavailable', 'maintenance']),
@@ -118,15 +121,17 @@ export async function adminRoutes(app: FastifyInstance) {
     '/admin/media/pending',
     { preHandler: [authenticate, requireRoles(['admin'])] },
     async () => {
+      // Oldest deadline first: whatever is closest to breaching the 1-hour SLA is on top.
       const media = await prisma.propertyMedia.findMany({
         where: { status: 'pending' },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ reviewDueAt: 'asc' }, { createdAt: 'asc' }],
         take: 100,
         include: {
           property: { select: { id: true, title: true, slug: true, hostId: true } },
         },
       });
 
+      const now = Date.now();
       return {
         data: media.map((m) => ({
           id: m.id,
@@ -136,9 +141,96 @@ export async function adminRoutes(app: FastifyInstance) {
           property_id: m.propertyId,
           property_title: m.property.title,
           property_slug: m.property.slug,
+          ai_verdict: m.aiVerdict,
+          ai_score: m.aiScore,
+          ai_reason: m.aiReason,
+          review_due_at: m.reviewDueAt?.toISOString() ?? null,
+          sla_breached: m.reviewDueAt ? m.reviewDueAt.getTime() < now : false,
           created_at: m.createdAt.toISOString(),
         })),
       };
+    },
+  );
+
+  /**
+   * Hosts waiting for an identity decision. Sorted by the same one-hour deadline the host was
+   * promised, so the admin queue can never again turn into a 48-hour wait.
+   */
+  app.get(
+    '/admin/verifications',
+    { preHandler: [authenticate, requireRoles(['admin'])] },
+    async () => {
+      const users = await prisma.user.findMany({
+        where: {
+          verificationSubmittedAt: { not: null },
+          verificationStatus: { in: ['pending', 'rejected'] },
+        },
+        orderBy: { verificationSubmittedAt: 'asc' },
+        take: 100,
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          idVerified: true,
+          verificationStatus: true,
+          verificationSubmittedAt: true,
+          verificationVerdict: true,
+          verificationScore: true,
+          verificationReason: true,
+          verificationDocUrl: true,
+          verificationSelfieUrl: true,
+        },
+      });
+
+      const now = Date.now();
+      return {
+        data: users.map((user) => {
+          const submitted = user.verificationSubmittedAt;
+          const dueAt = submitted ? submitted.getTime() + REVIEW_SLA_MS : null;
+          return {
+            user_id: user.id,
+            email: user.email,
+            name: user.name,
+            status: user.verificationStatus,
+            ai_verdict: user.verificationVerdict,
+            ai_score: user.verificationScore,
+            ai_reason: user.verificationReason,
+            has_document: Boolean(user.verificationDocUrl),
+            has_selfie: Boolean(user.verificationSelfieUrl),
+            submitted_at: submitted?.toISOString() ?? null,
+            review_due_at: dueAt ? new Date(dueAt).toISOString() : null,
+            sla_breached: dueAt ? dueAt < now : false,
+          };
+        }),
+      };
+    },
+  );
+
+  /**
+   * Streams a private identity document to an admin. It is the only way to read the file:
+   * nothing in the private bucket is publicly reachable.
+   */
+  app.get(
+    '/admin/verifications/:id/document',
+    { preHandler: [authenticate, requireRoles(['admin'])] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const kind = (request.query as { kind?: string }).kind === 'selfie' ? 'selfie' : 'document';
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: { verificationDocUrl: true, verificationSelfieUrl: true },
+      });
+      const key = kind === 'selfie' ? user?.verificationSelfieUrl : user?.verificationDocUrl;
+      if (!key) return reply.status(404).send({ error: 'Document not found' });
+
+      try {
+        const buffer = await downloadPrivateObject(key);
+        reply.header('Cache-Control', 'private, no-store');
+        return reply.type('image/jpeg').send(buffer);
+      } catch (err) {
+        request.log.warn({ err }, 'could not read a verification document');
+        return reply.status(503).send({ error: 'Storage unavailable' });
+      }
     },
   );
 
@@ -149,7 +241,7 @@ export async function adminRoutes(app: FastifyInstance) {
       const { id } = request.params as { id: string };
       const media = await prisma.propertyMedia.update({
         where: { id },
-        data: { status: 'approved' },
+        data: { status: 'approved', reviewedAt: new Date(), aiVerdict: 'approved', aiReason: 'manual_approval', reviewDueAt: null },
         include: {
           property: { select: { title: true, hostId: true } },
         },
@@ -178,7 +270,7 @@ export async function adminRoutes(app: FastifyInstance) {
       const { id } = request.params as { id: string };
       const media = await prisma.propertyMedia.update({
         where: { id },
-        data: { status: 'rejected' },
+        data: { status: 'rejected', reviewedAt: new Date(), aiVerdict: 'rejected', aiReason: 'manual_rejection', reviewDueAt: null },
         include: {
           property: { select: { title: true, hostId: true } },
         },
@@ -237,8 +329,16 @@ export async function adminRoutes(app: FastifyInstance) {
           idVerified: true,
           idVerifiedAt: new Date(),
           verificationStatus: 'verified',
+          verificationReviewedAt: new Date(),
+          verificationVerdict: 'approved',
+          verificationReason: 'manual_approval',
         },
         select: { email: true, name: true, id: true },
+      });
+      void sendPushToUser(user.id, 'host_bookings', {
+        title: 'Identidad verificada / Identity verified',
+        body: 'Tu insignia azul ya está activa. / Your blue badge is now active.',
+        data: { type: 'verification_approved' },
       });
       if (user.email) {
         void deliverEmail({
@@ -268,8 +368,18 @@ export async function adminRoutes(app: FastifyInstance) {
         where: { id },
         data: {
           verificationStatus: 'rejected',
+          verificationReviewedAt: new Date(),
+          verificationVerdict: 'rejected',
+          verificationReason: body.data.reason,
+          idVerified: false,
+          idVerifiedAt: null,
         },
         select: { email: true, name: true, id: true },
+      });
+      void sendPushToUser(user.id, 'host_bookings', {
+        title: 'Verificación rechazada / Verification rejected',
+        body: 'Puedes volver a enviar tus documentos. / You can resubmit your documents.',
+        data: { type: 'verification_rejected' },
       });
       if (user.email) {
         void deliverEmail({

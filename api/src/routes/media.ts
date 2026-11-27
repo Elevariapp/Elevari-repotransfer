@@ -13,14 +13,21 @@ import {
   MAX_VIDEO_BYTES,
 } from '../lib/media-process.js';
 import { authenticate, requireRoles } from '../plugins/auth.js';
+import {
+  mediaStatusFor,
+  moderateImageBuffer,
+  moderateVideoBuffer,
+  reviewDeadline,
+  type ModerationResult,
+} from '../lib/ai-moderation.js';
+import { sendPushToUser } from '../lib/push.js';
+import { sendMediaApprovedEmail, sendMediaRejectedEmail } from '../lib/transactional-emails.js';
 
 const MAX_MEDIA_PER_PROPERTY = 60;
 
-function mediaStatus(): 'approved' | 'pending' {
-  if (process.env.MEDIA_AUTO_APPROVE === 'true' || process.env.NODE_ENV === 'development') {
-    return 'approved';
-  }
-  return 'pending';
+/** Local/staging escape hatch: publish without waiting for any verdict. */
+function autoApproveForced(): boolean {
+  return process.env.MEDIA_AUTO_APPROVE === 'true' || process.env.NODE_ENV === 'development';
 }
 
 function mediaError(code: string, error: string) {
@@ -85,6 +92,10 @@ function mediaItem(m: {
   status: string;
   contentType: string | null;
   sizeBytes: number | null;
+  aiVerdict?: string | null;
+  aiScore?: number | null;
+  aiReason?: string | null;
+  reviewDueAt?: Date | null;
 }) {
   return {
     id: m.id,
@@ -95,7 +106,62 @@ function mediaItem(m: {
     status: m.status,
     content_type: m.contentType,
     size_bytes: m.sizeBytes,
+    // Surfaced so the host dashboard can say "published in seconds" or "review by 14:35".
+    ai_verdict: m.aiVerdict ?? null,
+    ai_score: m.aiScore ?? null,
+    ai_reason: m.aiReason ?? null,
+    review_due_at: m.reviewDueAt?.toISOString() ?? null,
   };
+}
+
+/**
+ * Tells the host the moment moderation decides on its own, so content is never published (or
+ * rejected) silently. Push + e-mail, best effort: a notification failure must not fail an upload.
+ */
+async function notifyMediaDecision(params: {
+  userId: string;
+  propertyId: string;
+  mediaType: 'image' | 'video';
+  mediaUrl: string;
+  status: 'approved' | 'rejected';
+}) {
+  try {
+    const [property, user] = await Promise.all([
+      prisma.property.findUnique({ where: { id: params.propertyId }, select: { title: true } }),
+      prisma.user.findUnique({ where: { id: params.userId }, select: { email: true, name: true } }),
+    ]);
+    const title = property?.title ?? 'tu propiedad';
+    const approved = params.status === 'approved';
+
+    await sendPushToUser(params.userId, 'host_bookings', {
+      title: approved ? 'Contenido publicado / Content published' : 'Contenido rechazado / Content rejected',
+      body: approved
+        ? `${title}: tu ${params.mediaType} ya está visible.`
+        : `${title}: tu ${params.mediaType} no pasó la revisión automática.`,
+      data: { type: approved ? 'media_approved' : 'media_rejected' },
+    });
+
+    if (user?.email) {
+      if (approved) {
+        await sendMediaApprovedEmail({
+          email: user.email,
+          name: user.name,
+          propertyName: title,
+          mediaType: params.mediaType,
+          mediaUrl: params.mediaUrl,
+        });
+      } else {
+        await sendMediaRejectedEmail({
+          email: user.email,
+          name: user.name,
+          propertyName: title,
+          mediaType: params.mediaType,
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('[media] decision notification failed', { error: err instanceof Error ? err.name : 'unknown' });
+  }
 }
 
 export async function mediaRoutes(app: FastifyInstance) {
@@ -248,7 +314,6 @@ export async function mediaRoutes(app: FastifyInstance) {
 
       const uuid = randomUUID();
       const prefix = `properties/${propertyId}/${uuid}`;
-      const status = mediaStatus();
       const storedKeys: string[] = [];
       const store = async (key: string, body: Buffer, contentType: string) => {
         const publicUrl = await uploadBuffer(key, body, contentType);
@@ -270,6 +335,14 @@ export async function mediaRoutes(app: FastifyInstance) {
           url = await store(`${prefix}.${ext}`, fileBuffer, mimeType);
         }
 
+        // Moderation runs on the bytes we already hold: Google Vision when the API key is set,
+        // local structural rules otherwise. A "review" verdict keeps the 1-hour human deadline.
+        const moderation: ModerationResult = isImage
+          ? await moderateImageBuffer(fileBuffer, 'property')
+          : await moderateVideoBuffer(fileBuffer, mimeType);
+        const decided = moderation.verdict !== 'review';
+        const status = autoApproveForced() ? 'approved' : mediaStatusFor(moderation.verdict);
+
         const record = await prisma.propertyMedia.create({
           data: {
             propertyId,
@@ -280,8 +353,24 @@ export async function mediaRoutes(app: FastifyInstance) {
             status,
             contentType: mimeType,
             sizeBytes: fileBuffer.length,
+            aiVerdict: moderation.verdict,
+            aiScore: moderation.score,
+            aiLabels: moderation.labels.length > 0 ? moderation.labels : undefined,
+            aiReason: moderation.reason,
+            reviewedAt: decided || autoApproveForced() ? new Date() : null,
+            reviewDueAt: decided || autoApproveForced() ? null : reviewDeadline(),
           },
         });
+
+        if (status === 'approved' || status === 'rejected') {
+          void notifyMediaDecision({
+            userId,
+            propertyId,
+            mediaType: isImage ? 'image' : 'video',
+            mediaUrl: record.url,
+            status,
+          });
+        }
 
         return reply.status(201).send({ media: mediaItem(record) });
       } catch (err) {

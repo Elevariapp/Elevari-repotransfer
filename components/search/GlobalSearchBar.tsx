@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,20 +11,26 @@ interface CityOption {
   detail: string;
 }
 
-const ANYWHERE: CityOption = {
-  label: 'Cualquier lugar en Colombia',
-  value: '',
-  detail: 'Toda la colección Elevari',
-};
-
 export default function GlobalSearchBar({ className = '' }: { className?: string }) {
   const { t } = useI18n();
   const router = useRouter();
   const [city, setCity] = useState('');
-  const [cityLabel, setCityLabel] = useState(t('Common', 'search.destinationPlaceholder'));
+  const [keyword, setKeyword] = useState('');
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
+  const [guests, setGuests] = useState('');
   const [open, setOpen] = useState(false);
-  const [locations, setLocations] = useState<CityOption[]>([ANYWHERE]);
+  const [locations, setLocations] = useState<CityOption[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const anywhere: CityOption = {
+    label: t('Common', 'search.anywhere'),
+    value: '',
+    detail: t('Common', 'collection'),
+  };
+
+  // The visible label follows the selected city *and* the active language.
+  const cityLabel = city || t('Common', 'search.destinationPlaceholder');
 
   useEffect(() => {
     let cancelled = false;
@@ -32,127 +38,191 @@ export default function GlobalSearchBar({ className = '' }: { className?: string
       .getCities()
       .then(({ data }) => {
         if (cancelled) return;
-        const options: CityOption[] = [
-          ANYWHERE,
-          ...data.map((cityName) => ({
+        setLocations(
+          data.map((cityName) => ({
             label: cityName,
             value: cityName,
-            detail: 'Propiedades disponibles',
+            detail: t('Common', 'searchResultsFor'),
           })),
-        ];
-        setLocations(options);
+        );
         setLoading(false);
       })
       .catch(() => {
-        if (cancelled) return;
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, []);
-
-  const handleSelect = (value: string, label: string) => {
-    setCity(value);
-    setCityLabel(label.replace(' en Colombia', ''));
-    setOpen(false);
-  };
+  }, [t]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
+    if (keyword.trim()) params.set('q', keyword.trim());
     if (city.trim()) params.set('city', city.trim());
+    if (checkIn) params.set('check_in', checkIn);
+    if (checkOut) params.set('check_out', checkOut);
+    if (guests) params.set('guests', guests);
     router.push(`/properties${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
+  const clearAll = () => {
+    setCity('');
+    setKeyword('');
+    setCheckIn('');
+    setCheckOut('');
+    setGuests('');
+  };
+
   return (
-    <div className={`relative inline-block w-full ${className}`}>
-      <div className="relative w-full">
-        <input
-          type="text"
-          role="combobox"
-          aria-expanded={open}
-          aria-controls="elevari-global-search-location-list"
-          autoComplete="off"
-          value={cityLabel}
-          onChange={(e) => {
-            const typed = e.target.value;
-            setCityLabel(typed);
-            const match = locations.find(
-              (l) =>
-                l.label.toLowerCase().includes(typed.toLowerCase()) ||
-                typed.toLowerCase().includes(l.label.toLowerCase()),
-            );
-            if (match) {
-              setCity(match.value);
-            } else if (!typed) {
-              setCity('');
-            }
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 200)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSearch();
-            }
-          }}
-          className="w-full min-h-[44px] px-4 py-2 text-left text-white bg-white/10 border border-white/20 rounded-xl placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft focus:border-transparent transition-all"
-          placeholder={t('Common', 'search.destinationPlaceholder')}
-          disabled={loading}
-        />
-        {open && !loading && (
-          <ul
-            id="elevari-global-search-location-list"
-            role="listbox"
-            className="absolute z-50 mt-1 w-full max-h-[240px] overflow-y-auto rounded-xl border border-white/20 bg-white/10 shadow-xl text-white"
-          >
-            {locations.map((loc) => (
-              <li key={loc.value || 'all'} role="option">
+    <div className={`relative w-full ${className}`}>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="relative lg:col-span-2">
+          <label htmlFor="search-where" className="sr-only">
+            {t('Common', 'search.destinationPlaceholder')}
+          </label>
+          <input
+            id="search-where"
+            type="text"
+            role="combobox"
+            aria-expanded={open}
+            aria-controls="elevari-global-search-location-list"
+            autoComplete="off"
+            value={open ? city : cityLabel}
+            placeholder={t('Common', 'search.destinationPlaceholder')}
+            disabled={loading}
+            onChange={(e) => {
+              setCity(e.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 200)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
+            className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-left text-white placeholder-white/50 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft"
+          />
+          {open && !loading && (
+            <ul
+              id="elevari-global-search-location-list"
+              role="listbox"
+              className="absolute z-50 mt-1 max-h-[240px] w-full overflow-y-auto rounded-xl border border-white/20 bg-elevari-slate/95 text-white shadow-xl backdrop-blur"
+            >
+              <li role="option" aria-selected={!city}>
                 <button
                   type="button"
-                  onClick={() => handleSelect(loc.value, loc.label)}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/20 focus:outline-none focus:bg-white/20 transition-colors"
+                  onClick={() => {
+                    setCity('');
+                    setOpen(false);
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-white/20 focus:bg-white/20 focus:outline-none"
                 >
-                  <span className="font-semibold block">{loc.label}</span>
-                  <span className="text-xs text-white/70">{loc.detail}</span>
+                  <span className="block font-semibold">{anywhere.label}</span>
+                  <span className="text-xs text-white/70">{anywhere.detail}</span>
                 </button>
               </li>
-            ))}
-            <li role="separator" className="border-t border-white/10 my-1" aria-hidden="true" />
-            <li role="option">
-              <button
-                type="button"
-                onClick={() => {
-                  setCity('');
-                  setCityLabel(t('Common', 'search.anywhere'));
-                  setOpen(false);
-                }}
-                className="w-full text-left px-4 py-2.5 text-sm text-elevari-amber-soft hover:bg-white/10 focus:outline-none focus:bg-white/10 transition-colors"
-              >
-                {t('Common', 'search.clearSelection')}
-              </button>
-            </li>
-          </ul>
-        )}
-        {loading && open && (
-          <div
-            className="absolute z-50 mt-1 w-full max-h-[240px] overflow-y-auto rounded-xl border border-white/20 bg-white/10 shadow-xl text-white p-4 animate-pulse"
-            role="status"
-            aria-label="Cargando destinos"
+              {locations.map((loc) => (
+                <li key={loc.value} role="option" aria-selected={city === loc.value}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCity(loc.value);
+                      setOpen(false);
+                    }}
+                    className="w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-white/20 focus:bg-white/20 focus:outline-none"
+                  >
+                    <span className="block font-semibold">{loc.label}</span>
+                    <span className="text-xs text-white/70">{loc.detail}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {loading && open && (
+            <div
+              role="status"
+              className="absolute z-50 mt-1 w-full animate-pulse rounded-xl border border-white/20 bg-white/10 p-4 text-white shadow-xl"
+            >
+              <p className="text-xs text-white/70">{t('Common', 'searchLoadingDestinations')}</p>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="search-keyword" className="sr-only">
+            {t('Common', 'searchKeywordPlaceholder')}
+          </label>
+          <input
+            id="search-keyword"
+            type="search"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
+            placeholder={t('Common', 'searchKeywordPlaceholder')}
+            className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-white placeholder-white/50 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft"
+          />
+        </div>
+
+
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            type="date"
+            value={checkIn}
+            onChange={(e) => setCheckIn(e.target.value)}
+            aria-label={t('Common', 'checkIn')}
+            className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/10 px-2 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft"
+          />
+          <input
+            type="date"
+            value={checkOut}
+            min={checkIn || undefined}
+            onChange={(e) => setCheckOut(e.target.value)}
+            aria-label={t('Common', 'checkOut')}
+            className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/10 px-2 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft"
+          />
+        </div>
+
+        <div>
+          <select
+            value={guests}
+            onChange={(e) => setGuests(e.target.value)}
+            aria-label={t('Common', 'searchGuests')}
+            className="min-h-[44px] w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft"
           >
-            <p className="text-xs text-white/70">Cargando destinos disponibles…</p>
-          </div>
-        )}
+            <option value="">{t('Common', 'searchGuests')}</option>
+            {[1, 2, 3, 4, 5, 6, 8, 10, 12].map((count) => (
+              <option key={count} value={count} className="text-elevari-slate">
+                {count}+ {t('Common', 'guests')}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <button
-        type="button"
-        onClick={handleSearch}
-        disabled={loading}
-        className="mt-2 w-full min-h-[44px] rounded-xl bg-elevari-amber-soft px-4 py-2 text-sm font-semibold text-elevari-slate hover:bg-elevari-amber focus:outline-none focus:ring-2 focus:ring-elevari-amber focus:ring-offset-2 focus:ring-offset-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {t('Common', 'search.search')}
-      </button>
+
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          onClick={handleSearch}
+          className="min-h-[44px] flex-1 rounded-xl bg-elevari-amber-soft px-4 py-2 text-sm font-semibold text-elevari-slate transition-all hover:bg-elevari-amber focus:outline-none focus:ring-2 focus:ring-elevari-amber focus:ring-offset-2 focus:ring-offset-white/10"
+        >
+          {t('Common', 'search.search')}
+        </button>
+        <button
+          type="button"
+          onClick={clearAll}
+          className="min-h-[44px] rounded-xl border border-white/25 px-4 text-sm font-medium text-white/80 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-elevari-amber-soft"
+        >
+          {t('Common', 'searchClear')}
+        </button>
+      </div>
     </div>
   );
 }
+

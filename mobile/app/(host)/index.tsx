@@ -4,6 +4,7 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { Banner, ErrorState, LoadingState } from '@/components/States';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { colors, spacing, typography } from '@/lib/design-tokens';
 import { fetchHostProperties } from '@/lib/host';
 import { useAppStore } from '@/lib/store';
@@ -59,6 +60,21 @@ export default function HostIndexScreen() {
       ) : null}
 
       <Card padded style={styles.note}>
+        <View style={styles.verifyRow}>
+          <Text style={styles.noteTitle}>Verificación de identidad</Text>
+          <VerifiedBadge verified={user?.id_verified} />
+        </View>
+        <Text style={styles.noteBody}>
+          {user?.id_verified
+            ? 'Tu insignia azul está activa: los huéspedes ven que tu identidad fue confirmada.'
+            : 'Documento + selfie, revisión automática y máximo 1 hora. La insignia azul genera más reservas.'}
+        </Text>
+        <Button variant="secondary" fullWidth onPress={() => router.push('/(host)/verify')}>
+          {user?.id_verified ? 'Ver mi verificación' : 'Verificar mi identidad'}
+        </Button>
+      </Card>
+
+      <Card padded style={styles.note}>
         <Text style={styles.noteTitle}>Calendario y pagos</Text>
         <Text style={styles.noteBody}>
           Las reservas de tus propiedades las ves en la pestaña Reservas. El calendario y los pagos los gestionas desde
@@ -92,6 +108,7 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: typography.sizes.caption, color: colors.muted, marginTop: spacing.xs },
   actions: { gap: spacing.sm, marginBottom: spacing.lg },
   note: { gap: spacing.sm },
+  verifyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
   noteTitle: { fontSize: typography.sizes.body, fontWeight: typography.weights.semibold, color: colors.ink },
   noteBody: { fontSize: typography.sizes.caption, lineHeight: 19, color: colors.slate, marginBottom: spacing.xs },
 });

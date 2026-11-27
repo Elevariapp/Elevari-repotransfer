@@ -6,6 +6,7 @@ import commonEs from '@/app/messages/Common/es.json';
 import commonEn from '@/app/messages/Common/en.json';
 import legalEs from '@/app/messages/Legal/es.json';
 import legalEn from '@/app/messages/Legal/en.json';
+import { resolveMessage } from '@/lib/i18n-resolve';
 
 type Language = { code: string; label: string; native: string };
 
@@ -87,17 +88,7 @@ export function I18nProvider({ children, initialLanguage }: { children: ReactNod
   const t = useCallback((section: 'Common' | 'Legal', key: string): string => {
     const messages = MESSAGES[language]?.[section];
     if (!messages) return key;
-
-    const parts = key.split('.');
-    let value: unknown = messages;
-    for (const part of parts) {
-      if (value && typeof value === 'object' && part in value) {
-        value = (value as Record<string, unknown>)[part];
-      } else {
-        return key;
-      }
-    }
-    return typeof value === 'string' ? value : key;
+    return resolveMessage(messages, section, key) ?? key;
   }, [language]);
 
   const value: I18nContextType = {

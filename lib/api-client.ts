@@ -84,6 +84,19 @@ export interface PropertyListItem {
   review_count: number;
   media?: unknown[];
   reviews?: Array<{ id: string; rating: number; comment?: string | null }>;
+  /** Public host identity: drives the blue verified badge. */
+  host?: { name: string | null; verified: boolean } | null;
+}
+
+/** Answer of POST /auth/verify-host: the machine verdict plus the promised deadline. */
+export interface HostVerificationResult {
+  verification_id: string;
+  status: 'verified' | 'pending' | 'rejected';
+  verdict: 'approved' | 'rejected' | 'review';
+  id_verified: boolean;
+  sla_minutes: number;
+  review_by: string | null;
+  message: string;
 }
 
 export interface BookingQuote {
@@ -276,17 +289,41 @@ export const wanaApi = {
   /** Returns a fresh token: the role travels inside the session, so the old one would still say "guest". */
   becomeHost: () => request<{ token: string; user: AuthUser }>('/api/v1/auth/become-host', { method: 'POST', auth: true }),
 
+  /**
+   * Submits identity verification. Multipart when files are provided (the API reads the bytes
+   * directly, so Vision decides in seconds); JSON URLs are kept for older clients.
+   */
   verifyHost: (body: {
-    id_document_url: string;
-    selfie_url: string;
     id_number: string;
     full_name: string;
-  }) =>
-    request<{ verification_id: string; status: string; message: string }>('/api/v1/auth/verify-host', {
+    document?: File;
+    selfie?: File;
+    id_document_url?: string;
+    selfie_url?: string;
+  }) => {
+    if (body.document && body.selfie) {
+      const form = new FormData();
+      form.set('id_number', body.id_number);
+      form.set('full_name', body.full_name);
+      form.set('document', body.document);
+      form.set('selfie', body.selfie);
+      return request<HostVerificationResult>('/api/v1/auth/verify-host', {
+        method: 'POST',
+        auth: true,
+        body: form,
+      });
+    }
+    return request<HostVerificationResult>('/api/v1/auth/verify-host', {
       method: 'POST',
       auth: true,
-      body: JSON.stringify(body),
-    }),
+      body: JSON.stringify({
+        id_document_url: body.id_document_url ?? '',
+        selfie_url: body.selfie_url ?? '',
+        id_number: body.id_number,
+        full_name: body.full_name,
+      }),
+    });
+  },
 
   verificationStatus: () =>
     request<{
@@ -294,6 +331,11 @@ export const wanaApi = {
       id_verified_at: string | null;
       verification_id: string | null;
       verification_status: string | null;
+      verdict?: 'approved' | 'rejected' | 'review' | null;
+      submitted_at?: string | null;
+      reviewed_at?: string | null;
+      sla_minutes?: number;
+      review_by?: string | null;
     }>('/api/v1/auth/verification-status', { auth: true }),
 
   forgotPassword: (email: string) =>
@@ -389,6 +431,7 @@ export const wanaApi = {
     request<{ data: string[] }>('/api/v1/properties/cities', { next: { revalidate: 300 } }),
 
   listProperties: (params?: {
+    q?: string;
     city?: string;
     guests?: number;
     check_in?: string;
@@ -401,6 +444,7 @@ export const wanaApi = {
     offset?: number;
   }) => {
     const q = new URLSearchParams();
+    if (params?.q) q.set('q', params.q);
     if (params?.city) q.set('city', params.city);
     if (params?.guests) q.set('guests', String(params.guests));
     if (params?.check_in) q.set('check_in', params.check_in);

@@ -16,6 +16,7 @@ import { getServerLanguage, tServer } from '@/lib/i18n-server';
 export const revalidate = 60;
 
 type SearchParams = {
+  q?: string;
   city?: string;
   guests?: string;
   check_in?: string;
@@ -45,6 +46,7 @@ export default async function PropertiesPage({
 
   try {
     const { data, meta } = await wanaApi.listProperties({
+      q: params.q,
       city: params.city,
       guests: params.guests,
       check_in: params.checkIn,
@@ -100,6 +102,7 @@ export default async function PropertiesPage({
 
             {hasFilters && (
               <p className="mt-4 text-sm text-white/85">
+                {params.q && <span className="font-medium text-white">“{params.q}”</span>}
                 {params.city && <span className="font-medium text-white">{params.city}</span>}
                 {params.guests && <span className="ml-2">· {params.guests} {tServer('Common', 'guests', language)}</span>}
                 {params.checkIn && params.checkOut && (

@@ -1,6 +1,7 @@
 import {
   S3Client,
   PutObjectCommand,
+  GetObjectCommand,
   DeleteObjectCommand,
   HeadBucketCommand,
   CreateBucketCommand,
@@ -106,6 +107,65 @@ export async function deleteObject(key: string): Promise<void> {
   const { bucket } = getConfig();
   const s3 = getS3Client();
   await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+}
+
+/**
+ * Bucket for sensitive objects (host identity documents). `deploy/scripts/storage-hardening.sh`
+ * creates it with `mc anonymous set none`, so nothing stored here is reachable without the API.
+ */
+function privateBucket(): string {
+  return process.env.MINIO_PRIVATE_BUCKET ?? 'wana-private';
+}
+
+export async function ensurePrivateBucket(): Promise<void> {
+  const s3 = getS3Client();
+  const Bucket = privateBucket();
+  try {
+    await s3.send(new HeadBucketCommand({ Bucket }));
+  } catch {
+    try {
+      await s3.send(new CreateBucketCommand({ Bucket }));
+    } catch (err) {
+      // Racing another instance that created it first is fine.
+      if (!/BucketAlreadyOwnedByYou|BucketAlreadyExists/i.test(String(err))) {
+        throw new StorageError(err);
+      }
+    }
+  }
+}
+
+/** Stores an identity document. Returns the object key, never a public URL. */
+export async function uploadPrivateBuffer(key: string, body: Buffer, contentType: string): Promise<string> {
+  const s3 = getS3Client();
+  const Bucket = privateBucket();
+  const put = () => s3.send(new PutObjectCommand({ Bucket, Key: key, Body: body, ContentType: contentType }));
+
+  try {
+    await put();
+  } catch (err) {
+    if (!/NoSuchBucket/i.test(String(err))) throw new StorageError(err);
+    // The bucket is normally created by storage-hardening.sh; create it on a fresh install.
+    await ensurePrivateBucket();
+    try {
+      await put();
+    } catch (retryErr) {
+      throw new StorageError(retryErr);
+    }
+  }
+  return key;
+}
+
+/** Reads a private object for an admin review. */
+export async function downloadPrivateObject(key: string): Promise<Buffer> {
+  const s3 = getS3Client();
+  try {
+    const result = await s3.send(new GetObjectCommand({ Bucket: privateBucket(), Key: key }));
+    const bytes = await result.Body?.transformToByteArray();
+    if (!bytes) throw new Error('empty object');
+    return Buffer.from(bytes);
+  } catch (err) {
+    throw new StorageError(err);
+  }
 }
 
 /**

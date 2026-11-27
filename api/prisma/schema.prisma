@@ -95,6 +95,17 @@ model User {
   idVerifiedAt     DateTime?    @map("id_verified_at")
   verificationId   String?      @map("verification_id")
   verificationStatus String?    @map("verification_status") // 'pending' | 'verified' | 'rejected' | 'expired'
+  /// Everything below feeds the automated (AI) review and the 1-hour human SLA.
+  verificationDocUrl     String?   @map("verification_doc_url")
+  verificationSelfieUrl  String?   @map("verification_selfie_url")
+  /// Stored so an admin can compare it with the document; never returned by the API.
+  verificationIdNumber   String?   @map("verification_id_number")
+  verificationSubmittedAt DateTime? @map("verification_submitted_at")
+  verificationReviewedAt  DateTime? @map("verification_reviewed_at")
+  /// Machine verdict: 'approved' | 'rejected' | 'review'
+  verificationVerdict    String?   @map("verification_verdict")
+  verificationScore      Float?    @map("verification_score")
+  verificationReason     String?   @map("verification_reason")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -157,11 +168,19 @@ model PropertyMedia {
   status       MediaStatus @default(pending)
   contentType  String?     @map("content_type")
   sizeBytes    Int?        @map("size_bytes")
+  /// Automated (AI) moderation. `reviewDueAt` is the 1-hour human SLA deadline.
+  aiVerdict    String?     @map("ai_verdict") // 'approved' | 'rejected' | 'review'
+  aiScore      Float?      @map("ai_score")
+  aiLabels     Json?       @map("ai_labels")
+  aiReason     String?     @map("ai_reason")
+  reviewedAt   DateTime?   @map("reviewed_at")
+  reviewDueAt  DateTime?   @map("review_due_at")
   createdAt    DateTime    @default(now()) @map("created_at")
 
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId, sortOrder])
+  @@index([status, reviewDueAt])
   @@map("property_media")
 }
 

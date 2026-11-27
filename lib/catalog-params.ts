@@ -35,6 +35,8 @@ const MAX_LIMIT = 48;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export type CatalogParams = {
+  /** Free-text search: title, description or city. */
+  q?: string;
   city?: string;
   guests?: number;
   checkIn?: string;
@@ -91,6 +93,7 @@ export function parseCatalogParams(input: RawParams): CatalogParams {
   const offset = positiveInt(first(input.offset), 10_000) ?? 0;
 
   return {
+    q: first(input.q)?.trim().slice(0, 120) || undefined,
     city: first(input.city)?.trim() || undefined,
     guests: positiveInt(first(input.guests), 20),
     checkIn: validDate(first(input.check_in)),
@@ -107,6 +110,7 @@ export function parseCatalogParams(input: RawParams): CatalogParams {
 /** Canonical API query (snake_case, stable ordering). */
 export function toApiQuery(params: CatalogParams): URLSearchParams {
   const q = new URLSearchParams();
+  if (params.q) q.set('q', params.q);
   if (params.city) q.set('city', params.city);
   if (params.guests) q.set('guests', String(params.guests));
   if (params.checkIn) q.set('check_in', params.checkIn);
@@ -147,6 +151,7 @@ export function pricePreset(params: CatalogParams): string {
 
 export function activeFilterCount(params: CatalogParams): number {
   let count = 0;
+  if (params.q) count += 1;
   if (params.city) count += 1;
   if (params.guests) count += 1;
   if (params.checkIn && params.checkOut) count += 1;
