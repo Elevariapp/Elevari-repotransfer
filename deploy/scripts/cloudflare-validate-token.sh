@@ -15,6 +15,15 @@ set -euo pipefail
 TOKEN="${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is required}"
 ZONE_ID="${CLOUDFLARE_ZONE_ID:?CLOUDFLARE_ZONE_ID is required}"
 
+# Secrets pasted from a browser or a file often carry a trailing newline or a
+# stray space, which turns a valid zone id into an "Invalid zone identifier".
+TOKEN="$(printf '%s' "${TOKEN}" | tr -d '[:space:]')"
+ZONE_ID="$(printf '%s' "${ZONE_ID}" | tr -d '[:space:]')"
+
+if ! printf '%s' "${ZONE_ID}" | grep -qE '^[0-9a-f]{32}$'; then
+  echo "WARN CLOUDFLARE_ZONE_ID is not 32 lowercase hex characters, so it is probably not a zone id"
+fi
+
 echo "-> Validating Cloudflare API token for zone ${ZONE_ID}"
 
 # Step 1: is the token itself active? This endpoint works for any API token,
@@ -64,5 +73,32 @@ if errors:
         print("Cloudflare API error %s: %s" % (err.get("code"), err.get("message")))
 else:
     print("Cloudflare API reported success=false:", raw[:500])
+'
+
+# The lookup failed even though the token is active: either the token lacks
+# permissions for that zone or CLOUDFLARE_ZONE_ID is wrong. Zone ids are not
+# secret, so list the zones this token can see to show the value to use.
+echo "   -> Zones visible to this token (use the id for ${CLOUDFLARE_DOMAIN:-elevari.live}):"
+zones=$(curl -sS --max-time 30 \
+  -H "Authorization: Bearer ${TOKEN}" \
+  "https://api.cloudflare.com/client/v4/zones?per_page=50" 2>&1 || true)
+printf '%s' "$zones" | python3 -c '
+import sys, json
+try:
+    data = json.load(sys.stdin)
+except ValueError:
+    print("      (Cloudflare did not return JSON)")
+    raise SystemExit(0)
+if not data.get("success"):
+    errors = data.get("errors") or []
+    msg = ", ".join("%s: %s" % (e.get("code"), e.get("message")) for e in errors) or "unknown error"
+    print("      (cannot list zones: %s)" % msg)
+    print("      Token needs Zone -> Zone Read at least.")
+    raise SystemExit(0)
+rows = data.get("result") or []
+if not rows:
+    print("      (this token cannot see any zone)")
+for zone in rows:
+    print("      %s -> %s" % (zone.get("name"), zone.get("id")))
 '
 exit 1
