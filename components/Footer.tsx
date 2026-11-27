@@ -1,32 +1,37 @@
+'use client';
+
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 import WhatsAppLink from '@/components/whatsapp/WhatsAppLink';
+import { useI18n } from '@/components/i18n/useI18n';
 import { whatsappContext } from '@/lib/whatsapp';
 
-const exploreLinks = [
-  { href: '/properties', label: 'Colección completa' },
-  { href: '/properties/glamping-wana', label: 'Glamping destacado' },
-  { href: '/#buscar', label: 'Buscar fechas' },
-  { href: '/legal/faq', label: 'Preguntas frecuentes' },
-  { href: '/app', label: 'Instalar la app' },
-] as const;
-
-const hostLinks = [
-  { href: '/host/add-property', label: 'Publicar espacio' },
-  { href: '/host', label: 'Panel anfitrión' },
-] as const;
-
-const legalLinks = [
-  { href: '/legal/privacy', label: 'Privacidad' },
-  { href: '/legal/terms', label: 'Términos' },
-  { href: '/legal/refund', label: 'Reembolsos' },
-  { href: '/legal/account-deletion', label: 'Eliminar mi cuenta' },
-  { href: '/legal/content-moderation', label: 'Moderación de contenido' },
-  { href: '/legal/contact', label: 'Contacto' },
-  { href: '/legal/accessibility', label: 'Accesibilidad' },
-] as const;
-
 export default function Footer() {
+  const { t } = useI18n();
+
+  const exploreLinks = [
+    { href: '/properties', label: t('Common', 'footer.linkCollection') },
+    { href: '/properties/glamping-wana', label: t('Common', 'footer.linkFeatured') },
+    { href: '/#buscar', label: t('Common', 'footer.linkSearchDates') },
+    { href: '/legal/faq', label: t('Common', 'legal.faq') },
+    { href: '/app', label: t('Common', 'footer.linkInstallApp') },
+  ];
+
+  const hostLinks = [
+    { href: '/host/add-property', label: t('Common', 'footer.linkPublish') },
+    { href: '/host', label: t('Common', 'footer.linkHostPanel') },
+  ];
+
+  const legalLinks = [
+    { href: '/legal/privacy', label: t('Common', 'legal.privacy') },
+    { href: '/legal/terms', label: t('Common', 'legal.terms') },
+    { href: '/legal/refund', label: t('Common', 'legal.refund') },
+    { href: '/legal/account-deletion', label: t('Common', 'legal.accountDeletion') },
+    { href: '/legal/content-moderation', label: t('Common', 'legal.contentModeration') },
+    { href: '/legal/contact', label: t('Common', 'legal.contact') },
+    { href: '/legal/accessibility', label: t('Common', 'legal.accessibility') },
+  ];
+
   return (
     <footer className="elevari-footer mt-20">
       <div className="elevari-footer-glow" aria-hidden />
@@ -35,22 +40,21 @@ export default function Footer() {
           <div className="lg:col-span-4">
             <Logo onDark />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/80">
-              Plataforma curada de glamping en Colombia. Reserva con confianza, precios claros y
-              experiencias que compiten con los mejores marketplaces del mundo.
+              {t('Common', 'footer.tagline')}
             </p>
             <p className="mt-4 text-xs font-medium tracking-wide text-elevari-amber/90">
-              Sutatausa · Cucunubá · Sabana de Bogotá
+              {t('Common', 'footer.locations')}
             </p>
             <WhatsAppLink
               tone="onDark"
-              label="Escríbenos por WhatsApp"
+              label={t('Common', 'footer.writeWhatsapp')}
               message={whatsappContext('/').message}
               className="mt-3 min-h-11 text-[0.9375rem]"
             />
           </div>
 
           <div className="lg:col-span-2 lg:col-start-6">
-            <p className="elevari-footer-heading">Explorar</p>
+            <p className="elevari-footer-heading">{t('Common', 'footer.explore')}</p>
             <ul className="mt-4 space-y-3">
               {exploreLinks.map((link) => (
                 <li key={link.href}>
@@ -63,7 +67,7 @@ export default function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <p className="elevari-footer-heading">Anfitriones</p>
+            <p className="elevari-footer-heading">{t('Common', 'footer.hosts')}</p>
             <ul className="mt-4 space-y-3">
               {hostLinks.map((link) => (
                 <li key={link.href}>
@@ -75,7 +79,7 @@ export default function Footer() {
               <li>
                 <WhatsAppLink
                   tone="onDark"
-                  label="Soporte WhatsApp"
+                  label={t('Common', 'footer.support')}
                   message={whatsappContext('/host').message}
                   className="text-[0.9375rem]"
                 />
@@ -84,26 +88,26 @@ export default function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <p className="elevari-footer-heading">Moderación</p>
+            <p className="elevari-footer-heading">{t('Common', 'footer.moderation')}</p>
             <ul className="mt-4 space-y-3 text-sm text-white/80">
               <li className="space-y-1">
-                <p className="font-medium text-white">Fotos y videos</p>
-                <p className="text-xs text-white/60">Revisados y aprobados en hasta 1 hora.</p>
+                <p className="font-medium text-white">{t('Common', 'footer.photosVideos')}</p>
+                <p className="text-xs text-white/60">{t('Common', 'footer.photosVideosDetail')}</p>
               </li>
               <li className="space-y-1">
-                <p className="font-medium text-white">Descripciones y propiedades</p>
-                <p className="text-xs text-white/60">Revisadas antes de publicarse públicamente.</p>
+                <p className="font-medium text-white">{t('Common', 'footer.descriptions')}</p>
+                <p className="text-xs text-white/60">{t('Common', 'footer.descriptionsDetail')}</p>
               </li>
               <li>
                 <Link href="/legal/content-moderation" className="elevari-footer-link text-xs">
-                  Ver política completa
+                  {t('Common', 'footer.fullPolicy')}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div className="lg:col-span-2">
-            <p className="elevari-footer-heading">Legal</p>
+            <p className="elevari-footer-heading">{t('Common', 'footer.legalHeading')}</p>
             <ul className="mt-4 space-y-3">
               {legalLinks.map((link) => (
                 <li key={link.href}>
@@ -118,17 +122,17 @@ export default function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
           <p className="text-sm text-white/65">
-            © {new Date().getFullYear()} Elevari. Todos los derechos reservados.
+            © {new Date().getFullYear()} Elevari. {t('Common', 'footer.rights')}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
             <Link href="/auth/login" className="elevari-footer-link">
-              Iniciar sesión
+              {t('Common', 'nav.login')}
             </Link>
             <Link href="/auth/register" className="elevari-footer-link">
-              Crear cuenta
+              {t('Common', 'nav.register')}
             </Link>
             <span className="text-white/45">·</span>
-            <span className="text-white/55">Colombia</span>
+            <span className="text-white/55">{t('Common', 'footer.country')}</span>
           </div>
         </div>
       </div>

@@ -2,25 +2,27 @@ import { test, expect } from '@playwright/test';
 
 test.use({ baseURL: 'http://localhost:3001' });
 
-test('LanguageSwitch changes language to English on click', async ({ page }) => {
+/**
+ * The switcher used to change `<html lang>` while the page stayed in Spanish (the message lookup
+ * read keys at the wrong nesting level and server components were never refreshed). This asserts
+ * the actual copy changes, which is what "translating the page" means.
+ */
+test('LanguageSwitch really translates the page to English and back', async ({ page }) => {
   await page.goto('/');
 
-  // Verify default language is Spanish
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+  await expect(page.getByText('Escapes naturales, sin complicaciones')).toBeVisible();
 
-  // Find and click the language switcher button
-  const languageSwitch = page.locator('button[aria-label="Cambiar idioma / Change language"]');
-  await expect(languageSwitch).toBeVisible();
-  await languageSwitch.click();
+  const switcher = page.getByTestId('language-switch').locator('button').first();
+  await switcher.click();
+  await page.getByRole('option', { name: 'English' }).click();
 
-  // Verify dropdown is open and shows English option
-  const englishOption = page.locator('button:has-text("English")');
-  await expect(englishOption).toBeVisible();
-
-  // Click English option
-  await englishOption.click();
-
-  // Verify language changed to English
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await expect(page.locator('button[aria-label="Cambiar idioma / Change language"]')).toContainText('English');
+  await expect(page.getByText('Natural escapes, made simple')).toBeVisible();
+  await expect(page.getByText('Escapes naturales, sin complicaciones')).toHaveCount(0);
+
+  // And back to Spanish, so the choice is not one-way.
+  await page.getByTestId('language-switch').locator('button').first().click();
+  await page.getByRole('option', { name: 'Español' }).click();
+  await expect(page.getByText('Escapes naturales, sin complicaciones')).toBeVisible();
 });
