@@ -147,13 +147,15 @@ export async function propertyRoutes(app: FastifyInstance) {
     const where: Prisma.PropertyWhereInput = {
       status: 'published',
       ...(city ? { city: { contains: city, mode: 'insensitive' } } : {}),
-      // Free text: "domo", "Guatavita", "glamping con fogata" all match something meaningful.
+      // Free text: "domo", "Guatavita", "fogata" all match something meaningful.
       ...(q
         ? {
             OR: [
               { title: { contains: q, mode: 'insensitive' } },
               { description: { contains: q, mode: 'insensitive' } },
               { city: { contains: q, mode: 'insensitive' } },
+              // Amenities live in a JSON array; string_contains lets "wifi" or "fogata" match.
+              { amenities: { string_contains: q } },
             ],
           }
         : {}),
