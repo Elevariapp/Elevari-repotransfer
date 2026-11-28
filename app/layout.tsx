@@ -67,8 +67,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </a>
         <MarketingScripts />
         <ObservabilityProvider />
-        <I18nProvider initialLanguage={language}>{children}</I18nProvider>
-        <ConditionalFooter />
+        <I18nProvider initialLanguage={language}>
+          {children}
+          {/* Inside the provider on purpose: the footer is a client component and reads the
+              active language through useI18n(); as a sibling it rendered raw keys. */}
+          <ConditionalFooter />
+        </I18nProvider>
         <FloatingActions />
         <Toaster
           position="top-center"
