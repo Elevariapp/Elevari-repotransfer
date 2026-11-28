@@ -203,11 +203,16 @@ export async function propertyRoutes(app: FastifyInstance) {
       orderBy: { _count: { city: 'desc' } },
     });
 
-    return {
-      data: cities
-        .map((row) => row.city)
-        .filter((city): city is string => typeof city === 'string' && city.trim().length > 0),
-    };
+    // Collapse case variants ("SUTATAUSA" / "Sutatausa") into one destination.
+    const seen = new Map<string, string>();
+    for (const row of cities) {
+      const raw = typeof row.city === 'string' ? row.city.trim() : '';
+      if (!raw) continue;
+      const key = raw.toLowerCase();
+      if (!seen.has(key)) seen.set(key, raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase());
+    }
+
+    return { data: [...seen.values()] };
   });
 
   app.get('/properties/:slug', async (request, reply) => {

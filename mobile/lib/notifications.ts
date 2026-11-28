@@ -101,13 +101,30 @@ export async function registerForPushNotifications(userId: string): Promise<void
     if (!(await ensurePermission(Notifications))) return;
 
     const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
-    const registrationKey = `${userId}:${token}`;
-    if (!token || registrationKey === lastRegistration) return;
+    if (!token) return;
 
-    await api.post('/notifications/push-token', { token, platform: Platform.OS });
+    // Register BOTH transports. Expo push covers Expo Go and store builds; the bare APK built in
+    // CI is served by our own FCM transport (api/src/lib/fcm.ts), which needs the native device
+    // token. Whichever path delivers first wins, so a device never silently has no notifications.
+    const tokens = new Set<string>([token]);
+    if (Platform.OS === 'android') {
+      try {
+        const deviceToken = await Notifications.getDevicePushTokenAsync();
+        if (typeof deviceToken?.data === 'string' && deviceToken.data) tokens.add(deviceToken.data);
+      } catch {
+        // Firebase missing from this build: Expo push remains the transport.
+      }
+    }
+
+    const registrationKey = `${userId}:${[...tokens].sort().join(',')}`;
+    if (registrationKey === lastRegistration) return;
+
+    for (const value of tokens) {
+      await api.post('/notifications/push-token', { token: value, platform: Platform.OS });
+    }
     lastRegistration = registrationKey;
     // Remembered so that signing out can stop pushes for this device.
-    await SecureStore.setItemAsync(PUSH_TOKEN_KEY, token).catch(() => undefined);
+    await SecureStore.setItemAsync(PUSH_TOKEN_KEY, JSON.stringify([...tokens])).catch(() => undefined);
   } catch {
     // Push registration must never surface errors to the user.
   }
@@ -119,9 +136,20 @@ export async function registerForPushNotifications(userId: string): Promise<void
 export async function unregisterPushToken(): Promise<void> {
   lastRegistration = null;
   try {
-    const token = await SecureStore.getItemAsync(PUSH_TOKEN_KEY);
-    if (!token) return;
-    await api.post('/notifications/push-token/unregister', { token }, { timeout: UNREGISTER_TIMEOUT_MS });
+    const stored = await SecureStore.getItemAsync(PUSH_TOKEN_KEY);
+    if (!stored) return;
+    // Stored as a JSON array (Expo token + native FCM token); tolerate the old single-token value.
+    const tokens: string[] = (() => {
+      try {
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : [];
+      } catch {
+        return [stored];
+      }
+    })();
+    for (const token of tokens) {
+      await api.post('/notifications/push-token/unregister', { token }, { timeout: UNREGISTER_TIMEOUT_MS });
+    }
     await SecureStore.deleteItemAsync(PUSH_TOKEN_KEY);
   } catch {
     // Non-critical.

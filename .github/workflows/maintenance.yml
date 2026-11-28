@@ -1,0 +1,102 @@
+---
+name: Maintenance
+
+# One-click data repairs that need to run inside the deployed API container (its own DATABASE_URL),
+# so nobody has to hold database credentials or SSH keys locally.
+#
+# report            -> read-only: what is stuck and why
+# unblock-listings  -> approve pending media, publish drafts with photos, optionally verify hosts
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'What to do'
+        type: choice
+        options:
+          - report
+          - unblock-listings
+        default: report
+      approve_pending_media:
+        description: 'Approve media left in the old pending queue'
+        type: boolean
+        default: true
+      publish_drafts:
+        description: 'Publish drafts that have at least one photo'
+        type: boolean
+        default: true
+      verify_hosts:
+        description: 'Comma-separated host e-mails to mark verified (optional)'
+        type: string
+        required: false
+        default: ''
+
+concurrency:
+  group: maintenance
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: Run maintenance inside the API container
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HETZNER_IP: ${{ secrets.HETZNER_IP || vars.HETZNER_IP }}
+      HETZNER_USER: ${{ secrets.HETZNER_USER || vars.HETZNER_USER }}
+      HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+      ACTION: ${{ inputs.action }}
+      APPROVE_MEDIA: ${{ inputs.approve_pending_media }}
+      PUBLISH_DRAFTS: ${{ inputs.publish_drafts }}
+      VERIFY_HOSTS: ${{ inputs.verify_hosts }}
+    steps:
+      - name: Check deploy secrets
+        run: |
+          missing=""
+          for v in HETZNER_IP HETZNER_USER HETZNER_SSH_KEY; do
+            [ -z "${!v}" ] && missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error title=Deploy secrets missing::Add repository secret(s):$missing"
+            exit 1
+          fi
+
+      - name: Run inside the API container
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ env.HETZNER_IP }}
+          username: ${{ env.HETZNER_USER }}
+          key: ${{ env.HETZNER_SSH_KEY }}
+          command_timeout: 15m
+          envs: ACTION,APPROVE_MEDIA,PUBLISH_DRAFTS,VERIFY_HOSTS
+          script: |
+            set -euo pipefail
+            cd /opt/elevari
+
+            args=""
+            if [ "$ACTION" = "unblock-listings" ]; then
+              args="--apply"
+            fi
+            if [ "$APPROVE_MEDIA" = "true" ]; then
+              args="$args --approve-pending-media"
+            fi
+            if [ "$PUBLISH_DRAFTS" = "true" ]; then
+              args="$args --publish-drafts"
+            fi
+            if [ -n "${VERIFY_HOSTS:-}" ]; then
+              args="$args --verify-hosts $VERIFY_HOSTS"
+            fi
+
+            echo "→ fix-stuck-listings $args"
+            docker compose -f docker-compose.prod.yml exec -T api \
+              node dist/scripts/fix-stuck-listings.js $args
+
+      - name: Verify the public catalog
+        run: |
+          echo "— properties —"
+          curl -s "https://elevari.live/api/v1/properties?limit=3" | head -c 600
+          echo
+          echo "— cities —"
+          curl -s "https://elevari.live/api/v1/properties/cities"
+          echo
