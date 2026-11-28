@@ -309,4 +309,51 @@ export async function hostRoutes(app: FastifyInstance) {
       });
     },
   );
+
+  /**
+   * Publishes a draft so guests can find it.
+   *
+   * Deliberately NOT gated on identity verification: the listing can go live while the blue badge
+   * is still under review (the badge only renders when `id_verified` is true). The only requirement
+   * is at least one photo that moderation did not reject, so a listing never appears empty.
+   */
+  app.post(
+    '/host/properties/:id/publish',
+    { preHandler: [authenticate, requireRoles(['host', 'admin'])] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const property = await prisma.property.findFirst({
+        where: { id, ...(request.auth!.role === 'admin' ? {} : { hostId: request.auth!.sub }) },
+        select: { id: true },
+      });
+      if (!property) return reply.status(404).send(apiErrorBody(ApiErrorCode.PROPERTY_NOT_FOUND));
+
+      const usableMedia = await prisma.propertyMedia.count({
+        where: { propertyId: id, status: { in: ['approved', 'pending'] } },
+      });
+      if (usableMedia === 0) {
+        return reply.status(422).send({
+          error: 'Sube al menos una foto antes de publicar.',
+          code: 'MEDIA_REQUIRED',
+        });
+      }
+
+      const updated = await prisma.property.update({
+        where: { id },
+        data: { status: 'published' },
+        select: { id: true, status: true, slug: true },
+      });
+
+      const host = await prisma.user.findUnique({
+        where: { id: request.auth!.sub },
+        select: { idVerified: true },
+      });
+
+      return {
+        property: updated,
+        // Guests see the listing either way; the badge appears only after verification.
+        host_verified: Boolean(host?.idVerified),
+      };
+    },
+  );
 }

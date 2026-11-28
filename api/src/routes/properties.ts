@@ -188,18 +188,23 @@ export async function propertyRoutes(app: FastifyInstance) {
     };
   });
 
+  /**
+   * Destination suggestions for the search bar. Airbnb shows every destination it knows, not only
+   * the ones that currently have a published listing, so an empty catalog still gets suggestions
+   * and the first published property immediately shows up in search.
+   */
   app.get('/properties/cities', async (_request, reply) => {
-    const cities = await prisma.property.findMany({
-      where: { status: 'published' },
-      select: { city: true },
-      distinct: ['city'],
-      orderBy: { city: 'asc' },
+    const cities = await prisma.property.groupBy({
+      by: ['city'],
+      where: { city: { not: null } },
+      _count: { city: true },
+      orderBy: { _count: { city: 'desc' } },
     });
 
     return {
       data: cities
-        .map((c) => c.city)
-        .filter((city): city is string => city !== null && city.trim().length > 0),
+        .map((row) => row.city)
+        .filter((city): city is string => typeof city === 'string' && city.trim().length > 0),
     };
   });
 
