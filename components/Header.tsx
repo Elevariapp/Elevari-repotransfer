@@ -69,7 +69,7 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
 
   return (
     <header className={`elevari-header z-50 overflow-x-clip ${sticky ? 'sticky top-0' : 'relative'}`}>
-      <div className="elevari-container grid h-14 min-h-[3.5rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:h-16 lg:h-[4.25rem] lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-4">
+      <div className="elevari-container grid h-14 min-h-[3.5rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:h-16 lg:h-[4.25rem] lg:grid-cols-[auto_minmax(0,340px)_minmax(0,1fr)_auto] lg:gap-3 xl:gap-4">
         <div className="flex min-w-0 items-center justify-self-start">
           <span className="lg:hidden">
             <Logo compact onDark />
@@ -79,20 +79,19 @@ export default function Header({ sticky = true }: { sticky?: boolean }) {
           </span>
         </div>
 
-        <div className="hidden min-w-0 lg:flex items-center justify-center">
-          <GlobalSearchBar variant="compact" className="w-[300px] xl:w-[360px]" />
+        <div className="hidden min-w-0 lg:flex items-center">
+          <GlobalSearchBar variant="compact" className="w-full" />
         </div>
-        <nav className="hidden min-w-0 items-center justify-center gap-0.5 lg:flex xl:gap-1">
+        <nav className="hidden min-w-0 items-center justify-center gap-0.5 overflow-hidden lg:flex xl:gap-1">
           {navLinks.map((link) => {
             const active = link.match(pathname);
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`elevari-header-nav-link ${active ? 'elevari-header-nav-link-active' : ''}`}
+                className={`elevari-header-nav-link whitespace-nowrap ${active ? 'elevari-header-nav-link-active' : ''}`}
               >
-                <span className="xl:hidden">{navLabel(link.shortLabel)}</span>
-                <span className="hidden xl:inline">{navLabel(link.shortLabel)}</span>
+                {navLabel(link.shortLabel)}
               </Link>
             );
           })}
